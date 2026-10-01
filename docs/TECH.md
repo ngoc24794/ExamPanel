@@ -94,6 +94,29 @@ sudo apt-get install -y \
 ```
 *Note:* The Cargo workspace isolates `src-tauri` from `default-members`. Therefore, running backend tests and core solver development in headless environments requires **none** of the GUI packages above.
 
-### 3.2 Windows Development Environment
-- On Windows systems without Visual Studio C++ Build Tools (`link.exe`), the project uses `stable-x86_64-pc-windows-gnu` paired with a portable MinGW-w64 toolchain (`gcc 16.2.0`).
-- Local config is preserved in `.cargo/config.toml`.
+### 3.2 Local Setup – Windows
+- **Recommended Setup (MSVC):** Install "Visual Studio Build Tools" with the "Desktop development with C++" workload (provides `link.exe` and MSVC CRT). This matches the official CI and release build environment.
+- **Alternative Fallback Setup (GNU + portable MinGW/w64devkit):**
+  - If Visual Studio C++ Build Tools cannot be installed, developers can use the `stable-x86_64-pc-windows-gnu` Rust toolchain paired with a portable MinGW-w64 distribution (such as [w64devkit](https://github.com/skeeto/w64devkit)).
+  - Configure the linker and C compiler in your **user-level** `~/.cargo/config.toml` (located at `%USERPROFILE%\.cargo\config.toml`), **never** in repository configuration files:
+    ```toml
+    [target.x86_64-pc-windows-gnu]
+    linker = "C:\\path\\to\\w64devkit\\bin\\gcc.exe"
+    ar = "C:\\path\\to\\w64devkit\\bin\\ar.exe"
+
+    [env]
+    CC = "C:\\path\\to\\w64devkit\\bin\\gcc.exe"
+    AR = "C:\\path\\to\\w64devkit\\bin\\ar.exe"
+    ```
+  - *Note on `libgcc_eh.a`:* In some MinGW toolchain distributions when compiling C dependencies (like bundled SQLite), static unwinding requires ensuring `libgcc_eh.a` is accessible in the library path.
+  - Set the toolchain default using: `rustup default stable-x86_64-pc-windows-gnu`.
+
+---
+
+## 4. Application Icons
+- **Phase 10 TODO:** Generate production platform icons using the Tauri icon CLI:
+  ```bash
+  pnpm tauri icon <path/to/1024x1024-source.png>
+  ```
+  This will create compliant `.ico`, `.icns`, and multi-resolution PNG asset bundles across Windows, macOS, and Linux. The fake placeholder `icon.icns` was removed in Phase 2 to prevent bundle validation errors.
+
