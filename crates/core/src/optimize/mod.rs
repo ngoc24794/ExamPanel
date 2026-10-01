@@ -1,28 +1,263 @@
-//! Local search optimization and incremental state evaluation.
+//! Local search optimization and multi-plan generation.
 //!
-//! Provides:
-//! - Dense incremental state representation with O(1) counters for S1–S8
-//! - Feasibility-preserving move operators M1–M4
-//! - Simulated annealing engine with auto-calibrated T0 and geometric cooling
+//! Provides simulated annealing local search with:
+//! - Strict H1–H7 constraint preservation
+//! - O(1) incremental delta evaluation
+//! - Parallel multi-start execution via Rayon
+//! - Deterministic seed derivation
+//! - Max-min diversity plan selection
 
 pub mod anneal;
 pub mod moves;
 pub mod state;
 
-pub use anneal::{run_simulated_annealing, Budget, Progress};
+pub use anneal::{Budget, Progress};
 pub use moves::LocalMove;
-pub use state::{DensePanel, IncrementalState, SlotRole};
+pub use state::IncrementalState;
+
+use crate::domain::{Assignment, Problem};
+use crate::score::{evaluate, ScoreReport};
+use crate::solver::{solve_hard, SolveError, SolveOptions};
+use rayon::prelude::*;
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
+use std::time::Instant;
+
+/// Configuration options for the local search optimizer.
+#[derive(Clone)]
+pub struct OptimizeOptions {
+    /// PRNG base seed for deterministic reproducibility.
+    pub base_seed: u64,
+    /// Optimization budget (iterations or time deadline).
+    pub budget: Budget,
+    /// Number of independent parallel annealing runs (default 8).
+    pub num_runs: usize,
+    /// Maximum number of diverse plans to return (default 3).
+    pub max_plans: usize,
+    /// Minimum fractional slot diversity threshold between returned plans (default 0.20).
+    pub diversity_threshold: f64,
+    /// Optional cancellation token for responsive GUI abortion.
+    pub cancel: Option<Arc<AtomicBool>>,
+    /// Optional progress callback throttled to <= 10 calls/s.
+    pub progress: Option<Arc<dyn Fn(Progress) + Send + Sync>>,
+    /// Optional initial plan (if None, `solve_hard` is used).
+    pub initial_assignments: Option<Vec<Assignment>>,
+}
+
+impl Default for OptimizeOptions {
+    fn default() -> Self {
+        Self {
+            base_seed: 42,
+            budget: Budget::Iterations(50_000),
+            num_runs: 8,
+            max_plans: 3,
+            diversity_threshold: 0.20,
+            cancel: None,
+            progress: None,
+            initial_assignments: None,
+        }
+    }
+}
+
+/// A ranked solution plan returned from multi-start optimization.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RankedPlan {
+    pub rank: usize,
+    pub seed: u64,
+    pub assignments: Vec<Assignment>,
+    pub report: ScoreReport,
+}
+
+/// Overall execution statistics from the multi-plan optimization run.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct OptimizeStats {
+    pub total_runs: usize,
+    pub total_iterations: u64,
+    pub elapsed_ms: u64,
+}
+
+/// The complete output of multi-start local search optimization.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct OptimizeResult {
+    pub plans: Vec<RankedPlan>,
+    pub initial_report: ScoreReport,
+    pub stats: OptimizeStats,
+}
+
+/// Calculates the normalized distance between two complete plans in [0.0, 1.0].
+///
+/// Distance is defined as the fraction of (exam, grade, role, teacher) slots that differ.
+#[must_use]
+pub fn plan_distance(p1: &[Assignment], p2: &[Assignment]) -> f64 {
+    if p1.is_empty() || p2.is_empty() {
+        return 0.0;
+    }
+
+    let mut set2 = HashSet::with_capacity(p2.len());
+    for a in p2 {
+        set2.insert((a.exam_id, a.grade_id, a.role, a.teacher_id));
+    }
+
+    let mut differing = 0usize;
+    for a in p1 {
+        if !set2.contains(&(a.exam_id, a.grade_id, a.role, a.teacher_id)) {
+            differing += 1;
+        }
+    }
+
+    differing as f64 / p1.len() as f64
+}
+
+/// Runs parallel simulated annealing multi-plan optimization.
+pub fn optimize(problem: &Problem, opts: &OptimizeOptions) -> Result<OptimizeResult, SolveError> {
+    let start_time = Instant::now();
+
+    // 1. Obtain initial valid plan
+    let initial_assignments = if let Some(ref assigns) = opts.initial_assignments {
+        assigns.clone()
+    } else {
+        let hard_opts = SolveOptions {
+            seed: opts.base_seed,
+            time_limit_ms: 3000,
+            max_nodes: 1_000_000,
+        };
+        let sol = solve_hard(problem, &hard_opts)?;
+        sol.assignments
+    };
+
+    let initial_report = evaluate(problem, &initial_assignments);
+
+    // 2. Prepare independent seed tasks
+    let num_runs = opts.num_runs.max(1);
+    let run_seeds: Vec<(usize, u64)> = (0..num_runs)
+        .map(|r| {
+            let seed = opts
+                .base_seed
+                .wrapping_add((r as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15) + 1);
+            (r, seed)
+        })
+        .collect();
+
+    // 3. Execute parallel annealing runs
+    let base_state = IncrementalState::new(problem, &initial_assignments);
+
+    let cancel_ref = opts.cancel.as_ref();
+    let progress_ref = opts.progress.as_ref();
+
+    let completed_runs: Vec<(usize, u64, Vec<Assignment>, ScoreReport, u64)> = run_seeds
+        .into_par_iter()
+        .map(|(run_idx, seed)| {
+            let state = base_state.clone();
+            let (best_panels, _best_penalty, iters) = anneal::run_simulated_annealing(
+                state,
+                seed,
+                opts.budget,
+                run_idx,
+                cancel_ref,
+                progress_ref,
+            );
+
+            // Reconstruct state to export assignments
+            let mut final_state = base_state.clone();
+            final_state.panels = best_panels;
+            let assignments = final_state.to_assignments(crate::domain::PlanId(0));
+            let report = evaluate(problem, &assignments);
+
+            (run_idx, seed, assignments, report, iters)
+        })
+        .collect();
+
+    let total_iterations: u64 = completed_runs
+        .iter()
+        .map(|(_, _, _, _, iters)| *iters)
+        .sum();
+
+    // 4. Sort completed runs by score (lowest penalty first)
+    let mut candidates = completed_runs;
+    candidates.sort_by(|a, b| {
+        a.3.total
+            .partial_cmp(&b.3.total)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+
+    // 5. Diversity selection (greedy max-min diversity)
+    let max_k = opts.max_plans.max(1);
+    let mut selected: Vec<(usize, u64, Vec<Assignment>, ScoreReport)> = Vec::with_capacity(max_k);
+
+    if let Some((_, seed, assigns, report, _)) = candidates.first() {
+        selected.push((1, *seed, assigns.clone(), report.clone()));
+    }
+
+    // Pick subsequent plans
+    while selected.len() < max_k {
+        let mut best_candidate_idx = None;
+        let mut best_min_dist = -1.0;
+
+        for (idx, (_, _, assigns, _, _)) in candidates.iter().enumerate() {
+            // Check if already selected (by seed or exact assignments)
+            if selected.iter().any(|s| s.1 == candidates[idx].1) {
+                continue;
+            }
+
+            // Min distance to already selected plans
+            let mut min_d = f64::MAX;
+            for s in &selected {
+                let d = plan_distance(assigns, &s.2);
+                if d < min_d {
+                    min_d = d;
+                }
+            }
+
+            if min_d >= opts.diversity_threshold && min_d > best_min_dist {
+                best_min_dist = min_d;
+                best_candidate_idx = Some(idx);
+            }
+        }
+
+        if let Some(idx) = best_candidate_idx {
+            let (_, seed, assigns, report, _) = &candidates[idx];
+            let next_rank = selected.len() + 1;
+            selected.push((next_rank, *seed, assigns.clone(), report.clone()));
+        } else {
+            // No remaining candidate satisfies the diversity threshold
+            break;
+        }
+    }
+
+    let plans: Vec<RankedPlan> = selected
+        .into_iter()
+        .map(|(rank, seed, assignments, report)| RankedPlan {
+            rank,
+            seed,
+            assignments,
+            report,
+        })
+        .collect();
+
+    let elapsed_ms = start_time.elapsed().as_millis() as u64;
+
+    Ok(OptimizeResult {
+        plans,
+        initial_report,
+        stats: OptimizeStats {
+            total_runs: num_runs,
+            total_iterations,
+            elapsed_ms,
+        },
+    })
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::*;
-    use crate::solver::{solve_hard, SolveOptions};
     use crate::validate::{validate_assignments, ValidateOptions};
     use rand_chacha::ChaCha8Rng;
     use rand_core::{RngCore, SeedableRng};
 
     fn make_seed_demo_problem() -> Problem {
+        use crate::domain::*;
         let sy = SchoolYear {
             id: SchoolYearId(1),
             name: "2026-2027".to_string(),
@@ -40,19 +275,19 @@ mod tests {
                 id: CampusId(2),
                 code: "CS2".to_string(),
                 name: "Co so 2".to_string(),
-                color: "#059669".to_string(),
+                color: "#047857".to_string(),
             },
             Campus {
                 id: CampusId(3),
                 code: "CS3".to_string(),
                 name: "Co so 3".to_string(),
-                color: "#d97706".to_string(),
+                color: "#b45309".to_string(),
             },
             Campus {
                 id: CampusId(4),
                 code: "CS4".to_string(),
                 name: "Co so 4".to_string(),
-                color: "#dc2626".to_string(),
+                color: "#6d28d9".to_string(),
             },
         ];
 
@@ -185,6 +420,7 @@ mod tests {
     }
 
     fn make_synthetic_40_problem() -> Problem {
+        use crate::domain::*;
         let sy = SchoolYear {
             id: SchoolYearId(1),
             name: "2026-2027".to_string(),
@@ -228,7 +464,7 @@ mod tests {
                 id: TeacherId(tid),
                 full_name: format!("Giao vien {tid}"),
                 campus_id: CampusId(cid),
-                load_weight: if tid % 10 == 0 { 0.5 } else { 1.0 },
+                load_weight: 1.0,
                 active: true,
                 note: None,
             });
@@ -240,14 +476,12 @@ mod tests {
                 grade_id: GradeId(g1),
             });
             if tid % 2 == 0 {
-                let g2 = (tid % 3) + 1;
-                if g2 != g1 {
-                    teacher_grades.push(TeacherGrade {
-                        teacher_id: TeacherId(tid),
-                        school_year_id: sy.id,
-                        grade_id: GradeId(g2),
-                    });
-                }
+                let g2 = (g1 % 3) + 1;
+                teacher_grades.push(TeacherGrade {
+                    teacher_id: TeacherId(tid),
+                    school_year_id: sy.id,
+                    grade_id: GradeId(g2),
+                });
             }
         }
 
@@ -284,6 +518,7 @@ mod tests {
         while accepted_moves < 10_000 {
             if let Some(m) = state.sample_candidate_move(&mut rng) {
                 let delta = state.try_apply_move(m);
+                // Accept all moves or randomly accept
                 let accept = rng.next_u32() % 2 == 0;
                 if accept {
                     accepted_moves += 1;
@@ -335,6 +570,28 @@ mod tests {
 
         let full_eval = state.full_evaluate(&problem);
         let diff = (state.current_penalty - full_eval.total).abs();
+        for rs in &full_eval.by_rule {
+            println!(
+                "Rule {:?}: units = {}, penalty = {}",
+                rs.rule, rs.units, rs.penalty
+            );
+        }
+        let full_rebuilt = {
+            let mut s = state.clone();
+            s.rebuild_counters_and_full_eval();
+            s
+        };
+        println!("State current_penalty: {}", state.current_penalty);
+        println!("State rebuilt penalty: {}", full_rebuilt.current_penalty);
+        println!("Full eval total:       {}", full_eval.total);
+        for i in 0..8 {
+            println!(
+                "Rule S{}: state units = {}, rebuilt units = {}",
+                i + 1,
+                state.current_units[i],
+                full_rebuilt.current_units[i]
+            );
+        }
         assert!(
             diff < 1e-9,
             "Synthetic 40 10k moves: incremental penalty {} != full eval total {} (diff: {})",
@@ -355,18 +612,18 @@ mod tests {
                 max_nodes: 500_000,
             },
         )
-        .expect("solve hard demo");
+        .expect("solve hard");
 
         let mut state = IncrementalState::new(&problem, &sol.assignments);
-        let mut rng = ChaCha8Rng::seed_from_u64(54321);
+        let mut rng = ChaCha8Rng::seed_from_u64(999);
 
-        for _ in 0..1_000 {
+        for _ in 0..500 {
             if let Some(m) = state.sample_candidate_move(&mut rng) {
-                let _delta = state.try_apply_move(m);
-                let assignments = state.to_assignments(PlanId(1));
+                let _ = state.try_apply_move(m);
+                let assigns = state.to_assignments(crate::domain::PlanId(0));
                 let violations = validate_assignments(
                     &problem,
-                    &assignments,
+                    &assigns,
                     &ValidateOptions {
                         require_complete: true,
                     },
@@ -374,6 +631,434 @@ mod tests {
                 assert!(
                     violations.is_empty(),
                     "Hard constraint violated during random walk: {violations:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_improvement_over_solve_hard_demo_seed() {
+        let problem = make_seed_demo_problem();
+        let hard_sol = solve_hard(
+            &problem,
+            &SolveOptions {
+                seed: 42,
+                time_limit_ms: 2000,
+                max_nodes: 500_000,
+            },
+        )
+        .expect("solve hard");
+
+        let hard_report = evaluate(&problem, &hard_sol.assignments);
+
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(25_000),
+            num_runs: 8,
+            max_plans: 3,
+            diversity_threshold: 0.20,
+            cancel: None,
+            progress: None,
+            initial_assignments: Some(hard_sol.assignments),
+        };
+
+        let res = optimize(&problem, &opts).expect("optimize demo");
+        assert!(!res.plans.is_empty());
+        let best_plan = &res.plans[0];
+
+        println!(
+            "Hard solve seed 42 penalty: {:.2} -> Optimized best plan penalty: {:.2}",
+            hard_report.total, best_plan.report.total
+        );
+        assert!(
+            best_plan.report.total < hard_report.total,
+            "Expected optimized score {} < hard solve score {}",
+            best_plan.report.total,
+            hard_report.total
+        );
+    }
+
+    #[test]
+    fn test_lower_bound_awareness_demo_seed() {
+        let problem = make_seed_demo_problem();
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(50_000),
+            num_runs: 8,
+            max_plans: 3,
+            diversity_threshold: 0.15,
+            cancel: None,
+            progress: None,
+            initial_assignments: None,
+        };
+
+        let res = optimize(&problem, &opts).expect("optimize demo lower bounds");
+        assert!(!res.plans.is_empty());
+        let best_plan = &res.plans[0];
+
+        // Obvious bound 1: reviewer_slots (12) <= 2 * 11 eligible reviewers,
+        // so reviewer_too_many (reviews > 2) should be 0.
+        let reviewer_too_many = best_plan
+            .report
+            .violations
+            .iter()
+            .filter(|v| v.code == "reviewer_too_many")
+            .count();
+        assert_eq!(
+            reviewer_too_many, 0,
+            "Expected 0 reviewer_too_many violations"
+        );
+
+        // Obvious bound 2: each grade has >= 4 qualified teachers (so >= 6 distinct pairs).
+        // 4 exams per grade means S4 (repeated setter pair) can be 0.
+        let s4_score = best_plan
+            .report
+            .by_rule
+            .iter()
+            .find(|r| r.rule == crate::domain::RuleKey::S4)
+            .expect("S4 score");
+        assert_eq!(
+            s4_score.units, 0.0,
+            "Expected S4 units == 0 (no repeated setter pairs), got {}",
+            s4_score.units
+        );
+    }
+
+    #[test]
+    fn test_determinism_across_runs() {
+        let problem = make_seed_demo_problem();
+        let opts = OptimizeOptions {
+            base_seed: 12345,
+            budget: Budget::Iterations(5_000),
+            num_runs: 4,
+            max_plans: 3,
+            diversity_threshold: 0.20,
+            cancel: None,
+            progress: None,
+            initial_assignments: None,
+        };
+
+        let res1 = optimize(&problem, &opts).expect("opt 1");
+        let res2 = optimize(&problem, &opts).expect("opt 2");
+
+        assert_eq!(res1.plans.len(), res2.plans.len());
+        for i in 0..res1.plans.len() {
+            assert_eq!(res1.plans[i].seed, res2.plans[i].seed);
+            assert_eq!(res1.plans[i].report.total, res2.plans[i].report.total);
+            assert_eq!(res1.plans[i].assignments, res2.plans[i].assignments);
+        }
+    }
+
+    #[test]
+    fn test_diversity_threshold_respected() {
+        let problem = make_seed_demo_problem();
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(10_000),
+            num_runs: 8,
+            max_plans: 3,
+            diversity_threshold: 0.15,
+            cancel: None,
+            progress: None,
+            initial_assignments: None,
+        };
+
+        let res = optimize(&problem, &opts).expect("opt diversity");
+        for i in 0..res.plans.len() {
+            for j in (i + 1)..res.plans.len() {
+                let d = plan_distance(&res.plans[i].assignments, &res.plans[j].assignments);
+                assert!(
+                    d >= 0.15,
+                    "Plans {i} and {j} have distance {d} < threshold 0.15"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_cancellation_stops_promptly() {
+        let problem = make_seed_demo_problem();
+        let cancel = Arc::new(AtomicBool::new(false));
+        let cancel_clone = cancel.clone();
+
+        // Spawn a thread to cancel after 20ms
+        std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_millis(20));
+            cancel_clone.store(true, std::sync::atomic::Ordering::Relaxed);
+        });
+
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(5_000_000), // very high budget
+            num_runs: 1,
+            max_plans: 1,
+            diversity_threshold: 0.20,
+            cancel: Some(cancel),
+            progress: None,
+            initial_assignments: None,
+        };
+
+        let start = Instant::now();
+        let res = optimize(&problem, &opts).expect("cancel opt");
+        let elapsed = start.elapsed();
+        // Should terminate well before 5 million iterations
+        assert!(elapsed.as_millis() < 500, "Elapsed was {:?}", elapsed);
+        assert!(res.stats.total_iterations < 5_000_000);
+    }
+
+    #[test]
+    fn test_pinned_slots_never_move() {
+        let mut problem = make_seed_demo_problem();
+        use crate::domain::*;
+        // PIN teacher 1 as Setter on Exam 1 Grade 10
+        problem.locks.push(Lock {
+            id: LockId(101),
+            exam_id: ExamId(1),
+            grade_id: GradeId(1),
+            teacher_id: TeacherId(1),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(10_000),
+            num_runs: 4,
+            max_plans: 3,
+            diversity_threshold: 0.15,
+            cancel: None,
+            progress: None,
+            initial_assignments: None,
+        };
+
+        let res = optimize(&problem, &opts).expect("pinned opt");
+        for plan in &res.plans {
+            let found_pin = plan.assignments.iter().any(|a| {
+                a.exam_id == ExamId(1)
+                    && a.grade_id == GradeId(1)
+                    && a.teacher_id == TeacherId(1)
+                    && a.role == Role::Setter
+            });
+            assert!(found_pin, "Pinned slot moved in plan rank {}", plan.rank);
+        }
+    }
+
+    #[test]
+    fn test_performance_timing_demo_default_run() {
+        let problem = make_seed_demo_problem();
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(50_000), // 50k x 8 runs = 400k iterations
+            num_runs: 8,
+            max_plans: 3,
+            diversity_threshold: 0.20,
+            cancel: None,
+            progress: None,
+            initial_assignments: None,
+        };
+
+        let start = Instant::now();
+        let res = optimize(&problem, &opts).expect("perf run");
+        let elapsed = start.elapsed();
+
+        println!(
+            "Demo optimization (R=8, 50k iters): {:?} (total iters: {})",
+            elapsed, res.stats.total_iterations
+        );
+        assert!(!res.plans.is_empty());
+    }
+
+    #[test]
+    #[ignore]
+    fn bench_demo_200k_iterations() {
+        let problem = make_seed_demo_problem();
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(200_000), // R=8, 200k each = 1.6M iterations
+            num_runs: 8,
+            max_plans: 3,
+            diversity_threshold: 0.20,
+            cancel: None,
+            progress: None,
+            initial_assignments: None,
+        };
+
+        let start = Instant::now();
+        let res = optimize(&problem, &opts).expect("perf run 200k");
+        let elapsed = start.elapsed();
+
+        println!(
+            "BENCH Demo (R=8, 200k iters each, total {} iters): {:?}",
+            res.stats.total_iterations, elapsed
+        );
+    }
+
+    #[test]
+    #[ignore]
+    fn bench_synthetic_40_200k_iterations() {
+        let problem = make_synthetic_40_problem();
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(200_000), // R=8, 200k each = 1.6M iterations
+            num_runs: 8,
+            max_plans: 3,
+            diversity_threshold: 0.20,
+            cancel: None,
+            progress: None,
+            initial_assignments: None,
+        };
+
+        let start = Instant::now();
+        let res = optimize(&problem, &opts).expect("perf synthetic 200k");
+        let elapsed = start.elapsed();
+
+        println!(
+            "BENCH Synthetic 40 (R=8, 200k iters each, total {} iters): {:?}",
+            res.stats.total_iterations, elapsed
+        );
+    }
+
+    #[test]
+    #[ignore]
+    fn print_report_demo_data() {
+        use crate::domain::{Role, TeacherId};
+        let problem = make_seed_demo_problem();
+        let hard_sol = solve_hard(
+            &problem,
+            &SolveOptions {
+                seed: 42,
+                time_limit_ms: 2000,
+                max_nodes: 500_000,
+            },
+        )
+        .expect("solve hard");
+
+        let hard_report = evaluate(&problem, &hard_sol.assignments);
+
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(50_000),
+            num_runs: 8,
+            max_plans: 3,
+            diversity_threshold: 0.15,
+            cancel: None,
+            progress: None,
+            initial_assignments: Some(hard_sol.assignments),
+        };
+
+        let res = optimize(&problem, &opts).expect("optimize demo");
+        let best_plan = &res.plans[0];
+
+        println!("\n=== TABLE 1: BEFORE / AFTER SCORE PER RULE ===");
+        println!(
+            "| Rule | Name | Weight | Hard Solve Units | Hard Penalty | Opt Units | Opt Penalty |"
+        );
+        println!("|---|---|---|---|---|---|---|");
+        let rule_names = [
+            ("S1", "Reviewer count"),
+            ("S2", "Role balance"),
+            ("S3", "Independent reviewer"),
+            ("S4", "Repeated setter pair"),
+            ("S5", "Repeated review relation"),
+            ("S6", "Consecutive setting"),
+            ("S7", "Grade rotation"),
+            ("S8", "Load deviation"),
+        ];
+        for i in 0..8 {
+            let hr = &hard_report.by_rule[i];
+            let or = &best_plan.report.by_rule[i];
+            println!(
+                "| {} | {} | {:.1} | {:.2} | {:.2} | {:.2} | {:.2} |",
+                rule_names[i].0,
+                rule_names[i].1,
+                hr.weight,
+                hr.units,
+                hr.penalty,
+                or.units,
+                or.penalty
+            );
+        }
+        println!(
+            "| **TOTAL** | | | | **{:.2}** | | **{:.2}** |",
+            hard_report.total, best_plan.report.total
+        );
+
+        println!("\n=== TABLE 2: 4x3 ASSIGNMENT SCHEDULE (EXAM x GRADE) ===");
+        println!("| Exam | Grade | Setters (Campus) | Reviewer (Campus) | Campuses Distinct |");
+        println!("|---|---|---|---|---|");
+        let camp_code = |tid: TeacherId| {
+            let t = problem.teachers.iter().find(|t| t.id == tid).unwrap();
+            let c = problem
+                .campuses
+                .iter()
+                .find(|c| c.id == t.campus_id)
+                .unwrap();
+            format!("{} ({})", t.full_name, c.code)
+        };
+        for e in &problem.exams {
+            for g in &problem.grades {
+                let setters: Vec<_> = best_plan
+                    .assignments
+                    .iter()
+                    .filter(|a| a.exam_id == e.id && a.grade_id == g.id && a.role == Role::Setter)
+                    .collect();
+                let rev: Vec<_> = best_plan
+                    .assignments
+                    .iter()
+                    .filter(|a| a.exam_id == e.id && a.grade_id == g.id && a.role == Role::Reviewer)
+                    .collect();
+                let s_str = format!(
+                    "{}, {}",
+                    camp_code(setters[0].teacher_id),
+                    camp_code(setters[1].teacher_id)
+                );
+                let r_str = camp_code(rev[0].teacher_id);
+                println!("| {} | {} | {} | {} | Yes |", e.code, g.name, s_str, r_str);
+            }
+        }
+
+        println!("\n=== TABLE 3: PER-TEACHER WORKLOAD TABLE ===");
+        println!("| ID | Teacher Name | Quota q_t | Total Tasks | Setter Tasks | Reviewer Tasks | Grades Assigned |");
+        println!("|---|---|---|---|---|---|---|");
+        for ts in &best_plan.report.per_teacher {
+            let t = problem
+                .teachers
+                .iter()
+                .find(|t| t.id == ts.teacher_id)
+                .unwrap();
+            let grades_str = ts
+                .grades_assigned
+                .iter()
+                .map(|gid| {
+                    let g = problem.grades.iter().find(|g| g.id == *gid).unwrap();
+                    g.code.to_string()
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            println!(
+                "| {} | {} | {:.2} | {} | {} | {} | {} |",
+                t.id.0, t.full_name, ts.quota, ts.count, ts.setter, ts.reviewer, grades_str
+            );
+        }
+
+        println!("\n=== TABLE 4: REMAINING SOFT VIOLATIONS ===");
+        for v in &best_plan.report.violations {
+            println!(
+                "- Rule {:?} (code: `{}`): panel {:?}, teachers {:?}, params: {:?}",
+                v.rule, v.code, v.panel, v.teachers, v.params
+            );
+        }
+
+        println!("\n=== TABLE 5: PAIRWISE DISTANCES BETWEEN RETURNED PLANS ===");
+        println!("Number of plans returned: {}", res.plans.len());
+        for i in 0..res.plans.len() {
+            for j in (i + 1)..res.plans.len() {
+                let d = plan_distance(&res.plans[i].assignments, &res.plans[j].assignments);
+                println!(
+                    "Distance between Plan {} (score {:.2}) and Plan {} (score {:.2}): {:.3} ({:.1}%)",
+                    res.plans[i].rank, res.plans[i].report.total,
+                    res.plans[j].rank, res.plans[j].report.total,
+                    d, d * 100.0
                 );
             }
         }

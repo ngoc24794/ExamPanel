@@ -90,5 +90,17 @@
 - **Decision:** Introduce soft constraint S8 (`load_deviation`) with quadratic unit penalty $(count_t - q_t)^2$ and default weight 8.0. Maintain forward compatibility in storage by populating S8 defaults when loading problem snapshots and inserting S8 during school year creation.
 - **Consequences:** Strongly biases local search optimization toward exact workload equity across all teachers, even when $k \ge 1$.
 
+## ADR-0016: Deterministic Parallel Seeding for Multi-Run Local Search
+- **Status:** Accepted
+- **Context:** Local search (Simulated Annealing) explores stochastic neighborhoods. To deliver diverse, high-quality plans, multiple independent runs ($R = 8$) are executed in parallel across CPU cores. If thread scheduling or system entropy affects RNG seeds, repeated runs with the same user configuration would yield non-deterministic results, complicating testing, quality audits, and user reproducibility.
+- **Decision:** Derive run seeds deterministically from a single `base_seed`: for run index $i \in [0, R-1]$, initialize PRNG with `base_seed.wrapping_add(i as u64 * 0x9E3779B97F4A7C15 + 1)`. Under iteration budgets, each SA trajectory executes identical moves regardless of thread allocation or execution order.
+- **Consequences:** 100% reproducible optimization outputs, deterministic test suites, and embarrassingly parallel multi-core scaling via Rayon.
+
+## ADR-0017: Greedy Max-Min Diversity Selection for Multi-Plan Output
+- **Status:** Accepted
+- **Context:** Presenting $R = 8$ solutions directly to human academic coordinators overwhelms decision-making. Presenting only the top-scoring plans often results in near-identical solutions that differ by only a single slot swap.
+- **Decision:** Select up to $K = 3$ plans using greedy max-min diversity distance with a minimum diversity threshold $\tau = 0.20$ (at least 20% of panel assignment slots must differ). The global best-scoring plan is always selected as Rank 1. Successive plans are selected from the remaining candidate pool to maximize the minimum distance to already-selected plans, subject to $d(P, P_j) \ge \tau$. If fewer than $K$ plans satisfy the threshold, return only the qualifying plans.
+- **Consequences:** Users receive genuinely distinct scheduling alternatives representing different operational trade-offs rather than cosmetic variations.
+
 
 
