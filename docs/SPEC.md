@@ -130,13 +130,52 @@ Soft constraints guide schedule quality. Each constraint can be individually ena
 ---
 
 ## 4. Pre-Solve Feasibility Verification
-Before launching the compute-intensive solver, a deterministic pre-check verifies whether input parameters permit a valid solution:
-1. **Teacher Roster Adequacy**: For every `(Exam, Grade)` pair, there must be at least 3 qualified, available teachers belonging to at least 2 distinct campuses.
-2. **Quota Consistency**: The total demand of panel slots (`panels × 3`) must be mathematically satisfiable by the aggregate available teacher quotas.
-3. **Lock Consistency**:
-   - Conflicting locks (e.g. `PIN` and `FORBID` on the same teacher/panel) are detected.
-   - At most 2 `PIN` setters and at most 1 `PIN` reviewer per panel.
-4. **Actionable Error Reporting**: If a violation is found, the system halts and returns a localized, parameterized error message (e.g., `CK2 – Grade 12: only 2 teachers available from 1 campus`).
+Before launching the constructive solver, a deterministic pre-check verifies whether input parameters mathematically permit a valid solution.
+> **Note:** These checks are **necessary conditions**; passing them does not guarantee that a valid schedule exists, but failing any check guarantees infeasibility.
+
+### 4.1 Verification Stages
+1. **F1 Structural Integrity**: Snapshot validation (`Problem::validate()`).
+2. **F2 Per-Panel Adequacy**: Each panel must have $\ge 2$ setter-eligible, $\ge 1$ reviewer-eligible, $\ge 3$ distinct eligible teachers, and the eligible set must span $\ge 2$ distinct campuses.
+3. **F3 Lock Consistency**:
+   - `PIN` and `FORBID` conflict detection for the same teacher on the same panel.
+   - Panel lock limits ($\le 2$ pinned setters, $\le 1$ pinned reviewer, $\le 3$ pins total).
+   - Ineligible pinned teachers (not teaching grade, unavailable for exam term, inactive, or load weight 0).
+   - Teacher pinned in multiple panels of the same exam period when H4 is enabled.
+   - Pinned campus monopoly (3 pins in a panel from the same campus).
+   - Teacher pins exceeding their calculated upper quota $hi_t$.
+4. **F4 Capacity & Max-Flow**:
+   - Aggregate capacity bounds: $\sum lo_t \le D \le \sum hi_t$.
+   - Per-exam bottleneck max-flow under H4: constructs a bipartite network ($S \to \text{teachers with cap 1} \to \text{eligible panels of exam with cap 1} \to \text{panels with cap 3} \to T$) using Dinic's algorithm to prove whether all panels of the exam can be simultaneously staffed.
+5. **Non-blocking Warnings**:
+   - Panels with exactly 3 eligible teachers (tight margin).
+   - Teachers with $q_t > 0$ eligible for only a single panel.
+   - Restricted reviewer-eligible pool (affects soft rule S1).
+
+### 4.2 Diagnostic Code Catalog
+
+| Category | Diagnostic Code | Severity | Description | Interpolated Parameters |
+|----------|-----------------|----------|-------------|-------------------------|
+| **F1** | `structural_error` | Error | Structural data inconsistency in snapshot | `message` |
+| **F2** | `insufficient_setters` | Error | Fewer than 2 setter-eligible teachers for panel | `exam`, `grade`, `count` |
+| **F2** | `insufficient_reviewers` | Error | No reviewer-eligible teachers for panel | `exam`, `grade`, `count` |
+| **F2** | `insufficient_panel_teachers` | Error | Fewer than 3 distinct eligible teachers for panel | `exam`, `grade`, `count` |
+| **F2** | `insufficient_campuses` | Error | Eligible teachers span fewer than 2 campuses | `exam`, `grade`, `count` |
+| **F3** | `lock_conflict` | Error | Teacher has both PIN and FORBID locks on panel | `exam`, `grade` |
+| **F3** | `excess_pinned_setters` | Error | Panel has more than 2 pinned setters | `exam`, `grade`, `count` |
+| **F3** | `excess_pinned_reviewers` | Error | Panel has more than 1 pinned reviewer | `exam`, `grade`, `count` |
+| **F3** | `excess_pins_in_panel` | Error | Panel has more than 3 total pinned teachers | `exam`, `grade`, `count` |
+| **F3** | `pinned_teacher_ineligible` | Error | Pinned teacher is unqualified, unavailable, or inactive | `exam`, `grade` |
+| **F3** | `pinned_teacher_multiple_panels` | Error | Teacher pinned in multiple panels of one exam under H4 | `exam`, `count` |
+| **F3** | `pinned_campus_monopoly` | Error | All 3 pinned teachers belong to the same campus | `exam`, `grade` |
+| **F3** | `pinned_quota_exceeded` | Error | Pinned assignments exceed teacher's max quota ($hi_t$) | `count`, `hi` |
+| **F4** | `insufficient_total_capacity` | Error | Aggregate max capacity ($\sum hi$) is less than total slots $D$ | `total_slots`, `max_capacity` |
+| **F4** | `excess_minimum_capacity` | Error | Aggregate min capacity ($\sum lo$) exceeds total slots $D$ | `total_slots`, `min_capacity` |
+| **F4** | `exam_capacity_infeasible` | Error | Max-flow through exam is strictly less than required slots | `exam`, `max_flow`, `required` |
+| **F4** | `panel_unfillable_under_h4` | Error | Panel cannot reach 3 assignments under single-panel rule H4 | `exam`, `grade`, `flow`, `required` |
+| **Warn** | `tight_panel_roster` | Warning | Panel has exactly 3 eligible teachers (zero substitution slack) | `exam`, `grade`, `count` |
+| **Warn** | `teacher_single_panel_eligibility` | Warning | Teacher with positive quota is eligible for only 1 panel | `teacher_name`, `count` |
+| **Warn** | `restricted_reviewer_pool` | Warning | Total reviewer-eligible teachers is less than active staff | `reviewer_count`, `teacher_count` |
+
 
 ---
 

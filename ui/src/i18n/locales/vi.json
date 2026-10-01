@@ -73,5 +73,27 @@
   "settings": {
     "title": "Cài đặt Hệ thống",
     "description": "Đường dẫn cơ sở dữ liệu SQLite di động, tham số giải thuật và tùy chọn hiển thị."
+  },
+  "diagnostics": {
+    "structural_error": "Lỗi cấu trúc dữ liệu: {{message}}",
+    "insufficient_setters": "{{exam}} – Khối {{grade}}: chỉ có {{count}} giáo viên đủ điều kiện ra đề (yêu cầu tối thiểu 2)",
+    "insufficient_reviewers": "{{exam}} – Khối {{grade}}: chỉ có {{count}} giáo viên đủ điều kiện phản biện (yêu cầu tối thiểu 1)",
+    "insufficient_panel_teachers": "{{exam}} – Khối {{grade}}: chỉ có {{count}} giáo viên khả dụng (yêu cầu tối thiểu 3)",
+    "insufficient_campuses": "{{exam}} – Khối {{grade}}: các giáo viên khả dụng chỉ thuộc {{count}} cơ sở (yêu cầu tối thiểu 2 cơ sở)",
+    "lock_conflict": "{{exam}} – Khối {{grade}}: xung đột khóa PIN và FORBID cho cùng một giáo viên",
+    "excess_pinned_setters": "{{exam}} – Khối {{grade}}: có {{count}} giáo viên bị ghim vai trò ra đề (tối đa 2)",
+    "excess_pinned_reviewers": "{{exam}} – Khối {{grade}}: có {{count}} giáo viên bị ghim vai trò phản biện (tối đa 1)",
+    "excess_pins_in_panel": "{{exam}} – Khối {{grade}}: có {{count}} lượt ghim vào hội đồng (tối đa 3)",
+    "pinned_teacher_ineligible": "{{exam}} – Khối {{grade}}: giáo viên được ghim không đủ điều kiện (không dạy khối, bận thi, hoặc tạm dừng)",
+    "pinned_teacher_multiple_panels": "{{exam}}: giáo viên được ghim vào {{count}} hội đồng trong cùng kỳ thi (vi phạm quy tắc H4)",
+    "pinned_campus_monopoly": "{{exam}} – Khối {{grade}}: cả 3 giáo viên được ghim đều thuộc cùng 1 cơ sở (vi phạm đa dạng cơ sở H3)",
+    "pinned_quota_exceeded": "Giáo viên có {{count}} lượt ghim, vượt quá hạn mức tối đa cho phép ({{hi}})",
+    "insufficient_total_capacity": "Tổng hạn mức tối đa của tất cả giáo viên ({{max_capacity}}) không đủ cho tổng số vị trí hội đồng ({{total_slots}})",
+    "excess_minimum_capacity": "Tổng hạn mức tối thiểu của tất cả giáo viên ({{min_capacity}}) vượt quá tổng số vị trí hội đồng ({{total_slots}})",
+    "exam_capacity_infeasible": "{{exam}}: chỉ đáp ứng tối đa {{max_flow}} / {{required}} vị trí dưới quy tắc mỗi giáo viên tối đa 1 hội đồng",
+    "panel_unfillable_under_h4": "{{exam}} – Khối {{grade}}: không thể lấp đầy hội đồng dưới quy tắc H4 (chỉ đạt {{flow}} / {{required}})",
+    "tight_panel_roster": "{{exam}} – Khối {{grade}}: danh sách khả dụng chỉ vừa đủ {{count}} giáo viên (không có dự phòng)",
+    "teacher_single_panel_eligibility": "Giáo viên {{teacher_name}} chỉ đủ điều kiện tham gia duy nhất {{count}} hội đồng trong cả năm",
+    "restricted_reviewer_pool": "Số lượng giáo viên đủ điều kiện phản biện ({{reviewer_count}}) ít hơn tổng số giáo viên ({{teacher_count}})"
   }
 }

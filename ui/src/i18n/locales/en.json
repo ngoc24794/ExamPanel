@@ -73,5 +73,27 @@
   "settings": {
     "title": "System Settings",
     "description": "Configure portable SQLite database path, solver parameters, and UI preferences."
+  },
+  "diagnostics": {
+    "structural_error": "Structural data error: {{message}}",
+    "insufficient_setters": "{{exam}} – Grade {{grade}}: only {{count}} teachers eligible as setter (minimum 2 required)",
+    "insufficient_reviewers": "{{exam}} – Grade {{grade}}: only {{count}} teachers eligible as reviewer (minimum 1 required)",
+    "insufficient_panel_teachers": "{{exam}} – Grade {{grade}}: only {{count}} available teachers (minimum 3 required)",
+    "insufficient_campuses": "{{exam}} – Grade {{grade}}: available teachers belong to only {{count}} campus (minimum 2 campuses required)",
+    "lock_conflict": "{{exam}} – Grade {{grade}}: conflicting PIN and FORBID locks for the same teacher",
+    "excess_pinned_setters": "{{exam}} – Grade {{grade}}: {{count}} teachers pinned as setter (maximum 2 allowed)",
+    "excess_pinned_reviewers": "{{exam}} – Grade {{grade}}: {{count}} teachers pinned as reviewer (maximum 1 allowed)",
+    "excess_pins_in_panel": "{{exam}} – Grade {{grade}}: {{count}} pinned assignments in panel (maximum 3 allowed)",
+    "pinned_teacher_ineligible": "{{exam}} – Grade {{grade}}: pinned teacher is ineligible (does not teach grade, unavailable, or inactive)",
+    "pinned_teacher_multiple_panels": "{{exam}}: teacher is pinned to {{count}} panels in the same exam period (violates rule H4)",
+    "pinned_campus_monopoly": "{{exam}} – Grade {{grade}}: all 3 pinned teachers belong to the same campus (violates campus diversity H3)",
+    "pinned_quota_exceeded": "Teacher has {{count}} pinned assignments, exceeding maximum quota ({{hi}})",
+    "insufficient_total_capacity": "Total maximum capacity across all teachers ({{max_capacity}}) is less than required slots ({{total_slots}})",
+    "excess_minimum_capacity": "Total minimum capacity across all teachers ({{min_capacity}}) exceeds required slots ({{total_slots}})",
+    "exam_capacity_infeasible": "{{exam}}: maximum achievable assignment flow is {{max_flow}} / {{required}} under single-panel-per-exam rule",
+    "panel_unfillable_under_h4": "{{exam}} – Grade {{grade}}: panel cannot be filled under single-panel-per-exam rule (achieved {{flow}} / {{required}})",
+    "tight_panel_roster": "{{exam}} – Grade {{grade}}: roster has exactly {{count}} eligible teachers (no substitution margin)",
+    "teacher_single_panel_eligibility": "Teacher {{teacher_name}} is eligible for only {{count}} panel across the academic year",
+    "restricted_reviewer_pool": "Number of reviewer-eligible teachers ({{reviewer_count}}) is less than total teachers ({{teacher_count}})"
   }
 }
