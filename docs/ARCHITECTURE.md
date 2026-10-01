@@ -1,0 +1,130 @@
+# ExamPanel Architecture Documentation
+
+## 1. System Overview
+ExamPanel is architected as a modular, decoupled desktop application separating pure domain algorithms, data persistence, the platform shell, and the user interface.
+
+```mermaid
+flowchart TD
+    subgraph Frontend["Frontend Layer (React + TypeScript)"]
+        UI[UI Components & Layout]
+        State[State & Hooks]
+        I18n[i18n: vi / en]
+        API_LAYER[ExamPanelApi Interface]
+        MOCK[Mock Implementation]
+        TAURI_CLIENT[Tauri IPC Client]
+
+        UI --> State
+        UI --> I18n
+        State --> API_LAYER
+        API_LAYER -->|Browser Dev| MOCK
+        API_LAYER -->|Desktop App| TAURI_CLIENT
+    end
+
+    subgraph Shell["Desktop Shell (Tauri 2)"]
+        TAURI_SHELL[src-tauri Shell]
+        IPC_HANDLERS[Tauri Command Handlers]
+
+        TAURI_CLIENT -.->|IPC Invoke| IPC_HANDLERS
+        IPC_HANDLERS --> TAURI_SHELL
+    end
+
+    subgraph Backend["Rust Workspace Backend"]
+        CORE[crates/core\nDomain + Feasibility + Solver\nPure Rust, No Tauri/DB]
+        STORAGE[crates/storage\nSQLite + Migrations + Paths\nPortable Path Resolution]
+
+        TAURI_SHELL --> CORE
+        TAURI_SHELL --> STORAGE
+        STORAGE -.->|References Domain Types| CORE
+    end
+
+    subgraph StorageEngine["Local File System"]
+        DB[(exam-panel.db SQLite)]
+        STORAGE --> DB
+    end
+```
+
+---
+
+## 2. Layer Responsibilities & Boundaries
+
+### 2.1 `crates/core` (Domain & Algorithm Core)
+- **Zero External Shell / DB Dependencies:** Does not depend on `tauri`, `rusqlite`, or any I/O framework.
+- **Components:**
+  - `domain`: Core immutable domain types (`Teacher`, `Campus`, `Exam`, `Grade`, `Panel`, `Plan`, `ConstraintRule`).
+  - `feasibility`: Pre-solve mathematical consistency checks; returns structured, parameterizable diagnostics.
+  - `solver`:
+    - Randomized backtracking with MRV heuristic for hard-constraint satisfaction.
+    - Multi-threaded simulated annealing local search for soft-constraint optimization.
+- **Unit Tested:** Fast running, 100% deterministic test suites.
+
+### 2.2 `crates/storage` (Data Access & Persistence)
+- **Technology:** `rusqlite` with the `bundled` feature (embedded SQLite engine).
+- **Components:**
+  - `paths`: Resolves portable database path (`./data/exam-panel.db` if directory is writable; OS app-data directory fallback otherwise).
+  - `migrations`: Embedded schema migration management.
+  - `repositories`: Strongly-typed CRUD operations mapping between SQLite tables and `core` domain structs.
+
+### 2.3 `src-tauri` (Desktop Application Shell)
+- **Tauri 2 Framework:** Thin platform integration wrapper.
+- **Isolation:** Excluded from the default Cargo workspace members (`default-members`) to guarantee that headless CI environments and pure backend development can compile and test without desktop system GUI libraries.
+- **Identifier:** `vn.exampanel.app` (configurable in `tauri.conf.json` and `lib.rs`).
+- **Commands:** Thin routing layer deserializing IPC arguments, calling `core`/`storage`, and returning JSON payloads.
+
+### 2.4 `ui` (Presentation Layer)
+- **Stack:** React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui.
+- **Dual Runtime Support:**
+  - `ExamPanelApi` interface decouples the UI from Tauri IPC.
+  - When running in browser (`pnpm dev`), automatically activates `mock.ts`.
+  - When running inside Tauri, automatically activates `tauri.ts` (`@tauri-apps/api/core`).
+- **Internationalization (i18n):** `i18next` with default Vietnamese (`vi`) and secondary English (`en`). Zero hard-coded UI strings.
+- **Theme Engine:** `light`, `dark`, and `system` modes using semantic CSS tokens (`hsl(var(--...))`).
+
+---
+
+## 3. Data Flow
+
+### 3.1 Plan Generation Flow
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI as React UI
+    participant IPC as Tauri IPC Bridge
+    participant Storage as crates/storage
+    participant Core as crates/core (Solver)
+
+    User->>UI: Click "Generate Assignments"
+    UI->>IPC: invoke("generate_plans", { schoolYearId, options })
+    IPC->>Storage: Load teachers, panels, rules, locks
+    Storage-->>IPC: Roster & Constraint Data
+    IPC->>Core: feasibility::check(roster, rules)
+    alt Feasibility check fails
+        Core-->>IPC: FeasibilityError { key, params }
+        IPC-->>UI: Localized diagnostic message
+        UI-->>User: Display actionable resolution prompt
+    else Feasibility check passes
+        IPC->>Core: solver::solve(roster, rules, seedCount)
+        Core-->>IPC: Top 3-5 distinct candidate plans
+        IPC->>Storage: Persist candidate plans
+        IPC-->>UI: Return plans with soft-constraint scores
+        UI-->>User: Present interactive comparison view
+    end
+```
+
+### 3.2 Dual-Mode API Resolution
+```mermaid
+flowchart TD
+    Start[App Starts] --> CheckEnv{Is window.__TAURI_INTERNALS__ present?}
+    CheckEnv -->|Yes| UseTauri[Initialize TauriExamPanelApi]
+    CheckEnv -->|No| UseMock[Initialize MockExamPanelApi]
+    UseTauri --> API[Expose unified ExamPanelApi]
+    UseMock --> API
+    API --> UIComponents[UI Components call api.ping, api.getTheme, etc.]
+```
+
+---
+
+## 4. Architectural Invariants
+1. **Purity of Core:** Any modification to `crates/core` must not introduce file I/O, network I/O, or SQLite dependencies.
+2. **Deterministic Feasibility Checks:** Feasibility check failures must always explain *why* the configuration is invalid and name the exact exam, grade, or teacher group causing the conflict.
+3. **Data Portability:** Storage location resolution must always prioritize adjacent `./data/` directories when write permissions exist, enabling USB/folder portability without installer lock-in.
+4. **Zero String Hardcoding:** Every UI text label, notification, table header, or error message must resolve through `t('path.key')`.

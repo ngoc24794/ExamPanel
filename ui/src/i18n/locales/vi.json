@@ -1,0 +1,77 @@
+{
+  "app": {
+    "title": "ExamPanel",
+    "subtitle": "Phần mềm phân công ra đề & phản biện thi cả năm học",
+    "pingStatus": "Trạng thái kết nối lõi:",
+    "loading": "Đang tải...",
+    "modeTauri": "Ứng dụng máy tính (Tauri IPC)",
+    "modeMock": "Chế độ mô phỏng (Trình duyệt)",
+    "schoolYear": "Năm học:",
+    "schoolYearDefault": "2026 - 2027",
+    "ready": "Hệ thống sẵn sàng"
+  },
+  "nav": {
+    "overview": "Tổng quan",
+    "teachers": "Giáo viên",
+    "exams": "Kỳ thi",
+    "rules": "Quy tắc",
+    "assignments": "Phân công",
+    "stats": "Thống kê",
+    "settings": "Cài đặt"
+  },
+  "common": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "status": "Trạng thái",
+    "active": "Hoạt động",
+    "inactive": "Tạm dừng",
+    "search": "Tìm kiếm...",
+    "placeholderNotice": "Mô-đun đang trong khung kiến trúc (Giai đoạn 1). Logic nghiệp vụ sẽ được triển khai ở các giai đoạn sau.",
+    "version": "Phiên bản"
+  },
+  "theme": {
+    "toggle": "Chuyển giao diện",
+    "light": "Sáng",
+    "dark": "Tối",
+    "system": "Hệ thống"
+  },
+  "language": {
+    "select": "Ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "overview": {
+    "title": "Bảng điều khiển tổng quan",
+    "description": "Quản lý và theo dõi tiến độ phân công nhiệm vụ ra đề, phản biện cho các kỳ thi.",
+    "coreConnectionCard": "Kết nối Hệ thống Lõi",
+    "coreDescription": "Kiểm tra phản hồi IPC giữa giao diện người dùng và lõi Rust.",
+    "scaleCard": "Quy mô tham chiếu",
+    "scaleInfo": "11 giáo viên, 4 cơ sở, 4 kỳ thi (GK1, CK1, GK2, CK2) × 3 khối (10, 11, 12) = 12 hội đồng, 36 lượt phân công (24 ra đề, 12 phản biện)."
+  },
+  "teachers": {
+    "title": "Quản lý Giáo viên",
+    "description": "Danh sách giáo viên, cơ sở công tác, khối giảng dạy, hệ số tải và trạng thái sẵn sàng."
+  },
+  "exams": {
+    "title": "Kỳ thi & Khối lớp",
+    "description": "Cấu hình 4 kỳ thi chuẩn (GK1, CK1, GK2, CK2) và các khối lớp 10, 11, 12."
+  },
+  "rules": {
+    "title": "Quy tắc & Ràng buộc",
+    "description": "Cấu hình 7 ràng buộc cứng (H1-H7), 7 ràng buộc mềm (S1-S7) và khóa PIN / FORBID."
+  },
+  "assignments": {
+    "title": "Kế hoạch Phân công",
+    "description": "Khởi chạy thuật toán quay lui ngẫu nhiên và luyện kim mô phỏng để sinh phương án tối ưu."
+  },
+  "stats": {
+    "title": "Thống kê & Báo cáo",
+    "description": "Phân tích cân bằng tải, số lượt ra đề/phản biện, luân chuyển cơ sở và xuất báo cáo."
+  },
+  "settings": {
+    "title": "Cài đặt Hệ thống",
+    "description": "Đường dẫn cơ sở dữ liệu SQLite di động, tham số giải thuật và tùy chọn hiển thị."
+  }
+}

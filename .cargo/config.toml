@@ -1,0 +1,7 @@
+[target.x86_64-pc-windows-gnu]
+linker = "C:\\Users\\ngocnv.HUONGVIETGROUP\\.w64devkit\\w64devkit\\bin\\gcc.exe"
+ar = "C:\\Users\\ngocnv.HUONGVIETGROUP\\.w64devkit\\w64devkit\\bin\\ar.exe"
+
+[env]
+CC = "C:\\Users\\ngocnv.HUONGVIETGROUP\\.w64devkit\\w64devkit\\bin\\gcc.exe"
+AR = "C:\\Users\\ngocnv.HUONGVIETGROUP\\.w64devkit\\w64devkit\\bin\\ar.exe"

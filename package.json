@@ -1,0 +1,19 @@
+{
+  "name": "exam-panel",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev-ui": "pnpm -C ui dev",
+    "test:rust": "cargo test",
+    "test:ui": "pnpm -C ui test",
+    "test": "cargo test && pnpm -C ui test",
+    "lint:rust": "cargo clippy -- -D warnings",
+    "lint:ui": "pnpm -C ui lint",
+    "lint": "cargo clippy -- -D warnings && pnpm -C ui lint",
+    "fmt:rust": "cargo fmt -- --check",
+    "fmt:ui": "pnpm -C ui format:check",
+    "fmt": "cargo fmt -- --check && pnpm -C ui format:check",
+    "fmt:fix": "cargo fmt && pnpm -C ui format",
+    "check-all": "cargo fmt -- --check && cargo clippy -- -D warnings && cargo test && pnpm -C ui lint && pnpm -C ui typecheck && pnpm -C ui test && pnpm -C ui build"
+  }
+}

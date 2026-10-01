@@ -1,0 +1,77 @@
+{
+  "app": {
+    "title": "ExamPanel",
+    "subtitle": "School-Year Exam Paper Assignment & Review Automation",
+    "pingStatus": "Core Connection Status:",
+    "loading": "Loading...",
+    "modeTauri": "Desktop Application (Tauri IPC)",
+    "modeMock": "Simulation Mode (Browser)",
+    "schoolYear": "School Year:",
+    "schoolYearDefault": "2026 - 2027",
+    "ready": "System Ready"
+  },
+  "nav": {
+    "overview": "Overview",
+    "teachers": "Teachers",
+    "exams": "Exams",
+    "rules": "Rules",
+    "assignments": "Assignments",
+    "stats": "Statistics",
+    "settings": "Settings"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "search": "Search...",
+    "placeholderNotice": "Module is currently in skeleton structure (Phase 1). Business logic will be implemented in upcoming phases.",
+    "version": "Version"
+  },
+  "theme": {
+    "toggle": "Toggle Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "select": "Language",
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "overview": {
+    "title": "Dashboard Overview",
+    "description": "Manage and track exam assignment and review panels across the entire academic year.",
+    "coreConnectionCard": "Core Engine Connection",
+    "coreDescription": "Verifying IPC communication between UI and the Rust core engine.",
+    "scaleCard": "Reference Scale",
+    "scaleInfo": "11 teachers, 4 campuses, 4 exams (GK1, CK1, GK2, CK2) × 3 grades (10, 11, 12) = 12 panels, 36 assignments (24 setters, 12 reviewers)."
+  },
+  "teachers": {
+    "title": "Teacher Management",
+    "description": "Manage teacher roster, campuses, grades taught, load weights, and active status."
+  },
+  "exams": {
+    "title": "Exams & Grades",
+    "description": "Configure 4 standard exam terms (GK1, CK1, GK2, CK2) and grade levels (10, 11, 12)."
+  },
+  "rules": {
+    "title": "Rules & Constraints",
+    "description": "Configure 7 hard constraints (H1-H7), 7 soft constraints (S1-S7), and PIN / FORBID locks."
+  },
+  "assignments": {
+    "title": "Assignment Plans",
+    "description": "Execute randomized backtracking and simulated annealing to generate optimal assignment plans."
+  },
+  "stats": {
+    "title": "Statistics & Reports",
+    "description": "Analyze workload distribution, setter/reviewer balance, campus diversity, and export reports."
+  },
+  "settings": {
+    "title": "System Settings",
+    "description": "Configure portable SQLite database path, solver parameters, and UI preferences."
+  }
+}
