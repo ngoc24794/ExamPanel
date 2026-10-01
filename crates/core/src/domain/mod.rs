@@ -1,4 +1,12 @@
 //! Domain entities and models for ExamPanel.
 //!
-//! Business logic models representing campuses, teachers, panels, exams,
-//! constraints, and plans will be defined here in later phases.
+//! Pure mathematical and business domain models representing campuses,
+//! teachers, panels, exams, constraints, plans, and the single-year problem snapshot.
+
+pub mod entities;
+pub mod ids;
+pub mod problem;
+
+pub use entities::*;
+pub use ids::*;
+pub use problem::*;
