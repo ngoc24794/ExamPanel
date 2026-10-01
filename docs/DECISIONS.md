@@ -60,4 +60,10 @@
 - **Decision:** Model grade assignments via a separate ternary associative entity `teacher_grades (teacher_id, school_year_id, grade_id)` with a `copy_teacher_grades(from_year, to_year)` routine for convenient rollover.
 - **Consequences:** Full historical fidelity for prior school years and schedules, flexible yearly roster management, and clean isolation between teacher profile records and annual assignments.
 
+## ADR-0011: Migration Immutability Starting at v0.1.0
+- **Status:** Accepted
+- **Context:** Early during Phase 1–2 development prior to the first release (v0.1.0), baseline schema migrations could be directly refined. Once a version is officially released, mutating past migrations causes divergence and failure when updating existing client databases.
+- **Decision:** Migrations become immutable starting with the first release (v0.1.0); afterwards every schema change must be a new numbered migration file. Additionally, migration DDL removes all `IF NOT EXISTS` clauses because SQLite's `user_version` is the single source of truth; silent no-ops hide migration mistakes and masking schema drift.
+- **Consequences:** Deterministic schema evolution, transparent failure on migration errors, and clean forward-only evolution post-v0.1.0.
+
 

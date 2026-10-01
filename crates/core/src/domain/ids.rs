@@ -54,6 +54,7 @@ define_id!(GradeId, "Identifier for a Grade.");
 define_id!(SchoolYearId, "Identifier for a SchoolYear.");
 define_id!(ExamId, "Identifier for an Exam term.");
 define_id!(PlanId, "Identifier for a generated Plan.");
+define_id!(LockId, "Identifier for a manual Lock override.");
 
 #[cfg(test)]
 mod tests {

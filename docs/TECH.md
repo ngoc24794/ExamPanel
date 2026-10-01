@@ -109,7 +109,7 @@ sudo apt-get install -y \
     AR = "C:\\path\\to\\w64devkit\\bin\\ar.exe"
     ```
   - *Note on `libgcc_eh.a`:* In some MinGW toolchain distributions when compiling C dependencies (like bundled SQLite), static unwinding requires ensuring `libgcc_eh.a` is accessible in the library path.
-  - Set the toolchain default using: `rustup default stable-x86_64-pc-windows-gnu`.
+  - Set the toolchain per directory using: `rustup override set stable-x86_64-pc-windows-gnu`. This is the **only recommended fallback mechanism** on Windows when MSVC is unavailable. Do **not** set a global `RUSTUP_TOOLCHAIN` user/system environment variable or modify global machine defaults (`rustup default`), as these alter machine state outside the repository.
 
 ---
 

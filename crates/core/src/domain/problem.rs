@@ -225,7 +225,7 @@ impl Problem {
 mod tests {
     use super::*;
     use crate::domain::entities::{LockKind, Role};
-    use crate::domain::ids::{CampusId, ExamId, GradeId, SchoolYearId, TeacherId};
+    use crate::domain::ids::{CampusId, ExamId, GradeId, LockId, SchoolYearId, TeacherId};
 
     fn make_valid_problem() -> Problem {
         let sy = SchoolYear {
@@ -271,7 +271,7 @@ mod tests {
             reason: Some("Leave".to_string()),
         };
         let lock1 = Lock {
-            id: 1,
+            id: LockId(1),
             exam_id: ExamId(1),
             grade_id: GradeId(10),
             teacher_id: TeacherId(1),

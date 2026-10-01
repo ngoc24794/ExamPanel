@@ -15,6 +15,7 @@ This document defines obligatory conventions and working agreements for AI agent
 - **Unit Test Requirement:** Every new entity, constraint validator, and solver routine must have comprehensive unit tests in `crates/core`.
 - **Workspace Separation:** Maintain `crates/core` and `crates/storage` in `default-members` of `Cargo.toml`. `src-tauri` must remain decoupled from `default-members`.
 - **Database Migrations:** All schema changes in `crates/storage` must be managed via clean, incremental SQL migration files under `crates/storage/migrations/`.
+- **Environment & Machine State:** Never modify global machine state (installing/uninstalling toolchains, rustup default/default-host, user or system environment variables, files under the user's home such as ~/.cargo/config.toml) without explicit approval. If such a change seems necessary, stop and describe it in the report instead. Per-directory `rustup override` is acceptable but must be reported.
 
 ---
 

@@ -4,8 +4,8 @@ use crate::migrations::run_migrations;
 use crate::seeds::seed_defaults;
 use crate::StorageError;
 use exam_panel_core::domain::{
-    Assignment, Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockKind, Plan, PlanId,
-    Problem, Role, RuleKey, RuleSetting, SchoolYear, SchoolYearId, Teacher, TeacherGrade,
+    Assignment, Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockId, LockKind, Plan,
+    PlanId, Problem, Role, RuleKey, RuleSetting, SchoolYear, SchoolYearId, Teacher, TeacherGrade,
     TeacherId, Unavailability,
 };
 use rusqlite::{params, Connection};
@@ -259,7 +259,14 @@ impl Store {
         let rows = self
             .conn
             .execute("DELETE FROM grades WHERE id = ?1", params![id.value()])
-            .map_err(StorageError::from_sqlite)?;
+            .map_err(|e| match e {
+                rusqlite::Error::SqliteFailure(ref f, _)
+                    if f.code == rusqlite::ErrorCode::ConstraintViolation =>
+                {
+                    StorageError::Constraint("grade_in_use".to_string())
+                }
+                other => StorageError::from_sqlite(other),
+            })?;
         if rows == 0 {
             return Err(StorageError::NotFound(format!(
                 "grade with ID {id} not found"
@@ -382,7 +389,14 @@ impl Store {
         let rows = self
             .conn
             .execute("DELETE FROM teachers WHERE id = ?1", params![id.value()])
-            .map_err(StorageError::from_sqlite)?;
+            .map_err(|e| match e {
+                rusqlite::Error::SqliteFailure(ref f, _)
+                    if f.code == rusqlite::ErrorCode::ConstraintViolation =>
+                {
+                    StorageError::Constraint("teacher_in_use".to_string())
+                }
+                other => StorageError::from_sqlite(other),
+            })?;
         if rows == 0 {
             return Err(StorageError::NotFound(format!(
                 "teacher with ID {id} not found"
@@ -765,7 +779,14 @@ impl Store {
         let rows = self
             .conn
             .execute("DELETE FROM exams WHERE id = ?1", params![id.value()])
-            .map_err(StorageError::from_sqlite)?;
+            .map_err(|e| match e {
+                rusqlite::Error::SqliteFailure(ref f, _)
+                    if f.code == rusqlite::ErrorCode::ConstraintViolation =>
+                {
+                    StorageError::Constraint("exam_in_use".to_string())
+                }
+                other => StorageError::from_sqlite(other),
+            })?;
         if rows == 0 {
             return Err(StorageError::NotFound(format!(
                 "exam with ID {id} not found"
@@ -798,7 +819,7 @@ impl Store {
                 let kind = kind_str.parse::<LockKind>().unwrap_or(LockKind::Pin);
 
                 Ok(Lock {
-                    id: row.get(0)?,
+                    id: LockId(row.get(0)?),
                     exam_id: ExamId(row.get(1)?),
                     grade_id: GradeId(row.get(2)?),
                     teacher_id: TeacherId(row.get(3)?),
@@ -837,7 +858,7 @@ impl Store {
             .map_err(StorageError::from_sqlite)?;
         let id = self.conn.last_insert_rowid();
         Ok(Lock {
-            id,
+            id: LockId(id),
             exam_id,
             grade_id,
             teacher_id,
@@ -846,10 +867,10 @@ impl Store {
         })
     }
 
-    pub fn delete_lock(&self, id: i64) -> Result<(), StorageError> {
+    pub fn delete_lock(&self, id: LockId) -> Result<(), StorageError> {
         let rows = self
             .conn
-            .execute("DELETE FROM locks WHERE id = ?1", params![id])
+            .execute("DELETE FROM locks WHERE id = ?1", params![id.value()])
             .map_err(StorageError::from_sqlite)?;
         if rows == 0 {
             return Err(StorageError::NotFound(format!(

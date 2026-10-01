@@ -1,6 +1,6 @@
 //! Domain entities, enums, and configuration constants.
 
-use super::ids::{CampusId, ExamId, GradeId, PlanId, SchoolYearId, TeacherId};
+use super::ids::{CampusId, ExamId, GradeId, LockId, PlanId, SchoolYearId, TeacherId};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
@@ -144,7 +144,7 @@ impl FromStr for LockKind {
 /// A manual lock override on an exam panel.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Lock {
-    pub id: i64,
+    pub id: LockId,
     pub exam_id: ExamId,
     pub grade_id: GradeId,
     pub teacher_id: TeacherId,

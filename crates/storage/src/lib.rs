@@ -355,4 +355,115 @@ mod tests {
             "demo problem snapshot failed structural validation: {validation_errors:?}"
         );
     }
+
+    #[test]
+    fn test_protect_historical_plans_on_delete_restrict() {
+        let store = Store::open_in_memory().unwrap();
+        let sy = store.create_school_year("2026-2027", None).unwrap();
+        let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
+        let teacher = store
+            .create_teacher("Teacher 1", campus.id, 1.0, true, None)
+            .unwrap();
+        let exams = store.get_exams(sy.id).unwrap();
+        let grades = store.get_grades().unwrap();
+
+        let plan = Plan {
+            id: PlanId(0),
+            school_year_id: sy.id,
+            name: "Candidate Plan".to_string(),
+            created_at: "2026-10-01T12:00:00Z".to_string(),
+            seed: 42,
+            score: Some(5.0),
+            is_final: false,
+        };
+        let assignments = vec![Assignment {
+            plan_id: PlanId(0),
+            exam_id: exams[0].id,
+            grade_id: grades[0].id,
+            teacher_id: teacher.id,
+            role: Role::Setter,
+        }];
+        store.save_plan(&plan, &assignments).expect("save plan");
+
+        // Attempt to delete teacher in use -> StorageError::Constraint("teacher_in_use")
+        let del_t = store.delete_teacher(teacher.id);
+        assert!(
+            matches!(del_t, Err(StorageError::Constraint(ref msg)) if msg == "teacher_in_use"),
+            "expected StorageError::Constraint(\"teacher_in_use\"), got: {del_t:?}"
+        );
+
+        // Attempt to delete exam in use -> StorageError::Constraint("exam_in_use")
+        let del_e = store.delete_exam(exams[0].id);
+        assert!(
+            matches!(del_e, Err(StorageError::Constraint(ref msg)) if msg == "exam_in_use"),
+            "expected StorageError::Constraint(\"exam_in_use\"), got: {del_e:?}"
+        );
+
+        // Attempt to delete grade in use -> StorageError::Constraint("grade_in_use")
+        let del_g = store.delete_grade(grades[0].id);
+        assert!(
+            matches!(del_g, Err(StorageError::Constraint(ref msg)) if msg == "grade_in_use"),
+            "expected StorageError::Constraint(\"grade_in_use\"), got: {del_g:?}"
+        );
+    }
+
+    #[test]
+    fn test_locks_lock_id_delete_and_unique_expression_index() {
+        use exam_panel_core::domain::LockKind;
+
+        let store = Store::open_in_memory().unwrap();
+        let sy = store.create_school_year("2026-2027", None).unwrap();
+        let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
+        let teacher = store
+            .create_teacher("Teacher 1", campus.id, 1.0, true, None)
+            .unwrap();
+        let exams = store.get_exams(sy.id).unwrap();
+        let grades = store.get_grades().unwrap();
+
+        // 1. Create a lock and verify it has LockId
+        let lock1 = store
+            .create_lock(exams[0].id, grades[0].id, teacher.id, None, LockKind::Pin)
+            .expect("create lock 1");
+        assert!(lock1.id.value() > 0);
+
+        // 2. Duplicate lock with role=None must fail because COALESCE(role, 'any') will collide
+        let dup1 = store.create_lock(exams[0].id, grades[0].id, teacher.id, None, LockKind::Pin);
+        assert!(
+            matches!(dup1, Err(StorageError::Constraint(_))),
+            "duplicate lock with role=None should violate unique index, got: {dup1:?}"
+        );
+
+        // 3. Different role (e.g. Some(Setter)) does not collide with role=None
+        let lock2 = store
+            .create_lock(
+                exams[0].id,
+                grades[0].id,
+                teacher.id,
+                Some(Role::Setter),
+                LockKind::Pin,
+            )
+            .expect("create lock with role");
+        assert_ne!(lock1.id, lock2.id);
+
+        // Duplicate with Some(Setter) must fail
+        let dup2 = store.create_lock(
+            exams[0].id,
+            grades[0].id,
+            teacher.id,
+            Some(Role::Setter),
+            LockKind::Pin,
+        );
+        assert!(
+            matches!(dup2, Err(StorageError::Constraint(_))),
+            "duplicate lock with role=Some(Setter) should violate unique index, got: {dup2:?}"
+        );
+
+        // 4. delete_lock with LockId
+        store.delete_lock(lock1.id).expect("delete lock 1");
+        let del_again = store.delete_lock(lock1.id);
+        assert!(
+            matches!(del_again, Err(StorageError::NotFound(_))),
+            "deleting non-existent lock should return NotFound"
+        );
+    }
 }
