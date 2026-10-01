@@ -1050,13 +1050,95 @@ mod tests {
         assert!(matches!(res, Err(SolveError::Infeasible { .. })));
     }
 
+    fn brute_force_has_solution(problem: &Problem) -> bool {
+        let panels: Vec<(ExamId, GradeId)> = problem
+            .exams
+            .iter()
+            .flat_map(|e| problem.grades.iter().map(move |g| (e.id, g.id)))
+            .collect();
+
+        let teachers: Vec<TeacherId> = problem.teachers.iter().map(|t| t.id).collect();
+        let n = teachers.len();
+
+        let mut candidate_panels: Vec<Vec<Vec<Assignment>>> = Vec::new();
+        for &(eid, gid) in &panels {
+            let mut list = Vec::new();
+            for i in 0..n {
+                for j in (i + 1)..n {
+                    for k in 0..n {
+                        if k == i || k == j {
+                            continue;
+                        }
+                        let assigns = vec![
+                            Assignment::new(eid, gid, teachers[i], Role::Setter),
+                            Assignment::new(eid, gid, teachers[j], Role::Setter),
+                            Assignment::new(eid, gid, teachers[k], Role::Reviewer),
+                        ];
+                        let v = validate_assignments(
+                            problem,
+                            &assigns,
+                            &ValidateOptions {
+                                require_complete: false,
+                            },
+                        );
+                        if v.is_empty() {
+                            list.push(assigns);
+                        }
+                    }
+                }
+            }
+            candidate_panels.push(list);
+        }
+
+        fn search(
+            idx: usize,
+            candidate_panels: &[Vec<Vec<Assignment>>],
+            current: &mut Vec<Assignment>,
+            problem: &Problem,
+        ) -> bool {
+            if idx == candidate_panels.len() {
+                return validate_assignments(
+                    problem,
+                    current,
+                    &ValidateOptions {
+                        require_complete: true,
+                    },
+                )
+                .is_empty();
+            }
+
+            for panel_assigns in &candidate_panels[idx] {
+                let start_len = current.len();
+                current.extend_from_slice(panel_assigns);
+                let v = validate_assignments(
+                    problem,
+                    current,
+                    &ValidateOptions {
+                        require_complete: false,
+                    },
+                );
+                if v.is_empty() && search(idx + 1, candidate_panels, current, problem) {
+                    return true;
+                }
+                current.truncate(start_len);
+            }
+            false
+        }
+
+        let mut current = Vec::new();
+        search(0, &candidate_panels, &mut current, problem)
+    }
+
     #[test]
     fn test_exhaustive_cross_check_tiny_instances() {
-        // Run a small brute-force check on 20 random tiny instances:
-        // 1 exam, 2 grades, 5 teachers, 2 campuses.
-        let mut rng = ChaCha8Rng::seed_from_u64(999);
+        let mut rng = ChaCha8Rng::seed_from_u64(20261002);
+        let num_instances = 300;
 
-        for instance_seed in 0..20 {
+        let mut feasible_count = 0;
+        let mut infeasible_count = 0;
+        let mut backtrack_count = 0;
+
+        for instance_idx in 0..num_instances {
             let sy = SchoolYear {
                 id: SchoolYearId(1),
                 name: "2026-2027".to_string(),
@@ -1094,15 +1176,31 @@ mod tests {
                 sort_order: 1,
             };
 
+            // Tight instance setup: 6 teachers, 2 campuses.
+            // Under H4 and 2 panels in 1 exam, all 6 teachers must be assigned (3 in P1, 3 in P2).
             let mut teachers = Vec::new();
             let mut teacher_grades = Vec::new();
 
             for tid in 1..=6 {
-                let camp = if tid % 2 == 1 {
+                // Campuses: T1..T3 on C1, T4..T6 vary to create bottlenecks.
+                let camp = if tid <= 3 {
                     CampusId(1)
-                } else {
+                } else if tid == 4 {
+                    if (rng.next_u32() % 10) < 6 {
+                        CampusId(1)
+                    } else {
+                        CampusId(2)
+                    }
+                } else if tid == 5 {
                     CampusId(2)
+                } else {
+                    if (rng.next_u32() % 10) < 5 {
+                        CampusId(2)
+                    } else {
+                        CampusId(1)
+                    }
                 };
+
                 teachers.push(Teacher {
                     id: TeacherId(tid),
                     full_name: format!("T{tid}"),
@@ -1111,20 +1209,87 @@ mod tests {
                     active: true,
                     note: None,
                 });
-                // Each teacher teaches grade 1 with p=0.8, grade 2 with p=0.8
-                if (rng.next_u32() % 10) < 8 {
+
+                // Qualifications: T1..T3 more likely G1, T4..T6 more likely G2
+                let p1 = if tid <= 2 {
+                    9
+                } else if tid <= 4 {
+                    6
+                } else {
+                    3
+                };
+                let p2 = if tid >= 4 {
+                    9
+                } else if tid >= 2 {
+                    6
+                } else {
+                    3
+                };
+
+                if (rng.next_u32() % 10) < p1 {
                     teacher_grades.push(TeacherGrade {
                         teacher_id: TeacherId(tid),
                         school_year_id: sy.id,
                         grade_id: GradeId(1),
                     });
                 }
-                if (rng.next_u32() % 10) < 8 {
+                if (rng.next_u32() % 10) < p2 {
                     teacher_grades.push(TeacherGrade {
                         teacher_id: TeacherId(tid),
                         school_year_id: sy.id,
                         grade_id: GradeId(2),
                     });
+                }
+            }
+
+            // Ensure every teacher has at least 1 grade so they don't trivially fail F1/F2
+            for tid in 1..=6 {
+                if !teacher_grades
+                    .iter()
+                    .any(|tg| tg.teacher_id == TeacherId(tid))
+                {
+                    let gid = if (rng.next_u32() % 2) == 0 {
+                        GradeId(1)
+                    } else {
+                        GradeId(2)
+                    };
+                    teacher_grades.push(TeacherGrade {
+                        teacher_id: TeacherId(tid),
+                        school_year_id: sy.id,
+                        grade_id: gid,
+                    });
+                }
+            }
+
+            // Locks: occasional PIN or FORBID lock
+            let mut locks = Vec::new();
+            if (rng.next_u32() % 10) < 4 {
+                let lock_tid = TeacherId((rng.next_u32() % 6 + 1) as i64);
+                let lock_gid = if (rng.next_u32() % 2) == 0 {
+                    GradeId(1)
+                } else {
+                    GradeId(2)
+                };
+                let kind = if (rng.next_u32() % 2) == 0 {
+                    LockKind::Pin
+                } else {
+                    LockKind::Forbid
+                };
+                locks.push(Lock {
+                    id: LockId(1),
+                    exam_id: ExamId(1),
+                    grade_id: lock_gid,
+                    teacher_id: lock_tid,
+                    role: Some(Role::Setter),
+                    kind,
+                });
+            }
+
+            // Rule settings: with 50% chance, enforce strict tolerance k = 0
+            let mut rule_settings = RuleSetting::default_settings();
+            if (rng.next_u32() % 2) == 0 {
+                if let Some(h7) = rule_settings.iter_mut().find(|s| s.key == RuleKey::H7) {
+                    h7.params = serde_json::json!({ "tolerance": 0 });
                 }
             }
 
@@ -1136,28 +1301,60 @@ mod tests {
                 teachers,
                 teacher_grades,
                 unavailabilities: vec![],
-                locks: vec![],
-                rule_settings: RuleSetting::default_settings(),
+                locks,
+                rule_settings,
             };
 
             let opts = SolveOptions {
-                seed: instance_seed,
+                seed: instance_idx as u64,
                 time_limit_ms: 1000,
                 max_nodes: 50_000,
             };
 
+            let bf_feasible = brute_force_has_solution(&prob);
             let solver_res = solve_hard(&prob, &opts);
-            if let Ok(sol) = solver_res {
-                let v = validate_assignments(
-                    &prob,
-                    &sol.assignments,
-                    &ValidateOptions {
-                        require_complete: true,
-                    },
-                );
-                assert!(v.is_empty(), "instance {instance_seed} produced violations");
+
+            match solver_res {
+                Ok(sol) => {
+                    assert!(
+                        bf_feasible,
+                        "Instance {instance_idx}: Solver found solution but brute force reported infeasible!"
+                    );
+                    let v = validate_assignments(
+                        &prob,
+                        &sol.assignments,
+                        &ValidateOptions {
+                            require_complete: true,
+                        },
+                    );
+                    assert!(
+                        v.is_empty(),
+                        "Instance {instance_idx} produced violations: {v:?}"
+                    );
+                    feasible_count += 1;
+                    if sol.stats.backtracks > 0 {
+                        backtrack_count += 1;
+                    }
+                }
+                Err(_) => {
+                    assert!(
+                        !bf_feasible,
+                        "Instance {instance_idx}: Brute force found solution but solver reported infeasible!"
+                    );
+                    infeasible_count += 1;
+                }
             }
         }
+
+        let backtrack_pct = (backtrack_count as f64 / feasible_count as f64) * 100.0;
+        println!(
+            "Cross-check: {num_instances} instances tested | Feasible: {feasible_count}, Infeasible: {infeasible_count} | Backtracked: {backtrack_count} ({backtrack_pct:.1}% of feasible)"
+        );
+        assert_eq!(feasible_count + infeasible_count, num_instances);
+        assert!(
+            backtrack_pct >= 20.0,
+            "Expected >= 20% backtracks among feasible instances, got {backtrack_pct:.1}%"
+        );
     }
 
     #[test]

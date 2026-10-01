@@ -10,7 +10,7 @@ pub mod maxflow;
 
 use crate::domain::{
     calculate_quotas, CampusId, ExamId, GradeId, LockKind, PanelKey, Problem, Role, RuleKey,
-    TeacherId, TeacherQuota,
+    TeacherId, TeacherQuota, ValidationError,
 };
 use maxflow::DinicGraph;
 use serde::{Deserialize, Serialize};
@@ -82,6 +82,98 @@ impl Diagnostic {
     }
 }
 
+impl From<&ValidationError> for Diagnostic {
+    fn from(err: &ValidationError) -> Self {
+        match err {
+            ValidationError::DuplicateCampusId(id) => {
+                Diagnostic::new("duplicate_campus_id").with_param("campus_id", id.0)
+            }
+            ValidationError::DuplicateCampusCode(code) => {
+                Diagnostic::new("duplicate_campus_code").with_param("code", code.clone())
+            }
+            ValidationError::DuplicateGradeId(id) => {
+                Diagnostic::new("duplicate_grade_id").with_param("grade_id", id.0)
+            }
+            ValidationError::DuplicateGradeCode(code) => {
+                Diagnostic::new("duplicate_grade_code").with_param("code", *code)
+            }
+            ValidationError::DuplicateExamId(id) => {
+                Diagnostic::new("duplicate_exam_id").with_param("exam_id", id.0)
+            }
+            ValidationError::DuplicateExamCode(code) => {
+                Diagnostic::new("duplicate_exam_code").with_param("code", code.clone())
+            }
+            ValidationError::DuplicateTeacherId(id) => Diagnostic::new("duplicate_teacher_id")
+                .with_teacher(*id)
+                .with_param("teacher_id", id.0),
+            ValidationError::UnknownCampus(tid, cid) => Diagnostic::new("unknown_campus_ref")
+                .with_teacher(*tid)
+                .with_param("teacher_id", tid.0)
+                .with_param("campus_id", cid.0),
+            ValidationError::InvalidLoadWeight(tid, weight) => {
+                Diagnostic::new("load_weight_out_of_range")
+                    .with_teacher(*tid)
+                    .with_param("teacher_id", tid.0)
+                    .with_param("load_weight", weight.clone())
+            }
+            ValidationError::TeacherGradeUnknownTeacher(tid) => {
+                Diagnostic::new("unknown_teacher_ref")
+                    .with_teacher(*tid)
+                    .with_param("teacher_id", tid.0)
+                    .with_param("context", "teacher_grade")
+            }
+            ValidationError::TeacherGradeUnknownGrade(gid) => Diagnostic::new("unknown_grade_ref")
+                .with_param("grade_id", gid.0)
+                .with_param("context", "teacher_grade"),
+            ValidationError::DuplicateTeacherGrade(tid, gid) => {
+                Diagnostic::new("duplicate_teacher_grade")
+                    .with_teacher(*tid)
+                    .with_param("teacher_id", tid.0)
+                    .with_param("grade_id", gid.0)
+            }
+            ValidationError::LockUnknownTeacher(tid) => Diagnostic::new("unknown_teacher_ref")
+                .with_teacher(*tid)
+                .with_param("teacher_id", tid.0)
+                .with_param("context", "lock"),
+            ValidationError::LockUnknownExam(eid) => Diagnostic::new("unknown_exam_ref")
+                .with_param("exam_id", eid.0)
+                .with_param("context", "lock"),
+            ValidationError::LockUnknownGrade(gid) => Diagnostic::new("unknown_grade_ref")
+                .with_param("grade_id", gid.0)
+                .with_param("context", "lock"),
+            ValidationError::UnavailabilityUnknownTeacher(tid) => {
+                Diagnostic::new("unknown_teacher_ref")
+                    .with_teacher(*tid)
+                    .with_param("teacher_id", tid.0)
+                    .with_param("context", "unavailability")
+            }
+            ValidationError::UnavailabilityUnknownExam(eid) => Diagnostic::new("unknown_exam_ref")
+                .with_param("exam_id", eid.0)
+                .with_param("context", "unavailability"),
+            ValidationError::DuplicateUnavailability(tid, eid) => {
+                Diagnostic::new("duplicate_unavailability")
+                    .with_teacher(*tid)
+                    .with_param("teacher_id", tid.0)
+                    .with_param("exam_id", eid.0)
+            }
+            ValidationError::DuplicateRuleKey(rule_key) => {
+                Diagnostic::new("duplicate_rule_key").with_param("rule_key", rule_key.as_str())
+            }
+            ValidationError::NegativeRuleWeight(rule_key, weight) => {
+                Diagnostic::new("negative_rule_weight")
+                    .with_param("rule_key", rule_key.as_str())
+                    .with_param("weight", weight.clone())
+            }
+        }
+    }
+}
+
+impl From<ValidationError> for Diagnostic {
+    fn from(err: ValidationError) -> Self {
+        Diagnostic::from(&err)
+    }
+}
+
 /// The outcome of the pre-solve feasibility verification.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FeasibilityReport {
@@ -111,8 +203,8 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
     // F1: Structural integrity
     // -------------------------------------------------------------------------
     let structural_errors = problem.validate();
-    for err in structural_errors {
-        errors.push(Diagnostic::new("structural_error").with_param("message", err.to_string()));
+    for err in &structural_errors {
+        errors.push(Diagnostic::from(err));
     }
 
     // -------------------------------------------------------------------------
@@ -1024,6 +1116,24 @@ mod tests {
         });
 
         let report = check_feasibility(&problem);
-        assert!(report.errors.iter().any(|d| d.code == "structural_error"));
+        assert!(report
+            .errors
+            .iter()
+            .any(|d| d.code == "duplicate_exam_code"));
+
+        // Unknown campus ref
+        let mut p2 = make_valid_problem();
+        p2.teachers[0].campus_id = CampusId(999);
+        let rep2 = check_feasibility(&p2);
+        assert!(rep2.errors.iter().any(|d| d.code == "unknown_campus_ref"));
+
+        // Load weight out of range
+        let mut p3 = make_valid_problem();
+        p3.teachers[0].load_weight = 1.5;
+        let rep3 = check_feasibility(&p3);
+        assert!(rep3
+            .errors
+            .iter()
+            .any(|d| d.code == "load_weight_out_of_range"));
     }
 }

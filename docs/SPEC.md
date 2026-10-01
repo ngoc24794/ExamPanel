@@ -154,8 +154,22 @@ Before launching the constructive solver, a deterministic pre-check verifies whe
 ### 4.2 Diagnostic Code Catalog
 
 | Category | Diagnostic Code | Severity | Description | Interpolated Parameters |
-|----------|-----------------|----------|-------------|-------------------------|
-| **F1** | `structural_error` | Error | Structural data inconsistency in snapshot | `message` |
+| **F1** | `duplicate_campus_id` | Error | Duplicate campus ID | `campus_id` |
+| **F1** | `duplicate_campus_code` | Error | Duplicate campus code | `code` |
+| **F1** | `duplicate_grade_id` | Error | Duplicate grade ID | `grade_id` |
+| **F1** | `duplicate_grade_code` | Error | Duplicate grade code | `code` |
+| **F1** | `duplicate_exam_id` | Error | Duplicate exam ID | `exam_id` |
+| **F1** | `duplicate_exam_code` | Error | Duplicate exam code for school year | `code` |
+| **F1** | `duplicate_teacher_id` | Error | Duplicate teacher ID | `teacher_id` |
+| **F1** | `unknown_campus_ref` | Error | Teacher references unknown campus | `teacher_id`, `campus_id` |
+| **F1** | `load_weight_out_of_range` | Error | Teacher load weight is out of [0.0, 1.0] | `teacher_id`, `load_weight` |
+| **F1** | `unknown_teacher_ref` | Error | Record references unknown teacher | `teacher_id`, `context` |
+| **F1** | `unknown_grade_ref` | Error | Record references unknown grade | `grade_id`, `context` |
+| **F1** | `unknown_exam_ref` | Error | Record references unknown exam | `exam_id`, `context` |
+| **F1** | `duplicate_teacher_grade` | Error | Duplicate teacher-grade qualification entry | `teacher_id`, `grade_id` |
+| **F1** | `duplicate_unavailability` | Error | Duplicate teacher unavailability entry | `teacher_id`, `exam_id` |
+| **F1** | `duplicate_rule_key` | Error | Duplicate rule key in rule settings | `rule_key` |
+| **F1** | `negative_rule_weight` | Error | Rule weight cannot be negative | `rule_key`, `weight` |
 | **F2** | `insufficient_setters` | Error | Fewer than 2 setter-eligible teachers for panel | `exam`, `grade`, `count` |
 | **F2** | `insufficient_reviewers` | Error | No reviewer-eligible teachers for panel | `exam`, `grade`, `count` |
 | **F2** | `insufficient_panel_teachers` | Error | Fewer than 3 distinct eligible teachers for panel | `exam`, `grade`, `count` |

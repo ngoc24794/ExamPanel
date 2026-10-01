@@ -27,7 +27,22 @@ describe('i18n locales parity', () => {
 
   it('all diagnostic keys are present in both locales', () => {
     const expectedDiagnosticKeys = [
-      'diagnostics.structural_error',
+      'diagnostics.duplicate_campus_id',
+      'diagnostics.duplicate_campus_code',
+      'diagnostics.duplicate_grade_id',
+      'diagnostics.duplicate_grade_code',
+      'diagnostics.duplicate_exam_id',
+      'diagnostics.duplicate_exam_code',
+      'diagnostics.duplicate_teacher_id',
+      'diagnostics.unknown_campus_ref',
+      'diagnostics.load_weight_out_of_range',
+      'diagnostics.unknown_teacher_ref',
+      'diagnostics.unknown_grade_ref',
+      'diagnostics.unknown_exam_ref',
+      'diagnostics.duplicate_teacher_grade',
+      'diagnostics.duplicate_unavailability',
+      'diagnostics.duplicate_rule_key',
+      'diagnostics.negative_rule_weight',
       'diagnostics.insufficient_setters',
       'diagnostics.insufficient_reviewers',
       'diagnostics.insufficient_panel_teachers',
