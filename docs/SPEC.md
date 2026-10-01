@@ -113,18 +113,20 @@ All hard constraints must be strictly satisfied for a plan to be valid.
   Then clamp $\text{hi}_t$ to the maximum achievable: $\text{hi}_t \le \text{availability}_t$ when H4 is enabled (and $\le D$). A teacher with $w'_t = 0$ has $\text{lo}_t = \text{hi}_t = 0$.
 - *Note:* $k = 0$ is the strictest fair setting. Phase 4 adds a soft "load deviation" penalty that pulls each teacher toward $q_t$ even when $k \ge 1$.
 
-### 3.2 Soft Constraints (S1–S7)
-Soft constraints guide schedule quality. Each constraint can be individually enabled/disabled and configured with an integer penalty weight `W >= 0`.
+### 3.2 Soft Constraints (S1–S8)
+Soft constraints guide schedule quality and optimization. Each constraint can be individually enabled/disabled and configured with a penalty weight $W \ge 0$.
+All counts are evaluated over a complete school year plan. "Unit" = one incident; weighted penalty = weight $\times$ units. Each rule emits stable violation codes for user explanations.
 
-| Code | Constraint Name | Description | Default Weight | Initial Rationale |
-|------|-----------------|-------------|----------------|-------------------|
-| **S1** | Reviewer Frequency | Each active teacher acts as a reviewer at least once and at most twice throughout the year. | `10.0` | Highest soft priority: ensures every teacher shares reviewing responsibility. |
-| **S2** | Role Ratio Balance | Maintain approximately a 2:1 ratio between setter roles and reviewer roles per teacher (`~2 SETTER + 1 REVIEWER`). | `5.0` | Balanced role experience across teaching staff. |
-| **S3** | Campus Reviewer Independence | The reviewer should originate from a different campus than both setters on the panel. | `4.0` | Enhances institutional impartiality during review. |
-| **S4** | Setter Pair Diversity | The same pair of teachers should not be co-setters on multiple panels within the same academic year. | `6.0` | Promotes collaborative diversity among exam authors. |
-| **S5** | Reciprocal Review Avoidance | Minimize instances where Teacher A reviews Teacher B's exam paper more than once in the year. | `6.0` | Eliminates circular review cliques. |
-| **S6** | Consecutive Exam Relief | Minimize back-to-back panel assignments across two consecutive exam terms for the same teacher (e.g., avoid `GK1` followed immediately by `CK1` if idle alternatives exist). | `2.0` | Ergonomic workload pacing across terms. |
-| **S7** | Multi-Grade Rotation | Teachers qualified to teach multiple grades should rotate across those grades rather than remaining fixed to a single grade all year. | `1.0` | Staff development and varied grade experience. |
+| Code | Constraint Name | Description | Default Weight | Violation Codes | Formal Unit Metric |
+|------|-----------------|-------------|----------------|-----------------|---------------------|
+| **S1** | Reviewer Count | Reviewer assignments for eligible teachers with quota $q_t \ge 1$. | `10.0` | `reviewer_never`, `reviewer_too_many` | For each teacher with $q_t \ge 1$ eligible as reviewer: $(1 \text{ if reviews } = 0) + \max(0, \text{reviews} - 2)$. Params: $\min = 1, \max = 2$. |
+| **S2** | Role Balance | Ratio of reviewer tasks to total tasks ($1/3$). | `3.0` | `role_imbalance` | For each teacher with $count_t \ge 2$: $\|reviews_t - count_t / 3.0\|$. |
+| **S3** | Independent Reviewer | Reviewer should not share campus with panel setters. | `4.0` | `reviewer_same_campus` | Per panel: number of setters sharing the reviewer's campus ($0 \dots 2$). |
+| **S4** | Repeated Setter Pair | Distinctness of setter co-author pairs. | `6.0` | `setter_pair_repeated` | Per unordered setter pair $\{A, B\}$: $\max(0, \text{times\_together} - 1)$. |
+| **S5** | Repeated Review Relation | Diversity of directed reviewer-to-author oversight. | `6.0` | `review_relation_repeated` | Per ordered pair $(\text{reviewer } A, \text{setter } B)$: $\max(0, \text{times} - 1)$. |
+| **S6** | Consecutive Setting | Rest periods between heavy authoring duties across adjacent exams. | `2.0` | `setter_consecutive` | Per teacher, per pair of consecutive exams (by sort_order) where teacher is a SETTER in both: $1\text{ unit}$. |
+| **S7** | Grade Rotation | Grade variety for multi-grade instructors. | `1.0` | `grade_not_rotated` | For teachers teaching $\ge 2$ grades in the year: $\max(0, \min(count_t, \|\text{grades}_t\|) - \text{distinct\_grades\_assigned}_t)$. |
+| **S8** | Load Balance | Deviation from ideal availability-scaled quota $q_t$. | `8.0` | `load_deviation` | Per teacher: $(count_t - q_t)^2$. Pulls toward fair target even under H7 tolerance $k \ge 1$. |
 
 
 ---
@@ -217,18 +219,34 @@ The solver runs in pure Rust (`crates/core`) with zero UI or database coupling:
   - Forward checking on upper bounds ($hi_t$), single-panel-per-exam (H4), non-emptiness of remaining panel triples, and lower bound reachability ($\sum \max(0, lo_t - used_t) \le \text{remaining slots}$).
   - Value ordering biased toward teachers furthest below their availability quota ($q_t - used_t$) with PRNG jitter. Same seed strictly yields identical assignments.
 
-### 5.2 Stage 2: Simulated Annealing (Phase 4 Local Search)
-   - Operates on valid candidate plans to minimize total soft constraint penalties.
-   - **Neighborhood operators:**
-     - `SwapTeachers`: Swap two teachers between compatible panels.
-     - `SwapRoles`: Swap role (Setter ↔ Reviewer) within the same panel if constraints permit.
-     - `ReplaceIdle`: Replace an assigned teacher with a qualified idle teacher.
-   - Cooling schedule with exponential temperature decay and Metropolis acceptance criterion.
+### 5.2 Stage 2: Simulated Annealing Local Search
+- **API Signature:** `pub fn optimize(problem: &Problem, opts: &OptimizeOptions) -> Result<OptimizeResult, SolveError>`
+- **Starting Point:** Valid feasible schedule from `solve_hard` (or caller-supplied initial plan).
+- **Moves (Strictly Preserving H1–H7 Invariants; PINs Immovable; FORBID Respected):**
+  - **M1 Replace:** Swap one panel slot's teacher with an eligible teacher not already assigned in that exam period (verifying H4, $[lo_t, hi_t]$ bounds for both teachers, and H3 campus diversity).
+  - **M2 Intra-Exam Swap:** Exchange two teachers between two panels of the same exam period (roles may differ; respects H2, H3, H5, H6, H7).
+  - **M3 Cross-Exam Swap:** Exchange two teachers between panels of different exam periods (checks H4 single-panel rule and availability for both teachers).
+  - **M4 Role Swap:** Swap role (`Setter` $\leftrightarrow$ `Reviewer`) within the same panel (respects H6 role-specific locks and H2 reviewer eligibility).
+- **Cooling Schedule & Parameters:**
+  - Auto-calibration of initial temperature $T_0$ by sampling random candidate moves so that $\sim 80\%$ of worsening moves are initially accepted.
+  - Geometric cooling: $T_{k+1} = \alpha \cdot T_k$.
+  - Metropolis acceptance criterion: accept if $\Delta \le 0$ or with probability $\exp(-\Delta / T)$.
+  - Termination by budget: `Budget::Iterations(n)` (deterministic) or `Budget::TimeMs(ms)`.
+  - Cancellation and progress: `OptimizeOptions` accepts an `Arc<AtomicBool>` cancel flag and an optional `Fn(Progress) + Send + Sync` callback (`Progress { run, iteration, best_score, current_score, elapsed_ms }`), throttled to $\le 10$ invocations per second.
 
-3. **Multi-Seed Parallel Execution**
-   - Spawns multi-threaded worker seeds.
-   - Gathers top results, deduplicates schedules, and returns the top 3–5 distinct plans.
-   - Each returned plan includes an itemized breakdown of soft constraint satisfaction and penalties.
+### 5.3 Multi-Plan Output and Diversity Selection
+- **Parallel Multi-Run:** Runs $R$ independent simulated annealing runs (default $R = 8$) in parallel using pure-Rust thread scheduling (`rayon`), initialized from deterministic pseudo-random seeds derived from `base_seed`. Under `Budget::Iterations`, results are 100% deterministic regardless of thread scheduling.
+- **Diversity Distance Metric:**
+  Given two plans $P_1$ and $P_2$, each consisting of $D$ slot assignments $(p, t, r)$:
+  $$d(P_1, P_2) = \frac{|\{ (p, t, r) \in P_1 \mid (p, t, r) \notin P_2 \}|}{D} \in [0.0, 1.0]$$
+- **Ranked Selection:**
+  - Selects up to $K$ plans (default $K = 3$) from the $R$ completed runs.
+  - The plan with the lowest total penalty is always selected as Rank 1.
+  - Subsequent plans are selected via greedy max-min diversity: at each step, select the candidate plan satisfying $d(P, P_j) \ge \tau$ (default threshold $\tau = 0.20$) for all already-selected plans $P_j$ that maximizes $\min_j d(P, P_j)$. If fewer than $K$ plans satisfy the threshold, return only the qualifying plans.
+- **Result Structure (`OptimizeResult`):**
+  - `plans: Vec<RankedPlan { rank: usize, seed: u64, assignments: Vec<Assignment>, report: ScoreReport }>`
+  - `initial_report: ScoreReport`
+  - `stats: OptimizeStats { total_runs: usize, total_iterations: u64, elapsed_ms: u64 }`
 
 ---
 

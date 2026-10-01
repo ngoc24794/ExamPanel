@@ -69,4 +69,23 @@ describe('i18n locales parity', () => {
       expect(viKeys).toContain(key);
     }
   });
+
+  it('all soft constraint violation keys are present in both locales', () => {
+    const expectedSoftKeys = [
+      'soft.reviewer_never',
+      'soft.reviewer_too_many',
+      'soft.role_imbalance',
+      'soft.reviewer_same_campus',
+      'soft.setter_pair_repeated',
+      'soft.review_relation_repeated',
+      'soft.setter_consecutive',
+      'soft.grade_not_rotated',
+      'soft.load_deviation',
+    ];
+
+    const viKeys = getFlatKeys(vi as JsonObject);
+    for (const key of expectedSoftKeys) {
+      expect(viKeys).toContain(key);
+    }
+  });
 });

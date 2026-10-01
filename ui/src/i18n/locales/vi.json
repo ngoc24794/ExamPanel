@@ -110,5 +110,16 @@
     "tight_panel_roster": "{{exam}} – Khối {{grade}}: danh sách khả dụng chỉ vừa đủ {{count}} giáo viên (không có dự phòng)",
     "teacher_single_panel_eligibility": "Giáo viên {{teacher_name}} chỉ đủ điều kiện tham gia duy nhất {{count}} hội đồng trong cả năm",
     "restricted_reviewer_pool": "Số lượng giáo viên đủ điều kiện phản biện ({{reviewer_count}}) ít hơn tổng số giáo viên ({{teacher_count}})"
+  },
+  "soft": {
+    "reviewer_never": "Giáo viên {{teacher}} (chỉ tiêu {{quota}}) chưa có nhiệm vụ phản biện nào (yêu cầu tối thiểu 1)",
+    "reviewer_too_many": "Giáo viên {{teacher}} được phân công {{count}} lượt phản biện (vượt quá mức tối đa {{max}})",
+    "role_imbalance": "Giáo viên {{teacher}} có {{reviews}}/{{count}} lượt phản biện, lệch {{diff}} so với tỷ lệ chuẩn 1/3 ({{ideal}})",
+    "reviewer_same_campus": "{{exam}} – Khối {{grade}}: có {{count}} người ra đề cùng cơ sở với người phản biện",
+    "setter_pair_repeated": "Cặp ra đề {{teacher1}} và {{teacher2}} cùng làm việc {{count}} lần trong năm",
+    "review_relation_repeated": "Mối quan hệ phản biện ({{reviewer}} phản biện {{setter}}) lặp lại {{count}} lần",
+    "setter_consecutive": "Giáo viên {{teacher}} liên tiếp ra đề ở 2 kỳ thi liền kề ({{exam1}} và {{exam2}})",
+    "grade_not_rotated": "Giáo viên {{teacher}} chỉ được phân công {{assigned}} khối lớp (mục tiêu xoay vòng: {{target}} khối)",
+    "load_deviation": "Giáo viên {{teacher}} được giao {{count}} nhiệm vụ, lệch {{deviation}} so với chỉ tiêu {{quota}}"
   }
 }

@@ -184,11 +184,17 @@ pub enum RuleKey {
     S6,
     #[serde(rename = "s7", alias = "s7_multi_grade_rotation")]
     S7,
+    #[serde(
+        rename = "s8",
+        alias = "s8_load_balance",
+        alias = "s8_workload_balance"
+    )]
+    S8,
 }
 
 impl RuleKey {
-    /// All 14 recognized rule keys (H1..H7 and S1..S7).
-    pub const ALL: [Self; 14] = [
+    /// All 15 recognized rule keys (H1..H7 and S1..S8).
+    pub const ALL: [Self; 15] = [
         Self::H1,
         Self::H2,
         Self::H3,
@@ -203,6 +209,7 @@ impl RuleKey {
         Self::S5,
         Self::S6,
         Self::S7,
+        Self::S8,
     ];
 
     #[must_use]
@@ -222,6 +229,7 @@ impl RuleKey {
             Self::S5 => "s5",
             Self::S6 => "s6",
             Self::S7 => "s7",
+            Self::S8 => "s8",
         }
     }
 }
@@ -251,6 +259,7 @@ impl FromStr for RuleKey {
             "s5" | "s5_reciprocal_review_avoidance" => Ok(Self::S5),
             "s6" | "s6_consecutive_exam_relief" => Ok(Self::S6),
             "s7" | "s7_multi_grade_rotation" => Ok(Self::S7),
+            "s8" | "s8_load_balance" | "s8_workload_balance" => Ok(Self::S8),
             other => Err(format!("unknown rule key: {other}")),
         }
     }
@@ -291,7 +300,7 @@ impl RuleSetting {
             Self {
                 key: RuleKey::S2,
                 enabled: true,
-                weight: 5.0,
+                weight: 3.0,
                 params: serde_json::json!({ "ratio": [2, 1] }),
             },
             Self {
@@ -322,6 +331,12 @@ impl RuleSetting {
                 key: RuleKey::S7,
                 enabled: true,
                 weight: 1.0,
+                params: serde_json::json!({}),
+            },
+            Self {
+                key: RuleKey::S8,
+                enabled: true,
+                weight: 8.0,
                 params: serde_json::json!({}),
             },
         ]

@@ -78,4 +78,17 @@
 - **Decision:** Implement a pure Rust, allocation-conscious Dinic/Edmonds-Karp max-flow algorithm and an MRV-directed randomized backtracking solver directly in `crates/core`. Seeded with PRNG for 100% reproducible results.
 - **Consequences:** Zero external solver crate dependencies, instantaneous compile times, zero unsafe code, complete portability, and predictable microsecond-level execution.
 
+## ADR-0014: Redefinition of S6 Soft Constraint to Consecutive Setting Only
+- **Status:** Accepted
+- **Context:** The original soft rule S6 attempted to penalize any consecutive exam assignment (setting or reviewing). However, with 4 standard exams in an academic year and an average teacher workload quota of ~3.5 tasks under H4 (max 1 panel per exam), almost every teacher must participate in at least 3 out of 4 exams. Consequently, avoiding consecutive assignments across all roles is mathematically impossible for most of the faculty, leading to unavoidable baseline penalties.
+- **Decision:** Restrict S6 to penalize consecutive assignments where a teacher serves as a SETTER in two adjacent exam terms (ordered by `sort_order`). Setting an exam paper involves authoring questions, marking schemes, and multi-round revisions—the heavy cognitive duty—whereas reviewing is a lighter oversight task.
+- **Consequences:** Provides actionable optimization gradients without noise penalties from lighter reviewing assignments, pacing author fatigue realistically across academic semesters.
+
+## ADR-0015: Addition of S8 Soft Rule for Workload Deviation Penalties
+- **Status:** Accepted
+- **Context:** Hard constraint H7 enforces teacher annual assignment counts within $[lo_t, hi_t]$ with integer tolerance $k$ (default 1). Within this tolerance window, the constructive solver treats any count in $[lo_t, hi_t]$ as equally valid. As a result, teachers with fractional target quotas $q_t = 3.47$ could be assigned 2 or 4 tasks without any preference pulling them toward 3 or their exact fair share.
+- **Decision:** Introduce soft constraint S8 (`load_deviation`) with quadratic unit penalty $(count_t - q_t)^2$ and default weight 8.0. Maintain forward compatibility in storage by populating S8 defaults when loading problem snapshots and inserting S8 during school year creation.
+- **Consequences:** Strongly biases local search optimization toward exact workload equity across all teachers, even when $k \ge 1$.
+
+
 

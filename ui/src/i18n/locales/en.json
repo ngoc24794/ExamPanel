@@ -110,5 +110,16 @@
     "tight_panel_roster": "{{exam}} – Grade {{grade}}: roster has exactly {{count}} eligible teachers (no substitution margin)",
     "teacher_single_panel_eligibility": "Teacher {{teacher_name}} is eligible for only {{count}} panel across the academic year",
     "restricted_reviewer_pool": "Number of reviewer-eligible teachers ({{reviewer_count}}) is less than total teachers ({{teacher_count}})"
+  },
+  "soft": {
+    "reviewer_never": "Teacher {{teacher}} (quota {{quota}}) has no reviewer assignment (minimum 1 required)",
+    "reviewer_too_many": "Teacher {{teacher}} has {{count}} reviewer assignments (exceeds maximum {{max}})",
+    "role_imbalance": "Teacher {{teacher}} has {{reviews}}/{{count}} reviewer tasks, deviating by {{diff}} from 1/3 ratio ({{ideal}})",
+    "reviewer_same_campus": "{{exam}} – Grade {{grade}}: {{count}} setters share the reviewer's campus",
+    "setter_pair_repeated": "Setter pair {{teacher1}} and {{teacher2}} work together {{count}} times this year",
+    "review_relation_repeated": "Review relationship ({{reviewer}} reviews {{setter}}) repeated {{count}} times",
+    "setter_consecutive": "Teacher {{teacher}} is setter in consecutive exams ({{exam1}} and {{exam2}})",
+    "grade_not_rotated": "Teacher {{teacher}} is assigned to {{assigned}} grades (rotation target: {{target}} grades)",
+    "load_deviation": "Teacher {{teacher}} assigned {{count}} tasks, deviating by {{deviation}} from target quota {{quota}}"
   }
 }

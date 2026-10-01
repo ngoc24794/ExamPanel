@@ -1266,7 +1266,12 @@ impl Store {
             .collect();
 
         let locks = self.get_locks(school_year_id)?;
-        let rule_settings = self.get_rule_settings(school_year_id)?;
+        let mut rule_settings = self.get_rule_settings(school_year_id)?;
+        for default_rule in RuleSetting::default_settings() {
+            if !rule_settings.iter().any(|r| r.key == default_rule.key) {
+                rule_settings.push(default_rule);
+            }
+        }
 
         Ok(Problem {
             school_year,

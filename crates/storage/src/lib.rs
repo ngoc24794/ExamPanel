@@ -236,7 +236,10 @@ mod tests {
         assert_eq!(exams1[3].code, "CK2");
 
         let rules1 = store.get_rule_settings(sy1.id).expect("get rules");
-        assert_eq!(rules1.len(), 9);
+        assert_eq!(rules1.len(), 10);
+        assert!(rules1
+            .iter()
+            .any(|r| r.key == exam_panel_core::domain::RuleKey::S8));
 
         // Add campus, teacher, and grade assignment in sy1
         let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
