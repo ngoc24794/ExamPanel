@@ -5,11 +5,13 @@
 
 pub mod domain;
 pub mod feasibility;
+pub mod optimize;
 pub mod score;
 pub mod solver;
 pub mod validate;
 
 pub use feasibility::*;
+pub use optimize::*;
 pub use score::*;
 pub use solver::*;
 pub use validate::*;

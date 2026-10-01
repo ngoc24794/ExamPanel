@@ -167,6 +167,42 @@ flowchart TD
     API --> UIComponents[UI Components call api.ping, api.getTheme, etc.]
 ```
 
+### 3.4 Multi-Plan Optimization & Simulated Annealing Architecture
+```mermaid
+flowchart TD
+    InitialPlan["Initial Plan (solve_hard / User Plan)"] --> State["IncrementalState\n(Dense Index, O(1) Counters for S1–S8)"]
+
+    subgraph ParallelRunner["Deterministic Parallel Optimization (rayon)"]
+        direction TB
+        Run1["SA Run 1 (Seed 1)"]
+        Run2["SA Run 2 (Seed 2)"]
+        RunDot["..."]
+        RunR["SA Run R (Seed R)"]
+    end
+
+    State --> Run1
+    State --> Run2
+    State --> RunDot
+    State --> RunR
+
+    subgraph MoveOperators["Valid Neighborhood Moves (Preserving H1–H7)"]
+        M1["M1 Replace (Qualified Non-Exam Teacher)"]
+        M2["M2 Intra-Exam Swap (Between Panels in Same Exam)"]
+        M3["M3 Cross-Exam Swap (Between Panels in Diff Exams)"]
+        M4["M4 Role Swap (Setter <-> Reviewer in Same Panel)"]
+    end
+
+    Run1 -.-> MoveOperators
+    Run2 -.-> MoveOperators
+
+    Run1 --> Candidates["R Candidate Solutions"]
+    Run2 --> Candidates
+    RunR --> Candidates
+
+    Candidates --> Diversity["Greedy Max-Min Diversity Selector\n(Threshold tau >= 0.20, Max K=3 Plans)"]
+    Diversity --> Result["OptimizeResult { plans: Vec<RankedPlan>, initial_report, stats }"]
+```
+
 ---
 
 ## 4. Architectural Invariants
@@ -174,3 +210,5 @@ flowchart TD
 2. **Deterministic Feasibility Checks:** Feasibility check failures must always explain *why* the configuration is invalid and name the exact exam, grade, or teacher group causing the conflict.
 3. **Data Portability:** Storage location resolution must always prioritize adjacent `./data/` directories when write permissions exist, enabling USB/folder portability without installer lock-in.
 4. **Zero String Hardcoding:** Every UI text label, notification, table header, or error message must resolve through `t('path.key')`.
+5. **Deterministic Optimization:** Given the same `base_seed` and `Budget::Iterations`, parallel multi-run optimization yields identical results across all CPU thread configurations.
+

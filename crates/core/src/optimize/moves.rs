@@ -1,0 +1,1173 @@
+//! Local search move operators and candidate generation.
+//!
+//! Defines M1..M4 moves that strictly preserve hard constraints H1–H7:
+//! - M1 Replace: swap panel slot with qualified teacher not in exam.
+//! - M2 IntraExamSwap: swap two teachers between panels in the same exam.
+//! - M3 CrossExamSwap: swap two teachers between panels in different exams.
+//! - M4 RoleSwap: swap setter and reviewer within the same panel.
+
+use super::state::{DensePanel, IncrementalState, SlotRole};
+use crate::domain::Role;
+use rand_chacha::ChaCha8Rng;
+use rand_core::RngCore;
+
+/// A proposed local search move.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalMove {
+    Replace {
+        panel_idx: usize,
+        slot: SlotRole,
+        old_t: usize,
+        new_t: usize,
+    },
+    IntraExamSwap {
+        panel1_idx: usize,
+        slot1: SlotRole,
+        t1: usize,
+        panel2_idx: usize,
+        slot2: SlotRole,
+        t2: usize,
+    },
+    CrossExamSwap {
+        panel1_idx: usize,
+        slot1: SlotRole,
+        t1: usize,
+        panel2_idx: usize,
+        slot2: SlotRole,
+        t2: usize,
+    },
+    RoleSwap {
+        panel_idx: usize,
+        setter_slot: SlotRole,
+        setter_t: usize,
+        reviewer_t: usize,
+    },
+}
+
+impl IncrementalState {
+    /// Evaluates S1 cost for a single teacher.
+    #[inline]
+    pub fn eval_teacher_s1(&self, t: usize) -> f64 {
+        if !self.reviewer_eligible[t] {
+            return 0.0;
+        }
+        let r = self.teacher_reviewers[t];
+        if r == 0 {
+            1.0
+        } else if r > 2 {
+            (r - 2) as f64
+        } else {
+            0.0
+        }
+    }
+
+    /// Evaluates S2 cost for a single teacher.
+    #[inline]
+    pub fn eval_teacher_s2(&self, t: usize) -> f64 {
+        let count = self.teacher_count[t];
+        if count >= 2 {
+            let r = self.teacher_reviewers[t] as f64;
+            let ideal = count as f64 / 3.0;
+            (r - ideal).abs()
+        } else {
+            0.0
+        }
+    }
+
+    /// Evaluates S3 cost for a single panel.
+    #[inline]
+    pub fn eval_panel_s3(&self, panel: &DensePanel) -> f64 {
+        let r_camp = self.campuses[panel.reviewer];
+        let mut u = 0.0;
+        if self.campuses[panel.setter1] == r_camp {
+            u += 1.0;
+        }
+        if self.campuses[panel.setter2] == r_camp {
+            u += 1.0;
+        }
+        u
+    }
+
+    /// Evaluates S4 cost for a single setter pair.
+    #[inline]
+    pub fn eval_setter_pair_s4(&self, u: usize, v: usize) -> f64 {
+        let (min_t, max_t) = if u < v { (u, v) } else { (v, u) };
+        let c = self.setter_pairs[min_t][max_t];
+        if c > 1 {
+            (c - 1) as f64
+        } else {
+            0.0
+        }
+    }
+
+    /// Evaluates S5 cost for a single review relation.
+    #[inline]
+    pub fn eval_review_rel_s5(&self, rev: usize, setter: usize) -> f64 {
+        let c = self.review_relations[rev][setter];
+        if c > 1 {
+            (c - 1) as f64
+        } else {
+            0.0
+        }
+    }
+
+    /// Evaluates S6 cost for a single teacher.
+    #[inline]
+    pub fn eval_teacher_s6(&self, t: usize) -> f64 {
+        if self.sorted_exam_indices.len() < 2 {
+            return 0.0;
+        }
+        let mut u = 0.0;
+        for i in 0..(self.sorted_exam_indices.len() - 1) {
+            let e1 = self.sorted_exam_indices[i];
+            let e2 = self.sorted_exam_indices[i + 1];
+            if self.teacher_exam_role[t][e1] == Some(Role::Setter)
+                && self.teacher_exam_role[t][e2] == Some(Role::Setter)
+            {
+                u += 1.0;
+            }
+        }
+        u
+    }
+
+    /// Evaluates S7 cost for a single teacher.
+    #[inline]
+    pub fn eval_teacher_s7(&self, t: usize) -> f64 {
+        let qualified_count = self.qualified_grades[t].iter().filter(|&&q| q).count();
+        if qualified_count >= 2 {
+            let count = self.teacher_count[t];
+            let target = count.min(qualified_count);
+            let assigned = self.teacher_distinct_grades[t];
+            if assigned < target {
+                (target - assigned) as f64
+            } else {
+                0.0
+            }
+        } else {
+            0.0
+        }
+    }
+
+    /// Evaluates S8 cost for a single teacher.
+    #[inline]
+    pub fn eval_teacher_s8(&self, t: usize) -> f64 {
+        let diff = self.teacher_count[t] as f64 - self.quotas[t];
+        diff * diff
+    }
+
+    /// Evaluates the total weighted penalty for the given set of teachers, panels, pairs, relations.
+    fn eval_sub_penalty(
+        &self,
+        teachers: &[usize],
+        panels: &[usize],
+        pairs: &[(usize, usize)],
+        relations: &[(usize, usize)],
+    ) -> f64 {
+        let mut total = 0.0;
+
+        // Teacher terms: S1, S2, S6, S7, S8
+        for &t in teachers {
+            if self.rule_enabled[0] {
+                total += self.rule_weights[0] * self.eval_teacher_s1(t);
+            }
+            if self.rule_enabled[1] {
+                total += self.rule_weights[1] * self.eval_teacher_s2(t);
+            }
+            if self.rule_enabled[5] {
+                total += self.rule_weights[5] * self.eval_teacher_s6(t);
+            }
+            if self.rule_enabled[6] {
+                total += self.rule_weights[6] * self.eval_teacher_s7(t);
+            }
+            if self.rule_enabled[7] {
+                total += self.rule_weights[7] * self.eval_teacher_s8(t);
+            }
+        }
+
+        // Panel terms: S3
+        if self.rule_enabled[2] {
+            for &p_idx in panels {
+                total += self.rule_weights[2] * self.eval_panel_s3(&self.panels[p_idx]);
+            }
+        }
+
+        // Pair terms: S4
+        if self.rule_enabled[3] {
+            for &(u, v) in pairs {
+                total += self.rule_weights[3] * self.eval_setter_pair_s4(u, v);
+            }
+        }
+
+        // Relation terms: S5
+        if self.rule_enabled[4] {
+            for &(r, s) in relations {
+                total += self.rule_weights[4] * self.eval_review_rel_s5(r, s);
+            }
+        }
+
+        total
+    }
+
+    /// Applies a slot change internal helper.
+    fn apply_slot_change(&mut self, p_idx: usize, slot: SlotRole, old_t: usize, new_t: usize) {
+        let e = self.panels[p_idx].exam_idx;
+        let g = self.panels[p_idx].grade_idx;
+        let role = slot.to_role();
+
+        // 1. teacher_count
+        self.teacher_count[old_t] -= 1;
+        self.teacher_count[new_t] += 1;
+
+        // 2. roles
+        match role {
+            Role::Setter => {
+                self.teacher_setters[old_t] -= 1;
+                self.teacher_setters[new_t] += 1;
+            }
+            Role::Reviewer => {
+                self.teacher_reviewers[old_t] -= 1;
+                self.teacher_reviewers[new_t] += 1;
+            }
+        }
+
+        // 3. teacher_exam_role
+        self.teacher_exam_role[old_t][e] = None;
+        self.teacher_exam_role[new_t][e] = Some(role);
+
+        // 4. teacher_grade_counts
+        self.teacher_grade_counts[old_t][g] -= 1;
+        if self.teacher_grade_counts[old_t][g] == 0 {
+            self.teacher_distinct_grades[old_t] -= 1;
+        }
+        if self.teacher_grade_counts[new_t][g] == 0 {
+            self.teacher_distinct_grades[new_t] += 1;
+        }
+        self.teacher_grade_counts[new_t][g] += 1;
+
+        // 5. Remove old S4/S5 relations for this panel
+        let old_s1 = self.panels[p_idx].setter1;
+        let old_s2 = self.panels[p_idx].setter2;
+        let old_rev = self.panels[p_idx].reviewer;
+        let (u, v) = if old_s1 < old_s2 {
+            (old_s1, old_s2)
+        } else {
+            (old_s2, old_s1)
+        };
+        self.setter_pairs[u][v] -= 1;
+        self.review_relations[old_rev][old_s1] -= 1;
+        self.review_relations[old_rev][old_s2] -= 1;
+
+        // Update panel slot
+        self.panels[p_idx].set_slot(slot, new_t);
+
+        // Add new S4/S5 relations for this panel
+        let new_s1 = self.panels[p_idx].setter1;
+        let new_s2 = self.panels[p_idx].setter2;
+        let new_rev = self.panels[p_idx].reviewer;
+        let (nu, nv) = if new_s1 < new_s2 {
+            (new_s1, new_s2)
+        } else {
+            (new_s2, new_s1)
+        };
+        self.setter_pairs[nu][nv] += 1;
+        self.review_relations[new_rev][new_s1] += 1;
+        self.review_relations[new_rev][new_s2] += 1;
+    }
+
+    /// Evaluates the delta in total penalty for a move, applies it, and returns the delta.
+    /// If the caller decides not to accept, they must call `revert_move(m)`.
+    pub fn try_apply_move(&mut self, m: LocalMove) -> f64 {
+        let aff = self.affected_entities(m);
+
+        let old_penalty =
+            self.eval_sub_penalty(&aff.teachers, &aff.panels, &aff.pairs, &aff.relations);
+
+        self.apply_raw(m);
+
+        let new_penalty =
+            self.eval_sub_penalty(&aff.teachers, &aff.panels, &aff.pairs, &aff.relations);
+        let delta = new_penalty - old_penalty;
+        self.current_penalty += delta;
+        delta
+    }
+
+    /// Reverts a previously applied move.
+    pub fn revert_move(&mut self, m: LocalMove, delta: f64) {
+        let inv = match m {
+            LocalMove::Replace {
+                panel_idx,
+                slot,
+                old_t,
+                new_t,
+            } => LocalMove::Replace {
+                panel_idx,
+                slot,
+                old_t: new_t,
+                new_t: old_t,
+            },
+            LocalMove::IntraExamSwap {
+                panel1_idx,
+                slot1,
+                t1,
+                panel2_idx,
+                slot2,
+                t2,
+            } => LocalMove::IntraExamSwap {
+                panel1_idx,
+                slot1,
+                t1: t2,
+                panel2_idx,
+                slot2,
+                t2: t1,
+            },
+            LocalMove::CrossExamSwap {
+                panel1_idx,
+                slot1,
+                t1,
+                panel2_idx,
+                slot2,
+                t2,
+            } => LocalMove::CrossExamSwap {
+                panel1_idx,
+                slot1,
+                t1: t2,
+                panel2_idx,
+                slot2,
+                t2: t1,
+            },
+            LocalMove::RoleSwap {
+                panel_idx,
+                setter_slot,
+                setter_t,
+                reviewer_t,
+            } => LocalMove::RoleSwap {
+                panel_idx,
+                setter_slot,
+                setter_t: reviewer_t,
+                reviewer_t: setter_t,
+            },
+        };
+
+        self.apply_raw(inv);
+        self.current_penalty -= delta;
+    }
+
+    fn apply_raw(&mut self, m: LocalMove) {
+        match m {
+            LocalMove::Replace {
+                panel_idx,
+                slot,
+                old_t,
+                new_t,
+            } => {
+                self.apply_slot_change(panel_idx, slot, old_t, new_t);
+            }
+            LocalMove::IntraExamSwap {
+                panel1_idx,
+                slot1,
+                t1,
+                panel2_idx,
+                slot2,
+                t2,
+            } => {
+                let e = self.panels[panel1_idx].exam_idx;
+                let g1 = self.panels[panel1_idx].grade_idx;
+                let g2 = self.panels[panel2_idx].grade_idx;
+                let r1 = slot1.to_role();
+                let r2 = slot2.to_role();
+
+                if r1 != r2 {
+                    match r1 {
+                        Role::Setter => {
+                            self.teacher_setters[t1] -= 1;
+                            self.teacher_reviewers[t1] += 1;
+                            self.teacher_reviewers[t2] -= 1;
+                            self.teacher_setters[t2] += 1;
+                        }
+                        Role::Reviewer => {
+                            self.teacher_reviewers[t1] -= 1;
+                            self.teacher_setters[t1] += 1;
+                            self.teacher_setters[t2] -= 1;
+                            self.teacher_reviewers[t2] += 1;
+                        }
+                    }
+                }
+
+                self.teacher_exam_role[t1][e] = Some(r2);
+                self.teacher_exam_role[t2][e] = Some(r1);
+
+                if g1 != g2 {
+                    self.teacher_grade_counts[t1][g1] -= 1;
+                    if self.teacher_grade_counts[t1][g1] == 0 {
+                        self.teacher_distinct_grades[t1] -= 1;
+                    }
+                    if self.teacher_grade_counts[t1][g2] == 0 {
+                        self.teacher_distinct_grades[t1] += 1;
+                    }
+                    self.teacher_grade_counts[t1][g2] += 1;
+
+                    self.teacher_grade_counts[t2][g2] -= 1;
+                    if self.teacher_grade_counts[t2][g2] == 0 {
+                        self.teacher_distinct_grades[t2] -= 1;
+                    }
+                    if self.teacher_grade_counts[t2][g1] == 0 {
+                        self.teacher_distinct_grades[t2] += 1;
+                    }
+                    self.teacher_grade_counts[t2][g1] += 1;
+                }
+
+                // Remove old relations
+                let old1_s1 = self.panels[panel1_idx].setter1;
+                let old1_s2 = self.panels[panel1_idx].setter2;
+                let old1_rev = self.panels[panel1_idx].reviewer;
+                let (u1, v1) = if old1_s1 < old1_s2 {
+                    (old1_s1, old1_s2)
+                } else {
+                    (old1_s2, old1_s1)
+                };
+                self.setter_pairs[u1][v1] -= 1;
+                self.review_relations[old1_rev][old1_s1] -= 1;
+                self.review_relations[old1_rev][old1_s2] -= 1;
+
+                let old2_s1 = self.panels[panel2_idx].setter1;
+                let old2_s2 = self.panels[panel2_idx].setter2;
+                let old2_rev = self.panels[panel2_idx].reviewer;
+                let (u2, v2) = if old2_s1 < old2_s2 {
+                    (old2_s1, old2_s2)
+                } else {
+                    (old2_s2, old2_s1)
+                };
+                self.setter_pairs[u2][v2] -= 1;
+                self.review_relations[old2_rev][old2_s1] -= 1;
+                self.review_relations[old2_rev][old2_s2] -= 1;
+
+                // Update panel slots
+                self.panels[panel1_idx].set_slot(slot1, t2);
+                self.panels[panel2_idx].set_slot(slot2, t1);
+
+                // Add new relations
+                let new1_s1 = self.panels[panel1_idx].setter1;
+                let new1_s2 = self.panels[panel1_idx].setter2;
+                let new1_rev = self.panels[panel1_idx].reviewer;
+                let (nu1, nv1) = if new1_s1 < new1_s2 {
+                    (new1_s1, new1_s2)
+                } else {
+                    (new1_s2, new1_s1)
+                };
+                self.setter_pairs[nu1][nv1] += 1;
+                self.review_relations[new1_rev][new1_s1] += 1;
+                self.review_relations[new1_rev][new1_s2] += 1;
+
+                let new2_s1 = self.panels[panel2_idx].setter1;
+                let new2_s2 = self.panels[panel2_idx].setter2;
+                let new2_rev = self.panels[panel2_idx].reviewer;
+                let (nu2, nv2) = if new2_s1 < new2_s2 {
+                    (new2_s1, new2_s2)
+                } else {
+                    (new2_s2, new2_s1)
+                };
+                self.setter_pairs[nu2][nv2] += 1;
+                self.review_relations[new2_rev][new2_s1] += 1;
+                self.review_relations[new2_rev][new2_s2] += 1;
+            }
+            LocalMove::CrossExamSwap {
+                panel1_idx,
+                slot1,
+                t1,
+                panel2_idx,
+                slot2,
+                t2,
+            } => {
+                let e1 = self.panels[panel1_idx].exam_idx;
+                let e2 = self.panels[panel2_idx].exam_idx;
+                let g1 = self.panels[panel1_idx].grade_idx;
+                let g2 = self.panels[panel2_idx].grade_idx;
+                let r1 = slot1.to_role();
+                let r2 = slot2.to_role();
+
+                if r1 != r2 {
+                    match r1 {
+                        Role::Setter => {
+                            self.teacher_setters[t1] -= 1;
+                            self.teacher_reviewers[t1] += 1;
+                            self.teacher_reviewers[t2] -= 1;
+                            self.teacher_setters[t2] += 1;
+                        }
+                        Role::Reviewer => {
+                            self.teacher_reviewers[t1] -= 1;
+                            self.teacher_setters[t1] += 1;
+                            self.teacher_setters[t2] -= 1;
+                            self.teacher_reviewers[t2] += 1;
+                        }
+                    }
+                }
+
+                self.teacher_exam_role[t1][e1] = None;
+                self.teacher_exam_role[t1][e2] = Some(r2);
+                self.teacher_exam_role[t2][e2] = None;
+                self.teacher_exam_role[t2][e1] = Some(r1);
+
+                if g1 != g2 {
+                    self.teacher_grade_counts[t1][g1] -= 1;
+                    if self.teacher_grade_counts[t1][g1] == 0 {
+                        self.teacher_distinct_grades[t1] -= 1;
+                    }
+                    if self.teacher_grade_counts[t1][g2] == 0 {
+                        self.teacher_distinct_grades[t1] += 1;
+                    }
+                    self.teacher_grade_counts[t1][g2] += 1;
+
+                    self.teacher_grade_counts[t2][g2] -= 1;
+                    if self.teacher_grade_counts[t2][g2] == 0 {
+                        self.teacher_distinct_grades[t2] -= 1;
+                    }
+                    if self.teacher_grade_counts[t2][g1] == 0 {
+                        self.teacher_distinct_grades[t2] += 1;
+                    }
+                    self.teacher_grade_counts[t2][g1] += 1;
+                }
+
+                // Remove old relations
+                let old1_s1 = self.panels[panel1_idx].setter1;
+                let old1_s2 = self.panels[panel1_idx].setter2;
+                let old1_rev = self.panels[panel1_idx].reviewer;
+                let (u1, v1) = if old1_s1 < old1_s2 {
+                    (old1_s1, old1_s2)
+                } else {
+                    (old1_s2, old1_s1)
+                };
+                self.setter_pairs[u1][v1] -= 1;
+                self.review_relations[old1_rev][old1_s1] -= 1;
+                self.review_relations[old1_rev][old1_s2] -= 1;
+
+                let old2_s1 = self.panels[panel2_idx].setter1;
+                let old2_s2 = self.panels[panel2_idx].setter2;
+                let old2_rev = self.panels[panel2_idx].reviewer;
+                let (u2, v2) = if old2_s1 < old2_s2 {
+                    (old2_s1, old2_s2)
+                } else {
+                    (old2_s2, old2_s1)
+                };
+                self.setter_pairs[u2][v2] -= 1;
+                self.review_relations[old2_rev][old2_s1] -= 1;
+                self.review_relations[old2_rev][old2_s2] -= 1;
+
+                // Update panel slots
+                self.panels[panel1_idx].set_slot(slot1, t2);
+                self.panels[panel2_idx].set_slot(slot2, t1);
+
+                // Add new relations
+                let new1_s1 = self.panels[panel1_idx].setter1;
+                let new1_s2 = self.panels[panel1_idx].setter2;
+                let new1_rev = self.panels[panel1_idx].reviewer;
+                let (nu1, nv1) = if new1_s1 < new1_s2 {
+                    (new1_s1, new1_s2)
+                } else {
+                    (new1_s2, new1_s1)
+                };
+                self.setter_pairs[nu1][nv1] += 1;
+                self.review_relations[new1_rev][new1_s1] += 1;
+                self.review_relations[new1_rev][new1_s2] += 1;
+
+                let new2_s1 = self.panels[panel2_idx].setter1;
+                let new2_s2 = self.panels[panel2_idx].setter2;
+                let new2_rev = self.panels[panel2_idx].reviewer;
+                let (nu2, nv2) = if new2_s1 < new2_s2 {
+                    (new2_s1, new2_s2)
+                } else {
+                    (new2_s2, new2_s1)
+                };
+                self.setter_pairs[nu2][nv2] += 1;
+                self.review_relations[new2_rev][new2_s1] += 1;
+                self.review_relations[new2_rev][new2_s2] += 1;
+            }
+            LocalMove::RoleSwap {
+                panel_idx,
+                setter_slot,
+                setter_t,
+                reviewer_t,
+            } => {
+                let e = self.panels[panel_idx].exam_idx;
+                // Swap roles in panel
+                self.teacher_setters[setter_t] -= 1;
+                self.teacher_reviewers[setter_t] += 1;
+                self.teacher_exam_role[setter_t][e] = Some(Role::Reviewer);
+
+                self.teacher_reviewers[reviewer_t] -= 1;
+                self.teacher_setters[reviewer_t] += 1;
+                self.teacher_exam_role[reviewer_t][e] = Some(Role::Setter);
+
+                // Update S4/S5
+                let old_s1 = self.panels[panel_idx].setter1;
+                let old_s2 = self.panels[panel_idx].setter2;
+                let old_rev = self.panels[panel_idx].reviewer;
+                let (u, v) = if old_s1 < old_s2 {
+                    (old_s1, old_s2)
+                } else {
+                    (old_s2, old_s1)
+                };
+                self.setter_pairs[u][v] -= 1;
+                self.review_relations[old_rev][old_s1] -= 1;
+                self.review_relations[old_rev][old_s2] -= 1;
+
+                self.panels[panel_idx].set_slot(setter_slot, reviewer_t);
+                self.panels[panel_idx].set_slot(SlotRole::Reviewer, setter_t);
+
+                let new_s1 = self.panels[panel_idx].setter1;
+                let new_s2 = self.panels[panel_idx].setter2;
+                let new_rev = self.panels[panel_idx].reviewer;
+                let (nu, nv) = if new_s1 < new_s2 {
+                    (new_s1, new_s2)
+                } else {
+                    (new_s2, new_s1)
+                };
+                self.setter_pairs[nu][nv] += 1;
+                self.review_relations[new_rev][new_s1] += 1;
+                self.review_relations[new_rev][new_s2] += 1;
+            }
+        }
+    }
+}
+
+/// Set of entities affected by a local search move.
+#[derive(Debug, Default)]
+struct AffectedEntities {
+    teachers: Vec<usize>,
+    panels: Vec<usize>,
+    pairs: Vec<(usize, usize)>,
+    relations: Vec<(usize, usize)>,
+}
+
+impl IncrementalState {
+    /// Gathers distinct affected teachers, panels, pairs, and relations for a move.
+    fn affected_entities(&self, m: LocalMove) -> AffectedEntities {
+        let mut teachers = Vec::new();
+        let mut panels = Vec::new();
+        let mut pairs = Vec::new();
+        let mut relations = Vec::new();
+
+        let add_panel_terms = |p_idx: usize,
+                               panels: &mut Vec<usize>,
+                               pairs: &mut Vec<(usize, usize)>,
+                               relations: &mut Vec<(usize, usize)>| {
+            if !panels.contains(&p_idx) {
+                panels.push(p_idx);
+            }
+            let s1 = self.panels[p_idx].setter1;
+            let s2 = self.panels[p_idx].setter2;
+            let rev = self.panels[p_idx].reviewer;
+            let (u, v) = if s1 < s2 { (s1, s2) } else { (s2, s1) };
+            if !pairs.contains(&(u, v)) {
+                pairs.push((u, v));
+            }
+            if !relations.contains(&(rev, s1)) {
+                relations.push((rev, s1));
+            }
+            if !relations.contains(&(rev, s2)) {
+                relations.push((rev, s2));
+            }
+        };
+
+        match m {
+            LocalMove::Replace {
+                panel_idx,
+                old_t,
+                new_t,
+                ..
+            } => {
+                teachers.push(old_t);
+                teachers.push(new_t);
+                add_panel_terms(panel_idx, &mut panels, &mut pairs, &mut relations);
+            }
+            LocalMove::IntraExamSwap {
+                panel1_idx,
+                t1,
+                panel2_idx,
+                t2,
+                ..
+            }
+            | LocalMove::CrossExamSwap {
+                panel1_idx,
+                t1,
+                panel2_idx,
+                t2,
+                ..
+            } => {
+                teachers.push(t1);
+                teachers.push(t2);
+                add_panel_terms(panel1_idx, &mut panels, &mut pairs, &mut relations);
+                add_panel_terms(panel2_idx, &mut panels, &mut pairs, &mut relations);
+            }
+            LocalMove::RoleSwap {
+                panel_idx,
+                setter_t,
+                reviewer_t,
+                ..
+            } => {
+                teachers.push(setter_t);
+                teachers.push(reviewer_t);
+                add_panel_terms(panel_idx, &mut panels, &mut pairs, &mut relations);
+            }
+        }
+
+        // Also add potential new pairs/relations after the move
+        match m {
+            LocalMove::Replace {
+                panel_idx,
+                slot,
+                new_t,
+                ..
+            } => {
+                let p = &self.panels[panel_idx];
+                let (new_s1, new_s2, new_rev) = match slot {
+                    SlotRole::Setter1 => (new_t, p.setter2, p.reviewer),
+                    SlotRole::Setter2 => (p.setter1, new_t, p.reviewer),
+                    SlotRole::Reviewer => (p.setter1, p.setter2, new_t),
+                };
+                let (u, v) = if new_s1 < new_s2 {
+                    (new_s1, new_s2)
+                } else {
+                    (new_s2, new_s1)
+                };
+                if !pairs.contains(&(u, v)) {
+                    pairs.push((u, v));
+                }
+                if !relations.contains(&(new_rev, new_s1)) {
+                    relations.push((new_rev, new_s1));
+                }
+                if !relations.contains(&(new_rev, new_s2)) {
+                    relations.push((new_rev, new_s2));
+                }
+            }
+            LocalMove::IntraExamSwap {
+                panel1_idx,
+                slot1,
+                panel2_idx,
+                slot2,
+                t1,
+                t2,
+            }
+            | LocalMove::CrossExamSwap {
+                panel1_idx,
+                slot1,
+                panel2_idx,
+                slot2,
+                t1,
+                t2,
+            } => {
+                for (p_idx, slot, new_t) in [(panel1_idx, slot1, t2), (panel2_idx, slot2, t1)] {
+                    let p = &self.panels[p_idx];
+                    let (new_s1, new_s2, new_rev) = match slot {
+                        SlotRole::Setter1 => (new_t, p.setter2, p.reviewer),
+                        SlotRole::Setter2 => (p.setter1, new_t, p.reviewer),
+                        SlotRole::Reviewer => (p.setter1, p.setter2, new_t),
+                    };
+                    let (u, v) = if new_s1 < new_s2 {
+                        (new_s1, new_s2)
+                    } else {
+                        (new_s2, new_s1)
+                    };
+                    if !pairs.contains(&(u, v)) {
+                        pairs.push((u, v));
+                    }
+                    if !relations.contains(&(new_rev, new_s1)) {
+                        relations.push((new_rev, new_s1));
+                    }
+                    if !relations.contains(&(new_rev, new_s2)) {
+                        relations.push((new_rev, new_s2));
+                    }
+                }
+            }
+            LocalMove::RoleSwap {
+                panel_idx,
+                setter_slot,
+                setter_t,
+                reviewer_t,
+            } => {
+                let p = &self.panels[panel_idx];
+                let (new_s1, new_s2, new_rev) = match setter_slot {
+                    SlotRole::Setter1 => (reviewer_t, p.setter2, setter_t),
+                    SlotRole::Setter2 => (p.setter1, reviewer_t, setter_t),
+                    SlotRole::Reviewer => (p.setter1, p.setter2, setter_t),
+                };
+                let (u, v) = if new_s1 < new_s2 {
+                    (new_s1, new_s2)
+                } else {
+                    (new_s2, new_s1)
+                };
+                if !pairs.contains(&(u, v)) {
+                    pairs.push((u, v));
+                }
+                if !relations.contains(&(new_rev, new_s1)) {
+                    relations.push((new_rev, new_s1));
+                }
+                if !relations.contains(&(new_rev, new_s2)) {
+                    relations.push((new_rev, new_s2));
+                }
+            }
+        }
+
+        teachers.sort_unstable();
+        teachers.dedup();
+
+        AffectedEntities {
+            teachers,
+            panels,
+            pairs,
+            relations,
+        }
+    }
+
+    /// Checks if a panel with proposed 3 teachers satisfies H3 (at least 2 distinct campuses).
+    #[inline]
+    pub fn check_h3_panel(&self, t1: usize, t2: usize, t3: usize) -> bool {
+        let c1 = self.campuses[t1];
+        let c2 = self.campuses[t2];
+        let c3 = self.campuses[t3];
+        c1 != c2 || c1 != c3
+    }
+
+    /// Generates a valid candidate move using random selection.
+    pub fn sample_candidate_move(&self, rng: &mut ChaCha8Rng) -> Option<LocalMove> {
+        let num_panels = self.panels.len();
+        let num_teachers = self.teacher_ids.len();
+        let num_exams = self.exam_ids.len();
+        let num_grades = self.grade_ids.len();
+
+        if num_panels == 0 || num_teachers == 0 {
+            return None;
+        }
+
+        // Try up to 50 attempts to find a valid move
+        for _ in 0..50 {
+            let move_kind = rng.next_u32() % 100;
+            if move_kind < 35 {
+                // -------------------------------------------------------------
+                // M1: Replace
+                // -------------------------------------------------------------
+                let p_idx = (rng.next_u32() as usize) % num_panels;
+                let panel = &self.panels[p_idx];
+                let slot = match rng.next_u32() % 3 {
+                    0 => SlotRole::Setter1,
+                    1 => SlotRole::Setter2,
+                    _ => SlotRole::Reviewer,
+                };
+                if panel.is_pinned(slot) {
+                    continue;
+                }
+                let old_t = panel.get_slot(slot);
+                let new_t = (rng.next_u32() as usize) % num_teachers;
+                if new_t == old_t {
+                    continue;
+                }
+
+                let e = panel.exam_idx;
+                let g = panel.grade_idx;
+                let role = slot.to_role();
+
+                // H4 & H1: new_t must not already be in exam e
+                if self.teacher_exam_role[new_t][e].is_some() {
+                    continue;
+                }
+                // H2: qualified for grade g
+                if !self.qualified_grades[new_t][g] {
+                    continue;
+                }
+                // H5: available for exam e
+                if self.unavailabilities[new_t][e] {
+                    continue;
+                }
+                // H6: not FORBIDden
+                match role {
+                    Role::Setter => {
+                        if self.forbids_setter[e][g].contains(&new_t) {
+                            continue;
+                        }
+                    }
+                    Role::Reviewer => {
+                        if self.forbids_reviewer[e][g].contains(&new_t) {
+                            continue;
+                        }
+                    }
+                }
+                // H7: bounds
+                if self.teacher_count[new_t] + 1 > self.bounds[new_t].1 {
+                    continue;
+                }
+                if self.teacher_count[old_t] <= self.bounds[old_t].0 {
+                    continue;
+                }
+                // H3: campus diversity in panel
+                let (t1, t2, t3) = match slot {
+                    SlotRole::Setter1 => (new_t, panel.setter2, panel.reviewer),
+                    SlotRole::Setter2 => (panel.setter1, new_t, panel.reviewer),
+                    SlotRole::Reviewer => (panel.setter1, panel.setter2, new_t),
+                };
+                if !self.check_h3_panel(t1, t2, t3) {
+                    continue;
+                }
+
+                return Some(LocalMove::Replace {
+                    panel_idx: p_idx,
+                    slot,
+                    old_t,
+                    new_t,
+                });
+            } else if move_kind < 60 {
+                // -------------------------------------------------------------
+                // M2: Intra-Exam Swap (same exam, different grades)
+                // -------------------------------------------------------------
+                if num_grades < 2 {
+                    continue;
+                }
+                let e = (rng.next_u32() as usize) % num_exams;
+                let g1 = (rng.next_u32() as usize) % num_grades;
+                let mut g2 = (rng.next_u32() as usize) % (num_grades - 1);
+                if g2 >= g1 {
+                    g2 += 1;
+                }
+
+                let p1_idx = e * num_grades + g1;
+                let p2_idx = e * num_grades + g2;
+                let p1 = &self.panels[p1_idx];
+                let p2 = &self.panels[p2_idx];
+
+                let slot1 = match rng.next_u32() % 3 {
+                    0 => SlotRole::Setter1,
+                    1 => SlotRole::Setter2,
+                    _ => SlotRole::Reviewer,
+                };
+                let slot2 = match rng.next_u32() % 3 {
+                    0 => SlotRole::Setter1,
+                    1 => SlotRole::Setter2,
+                    _ => SlotRole::Reviewer,
+                };
+                if p1.is_pinned(slot1) || p2.is_pinned(slot2) {
+                    continue;
+                }
+                let t1 = p1.get_slot(slot1);
+                let t2 = p2.get_slot(slot2);
+                if t1 == t2 {
+                    continue;
+                }
+
+                // H2 & H6 for t1 in p2
+                if !self.qualified_grades[t1][g2] {
+                    continue;
+                }
+                match slot2.to_role() {
+                    Role::Setter => {
+                        if self.forbids_setter[e][g2].contains(&t1) {
+                            continue;
+                        }
+                    }
+                    Role::Reviewer => {
+                        if self.forbids_reviewer[e][g2].contains(&t1) {
+                            continue;
+                        }
+                    }
+                }
+
+                // H2 & H6 for t2 in p1
+                if !self.qualified_grades[t2][g1] {
+                    continue;
+                }
+                match slot1.to_role() {
+                    Role::Setter => {
+                        if self.forbids_setter[e][g1].contains(&t2) {
+                            continue;
+                        }
+                    }
+                    Role::Reviewer => {
+                        if self.forbids_reviewer[e][g1].contains(&t2) {
+                            continue;
+                        }
+                    }
+                }
+
+                // H3 campus diversity
+                let p1_t = match slot1 {
+                    SlotRole::Setter1 => (t2, p1.setter2, p1.reviewer),
+                    SlotRole::Setter2 => (p1.setter1, t2, p1.reviewer),
+                    SlotRole::Reviewer => (p1.setter1, p1.setter2, t2),
+                };
+                if !self.check_h3_panel(p1_t.0, p1_t.1, p1_t.2) {
+                    continue;
+                }
+
+                let p2_t = match slot2 {
+                    SlotRole::Setter1 => (t1, p2.setter2, p2.reviewer),
+                    SlotRole::Setter2 => (p2.setter1, t1, p2.reviewer),
+                    SlotRole::Reviewer => (p2.setter1, p2.setter2, t1),
+                };
+                if !self.check_h3_panel(p2_t.0, p2_t.1, p2_t.2) {
+                    continue;
+                }
+
+                return Some(LocalMove::IntraExamSwap {
+                    panel1_idx: p1_idx,
+                    slot1,
+                    t1,
+                    panel2_idx: p2_idx,
+                    slot2,
+                    t2,
+                });
+            } else if move_kind < 85 {
+                // -------------------------------------------------------------
+                // M3: Cross-Exam Swap (different exams)
+                // -------------------------------------------------------------
+                if num_exams < 2 {
+                    continue;
+                }
+                let e1 = (rng.next_u32() as usize) % num_exams;
+                let mut e2 = (rng.next_u32() as usize) % (num_exams - 1);
+                if e2 >= e1 {
+                    e2 += 1;
+                }
+                let g1 = (rng.next_u32() as usize) % num_grades;
+                let g2 = (rng.next_u32() as usize) % num_grades;
+
+                let p1_idx = e1 * num_grades + g1;
+                let p2_idx = e2 * num_grades + g2;
+                let p1 = &self.panels[p1_idx];
+                let p2 = &self.panels[p2_idx];
+
+                let slot1 = match rng.next_u32() % 3 {
+                    0 => SlotRole::Setter1,
+                    1 => SlotRole::Setter2,
+                    _ => SlotRole::Reviewer,
+                };
+                let slot2 = match rng.next_u32() % 3 {
+                    0 => SlotRole::Setter1,
+                    1 => SlotRole::Setter2,
+                    _ => SlotRole::Reviewer,
+                };
+                if p1.is_pinned(slot1) || p2.is_pinned(slot2) {
+                    continue;
+                }
+                let t1 = p1.get_slot(slot1);
+                let t2 = p2.get_slot(slot2);
+                if t1 == t2 {
+                    continue;
+                }
+
+                // H4: t1 must not be in e2, t2 must not be in e1
+                if self.teacher_exam_role[t1][e2].is_some()
+                    || self.teacher_exam_role[t2][e1].is_some()
+                {
+                    continue;
+                }
+
+                // H5: availability
+                if self.unavailabilities[t1][e2] || self.unavailabilities[t2][e1] {
+                    continue;
+                }
+
+                // H2 & H6 for t1 in p2
+                if !self.qualified_grades[t1][g2] {
+                    continue;
+                }
+                match slot2.to_role() {
+                    Role::Setter => {
+                        if self.forbids_setter[e2][g2].contains(&t1) {
+                            continue;
+                        }
+                    }
+                    Role::Reviewer => {
+                        if self.forbids_reviewer[e2][g2].contains(&t1) {
+                            continue;
+                        }
+                    }
+                }
+
+                // H2 & H6 for t2 in p1
+                if !self.qualified_grades[t2][g1] {
+                    continue;
+                }
+                match slot1.to_role() {
+                    Role::Setter => {
+                        if self.forbids_setter[e1][g1].contains(&t2) {
+                            continue;
+                        }
+                    }
+                    Role::Reviewer => {
+                        if self.forbids_reviewer[e1][g1].contains(&t2) {
+                            continue;
+                        }
+                    }
+                }
+
+                // H3 campus diversity
+                let p1_t = match slot1 {
+                    SlotRole::Setter1 => (t2, p1.setter2, p1.reviewer),
+                    SlotRole::Setter2 => (p1.setter1, t2, p1.reviewer),
+                    SlotRole::Reviewer => (p1.setter1, p1.setter2, t2),
+                };
+                if !self.check_h3_panel(p1_t.0, p1_t.1, p1_t.2) {
+                    continue;
+                }
+
+                let p2_t = match slot2 {
+                    SlotRole::Setter1 => (t1, p2.setter2, p2.reviewer),
+                    SlotRole::Setter2 => (p2.setter1, t1, p2.reviewer),
+                    SlotRole::Reviewer => (p2.setter1, p2.setter2, t1),
+                };
+                if !self.check_h3_panel(p2_t.0, p2_t.1, p2_t.2) {
+                    continue;
+                }
+
+                return Some(LocalMove::CrossExamSwap {
+                    panel1_idx: p1_idx,
+                    slot1,
+                    t1,
+                    panel2_idx: p2_idx,
+                    slot2,
+                    t2,
+                });
+            } else {
+                // -------------------------------------------------------------
+                // M4: Role Swap within panel
+                // -------------------------------------------------------------
+                let p_idx = (rng.next_u32() as usize) % num_panels;
+                let panel = &self.panels[p_idx];
+                if panel.is_pinned(SlotRole::Reviewer) {
+                    continue;
+                }
+                let setter_slot = if (rng.next_u32() & 1) == 0 {
+                    SlotRole::Setter1
+                } else {
+                    SlotRole::Setter2
+                };
+                if panel.is_pinned(setter_slot) {
+                    continue;
+                }
+                let s_t = panel.get_slot(setter_slot);
+                let r_t = panel.reviewer;
+                if s_t == r_t {
+                    continue;
+                }
+
+                let e = panel.exam_idx;
+                let g = panel.grade_idx;
+
+                // H6: s_t must not be FORBIDden as Reviewer on (e, g)
+                if self.forbids_reviewer[e][g].contains(&s_t) {
+                    continue;
+                }
+                // H6: r_t must not be FORBIDden as Setter on (e, g)
+                if self.forbids_setter[e][g].contains(&r_t) {
+                    continue;
+                }
+
+                return Some(LocalMove::RoleSwap {
+                    panel_idx: p_idx,
+                    setter_slot,
+                    setter_t: s_t,
+                    reviewer_t: r_t,
+                });
+            }
+        }
+
+        None
+    }
+}
