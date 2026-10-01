@@ -9,6 +9,8 @@ license.workspace = true
 rusqlite = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
+exam-panel-core = { workspace = true }
 
 [dev-dependencies]
 tempfile = "3.17"

@@ -42,3 +42,22 @@
 - **Decision:** The official Windows release build and CI pipelines target `x86_64-pc-windows-msvc`. The GNU toolchain (`x86_64-pc-windows-gnu`) is supported solely as an optional local developer fallback. Repository configuration files (`rust-toolchain.toml`, `.cargo/config.toml`) must remain host-neutral. Any developer-specific toolchain overrides or MinGW linker paths must reside in user-level configuration (`~/.cargo/config.toml`), never in the git repository.
 - **Consequences:** Eliminates hard-coded machine paths in the repository, guarantees clean headless CI builds on Ubuntu/Windows runners, and preserves developer flexibility.
 
+## ADR-0008: Rollback Journal Mode for Single-File SQLite Portability
+- **Status:** Accepted
+- **Context:** Write-Ahead Logging (WAL) mode generates auxiliary `-wal` and `-shm` sidecar files in the data directory. When running on removable media (FAT32/exFAT USB drives) or copying the database across computers, stray locks or uncommitted sidecar files risk data divergence or file lock failures. ExamPanel is a single-user desktop application with low write contention.
+- **Decision:** Use standard rollback journal mode (`PRAGMA journal_mode = DELETE;`) with foreign keys enforced (`PRAGMA foreign_keys = ON;`).
+- **Consequences:** The entire SQLite database resides strictly in a single portable file (`data/exam-panel.db`). Safe to copy, move, back up, or execute directly from external storage drives without sidecar synchronization risks.
+
+## ADR-0009: Embedded SQL Migrations Managed via PRAGMA user_version
+- **Status:** Accepted
+- **Context:** Database schema evolution requires repeatable, ordered execution without external CLI dependencies or heavy third-party ORM migration crates.
+- **Decision:** Embed incremental SQL migration scripts into the binary using `include_str!` under `crates/storage/migrations/`. Track the applied schema version using SQLite's built-in `PRAGMA user_version`. Apply pending scripts sequentially inside explicit transactions during database initialization.
+- **Consequences:** Zero external crate overhead, guaranteed forward progression, idempotent execution across application starts, and compile-time inclusion of all migration scripts.
+
+## ADR-0010: Per-School-Year Teacher Grade Qualifications (`teacher_grades`)
+- **Status:** Accepted
+- **Context:** In educational institutions, teaching assignments shift across academic years. A teacher instructing grade 10 this year may be assigned to grades 11 and 12 next year. Modeling grades taught as a static attribute on the `teachers` entity would overwrite historical qualification records and prevent historical plan replay.
+- **Decision:** Model grade assignments via a separate ternary associative entity `teacher_grades (teacher_id, school_year_id, grade_id)` with a `copy_teacher_grades(from_year, to_year)` routine for convenient rollover.
+- **Consequences:** Full historical fidelity for prior school years and schedules, flexible yearly roster management, and clean isolation between teacher profile records and annual assignments.
+
+

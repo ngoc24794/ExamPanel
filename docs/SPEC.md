@@ -30,12 +30,13 @@ Exam panel construction in schools requires satisfying multi-campus diversity, t
 ### Teacher
 - Represents a teaching staff member eligible for exam paper assignments.
 - **Attributes:**
-  - `id`: Unique identifier (UUID or integer).
+  - `id`: Unique identifier (64-bit integer ID).
   - `full_name`: Teacher's full name.
   - `campus_id`: Foreign key referencing the teacher's primary campus.
-  - `grades_taught`: Set of grades the teacher is certified and active to teach (e.g. `[10, 11]`).
+  - `grades_taught`: Set of grades the teacher is qualified and assigned to teach in a specific school year (`teacher_grades` relation: qualifications are maintained per school year and can change between academic years).
   - `load_weight`: Normalized floating-point value in range `[0.0, 1.0]`. A weight of `1.0` denotes standard full workload; `0.0` denotes complete exemption (e.g., department heads, maternity leave, sabbatical).
   - `active`: Boolean status flag. Inactive teachers are excluded from assignment cycles.
+  - `note`: Optional administrative notes.
 
 ### School Year
 - Represents the academic year under management (e.g., 2026–2027).
@@ -70,7 +71,7 @@ Exam panel construction in schools requires satisfying multi-campus diversity, t
 
 ### Lock (PIN / FORBID)
 - Manual user override:
-  - `PIN`: Mandatory assignment. Forces teacher `T` into panel `P` with role `R`.
+  - `PIN`: Mandatory assignment. Forces teacher `T` into panel `P` with role `R` (or any role if `role` is null).
   - `FORBID`: Prohibited assignment. Forbids teacher `T` from panel `P` (or role `R` on panel `P`).
 
 ### Unavailability
@@ -83,28 +84,29 @@ Exam panel construction in schools requires satisfying multi-campus diversity, t
 ### 3.1 Hard Constraints (H1–H7)
 All hard constraints must be strictly satisfied for a plan to be valid.
 
-| Code | Constraint Name | Description |
-|------|-----------------|-------------|
-| **H1** | Panel Composition | Each panel has exactly 2 `SETTER`s and 1 `REVIEWER`, comprising 3 distinct teachers. |
-| **H2** | Grade Qualification | A teacher can only be assigned to a panel for a grade that they currently teach. |
-| **H3** | Multi-Campus Diversity | Each panel must include teachers from at least 2 distinct campuses. |
-| **H4** | Single Panel Per Exam | A teacher sits on at most 1 panel per exam (can be toggled/disabled in institution settings). |
-| **H5** | Exam Availability | Teachers marked unavailable for a given exam must not be assigned to any panel in that exam. |
-| **H6** | Lock Compliance | All manual `PIN` and `FORBID` locks must be strictly obeyed. |
-| **H7** | Workload Quota | Each teacher's total assignments over the year must fall within `[floor(quota), ceil(quota)]` derived from their `load_weight` with a configurable tolerance (default `±1`). Teachers with `load_weight = 0` are exempt (0 assignments). |
+| Code | Constraint Name | Description | Default Setting |
+|------|-----------------|-------------|-----------------|
+| **H1** | Panel Composition | Each panel has exactly 2 `SETTER`s and 1 `REVIEWER`, comprising 3 distinct teachers. | Enforced |
+| **H2** | Grade Qualification | A teacher can only be assigned to a panel for a grade that they currently teach. | Enforced |
+| **H3** | Multi-Campus Diversity | Each panel must include teachers from at least 2 distinct campuses. | Enforced |
+| **H4** | Single Panel Per Exam | A teacher sits on at most 1 panel per exam (can be toggled/disabled in institution settings). | Enabled (`weight = 100.0`) |
+| **H5** | Exam Availability | Teachers marked unavailable for a given exam must not be assigned to any panel in that exam. | Enforced |
+| **H6** | Lock Compliance | All manual `PIN` and `FORBID` locks must be strictly obeyed. | Enforced |
+| **H7** | Workload Quota | Each teacher's total assignments over the year must fall within `[floor(quota), ceil(quota)]` derived from their `load_weight` with a configurable tolerance (default `±1`). Teachers with `load_weight = 0` are exempt (0 assignments). | Enabled (`tolerance = 1`, `weight = 100.0`) |
 
 ### 3.2 Soft Constraints (S1–S7)
 Soft constraints guide schedule quality. Each constraint can be individually enabled/disabled and configured with an integer penalty weight `W >= 0`.
 
-| Code | Constraint Name | Description |
-|------|-----------------|-------------|
-| **S1** | Reviewer Frequency | Each active teacher acts as a reviewer at least once and at most twice throughout the year. |
-| **S2** | Role Ratio Balance | Maintain approximately a 2:1 ratio between setter roles and reviewer roles per teacher (`~2 SETTER + 1 REVIEWER`). |
-| **S3** | Campus Reviewer Independence | The reviewer should originate from a different campus than both setters on the panel. |
-| **S4** | Setter Pair Diversity | The same pair of teachers should not be co-setters on multiple panels within the same academic year. |
-| **S5** | Reciprocal Review Avoidance | Minimize instances where Teacher A reviews Teacher B's exam paper more than once in the year. |
-| **S6** | Consecutive Exam Relief | Minimize back-to-back panel assignments across two consecutive exam terms for the same teacher (e.g., avoid `GK1` followed immediately by `CK1` if idle alternatives exist). |
-| **S7** | Multi-Grade Rotation | Teachers qualified to teach multiple grades should rotate across those grades rather than remaining fixed to a single grade all year. |
+| Code | Constraint Name | Description | Default Weight | Initial Rationale |
+|------|-----------------|-------------|----------------|-------------------|
+| **S1** | Reviewer Frequency | Each active teacher acts as a reviewer at least once and at most twice throughout the year. | `10.0` | Highest soft priority: ensures every teacher shares reviewing responsibility. |
+| **S2** | Role Ratio Balance | Maintain approximately a 2:1 ratio between setter roles and reviewer roles per teacher (`~2 SETTER + 1 REVIEWER`). | `5.0` | Balanced role experience across teaching staff. |
+| **S3** | Campus Reviewer Independence | The reviewer should originate from a different campus than both setters on the panel. | `4.0` | Enhances institutional impartiality during review. |
+| **S4** | Setter Pair Diversity | The same pair of teachers should not be co-setters on multiple panels within the same academic year. | `6.0` | Promotes collaborative diversity among exam authors. |
+| **S5** | Reciprocal Review Avoidance | Minimize instances where Teacher A reviews Teacher B's exam paper more than once in the year. | `6.0` | Eliminates circular review cliques. |
+| **S6** | Consecutive Exam Relief | Minimize back-to-back panel assignments across two consecutive exam terms for the same teacher (e.g., avoid `GK1` followed immediately by `CK1` if idle alternatives exist). | `2.0` | Ergonomic workload pacing across terms. |
+| **S7** | Multi-Grade Rotation | Teachers qualified to teach multiple grades should rotate across those grades rather than remaining fixed to a single grade all year. | `1.0` | Staff development and varied grade experience. |
+
 
 ---
 
@@ -147,7 +149,7 @@ The solver runs in pure Rust (`crates/core`) with zero UI or database coupling:
 - **Portable detection:** At startup, ExamPanel checks if the directory containing the running executable is writable.
   - If writable: Database is stored at `<exe_dir>/data/exam-panel.db`.
   - If not writable (e.g., system Program Files or read-only volume): Falls back to user application data directory (`%APPDATA%/ExamPanel/data` on Windows, `~/.local/share/ExamPanel/data` on Linux, `~/Library/Application Support/ExamPanel/data` on macOS).
-- **Engine:** SQLite with WAL mode (`PRAGMA journal_mode = WAL;`) and enforced foreign keys (`PRAGMA foreign_keys = ON;`).
+- **Engine:** SQLite with standard rollback journal mode (`PRAGMA journal_mode = DELETE;`) and enforced foreign keys (`PRAGMA foreign_keys = ON;`), ensuring the entire database remains a single self-contained file suitable for USB and portable execution.
 
 ---
 

@@ -59,10 +59,14 @@ flowchart TD
 
 ### 2.2 `crates/storage` (Data Access & Persistence)
 - **Technology:** `rusqlite` with the `bundled` feature (embedded SQLite engine).
+- **Pragmas & Storage Invariants:**
+  - Foreign key constraint enforcement (`PRAGMA foreign_keys = ON;`).
+  - Standard rollback journal mode (`PRAGMA journal_mode = DELETE;`), guaranteeing the SQLite database remains a single, completely self-contained file without `-wal` or `-shm` sidecars for seamless USB and portable execution.
 - **Components:**
   - `paths`: Resolves portable database path (`./data/exam-panel.db` if directory is writable; OS app-data directory fallback otherwise).
-  - `migrations`: Embedded schema migration management.
-  - `repositories`: Strongly-typed CRUD operations mapping between SQLite tables and `core` domain structs.
+  - `migrations`: Embedded schema migration management using incremental SQL scripts bundled with `include_str!`, executed within transactions and tracked via `PRAGMA user_version`. Idempotent across re-runs.
+  - `store`: Strongly-typed CRUD operations mapping between SQLite tables and `core` domain structs, with structured error handling (`StorageError` distinguishing `NotFound`, `Constraint`, `Sqlite`, `Io`, and `Serialization`).
+  - `seeds`: Idempotent default seeding (`seed_defaults` for grades and UI settings) and complete test/development fixture datasets (`seed_demo`).
 
 ### 2.3 `src-tauri` (Desktop Application Shell)
 - **Tauri 2 Framework:** Thin platform integration wrapper.
@@ -110,7 +114,28 @@ sequenceDiagram
     end
 ```
 
-### 3.2 Dual-Mode API Resolution
+### 3.2 Problem Snapshot & Pre-Solve Validation Flow
+```mermaid
+sequenceDiagram
+    participant IPC as Tauri IPC Command
+    participant Store as crates/storage (Store)
+    participant Core as crates/core (Problem)
+
+    IPC->>Store: load_problem(school_year_id)
+    Store->>Store: Query school_year, campuses, grades
+    Store->>Store: Query active teachers & teacher_grades for year
+    Store->>Store: Query exams, unavailabilities, locks, rule_settings
+    Store-->>IPC: Problem snapshot struct
+    IPC->>Core: problem.validate()
+    alt Validation has structural errors
+        Core-->>IPC: Vec<ValidationError>
+        IPC-->>UI: Return validation error list to user
+    else Structural integrity holds
+        IPC->>Core: feasibility::check(&problem) / solver::solve(&problem)
+    end
+```
+
+### 3.3 Dual-Mode API Resolution
 ```mermaid
 flowchart TD
     Start[App Starts] --> CheckEnv{Is window.__TAURI_INTERNALS__ present?}
