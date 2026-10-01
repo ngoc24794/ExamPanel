@@ -6,6 +6,9 @@
 pub mod domain;
 pub mod feasibility;
 pub mod solver;
+pub mod validate;
+
+pub use validate::*;
 
 /// Returns core engine version information.
 #[must_use]

@@ -57,10 +57,18 @@ Exam panel construction in schools requires satisfying multi-campus diversity, t
 - Configurable per institution.
 
 ### Panel
-- An exam commission for an (Exam × Grade) pair (e.g., `GK1` × Grade `10`).
+- Every `(Exam, Grade)` pair of the school year is an exam commission / panel (e.g. 4 exams × 3 grades = 12 panels by default).
 - Consists of exactly three roles:
   - 2 **SETTER**s (Ra đề): Teachers responsible for authoring the exam questions.
   - 1 **REVIEWER** (Phản biện): Teacher responsible for peer-reviewing and validating the paper.
+
+### Eligibility
+Teacher `t` is eligible for panel `p = (exam e, grade g)` in role `r` if:
+- `t.active` is true;
+- `t.load_weight > 0.0`;
+- `t` is qualified to teach grade `g` in this school year (`teacher_grades` relation);
+- `t` is not marked unavailable for exam `e` (`unavailability` relation);
+- No `FORBID` lock matches `(e, g, t, r)` or `(e, g, t, any role)`.
 
 ### Plan
 - A full candidate schedule across all panels for the entire school year.
@@ -71,7 +79,7 @@ Exam panel construction in schools requires satisfying multi-campus diversity, t
 
 ### Lock (PIN / FORBID)
 - Manual user override:
-  - `PIN`: Mandatory assignment. Forces teacher `T` into panel `P` with role `R` (or any role if `role` is null).
+  - `PIN`: Mandatory assignment. Forces teacher `T` into panel `P` with role `R` (or any role if `role` is null, where the role is chosen by the solver). PINs count toward `lo_t` / `hi_t` quotas like any other assignment.
   - `FORBID`: Prohibited assignment. Forbids teacher `T` from panel `P` (or role `R` on panel `P`).
 
 ### Unavailability
@@ -87,12 +95,23 @@ All hard constraints must be strictly satisfied for a plan to be valid.
 | Code | Constraint Name | Description | Default Setting |
 |------|-----------------|-------------|-----------------|
 | **H1** | Panel Composition | Each panel has exactly 2 `SETTER`s and 1 `REVIEWER`, comprising 3 distinct teachers. | Enforced |
-| **H2** | Grade Qualification | A teacher can only be assigned to a panel for a grade that they currently teach. | Enforced |
+| **H2** | Grade Qualification | A teacher can only be assigned to a panel for a grade that they currently teach in the school year. Assigned teachers must be active and have `load_weight > 0`. | Enforced |
 | **H3** | Multi-Campus Diversity | Each panel must include teachers from at least 2 distinct campuses. | Enforced |
 | **H4** | Single Panel Per Exam | A teacher sits on at most 1 panel per exam (can be toggled/disabled in institution settings). | Enabled (`weight = 100.0`) |
 | **H5** | Exam Availability | Teachers marked unavailable for a given exam must not be assigned to any panel in that exam. | Enforced |
-| **H6** | Lock Compliance | All manual `PIN` and `FORBID` locks must be strictly obeyed. | Enforced |
-| **H7** | Workload Quota | Each teacher's total assignments over the year must fall within `[floor(quota), ceil(quota)]` derived from their `load_weight` with a configurable tolerance (default `±1`). Teachers with `load_weight = 0` are exempt (0 assignments). | Enabled (`tolerance = 1`, `weight = 100.0`) |
+| **H6** | Lock Compliance | All manual `PIN` and `FORBID` locks must be strictly obeyed. PIN without role fixes the teacher on the panel with role chosen by the solver. | Enforced |
+| **H7** | Workload Quota | Annual teacher assignments must stay within `[lo_t, hi_t]` derived from availability-scaled quota formulas with tolerance `k` (default `1`). Teachers with `load_weight = 0` have `lo = hi = 0`. | Enabled (`tolerance = 1`, `weight = 100.0`) |
+
+#### Workload Quota Formula (H7):
+- $D = \text{number of panels} \times 3$ (total required slot assignments).
+- $\text{availability}_t = \text{number of exams where teacher } t \text{ is available and eligible for at least one grade}$.
+- Effective weight: $w'_t = \text{load\_weight}_t \times \frac{\text{availability}_t}{\text{number of exams}}$ (0 if teacher is not eligible anywhere).
+- Base quota: $q_t = D \times \frac{w'_t}{\sum w'}$.
+- Tolerance bounds with parameter $k$ (default 1):
+  $$\text{lo}_t = \max(0, \lfloor q_t \rfloor - k)$$
+  $$\text{hi}_t = \lceil q_t \rceil + k$$
+  Then clamp $\text{hi}_t$ to the maximum achievable: $\text{hi}_t \le \text{availability}_t$ when H4 is enabled (and $\le D$). A teacher with $w'_t = 0$ has $\text{lo}_t = \text{hi}_t = 0$.
+- *Note:* $k = 0$ is the strictest fair setting. Phase 4 adds a soft "load deviation" penalty that pulls each teacher toward $q_t$ even when $k \ge 1$.
 
 ### 3.2 Soft Constraints (S1–S7)
 Soft constraints guide schedule quality. Each constraint can be individually enabled/disabled and configured with an integer penalty weight `W >= 0`.

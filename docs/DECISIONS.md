@@ -66,4 +66,16 @@
 - **Decision:** Migrations become immutable starting with the first release (v0.1.0); afterwards every schema change must be a new numbered migration file. Additionally, migration DDL removes all `IF NOT EXISTS` clauses because SQLite's `user_version` is the single source of truth; silent no-ops hide migration mistakes and masking schema drift.
 - **Consequences:** Deterministic schema evolution, transparent failure on migration errors, and clean forward-only evolution post-v0.1.0.
 
+## ADR-0012: Availability-Scaled Workload Quota Formulation (H7)
+- **Status:** Accepted
+- **Context:** In real academic environments, teachers have varying availability across exam periods (e.g. maternal/medical leaves, administrative exemptions) and differing grade qualifications. Assigning uniform annual quotas based solely on static load weight leads to infeasible lower bounds when a teacher is unavailable for several exam terms.
+- **Decision:** Scale each teacher's effective weight $w'_t$ by their actual exam availability: $w'_t = \text{load\_weight}_t \times \frac{\text{availability}_t}{\text{number of exams}}$. Quota bounds $[\text{lo}_t, \text{hi}_t]$ with tolerance $k$ (default 1) are derived from $q_t = D \times \frac{w'_t}{\sum w'}$, and $\text{hi}_t$ is clamped to the maximum achievable assignments ($\le \text{availability}_t$ under H4).
+- **Consequences:** Mathematical feasibility is preserved even under heavy leave schedules, while avoiding unfair assignment overloads.
+
+## ADR-0013: In-House Max-Flow and Backtracking Solver Without External Crate Coupling
+- **Status:** Accepted
+- **Context:** Feasibility verification requires exact bipartite maximum flow for per-exam panel capacity under H4. Hard-constraint generation requires deterministic constructive search. Relying on external mathematical programming or SAT/SMT solvers (e.g., OR-Tools, Z3) introduces heavyweight C/C++ FFI dependencies, cross-compilation friction, and dynamic linking failure modes on portable media.
+- **Decision:** Implement a pure Rust, allocation-conscious Dinic/Edmonds-Karp max-flow algorithm and an MRV-directed randomized backtracking solver directly in `crates/core`. Seeded with PRNG for 100% reproducible results.
+- **Consequences:** Zero external solver crate dependencies, instantaneous compile times, zero unsafe code, complete portability, and predictable microsecond-level execution.
+
 

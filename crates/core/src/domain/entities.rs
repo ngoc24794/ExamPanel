@@ -153,11 +153,21 @@ pub struct Lock {
 }
 
 /// Constraint rule key identifying hard constraint parameters and soft constraint objectives.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RuleKey {
+    #[serde(rename = "h1", alias = "h1_panel_composition")]
+    H1,
+    #[serde(rename = "h2", alias = "h2_grade_qualification")]
+    H2,
+    #[serde(rename = "h3", alias = "h3_multi_campus_diversity")]
+    H3,
     #[serde(rename = "h4", alias = "h4_single_panel_per_exam")]
     H4,
+    #[serde(rename = "h5", alias = "h5_exam_availability")]
+    H5,
+    #[serde(rename = "h6", alias = "h6_lock_compliance")]
+    H6,
     #[serde(rename = "h7", alias = "h7_workload_quota")]
     H7,
     #[serde(rename = "s1", alias = "s1_reviewer_frequency")]
@@ -177,9 +187,14 @@ pub enum RuleKey {
 }
 
 impl RuleKey {
-    /// All 9 recognized rule keys.
-    pub const ALL: [Self; 9] = [
+    /// All 14 recognized rule keys (H1..H7 and S1..S7).
+    pub const ALL: [Self; 14] = [
+        Self::H1,
+        Self::H2,
+        Self::H3,
         Self::H4,
+        Self::H5,
+        Self::H6,
         Self::H7,
         Self::S1,
         Self::S2,
@@ -193,7 +208,12 @@ impl RuleKey {
     #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
+            Self::H1 => "h1",
+            Self::H2 => "h2",
+            Self::H3 => "h3",
             Self::H4 => "h4",
+            Self::H5 => "h5",
+            Self::H6 => "h6",
             Self::H7 => "h7",
             Self::S1 => "s1",
             Self::S2 => "s2",
@@ -217,7 +237,12 @@ impl FromStr for RuleKey {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
+            "h1" | "h1_panel_composition" => Ok(Self::H1),
+            "h2" | "h2_grade_qualification" => Ok(Self::H2),
+            "h3" | "h3_multi_campus_diversity" => Ok(Self::H3),
             "h4" | "h4_single_panel_per_exam" => Ok(Self::H4),
+            "h5" | "h5_exam_availability" => Ok(Self::H5),
+            "h6" | "h6_lock_compliance" => Ok(Self::H6),
             "h7" | "h7_workload_quota" => Ok(Self::H7),
             "s1" | "s1_reviewer_frequency" => Ok(Self::S1),
             "s2" | "s2_role_ratio_balance" => Ok(Self::S2),
@@ -318,6 +343,7 @@ pub struct Plan {
 /// An individual assignment record within a Plan.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Assignment {
+    #[serde(default)]
     pub plan_id: PlanId,
     pub exam_id: ExamId,
     pub grade_id: GradeId,
@@ -325,8 +351,26 @@ pub struct Assignment {
     pub role: Role,
 }
 
+impl Assignment {
+    #[must_use]
+    pub const fn new(
+        exam_id: ExamId,
+        grade_id: GradeId,
+        teacher_id: TeacherId,
+        role: Role,
+    ) -> Self {
+        Self {
+            plan_id: PlanId(0),
+            exam_id,
+            grade_id,
+            teacher_id,
+            role,
+        }
+    }
+}
+
 /// Identifying coordinate for an Exam Panel (Exam × Grade).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct PanelKey {
     pub exam_id: ExamId,
     pub grade_id: GradeId,
