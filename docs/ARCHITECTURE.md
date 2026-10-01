@@ -48,14 +48,35 @@ flowchart TD
 ## 2. Layer Responsibilities & Boundaries
 
 ### 2.1 `crates/core` (Domain & Algorithm Core)
-- **Zero External Shell / DB Dependencies:** Does not depend on `tauri`, `rusqlite`, or any I/O framework.
+- **Zero External Shell / DB Dependencies:** Does not depend on `tauri`, `rusqlite`, or any I/O framework. Pure algorithmic domain core.
 - **Components:**
-  - `domain`: Core immutable domain types (`Teacher`, `Campus`, `Exam`, `Grade`, `Panel`, `Plan`, `ConstraintRule`).
-  - `feasibility`: Pre-solve mathematical consistency checks; returns structured, parameterizable diagnostics.
+  - `domain`: Core immutable domain types (`Teacher`, `Campus`, `Exam`, `Grade`, `PanelKey`, `Lock`, `Assignment`, `Problem`, `TeacherQuota`).
+  - `validate`: Source of truth for hard-constraint compliance (H1–H7); validates both complete and partial assignments.
+  - `feasibility`: Pre-solve mathematical consistency checks; includes in-house Dinic bipartite max-flow and generates structured `Diagnostic` items with i18n parameter maps.
   - `solver`:
-    - Randomized backtracking with MRV heuristic for hard-constraint satisfaction.
-    - Multi-threaded simulated annealing local search for soft-constraint optimization.
-- **Unit Tested:** Fast running, 100% deterministic test suites.
+    - Stage 1: Deterministic MRV-directed randomized backtracking with forward checking for 100% hard-constraint satisfaction.
+    - Stage 2 (Phase 4): Simulated annealing local search for soft-constraint optimization.
+
+```mermaid
+flowchart TD
+    ProblemSnapshot["Problem Snapshot\n(Roster, Exams, Grades, Locks, Rules)"]
+
+    subgraph CoreEngine["crates/core"]
+        QUOTA["domain::quota\nAvailability-Scaled Quotas (H7)"]
+        FEAS["feasibility::check_feasibility\nF1 Structural + F2 Per-Panel\n+ F3 Locks + F4 Dinic Max-Flow"]
+        SOLVER["solver::solve_hard\nMRV Backtracking + Forward Checking\nSeeded PRNG Value Ordering"]
+        VALIDATOR["validate::validate_assignments\nHard-Constraint Source of Truth\nH1..H7 Verification (Complete/Partial)"]
+
+        ProblemSnapshot --> QUOTA
+        ProblemSnapshot --> FEAS
+        QUOTA --> FEAS
+        QUOTA --> SOLVER
+        FEAS -->|is_feasible == false| InfeasibleReport["SolveError::Infeasible\n(FeasibilityReport with Diagnostics)"]
+        FEAS -->|is_feasible == true| SOLVER
+        SOLVER --> Solution["Solution\n(assignments, seed, stats)"]
+        Solution -.->|Cross-Verify| VALIDATOR
+    end
+```
 
 ### 2.2 `crates/storage` (Data Access & Persistence)
 - **Technology:** `rusqlite` with the `bundled` feature (embedded SQLite engine).

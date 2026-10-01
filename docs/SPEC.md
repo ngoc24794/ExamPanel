@@ -183,12 +183,27 @@ Before launching the constructive solver, a deterministic pre-check verifies whe
 
 The solver runs in pure Rust (`crates/core`) with zero UI or database coupling:
 
-1. **Stage 1: Randomized Backtracking (Constructive Phase)**
-   - Orders unassigned panels by Most-Constrained-Panel first (MRV - Minimum Remaining Values heuristic).
-   - Generates an initial assignment satisfying 100% of hard constraints (H1–H7).
-   - Applies random restarts and seed exploration.
+### 5.1 Stage 1: Hard-Constraint Backtracking Solver
+- **API Signature:** `pub fn solve_hard(problem: &Problem, opts: &SolveOptions) -> Result<Solution, SolveError>`
+- **Options (`SolveOptions`):**
+  - `seed: u64`: PRNG seed for deterministic reproducibility.
+  - `time_limit_ms: u64` (default `2000`): Maximum search duration.
+  - `max_nodes: u64` (default `2_000_000`): Maximum search tree nodes explored.
+- **Result Types:**
+  - `Solution`: `assignments: Vec<Assignment>`, `seed: u64`, `stats: SolveStats { nodes, backtracks, elapsed_ms }`.
+  - `SolveError::Infeasible { report: FeasibilityReport }`: Pre-solve checks proved input is mathematically impossible.
+  - `SolveError::Exhausted { stats, unfilled_panels }`: Search space completely explored with no valid solution.
+  - `SolveError::LimitReached { stats, best_partial }`: Reached time or node limit before proving a solution.
+- **Algorithm Invariants:**
+  - Mandatory execution of `check_feasibility` prior to search; halts immediately on errors.
+  - Pre-placement of all manual `PIN` locks (with fixed or solver-chosen roles).
+  - Dense indexing and fixed-width teacher bitsets (`TeacherBitSet` up to 256 teachers).
+  - Minimum Remaining Values (MRV) panel selection heuristic (panel with fewest valid candidate triples chosen first).
+  - Symmetrical setter deduplication ($s_1 < s_2$).
+  - Forward checking on upper bounds ($hi_t$), single-panel-per-exam (H4), non-emptiness of remaining panel triples, and lower bound reachability ($\sum \max(0, lo_t - used_t) \le \text{remaining slots}$).
+  - Value ordering biased toward teachers furthest below their availability quota ($q_t - used_t$) with PRNG jitter. Same seed strictly yields identical assignments.
 
-2. **Stage 2: Simulated Annealing (Local Search Optimization)**
+### 5.2 Stage 2: Simulated Annealing (Phase 4 Local Search)
    - Operates on valid candidate plans to minimize total soft constraint penalties.
    - **Neighborhood operators:**
      - `SwapTeachers`: Swap two teachers between compatible panels.

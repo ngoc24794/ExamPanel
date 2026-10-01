@@ -9,6 +9,7 @@ pub mod solver;
 pub mod validate;
 
 pub use feasibility::*;
+pub use solver::*;
 pub use validate::*;
 
 /// Returns core engine version information.
