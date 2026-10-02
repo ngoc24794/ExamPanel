@@ -30,7 +30,27 @@ const candidates = [
   'src-tauri/target/x86_64-apple-darwin/release/bundle/macos/ExamPanel.app',
 ];
 
-const appSrc = candidates.find((p) => fs.existsSync(p));
+let appSrc = candidates.find((p) => fs.existsSync(p));
+
+if (!appSrc) {
+  const findApp = (dir, depth = 0) => {
+    if (depth > 6 || !fs.existsSync(dir)) return null;
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name.endsWith('.app')) return full;
+          const res = findApp(full, depth + 1);
+          if (res) return res;
+        }
+      }
+    } catch {}
+    return null;
+  };
+  appSrc = findApp('target') || findApp('src-tauri/target');
+}
+
 if (!appSrc) {
   console.error('Lỗi: Không tìm thấy ExamPanel.app trong target/.../bundle/macos/!');
   process.exit(1);
@@ -55,7 +75,22 @@ try {
 }
 console.log('  -> Đã sao chép: ExamPanel.app');
 
-// Marker in root and inside bundle
+// Cấp quyền thực thi cho binary bên trong Contents/MacOS
+try {
+  execSync(`chmod -R +x "${destApp}/Contents/MacOS"`, { stdio: 'ignore' });
+} catch {}
+
+// Ký ad-hoc trên macOS nếu có công cụ codesign (tránh lỗi khởi chạy trên Apple Silicon)
+try {
+  execSync(`codesign --force --deep -s - "${destApp}"`, { stdio: 'ignore' });
+} catch {}
+
+// Gỡ thuộc tính quarantine nếu có
+try {
+  execSync(`xattr -cr "${destApp}"`, { stdio: 'ignore' });
+} catch {}
+
+// Tạo marker ExamPanel.portable ở cả thư mục ngoài và trong bundle
 fs.writeFileSync(path.join(portableDir, 'ExamPanel.portable'), '');
 const innerMacOS = path.join(destApp, 'Contents', 'MacOS');
 if (fs.existsSync(innerMacOS)) {

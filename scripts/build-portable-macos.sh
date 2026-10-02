@@ -53,6 +53,11 @@ for cand in "${CANDIDATES[@]}"; do
 done
 
 if [ -z "$APP_SRC" ]; then
+  # Fallback search for any .app under target
+  APP_SRC=$(find target src-tauri/target -name "*.app" -type d 2>/dev/null | head -n 1 || true)
+fi
+
+if [ -z "$APP_SRC" ] || [ ! -d "$APP_SRC" ]; then
   echo "Lỗi: Không tìm thấy ExamPanel.app trong các thư mục target/.../bundle/macos/!" >&2
   exit 1
 fi
@@ -70,20 +75,27 @@ mkdir -p "$PORTABLE_DIR"
 echo ""
 echo "[3/4] Sao chép các tệp thành phần vào $PORTABLE_DIR/..."
 
-# Sao chép ExamPanel.app (dùng cp -R hoặc ditto để bảo toàn quyền thực thi và symlink)
+DEST_APP="$PORTABLE_DIR/ExamPanel.app"
 if command -v ditto >/dev/null 2>&1; then
-  ditto "$APP_SRC" "$PORTABLE_DIR/ExamPanel.app"
+  ditto "$APP_SRC" "$DEST_APP"
 else
-  cp -R "$APP_SRC" "$PORTABLE_DIR/ExamPanel.app"
+  cp -R "$APP_SRC" "$DEST_APP"
 fi
 echo "  -> Đã sao chép: ExamPanel.app"
 
-# Tạo marker ExamPanel.portable ở cả 2 vị trí để đảm bảo nhận diện 100%:
-# 1) Bên cạnh ExamPanel.app (thư mục gốc portable)
-# 2) Bên trong ExamPanel.app/Contents/MacOS/ (đề phòng chạy trực tiếp binary từ bundle)
+# Cấp quyền thực thi và ký ad-hoc
+chmod -R +x "$DEST_APP/Contents/MacOS" 2>/dev/null || true
+if command -v codesign >/dev/null 2>&1; then
+  codesign --force --deep -s - "$DEST_APP" 2>/dev/null || true
+fi
+if command -v xattr >/dev/null 2>&1; then
+  xattr -cr "$DEST_APP" 2>/dev/null || true
+fi
+
+# Tạo marker ExamPanel.portable
 touch "$PORTABLE_DIR/ExamPanel.portable"
-if [ -d "$PORTABLE_DIR/ExamPanel.app/Contents/MacOS" ]; then
-  touch "$PORTABLE_DIR/ExamPanel.app/Contents/MacOS/ExamPanel.portable"
+if [ -d "$DEST_APP/Contents/MacOS" ]; then
+  touch "$DEST_APP/Contents/MacOS/ExamPanel.portable"
 fi
 echo "  -> Đã tạo marker: ExamPanel.portable (kích hoạt chế độ di động)"
 
@@ -102,17 +114,13 @@ fi
 echo ""
 echo "[4/4] Nén thư mục portable..."
 
-# Lấy version từ package.json
 VERSION=$(node -p "require('./package.json').version" 2>/dev/null || echo "0.1.0")
-ARCH=$(uname -m 2>/dev/null || echo "universal")
-TAR_FILE="target/ExamPanel-${VERSION}-macos-${ARCH}-portable.tar.gz"
-ZIP_FILE="target/ExamPanel-${VERSION}-macos-${ARCH}-portable.zip"
+TAR_FILE="target/ExamPanel-${VERSION}-macos-portable.tar.gz"
+ZIP_FILE="target/ExamPanel-${VERSION}-macos-portable.zip"
 
-# Nén tar.gz (chuẩn nhất cho macOS / Unix để bảo toàn permissions)
 (cd target/portable-macos && tar -czf "../../$TAR_FILE" ExamPanel-portable)
 echo "  -> Đã tạo tệp nén TAR.GZ: $TAR_FILE"
 
-# Nén zip (dùng ditto trên macOS nếu có, hoặc zip)
 if command -v ditto >/dev/null 2>&1; then
   ditto -c -k --sequesterRsrc --keepParent "$PORTABLE_DIR" "$ZIP_FILE"
   echo "  -> Đã tạo tệp nén ZIP: $ZIP_FILE"
@@ -124,6 +132,6 @@ fi
 echo ""
 echo "=========================================================="
 echo " HOÀN TẤT! BẢN PORTABLE CHO MACOS ĐÃ SẴN SÀNG:"
-echo " - Thư mục chạy thử: target/portable-macos/ExamPanel-portable/ExamPanel.app"
+echo " - Thư mục chạy thử: $DEST_APP"
 echo " - Tệp lưu hành:     $TAR_FILE"
 echo "=========================================================="
