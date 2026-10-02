@@ -44,6 +44,13 @@ if [ "$SKIP_BUILD" = false ]; then
     exit 1
   fi
 
+  # Tự động cài đặt dependencies nếu chưa có
+  if [ ! -d "node_modules" ] || [ ! -d "ui/node_modules" ] || [ ! -f "ui/node_modules/.bin/tsc" ]; then
+    echo ""
+    echo "[0/4] Chưa tìm thấy dependencies frontend/Tauri, đang tự động chạy pnpm install..."
+    pnpm install
+  fi
+
   echo ""
   echo "[1/4] Đang biên dịch frontend và ứng dụng Tauri (Release cho macOS)..."
   pnpm tauri build
