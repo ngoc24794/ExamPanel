@@ -82,6 +82,12 @@ impl From<exam_panel_storage::StorageError> for AppError {
             exam_panel_storage::StorageError::Serialization(e) => {
                 Self::new("serialization_error").with_param("detail", e.to_string())
             }
+            exam_panel_storage::StorageError::UnsupportedVersion(v) => {
+                Self::new("unsupported_database_version").with_param("version", v.to_string())
+            }
+            exam_panel_storage::StorageError::DatabaseCorrupted(detail) => {
+                Self::new("database_corrupted").with_param("detail", detail)
+            }
             exam_panel_storage::StorageError::Other(msg) => {
                 Self::new("unknown_error").with_param("detail", msg)
             }

@@ -28,15 +28,20 @@ use std::sync::{Arc, Mutex};
 pub struct AppService {
     store: Mutex<Store>,
     active_job: Mutex<Option<Arc<AtomicBool>>>,
+    is_trial_mode: AtomicBool,
+    original_db_path: Mutex<Option<std::path::PathBuf>>,
 }
 
 impl AppService {
     /// Creates a service wrapping the provided storage store.
     #[must_use]
     pub fn new(store: Store) -> Self {
+        let initial_path = store.path().map(|p| p.to_path_buf());
         Self {
             store: Mutex::new(store),
             active_job: Mutex::new(None),
+            is_trial_mode: AtomicBool::new(false),
+            original_db_path: Mutex::new(initial_path),
         }
     }
 
@@ -62,11 +67,77 @@ impl AppService {
     // App & Settings
     // -------------------------------------------------------------------------
 
+    pub fn is_trial_mode(&self) -> bool {
+        self.is_trial_mode.load(std::sync::atomic::Ordering::SeqCst)
+    }
+
+    pub fn enter_trial_mode(&self) -> Result<(), AppError> {
+        let demo_path = exam_panel_storage::paths::resolve_demo_database_path();
+        let demo_exists = demo_path.exists();
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+
+        if let Some(orig) = store.path() {
+            let mut orig_slot = self
+                .original_db_path
+                .lock()
+                .map_err(|_| AppError::new("lock_poisoned"))?;
+            *orig_slot = Some(orig.to_path_buf());
+        }
+
+        let demo_store = Store::open_at(&demo_path)
+            .map_err(|e| AppError::internal(format!("Lỗi mở cơ sở dữ liệu dùng thử: {e}")))?;
+
+        if !demo_exists || demo_store.get_teachers().map_or(0, |t| t.len()) == 0 {
+            exam_panel_storage::seed_demo(demo_store.conn()).map_err(|e| {
+                AppError::internal(format!(
+                    "Lỗi nạp dữ liệu mẫu vào cơ sở dữ liệu dùng thử: {e}"
+                ))
+            })?;
+        }
+
+        *store = demo_store;
+        self.is_trial_mode
+            .store(true, std::sync::atomic::Ordering::SeqCst);
+        Ok(())
+    }
+
+    pub fn exit_trial_mode(&self) -> Result<(), AppError> {
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+
+        let real_path = {
+            let orig_slot = self
+                .original_db_path
+                .lock()
+                .map_err(|_| AppError::new("lock_poisoned"))?;
+            orig_slot
+                .clone()
+                .unwrap_or_else(exam_panel_storage::paths::resolve_database_path)
+        };
+
+        let real_store = Store::open_at(&real_path)
+            .map_err(|e| AppError::internal(format!("Lỗi mở lại cơ sở dữ liệu chính: {e}")))?;
+        *store = real_store;
+        self.is_trial_mode
+            .store(false, std::sync::atomic::Ordering::SeqCst);
+        Ok(())
+    }
+
     pub fn get_app_info(&self) -> Result<AppInfo, AppError> {
         let data_dir = resolve_data_dir();
         let fallback = fallback_app_data_dir();
         let is_portable = data_dir != fallback;
-        let db_path = resolve_database_path();
+        let in_trial = self.is_trial_mode();
+        let db_path = if in_trial {
+            exam_panel_storage::paths::resolve_demo_database_path()
+        } else {
+            resolve_database_path()
+        };
 
         let commit_hash = option_env!("EXAMPANEL_COMMIT_HASH").map(|s| s.to_string());
         let build_date = option_env!("EXAMPANEL_BUILD_DATE").map(|s| s.to_string());
@@ -81,6 +152,7 @@ impl AppService {
             mode: Some(if is_portable { "portable" } else { "installed" }.to_string()),
             commit_hash,
             build_date,
+            in_trial_mode: Some(in_trial),
         })
     }
 

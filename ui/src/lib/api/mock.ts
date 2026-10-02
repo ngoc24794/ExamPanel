@@ -90,6 +90,7 @@ export class MockExamPanelApi implements ExamPanelApi {
   private isOptimizing = false
   private activeCancelCallback: (() => void) | null = null
   private savedTheme: ThemeMode | null = null
+  private inTrialMode = false
 
   // App & Settings
   async ping(): Promise<string> {
@@ -104,9 +105,10 @@ export class MockExamPanelApi implements ExamPanelApi {
       mode: 'mock',
       data_dir: '/mock/data',
       is_portable: true,
-      db_path: '/mock/data/exampanel.db',
+      db_path: this.inTrialMode ? '/mock/data/demo.db' : '/mock/data/exampanel.db',
       commit_hash: '0c24c8e',
       build_date: '2026-10-02',
+      in_trial_mode: this.inTrialMode,
     }
   }
 
@@ -152,6 +154,18 @@ export class MockExamPanelApi implements ExamPanelApi {
 
   async openDataFolder(): Promise<void> {
     // In mock mode, no native filesystem to open
+  }
+
+  async openLogFolder(): Promise<void> {
+    // In mock mode, no native filesystem to open
+  }
+
+  async enterTrialMode(): Promise<void> {
+    this.inTrialMode = true
+  }
+
+  async exitTrialMode(): Promise<void> {
+    this.inTrialMode = false
   }
 
   // Campuses

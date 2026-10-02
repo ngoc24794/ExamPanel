@@ -102,4 +102,30 @@ describe('App', () => {
       expect(screen.getByRole('menu')).toBeInTheDocument()
     })
   })
+
+  it('renders persistent trial mode banner and allows exiting trial mode', async () => {
+    const user = userEvent.setup()
+    const { api } = await import('@/lib/api')
+    const { queryClient } = await import('@/lib/query/query-client')
+    queryClient.clear()
+    await api.enterTrialMode()
+
+    render(
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('trial-mode-banner')).toBeInTheDocument()
+      expect(screen.getByTestId('exit-trial-btn')).toBeInTheDocument()
+    })
+
+    // Click exit trial button
+    await user.click(screen.getByTestId('exit-trial-btn'))
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('trial-mode-banner')).not.toBeInTheDocument()
+    })
+  })
 })

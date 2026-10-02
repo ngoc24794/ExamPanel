@@ -57,6 +57,9 @@ export interface ExamPanelApi {
   getLanguage(): Promise<string>
   setLanguage(lang: string): Promise<void>
   openDataFolder(): Promise<void>
+  openLogFolder(): Promise<void>
+  enterTrialMode(): Promise<void>
+  exitTrialMode(): Promise<void>
 
   // Campuses
   listCampuses(): Promise<Campus[]>

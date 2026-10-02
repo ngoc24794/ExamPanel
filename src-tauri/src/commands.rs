@@ -52,6 +52,27 @@ pub fn set_setting(
     service.set_setting(&key, &value)
 }
 
+#[tauri::command]
+pub fn enter_trial_mode(service: State<'_, Arc<AppService>>) -> Result<(), AppError> {
+    service.enter_trial_mode()
+}
+
+#[tauri::command]
+pub fn exit_trial_mode(service: State<'_, Arc<AppService>>) -> Result<(), AppError> {
+    service.exit_trial_mode()
+}
+
+#[tauri::command]
+pub fn open_log_folder(app: tauri::AppHandle) -> Result<(), AppError> {
+    let logs_dir = exam_panel_storage::paths::resolve_logs_dir();
+    let _ = std::fs::create_dir_all(&logs_dir);
+    use tauri_plugin_opener::OpenerExt;
+    app.opener()
+        .open_path(logs_dir.to_string_lossy(), None::<&str>)
+        .map_err(|e| AppError::internal(format!("Không thể mở thư mục nhật ký: {e}")))?;
+    Ok(())
+}
+
 // -----------------------------------------------------------------------------
 // Campuses
 // -----------------------------------------------------------------------------

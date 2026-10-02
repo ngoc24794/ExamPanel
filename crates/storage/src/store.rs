@@ -45,6 +45,14 @@ impl Store {
             let mut conn = Connection::open(path).map_err(StorageError::from_sqlite)?;
             conn.execute_batch("PRAGMA foreign_keys = ON; PRAGMA journal_mode = DELETE;")
                 .map_err(StorageError::from_sqlite)?;
+
+            let integrity: String = conn
+                .query_row("PRAGMA quick_check(1);", [], |r| r.get(0))
+                .map_err(StorageError::from_sqlite)?;
+            if integrity != "ok" {
+                return Err(StorageError::DatabaseCorrupted(integrity));
+            }
+
             run_migrations(&mut conn)?;
             self.conn = conn;
         }
@@ -79,6 +87,14 @@ impl Store {
         let mut conn = Connection::open(&p).map_err(StorageError::from_sqlite)?;
         conn.execute_batch("PRAGMA foreign_keys = ON; PRAGMA journal_mode = DELETE;")
             .map_err(StorageError::from_sqlite)?;
+
+        let integrity: String = conn
+            .query_row("PRAGMA quick_check(1);", [], |r| r.get(0))
+            .map_err(StorageError::from_sqlite)?;
+        if integrity != "ok" {
+            return Err(StorageError::DatabaseCorrupted(integrity));
+        }
+
         run_migrations(&mut conn)?;
         seed_defaults(&conn)?;
         Ok(Self {

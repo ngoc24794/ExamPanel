@@ -20,6 +20,10 @@ dev-tools = ["exam-panel-service/dev-tools"]
 tauri = { version = "2.0", features = [] }
 tauri-plugin-opener = "2"
 tauri-plugin-dialog = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-window-state = "2"
+tauri-plugin-log = "2"
+log = "0.4"
 serde = { workspace = true }
 serde_json = { workspace = true }
 exam-panel-core = { workspace = true }

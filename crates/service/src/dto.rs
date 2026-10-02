@@ -33,6 +33,9 @@ pub struct AppInfo {
     #[serde(default)]
     #[cfg_attr(feature = "typegen", ts(optional))]
     pub build_date: Option<String>,
+    #[serde(default)]
+    #[cfg_attr(feature = "typegen", ts(optional))]
+    pub in_trial_mode: Option<bool>,
 }
 
 /// Global user-configurable interface and state settings.

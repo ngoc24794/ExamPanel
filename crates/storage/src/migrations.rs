@@ -29,6 +29,11 @@ pub fn get_current_version(conn: &Connection) -> Result<i32, StorageError> {
 /// Calling this multiple times is idempotent.
 pub fn run_migrations(conn: &mut Connection) -> Result<(), StorageError> {
     let current_version = get_current_version(conn)?;
+    let latest = latest_version();
+
+    if current_version > latest {
+        return Err(StorageError::UnsupportedVersion(current_version as u32));
+    }
 
     for (version, sql) in MIGRATIONS {
         if *version > current_version {
@@ -203,5 +208,16 @@ mod tests {
         assert!(!pragma_cols.contains(&"problem_hash".to_string()));
         assert!(pragma_cols.contains(&"data_hash".to_string()));
         assert!(pragma_cols.contains(&"rules_hash".to_string()));
+    }
+
+    #[test]
+    fn test_migrations_rejects_higher_user_version() {
+        let mut conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch("PRAGMA user_version = 99;").unwrap();
+        let res = run_migrations(&mut conn);
+        match res {
+            Err(StorageError::UnsupportedVersion(v)) => assert_eq!(v, 99),
+            other => panic!("expected UnsupportedVersion(99), got {other:?}"),
+        }
     }
 }

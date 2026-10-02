@@ -23,15 +23,19 @@ import {
   GraduationCap,
   ChevronLeft,
   ChevronRight,
+  AlertTriangle,
 } from 'lucide-react'
-import { queryClient } from '@/lib/query/query-client'
+import { useQueryClient } from '@tanstack/react-query'
+import { queryClient, getErrorMessage } from '@/lib/query/query-client'
 import { Toaster } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/lib/theme/ThemeToggle'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { SchoolYearSelector } from '@/components/SchoolYearSelector'
 import { FeasibilityIndicator } from '@/components/FeasibilityIndicator'
-import { useSchoolYears } from '@/lib/query/hooks'
+import { useSchoolYears, useAppInfo } from '@/lib/query/hooks'
+import { api } from '@/lib/api'
+import { toast } from 'sonner'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { CampusesPage } from '@/pages/CampusesPage'
 import { TeachersPage } from '@/pages/TeachersPage'
@@ -110,8 +114,21 @@ function AppLayout() {
   const { t } = useTranslation()
   const location = useLocation()
   const [collapsed, setCollapsed] = React.useState(false)
+  const qc = useQueryClient()
   const { data: schoolYears = [] } = useSchoolYears()
+  const { data: appInfo } = useAppInfo()
   const currentYear = schoolYears.find((y) => y.is_current) || schoolYears[0]
+
+  const handleExitTrial = async () => {
+    try {
+      await api.exitTrialMode()
+      await qc.invalidateQueries()
+      window.dispatchEvent(new CustomEvent('exampanel:restore'))
+      toast.success(t('trial.exited_toast'))
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    }
+  }
 
   const activeNav =
     NAV_ENTRIES.find((item) =>
@@ -237,6 +254,28 @@ function AppLayout() {
             <ThemeToggle />
           </div>
         </header>
+
+        {/* Trial Mode Persistent Banner */}
+        {appInfo?.in_trial_mode && (
+          <div
+            className="bg-amber-500/15 border-b border-amber-500/30 px-6 py-2 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200 flex-shrink-0"
+            data-testid="trial-mode-banner"
+          >
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="font-medium">{t('trial.banner_message')}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs border-amber-500/40 hover:bg-amber-500/20 text-foreground"
+              onClick={handleExitTrial}
+              data-testid="exit-trial-btn"
+            >
+              {t('trial.exit_button')}
+            </Button>
+          </div>
+        )}
 
         {/* Content Viewport */}
         <main className="flex-1 overflow-y-auto p-6 bg-muted/20">

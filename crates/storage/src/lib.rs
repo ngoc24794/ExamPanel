@@ -38,6 +38,12 @@ pub enum StorageError {
     #[error("Serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
 
+    #[error("Cơ sở dữ liệu được tạo bởi phiên bản mới hơn (user_version = {0})")]
+    UnsupportedVersion(u32),
+
+    #[error("Cơ sở dữ liệu bị lỗi hoặc bị hỏng: {0}")]
+    DatabaseCorrupted(String),
+
     #[error("Other error: {0}")]
     Other(String),
 }

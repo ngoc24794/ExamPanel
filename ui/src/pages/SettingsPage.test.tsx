@@ -92,4 +92,39 @@ describe('SettingsPage', () => {
       expect(screen.getByTestId('about-build-date')).toHaveTextContent('2026-10-02')
     })
   })
+
+  it('renders open logs button and handles click', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<SettingsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('open-logs-btn')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByTestId('open-logs-btn'))
+  })
+
+  it('renders trial mode card and supports entering/exiting trial mode', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<SettingsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('trial-mode-section')).toBeInTheDocument()
+      expect(screen.getByTestId('enter-trial-mode-btn')).toBeInTheDocument()
+    })
+
+    // Enter trial mode
+    await user.click(screen.getByTestId('enter-trial-mode-btn'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('exit-trial-mode-btn')).toBeInTheDocument()
+    })
+
+    // Exit trial mode
+    await user.click(screen.getByTestId('exit-trial-mode-btn'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('enter-trial-mode-btn')).toBeInTheDocument()
+    })
+  })
 })

@@ -5,6 +5,8 @@ import {
   Check,
   Copy,
   FolderOpen,
+  FileText,
+  FlaskConical,
   Globe,
   HardDrive,
   Info,
@@ -12,6 +14,7 @@ import {
   Moon,
   Palette,
   Save,
+  Sparkles,
   Sun,
 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -29,10 +32,12 @@ import { useTheme } from '@/lib/theme'
 import { useAppInfo, useSettings } from '@/lib/query/hooks'
 import { api } from '@/lib/api'
 import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
 import { getErrorMessage } from '@/lib/query/query-client'
 
 export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation()
+  const queryClient = useQueryClient()
   const { theme, setTheme } = useTheme()
   const { data: appInfo } = useAppInfo()
   const { data: settings, refetch: refetchSettings } = useSettings()
@@ -85,6 +90,36 @@ export const SettingsPage: React.FC = () => {
   const handleOpenFolder = async () => {
     try {
       await api.openDataFolder()
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    }
+  }
+
+  const handleOpenLogs = async () => {
+    try {
+      await api.openLogFolder()
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    }
+  }
+
+  const handleEnterTrial = async () => {
+    try {
+      await api.enterTrialMode()
+      await queryClient.invalidateQueries()
+      window.dispatchEvent(new CustomEvent('exampanel:restore'))
+      toast.success(t('trial.entered_toast'))
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    }
+  }
+
+  const handleExitTrial = async () => {
+    try {
+      await api.exitTrialMode()
+      await queryClient.invalidateQueries()
+      window.dispatchEvent(new CustomEvent('exampanel:restore'))
+      toast.success(t('trial.exited_toast'))
     } catch (err) {
       toast.error(getErrorMessage(err))
     }
@@ -352,7 +387,76 @@ export const SettingsPage: React.FC = () => {
                     )}
                   </Tooltip>
                 </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          disabled={isMock}
+                          onClick={handleOpenLogs}
+                          className="h-9 gap-1.5 px-3 text-xs shrink-0"
+                          data-testid="open-logs-btn"
+                        >
+                          <FileText className="h-3.5 w-3.5" />
+                          <span>{t('settings.openLogDir')}</span>
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {isMock && (
+                      <TooltipContent className="text-xs">
+                        {t('settings.openFolderDisabledMock')}
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Section: Trial Mode */}
+        <Card className="bg-card border-border" data-testid="trial-mode-section">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold text-foreground flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FlaskConical className="h-4 w-4 text-primary" />
+                <span>{t('trial.section_title')}</span>
+              </div>
+              {appInfo?.in_trial_mode && (
+                <Badge variant="outline" className="border-amber-500/50 text-amber-600 dark:text-amber-400 text-xs">
+                  {t('trial.badge')}
+                </Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-2 text-xs">
+            <p className="text-muted-foreground leading-relaxed">
+              {t('trial.description')}
+            </p>
+            <div>
+              {appInfo?.in_trial_mode ? (
+                <Button
+                  variant="outline"
+                  onClick={handleExitTrial}
+                  className="gap-2 border-amber-500/50 hover:bg-amber-500/10 text-foreground"
+                  data-testid="exit-trial-mode-btn"
+                >
+                  {t('trial.exit_button')}
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  onClick={handleEnterTrial}
+                  className="gap-2"
+                  data-testid="enter-trial-mode-btn"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>{t('trial.enter_button')}</span>
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

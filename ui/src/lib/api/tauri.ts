@@ -93,6 +93,18 @@ export class TauriExamPanelApi implements ExamPanelApi {
     await openPath(info.data_dir)
   }
 
+  async openLogFolder(): Promise<void> {
+    await invoke<void>('open_log_folder')
+  }
+
+  async enterTrialMode(): Promise<void> {
+    await invoke<void>('enter_trial_mode')
+  }
+
+  async exitTrialMode(): Promise<void> {
+    await invoke<void>('exit_trial_mode')
+  }
+
   // Campuses
   async listCampuses(): Promise<Campus[]> {
     return await invoke<Campus[]>('list_campuses')

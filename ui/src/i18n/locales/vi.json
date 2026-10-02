@@ -678,5 +678,15 @@
     "userVersion": "Phiên bản schema: {{version}}",
     "restoreSuccess": "Phục hồi dữ liệu thành công!",
     "backupSuccess": "Sao lưu dữ liệu thành công!"
+  },
+  "trial": {
+    "section_title": "Chế độ dùng thử",
+    "description": "Trải nghiệm đầy đủ tính năng của ExamPanel với bộ dữ liệu mẫu độc lập trong tệp demo.db mà không ảnh hưởng tới dữ liệu thật của bạn.",
+    "banner_message": "Đang ở chế độ dùng thử với dữ liệu mẫu. Dữ liệu thật được giữ an toàn tuyệt đối.",
+    "enter_button": "Dùng thử với dữ liệu mẫu",
+    "exit_button": "Quay lại dữ liệu thật",
+    "entered_toast": "Đã chuyển sang chế độ dùng thử với dữ liệu mẫu",
+    "exited_toast": "Đã quay lại dữ liệu thật",
+    "badge": "Chế độ dùng thử"
   }
 }

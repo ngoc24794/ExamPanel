@@ -678,5 +678,15 @@
     "userVersion": "Schema version: {{version}}",
     "restoreSuccess": "Database restored successfully!",
     "backupSuccess": "Database backup created successfully!"
+  },
+  "trial": {
+    "section_title": "Trial Mode",
+    "description": "Experience all features of ExamPanel with an independent sample dataset in demo.db without affecting your real data.",
+    "banner_message": "Running in trial mode with sample data. Your real data remains completely untouched.",
+    "enter_button": "Try with sample data",
+    "exit_button": "Return to real data",
+    "entered_toast": "Switched to trial mode with sample data",
+    "exited_toast": "Returned to real database",
+    "badge": "Trial Mode"
   }
 }
