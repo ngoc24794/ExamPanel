@@ -795,6 +795,22 @@ impl Store {
         Ok(())
     }
 
+    pub fn reorder_exams(&self, exam_ids: &[ExamId]) -> Result<(), StorageError> {
+        let tx = self
+            .conn
+            .unchecked_transaction()
+            .map_err(StorageError::from_sqlite)?;
+        for (idx, eid) in exam_ids.iter().enumerate() {
+            tx.execute(
+                "UPDATE exams SET sort_order = ?1 WHERE id = ?2",
+                params![(idx + 1) as i32, eid.value()],
+            )
+            .map_err(StorageError::from_sqlite)?;
+        }
+        tx.commit().map_err(StorageError::from_sqlite)?;
+        Ok(())
+    }
+
     // -------------------------------------------------------------------------
     // Locks
     // -------------------------------------------------------------------------
