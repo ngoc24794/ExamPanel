@@ -42,6 +42,12 @@ impl From<exam_panel_storage::StorageError> for AppError {
             exam_panel_storage::StorageError::Constraint(ref detail) => {
                 if detail.contains("teacher_in_use") {
                     Self::new("teacher_in_use")
+                } else if detail.contains("exam_in_use") {
+                    Self::new("exam_in_use")
+                } else if detail.contains("grade_in_use") {
+                    Self::new("grade_in_use")
+                } else if detail.contains("campus_in_use") {
+                    Self::new("campus_in_use")
                 } else if detail.contains("UNIQUE constraint") || detail.contains("duplicate") {
                     Self::new("duplicate_entry").with_param("detail", detail.clone())
                 } else if detail.contains("FOREIGN KEY") {

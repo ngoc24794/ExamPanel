@@ -343,6 +343,65 @@ impl RuleSetting {
     }
 }
 
+/// Canonical rule weight presets for soft constraint prioritization.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RulePreset {
+    Balanced,
+    WorkloadFairness,
+    TeamDiversity,
+}
+
+impl RulePreset {
+    #[must_use]
+    pub fn all() -> [Self; 3] {
+        [Self::Balanced, Self::WorkloadFairness, Self::TeamDiversity]
+    }
+
+    #[must_use]
+    pub fn id(&self) -> &'static str {
+        match self {
+            Self::Balanced => "balanced",
+            Self::WorkloadFairness => "workload_fairness",
+            Self::TeamDiversity => "team_diversity",
+        }
+    }
+
+    #[must_use]
+    pub fn settings(&self) -> Vec<RuleSetting> {
+        match self {
+            Self::Balanced => RuleSetting::default_settings(),
+            Self::WorkloadFairness => {
+                let mut s = RuleSetting::default_settings();
+                for rule in &mut s {
+                    match rule.key {
+                        RuleKey::S1 => rule.weight = 14.0,
+                        RuleKey::S3 => rule.weight = 2.0,
+                        RuleKey::S4 => rule.weight = 3.0,
+                        RuleKey::S5 => rule.weight = 3.0,
+                        RuleKey::S8 => rule.weight = 16.0,
+                        _ => {}
+                    }
+                }
+                s
+            }
+            Self::TeamDiversity => {
+                let mut s = RuleSetting::default_settings();
+                for rule in &mut s {
+                    match rule.key {
+                        RuleKey::S1 => rule.weight = 6.0,
+                        RuleKey::S3 => rule.weight = 8.0,
+                        RuleKey::S4 => rule.weight = 12.0,
+                        RuleKey::S5 => rule.weight = 12.0,
+                        RuleKey::S8 => rule.weight = 4.0,
+                        _ => {}
+                    }
+                }
+                s
+            }
+        }
+    }
+}
+
 fn default_plan_source() -> String {
     "optimizer".to_string()
 }
@@ -494,5 +553,33 @@ mod tests {
         assert_eq!(PanelComposition::SETTERS, 2);
         assert_eq!(PanelComposition::REVIEWERS, 1);
         assert_eq!(PanelComposition::TOTAL_PER_PANEL, 3);
+    }
+
+    #[test]
+    fn test_rule_presets() {
+        let presets = RulePreset::all();
+        assert_eq!(presets.len(), 3);
+
+        let balanced = RulePreset::Balanced.settings();
+        let fairness = RulePreset::WorkloadFairness.settings();
+        let diversity = RulePreset::TeamDiversity.settings();
+
+        let find_weight = |settings: &[RuleSetting], key: RuleKey| {
+            settings.iter().find(|s| s.key == key).unwrap().weight
+        };
+
+        // Balanced defaults
+        assert_eq!(find_weight(&balanced, RuleKey::S8), 8.0);
+        assert_eq!(find_weight(&balanced, RuleKey::S1), 10.0);
+        assert_eq!(find_weight(&balanced, RuleKey::S4), 6.0);
+
+        // Workload fairness raises S8 and S1
+        assert!(find_weight(&fairness, RuleKey::S8) > find_weight(&balanced, RuleKey::S8));
+        assert!(find_weight(&fairness, RuleKey::S1) > find_weight(&balanced, RuleKey::S1));
+
+        // Team diversity raises S4, S5, S3
+        assert!(find_weight(&diversity, RuleKey::S4) > find_weight(&balanced, RuleKey::S4));
+        assert!(find_weight(&diversity, RuleKey::S5) > find_weight(&balanced, RuleKey::S5));
+        assert!(find_weight(&diversity, RuleKey::S3) > find_weight(&balanced, RuleKey::S3));
     }
 }

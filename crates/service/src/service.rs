@@ -1,15 +1,16 @@
 //! Application service implementation orchestrating core algorithms and persistence.
 
 use crate::dto::{
-    AppInfo, AppSettings, CreateCampusInput, CreateGradeInput, CreateLockInput,
+    AppInfo, AppSettings, CreateCampusInput, CreateExamInput, CreateGradeInput, CreateLockInput,
     CreateSchoolYearInput, CreateTeacherInput, EvaluationOutcome, FeasibilityReportWithQuotas,
-    OptimizeBudget, OptimizeOutcome, OptimizeRequest, PlanDetails,
+    OptimizeBudget, OptimizeOutcome, OptimizeRequest, PlanDetails, PreviewQuotasInput,
+    QuotaPreviewItem, RulePresetItem,
 };
 use crate::error::AppError;
 use exam_panel_core::domain::{
     calculate_quotas, Assignment, Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockId,
-    Plan, PlanId, PlanSummary, Problem, RuleSetting, SchoolYear, SchoolYearId, Teacher, TeacherId,
-    TeacherWithGrades, Unavailability,
+    Plan, PlanId, PlanSummary, Problem, RulePreset, RuleSetting, SchoolYear, SchoolYearId, Teacher,
+    TeacherId, TeacherWithGrades, Unavailability,
 };
 use exam_panel_core::feasibility::check_feasibility;
 use exam_panel_core::optimize::{optimize, Budget, OptimizeOptions, Progress};
@@ -322,6 +323,38 @@ impl AppService {
         Ok(())
     }
 
+    pub fn create_exam(&self, input: CreateExamInput) -> Result<Exam, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let exam = store.create_exam(
+            input.school_year_id,
+            &input.code,
+            &input.name,
+            input.sort_order,
+        )?;
+        Ok(exam)
+    }
+
+    pub fn delete_exam(&self, id: ExamId) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        store.delete_exam(id)?;
+        Ok(())
+    }
+
+    pub fn reorder_exams(&self, exam_ids: Vec<ExamId>) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        store.reorder_exams(&exam_ids)?;
+        Ok(())
+    }
+
     // -------------------------------------------------------------------------
     // Unavailability
     // -------------------------------------------------------------------------
@@ -442,6 +475,68 @@ impl AppService {
             .map_err(|_| AppError::new("lock_poisoned"))?;
         store.reset_rule_settings_to_defaults(school_year_id)?;
         Ok(())
+    }
+
+    pub fn preview_quotas(
+        &self,
+        input: PreviewQuotasInput,
+    ) -> Result<Vec<QuotaPreviewItem>, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let mut problem = store.load_problem(input.school_year_id)?;
+        problem.rule_settings = input.rule_settings;
+
+        let quotas = calculate_quotas(&problem);
+        let teacher_map: std::collections::HashMap<_, _> =
+            problem.teachers.iter().map(|t| (t.id, t)).collect();
+        let campus_map: std::collections::HashMap<_, _> =
+            problem.campuses.iter().map(|c| (c.id, c)).collect();
+
+        let items = quotas
+            .into_iter()
+            .filter_map(|q| {
+                let t = teacher_map.get(&q.teacher_id)?;
+                let c_name = campus_map
+                    .get(&t.campus_id)
+                    .map_or("", |c| c.name.as_str())
+                    .to_string();
+                Some(QuotaPreviewItem {
+                    teacher_id: q.teacher_id,
+                    teacher_name: t.full_name.clone(),
+                    campus_id: t.campus_id,
+                    campus_name: c_name,
+                    load_weight: t.load_weight,
+                    available_exams: q.available_exams,
+                    quota: q.quota,
+                    lo: q.lo,
+                    hi: q.hi,
+                })
+            })
+            .collect();
+
+        Ok(items)
+    }
+
+    pub fn get_rule_presets(&self) -> Vec<RulePresetItem> {
+        vec![
+            RulePresetItem {
+                id: "balanced".to_string(),
+                name: "Cân bằng (mặc định)".to_string(),
+                settings: RulePreset::Balanced.settings(),
+            },
+            RulePresetItem {
+                id: "workload_fairness".to_string(),
+                name: "Ưu tiên công bằng khối lượng".to_string(),
+                settings: RulePreset::WorkloadFairness.settings(),
+            },
+            RulePresetItem {
+                id: "team_diversity".to_string(),
+                name: "Ưu tiên đa dạng ê-kíp".to_string(),
+                settings: RulePreset::TeamDiversity.settings(),
+            },
+        ]
     }
 
     // -------------------------------------------------------------------------

@@ -41,4 +41,7 @@ fn test_typescript_types_freshness() {
     assert!(on_disk.contains("export interface OptimizeOutcome"));
     assert!(on_disk.contains("export interface PlanDetails"));
     assert!(on_disk.contains("export interface AppError"));
+    assert!(on_disk.contains("export interface CreateExamInput"));
+    assert!(on_disk.contains("export interface QuotaPreviewItem"));
+    assert!(on_disk.contains("export interface RulePresetItem"));
 }

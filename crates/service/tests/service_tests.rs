@@ -465,3 +465,68 @@ fn test_error_mapping() {
         .expect_err("nonexistent plan");
     assert_eq!(err2.code, "not_found");
 }
+
+#[test]
+fn test_rule_presets_and_quota_preview() {
+    let (service, _tmp) = create_demo_service();
+    let sy_id = exam_panel_core::domain::SchoolYearId::new(1);
+
+    // Rule presets
+    let presets = service.get_rule_presets();
+    assert_eq!(presets.len(), 3);
+    assert_eq!(presets[0].id, "balanced");
+    assert_eq!(presets[1].id, "workload_fairness");
+    assert_eq!(presets[2].id, "team_diversity");
+
+    // Preview quotas under default settings
+    let default_settings = service.get_rule_settings(sy_id).expect("rule settings");
+    let preview = service
+        .preview_quotas(exam_panel_service::dto::PreviewQuotasInput {
+            school_year_id: sy_id,
+            rule_settings: default_settings.clone(),
+        })
+        .expect("preview quotas");
+    assert!(!preview.is_empty());
+    // Active teachers have non-zero available exams
+    for item in &preview {
+        assert!(item.available_exams > 0);
+        assert!(item.hi >= item.lo);
+    }
+}
+
+#[test]
+fn test_exam_crud_and_reorder() {
+    let (service, _tmp) = create_demo_service();
+    let sy_id = exam_panel_core::domain::SchoolYearId::new(1);
+
+    let exams = service.list_exams(sy_id).expect("list exams");
+    let initial_count = exams.len();
+    assert!(initial_count >= 2);
+
+    // Reorder: reverse the IDs
+    let reversed_ids: Vec<exam_panel_core::domain::ExamId> =
+        exams.iter().rev().map(|e| e.id).collect();
+    service.reorder_exams(reversed_ids).expect("reorder exams");
+
+    let reordered = service.list_exams(sy_id).expect("list reordered");
+    assert_eq!(reordered[0].id, exams.last().unwrap().id);
+
+    // Create a new exam
+    let new_exam = service
+        .create_exam(exam_panel_service::dto::CreateExamInput {
+            school_year_id: sy_id,
+            code: "TEST_EXAM".to_string(),
+            name: "Kỳ thi thử nghiệm".to_string(),
+            sort_order: 99,
+        })
+        .expect("create exam");
+    assert_eq!(new_exam.code, "TEST_EXAM");
+
+    // Delete the new exam (no assignments attached) -> succeeds
+    service
+        .delete_exam(new_exam.id)
+        .expect("delete unused exam");
+
+    let after_delete = service.list_exams(sy_id).expect("list after delete");
+    assert_eq!(after_delete.len(), initial_count);
+}

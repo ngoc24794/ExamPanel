@@ -1,8 +1,8 @@
 //! Data Transfer Objects (DTOs) for the ExamPanel service layer.
 
 use exam_panel_core::domain::{
-    Assignment, CampusId, ExamId, GradeId, LockKind, Plan, Role, SchoolYearId, TeacherId,
-    TeacherQuota,
+    Assignment, CampusId, ExamId, GradeId, LockKind, Plan, Role, RuleSetting, SchoolYearId,
+    TeacherId, TeacherQuota,
 };
 use exam_panel_core::feasibility::FeasibilityReport;
 use exam_panel_core::optimize::{OptimizeStats, RankedPlan};
@@ -39,6 +39,15 @@ pub struct CreateCampusInput {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CreateGradeInput {
     pub code: i32,
+    pub name: String,
+    pub sort_order: i32,
+}
+
+/// Input parameters for creating a new exam.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CreateExamInput {
+    pub school_year_id: SchoolYearId,
+    pub code: String,
     pub name: String,
     pub sort_order: i32,
 }
@@ -141,4 +150,33 @@ pub struct PlanDetails {
     pub plan: Plan,
     pub assignments: Vec<Assignment>,
     pub score_report: Option<ScoreReport>,
+}
+
+/// A teacher's workload quota projection in the rules & quotas preview table.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QuotaPreviewItem {
+    pub teacher_id: TeacherId,
+    pub teacher_name: String,
+    pub campus_id: CampusId,
+    pub campus_name: String,
+    pub load_weight: f64,
+    pub available_exams: usize,
+    pub quota: f64,
+    pub lo: usize,
+    pub hi: usize,
+}
+
+/// Input parameters for previewing workload quotas under unsaved rule configurations.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PreviewQuotasInput {
+    pub school_year_id: SchoolYearId,
+    pub rule_settings: Vec<RuleSetting>,
+}
+
+/// A named rule configuration preset for soft constraint weights.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RulePresetItem {
+    pub id: String,
+    pub name: String,
+    pub settings: Vec<RuleSetting>,
 }

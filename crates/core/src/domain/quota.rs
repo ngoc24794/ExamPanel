@@ -13,6 +13,8 @@ pub struct TeacherQuota {
     pub quota: f64,
     pub lo: usize,
     pub hi: usize,
+    #[serde(default)]
+    pub available_exams: usize,
 }
 
 /// Computes the workload quota bounds for all teachers in the problem snapshot according to H7.
@@ -42,6 +44,7 @@ pub fn calculate_quotas(problem: &Problem) -> Vec<TeacherQuota> {
                 quota: 0.0,
                 lo: 0,
                 hi: 0,
+                available_exams: 0,
             })
             .collect();
     }
@@ -171,6 +174,7 @@ pub fn calculate_quotas(problem: &Problem) -> Vec<TeacherQuota> {
                 quota: 0.0,
                 lo: 0,
                 hi: 0,
+                available_exams: avail,
             });
             continue;
         }
@@ -191,6 +195,7 @@ pub fn calculate_quotas(problem: &Problem) -> Vec<TeacherQuota> {
             quota: q_t,
             lo,
             hi,
+            available_exams: avail,
         });
     }
 
