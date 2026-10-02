@@ -639,6 +639,7 @@ function SlotChip({
             <Button
               variant="ghost"
               size="sm"
+              data-testid="slot-menu-btn"
               className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
             >
               <MoreVertical className="h-3 w-3 text-muted-foreground" />

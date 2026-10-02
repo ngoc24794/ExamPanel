@@ -111,6 +111,7 @@ export function CandidateSelectModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="max-w-lg bg-card text-card-foreground border-border"
+        data-testid="candidate-select-modal"
         onKeyDown={handleKeyDown}
       >
         <DialogHeader>
@@ -163,6 +164,7 @@ export function CandidateSelectModal({
                 return (
                   <div
                     key={cand.teacher_id}
+                    data-testid={isInvalid ? 'candidate-item-invalid' : 'candidate-item-valid'}
                     onClick={() => {
                       if (!isInvalid) {
                         onSelectTeacher(cand.teacher_id)

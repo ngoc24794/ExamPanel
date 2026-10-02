@@ -1,0 +1,83 @@
+$ vitest run
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui[39m
+
+ [32m✓[39m src/components/FeasibilityIndicator.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 592[2mms[22m[39m
+   [33m[2m✓[22m[39m FeasibilityIndicator & FeasibilitySheet[2m > [22mopens sheet on click, lists diagnostics, and handles "Go to fix" navigation [33m 478[2mms[22m[39m
+ [32m✓[39m src/pages/SettingsPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 669[2mms[22m[39m
+   [33m[2m✓[22m[39m SettingsPage[2m > [22mrenders settings page, data path, and copies path to clipboard [33m 453[2mms[22m[39m
+stderr | src/pages/StatisticsPage.test.tsx > StatisticsPage Component Tests > supports sorting teacher statistics table by columns
+Warning: An update to StatisticsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at StatisticsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\StatisticsPage.tsx:21:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+Warning: An update to StatisticsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at StatisticsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\StatisticsPage.tsx:21:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+
+ [32m✓[39m src/pages/StatisticsPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 945[2mms[22m[39m
+   [33m[2m✓[22m[39m StatisticsPage Component Tests[2m > [22mrenders statistics page header, plan selector, and summary cards [33m 555[2mms[22m[39m
+   [33m[2m✓[22m[39m StatisticsPage Component Tests[2m > [22msupports sorting teacher statistics table by columns [33m 388[2mms[22m[39m
+ [32m✓[39m src/pages/CampusesPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1327[2mms[22m[39m
+   [33m[2m✓[22m[39m CampusesPage[2m > [22mopens create dialog, validates inputs, and creates a new campus [33m 654[2mms[22m[39m
+   [33m[2m✓[22m[39m CampusesPage[2m > [22mshows campus_in_use advice when attempting to delete a campus with assigned teachers [33m 390[2mms[22m[39m
+ [32m✓[39m src/lib/api/api.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 4486[2mms[22m[39m
+   [33m[2m✓[22m[39m MockExamPanelApi Contract Tests[2m > [22mstreams optimization progress to completion [33m 2090[2mms[22m[39m
+   [33m[2m✓[22m[39m MockExamPanelApi Contract Tests[2m > [22msaves, retrieves, duplicates, renames, marks final, and deletes plans [33m 2096[2mms[22m[39m
+ [32m✓[39m src/pages/RulesPage.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 2145[2mms[22m[39m
+   [33m[2m✓[22m[39m RulesPage[2m > [22mrenders hard rules section with always-on badges and H4 toggle [33m 375[2mms[22m[39m
+   [33m[2m✓[22m[39m RulesPage[2m > [22mnavigates to soft rules tab and applies presets [33m 637[2mms[22m[39m
+   [33m[2m✓[22m[39m RulesPage[2m > [22mrenders quota preview and updates with H7 tolerance [33m 310[2mms[22m[39m
+   [33m[2m✓[22m[39m RulesPage[2m > [22mcreates a lock and displays in locks tab [33m 820[2mms[22m[39m
+ [32m✓[39m src/pages/ExamsPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 3025[2mms[22m[39m
+   [33m[2m✓[22m[39m ExamsPage[2m > [22mrenders exams and grades lists [33m 321[2mms[22m[39m
+   [33m[2m✓[22m[39m ExamsPage[2m > [22mcreates, reorders, and deletes an exam [33m 2004[2mms[22m[39m
+   [33m[2m✓[22m[39m ExamsPage[2m > [22mcreates and edits a grade [33m 698[2mms[22m[39m
+ [32m✓[39m src/lib/theme/theme.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m src/i18n/i18n.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/pages/AssignmentsPage.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 2817[2mms[22m[39m
+   [33m[2m✓[22m[39m AssignmentsPage Component Tests[2m > [22mrenders assignment workspace, header actions, and plan view [33m 854[2mms[22m[39m
+   [33m[2m✓[22m[39m AssignmentsPage Component Tests[2m > [22mopens Run Optimizer dialog, displays effort options, seed and feasibility status [33m 648[2mms[22m[39m
+   [33m[2m✓[22m[39m AssignmentsPage Component Tests[2m > [22mfocuses on teacher when chip or teacher row is clicked [33m 451[2mms[22m[39m
+   [33m[2m✓[22m[39m AssignmentsPage Component Tests[2m > [22mopens Compare modal when compare button is clicked [33m 476[2mms[22m[39m
+ [32m✓[39m src/pages/UnavailabilityPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 3701[2mms[22m[39m
+   [33m[2m✓[22m[39m UnavailabilityPage[2m > [22mrenders unavailability grid and teacher rows [33m 497[2mms[22m[39m
+   [33m[2m✓[22m[39m UnavailabilityPage[2m > [22mtoggles absence on click and allows adding reason [33m 2455[2mms[22m[39m
+   [33m[2m✓[22m[39m UnavailabilityPage[2m > [22mperforms bulk actions: vắng cả học kỳ 1 and có mặt tất cả [33m 744[2mms[22m[39m
+ [32m✓[39m src/app/App.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2830[2mms[22m[39m
+   [33m[2m✓[22m[39m App[2m > [22mrenders application brand, sidebar navigation, and ping response [33m 735[2mms[22m[39m
+   [33m[2m✓[22m[39m App[2m > [22mswitches navigation tab when sidebar item is clicked [33m 979[2mms[22m[39m
+   [33m[2m✓[22m[39m App[2m > [22mswitches school year through selector and refetches data [33m 1112[2mms[22m[39m
+ [32m✓[39m src/pages/OverviewPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 152[2mms[22m[39m
+ [32m✓[39m src/pages/TeachersPage.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 5180[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22mrenders teacher roster and coverage panel matrix [33m 1187[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22mfilters teachers by name search [33m 952[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22moptimistically updates grades taught on toggle [33m 872[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22mrolls back optimistic grade toggle when API call fails [33m 629[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22moffers "Deactivate instead" flow when deleting a teacher in use [33m 865[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22mvalidates inputs and creates a new teacher with assigned grades [33m 512[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+[2m      Tests [22m [1m[32m55 passed[39m[22m[90m (55)[39m
+[2m   Start at [22m 14:08:11
+[2m   Duration [22m 11.26s[2m (transform 2.56s, setup 5.02s, collect 42.06s, tests 27.95s, environment 14.39s, prepare 5.07s)[22m
+

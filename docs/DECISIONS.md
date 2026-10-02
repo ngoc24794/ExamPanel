@@ -178,8 +178,25 @@
 - **Decision:** Group exams by index: first half ($\lfloor N / 2 \rfloor$ exams) belongs to Semester 1, remaining exams belong to Semester 2. Document this convention in SPEC section 2.5 and expose bulk toggle actions accordingly.
 - **Consequences:** Clean, deterministic semester mapping that works for standard 4-exam configurations (GK1, CK1 | GK2, CK2) as well as arbitrary user-defined exam sequences.
 
+## ADR-0029: Canonical Problem Hashing for Plan Staleness Detection
+- **Status:** Accepted
+- **Context:** An optimization plan's validity and score are computed against a specific snapshot of problem inputs (teachers, grades, campuses, exams, unavailabilities, locks, and rule configurations). If a user modifies master data (e.g., adds an unavailability, changes a campus, or adjusts rule weights) after a plan is generated, the plan may become stale or violate constraints.
+- **Decision:** Define a deterministic, order-independent canonical hash (`Problem::canonical_hash`) in `crates/core`. All collections (campuses, grades, teachers with their taught grades, exams, unavailabilities, locks, and rules) are sorted by canonical identifier order before feeding into SHA-256 with structured domain separators. Store `plans.problem_hash` (Migration `0003_plans_problem_hash.sql`) upon plan generation. When evaluating `plan_status(plan_id)`, compare the current canonical hash against the stored hash and re-evaluate hard violations and score against the live database state.
+- **Consequences:** Deterministic staleness tracking immune to JSON key ordering or database retrieval sequence; clear UI warnings and guardrails against marking stale plans as final.
 
+## ADR-0030: Fast Incremental State Evaluation for Real-Time Manual Plan Editing
+- **Status:** Accepted
+- **Context:** Interactive candidate selection and drag-drop swapping require computing delta scores ($\Delta\text{Score}$) and hard constraint violations across all eligible candidates in milliseconds to avoid UI lag.
+- **Decision:** Implement `evaluate_candidates` and `evaluate_swap` using domain incremental scoring structures (`crates/core::optimize::eval_edit`). For each candidate or swap, only affected rules and panels are evaluated rather than recalculating the entire schedule from scratch. Automated property tests verify that the incremental delta matches a full `evaluate()` call to machine precision across random problem configurations.
+- **Consequences:** Sub-millisecond candidate and swap evaluation for responsive keyboard navigation and drag-drop previews.
 
-
-
-
+## ADR-0031: Re-Optimization Around Kept Slots via Ephemeral In-Memory Pin Locks
+- **Status:** Accepted
+- **Context:** When users find desirable panels in a generated plan but wish to improve other panels, they need the ability to "keep" specific slots while allowing the simulated annealing optimizer to re-optimize remaining assignments.
+- **Decision:** Implement `reoptimize_from(plan_id, keep: Vec<SlotRef>, request)`:
+  1. Validate kept slots against existing assignments in the plan.
+  2. Synthesize ephemeral `LockKind::Pin` constraints for each kept slot in-memory without persisting them into the user's permanent database locks table.
+  3. Initialize the solver's initial solution directly from the kept plan assignments.
+  4. Run simulated annealing subject to the combined locks.
+  5. Return new ranked draft plans via standard optimization outcomes.
+- **Consequences:** Clean separation between temporary optimization pinning and permanent master data locks.

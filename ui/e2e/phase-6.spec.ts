@@ -39,7 +39,7 @@ test.describe('Phase 6 E2E & Visual Verification', () => {
     await expect(page.getByText(/Phân công|Assignments/i).first()).toBeVisible()
 
     // 7. Statistics
-    await page.click('a[href="#/stats"]')
+    await page.click('a[href*="/stat"]')
     await expect(page.getByText(/Thống kê|Statistics/i).first()).toBeVisible()
 
     // 8. Settings
