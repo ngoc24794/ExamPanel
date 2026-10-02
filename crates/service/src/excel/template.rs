@@ -214,7 +214,7 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
     teacher_sheet.write_with_format(0, 5, "Đang dạy", &header_format)?;
     teacher_sheet.write_with_format(0, 6, "Ghi chú", &header_format)?;
 
-    // Sample data rows
+    // Sample data rows (18 teachers across campuses for realistic and feasible scheduling)
     let sample_teachers = [
         (
             "GV001",
@@ -225,17 +225,39 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
             "Có",
             "Tổ trưởng chuyên môn",
         ),
-        ("GV002", "Trần Thị Bình", "CS1", "10, 12", "1", "Có", ""),
-        ("GV003", "Lê Văn Cường", "CS2", "11, 12", "1", "Có", ""),
         (
-            "GV004",
-            "Phạm Thị Dung",
-            "CS2",
+            "GV002",
+            "Trần Thị Bình",
+            "CS1",
+            "10, 12",
+            "1",
+            "Có",
+            "Tổ phó chuyên môn",
+        ),
+        ("GV003", "Lê Văn Cường", "CS2", "11, 12", "1", "Có", ""),
+        ("GV004", "Phạm Thị Dung", "CS2", "10, 11", "1", "Có", ""),
+        ("GV005", "Hoàng Văn Em", "CS1", "11, 12", "1", "Có", ""),
+        ("GV006", "Đỗ Thị Giang", "CS2", "10, 12", "1", "Có", ""),
+        (
+            "GV007",
+            "Vũ Hải Hà",
+            "CS1",
             "10, 11, 12",
             "0.5",
             "Có",
             "Giảm tải 50%",
         ),
+        ("GV008", "Bùi Văn Hùng", "CS2", "10, 11", "1", "Có", ""),
+        ("GV009", "Ngô Thị Mai", "CS1", "11, 12", "1", "Có", ""),
+        ("GV010", "Đinh Văn Nam", "CS2", "10, 12", "1", "Có", ""),
+        ("GV011", "Lý Thị Nga", "CS1", "10, 11", "1", "Có", ""),
+        ("GV012", "Trương Văn Phúc", "CS2", "11, 12", "1", "Có", ""),
+        ("GV013", "Võ Thị Quỳnh", "CS1", "10, 12", "1", "Có", ""),
+        ("GV014", "Dương Văn Sơn", "CS2", "10, 11", "1", "Có", ""),
+        ("GV015", "Tạ Thị Thảo", "CS1", "11, 12", "1", "Có", ""),
+        ("GV016", "Lương Văn Tuấn", "CS2", "10, 12", "1", "Có", ""),
+        ("GV017", "Hồ Thị Uyên", "CS1", "10, 11, 12", "1", "Có", ""),
+        ("GV018", "Phan Văn Vinh", "CS2", "10, 11, 12", "1", "Có", ""),
     ];
 
     for (i, (code, name, campus, grades, load, active, note)) in sample_teachers.iter().enumerate()

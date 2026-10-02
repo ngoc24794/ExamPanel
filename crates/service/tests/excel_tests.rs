@@ -538,3 +538,37 @@ fn test_transactional_apply_rollback_on_error() {
     let teachers_after = service.list_teachers().unwrap();
     assert_eq!(teachers_after.len(), initial_teachers);
 }
+
+#[test]
+fn test_standard_template_feasibility_and_generate_downloads() {
+    let target_path = std::path::PathBuf::from(
+        r"C:\Users\ngocnv.HUONGVIETGROUP\Downloads\mau-nhap-du-lieu-chuan.xlsx",
+    );
+    let service = AppService::open_in_memory().unwrap();
+    let sy = service
+        .create_school_year(CreateSchoolYearInput {
+            name: "2026-2027".to_string(),
+            is_current: true,
+            copy_grades_from: None,
+        })
+        .unwrap();
+
+    service
+        .generate_import_template(&target_path)
+        .expect("generate template");
+
+    let preview = service
+        .preview_import(sy.id, &target_path, "merge")
+        .expect("preview template");
+
+    assert!(preview.can_apply);
+    assert_eq!(preview.teachers.len(), 18);
+    if let Some(ref feas) = preview.feasibility_report {
+        assert!(
+            feas.report.is_feasible,
+            "Standard template must be 100% feasible, errors: {:?}",
+            feas.report.errors
+        );
+        assert_eq!(feas.report.errors.len(), 0);
+    }
+}

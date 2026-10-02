@@ -666,8 +666,12 @@ pub fn preview_import(
             // Apply campus additions/updates
             for c in &campus_rows {
                 if c.status == ImportRowStatus::New {
+                    let cid = campus_code_map
+                        .get(&c.code)
+                        .copied()
+                        .unwrap_or(CampusId(10_000 + c.row_index as i64));
                     sim_problem.campuses.push(Campus {
-                        id: CampusId(10_000 + c.row_index as i64),
+                        id: cid,
                         code: c.code.clone(),
                         name: c.name.clone(),
                         color: "#94a3b8".to_string(),
