@@ -223,8 +223,7 @@ export interface EvaluationOutcome {
 }
 
 export type OptimizeBudget =
-  | { type: 'Iterations'; value: number }
-  | { type: 'TimeMs'; value: number }
+  { type: 'Iterations'; value: number } | { type: 'TimeMs'; value: number }
 
 export interface OptimizeRequest {
   base_seed?: number | null

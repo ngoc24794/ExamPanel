@@ -17,7 +17,7 @@ export const api: ExamPanelApi = isTauriEnvironment() ? tauriApi : mockApi
  */
 export function formatAppError(
   err: unknown,
-  t: (key: string, options?: Record<string, unknown>) => string
+  t: (key: string, options?: Record<string, unknown>) => string,
 ): string {
   if (!err) return t('errors.unknown_error')
   if (typeof err === 'object' && err !== null && 'code' in err) {
@@ -31,4 +31,3 @@ export function formatAppError(
 
 export * from './types'
 export { mockApi, tauriApi }
-

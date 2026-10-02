@@ -133,7 +133,7 @@ export class TauriExamPanelApi implements ExamPanelApi {
   async setTeacherGrades(
     teacherId: number,
     schoolYearId: number,
-    gradeIds: number[]
+    gradeIds: number[],
   ): Promise<void> {
     await invoke<void>('set_teacher_grades', {
       teacherId,
@@ -142,9 +142,7 @@ export class TauriExamPanelApi implements ExamPanelApi {
     })
   }
 
-  async teachersWithGrades(
-    schoolYearId: number
-  ): Promise<TeacherWithGrades[]> {
+  async teachersWithGrades(schoolYearId: number): Promise<TeacherWithGrades[]> {
     return await invoke<TeacherWithGrades[]>('teachers_with_grades', {
       schoolYearId,
     })
@@ -173,9 +171,7 @@ export class TauriExamPanelApi implements ExamPanelApi {
   }
 
   // Unavailability
-  async listUnavailabilities(
-    schoolYearId: number
-  ): Promise<Unavailability[]> {
+  async listUnavailabilities(schoolYearId: number): Promise<Unavailability[]> {
     return await invoke<Unavailability[]>('list_unavailabilities', {
       schoolYearId,
     })
@@ -185,10 +181,7 @@ export class TauriExamPanelApi implements ExamPanelApi {
     await invoke<void>('set_unavailability', { unavailability })
   }
 
-  async deleteUnavailability(
-    teacherId: number,
-    examId: number
-  ): Promise<void> {
+  async deleteUnavailability(teacherId: number, examId: number): Promise<void> {
     await invoke<void>('delete_unavailability', { teacherId, examId })
   }
 
@@ -212,10 +205,7 @@ export class TauriExamPanelApi implements ExamPanelApi {
     })
   }
 
-  async saveRuleSettings(
-    schoolYearId: number,
-    settings: RuleSetting[]
-  ): Promise<void> {
+  async saveRuleSettings(schoolYearId: number, settings: RuleSetting[]): Promise<void> {
     await invoke<void>('save_rule_settings', { schoolYearId, settings })
   }
 
@@ -224,9 +214,7 @@ export class TauriExamPanelApi implements ExamPanelApi {
   }
 
   // Analysis
-  async checkFeasibility(
-    schoolYearId: number
-  ): Promise<FeasibilityReportWithQuotas> {
+  async checkFeasibility(schoolYearId: number): Promise<FeasibilityReportWithQuotas> {
     const res = await invoke<FeasibilityReportWithQuotas>('check_feasibility', {
       schoolYearId,
     })
@@ -236,7 +224,7 @@ export class TauriExamPanelApi implements ExamPanelApi {
 
   async evaluateAssignments(
     schoolYearId: number,
-    assignments: Assignment[]
+    assignments: Assignment[],
   ): Promise<EvaluationOutcome> {
     return await invoke<EvaluationOutcome>('evaluate_assignments', {
       schoolYearId,
@@ -248,7 +236,7 @@ export class TauriExamPanelApi implements ExamPanelApi {
   startOptimize(
     schoolYearId: number,
     request: OptimizeRequest,
-    onProgress?: (progress: Progress) => void
+    onProgress?: (progress: Progress) => void,
   ): OptimizeHandle {
     const channel = new Channel<Progress>()
     if (onProgress) {
@@ -278,7 +266,7 @@ export class TauriExamPanelApi implements ExamPanelApi {
   // Plans
   async saveOptimizeResult(
     schoolYearId: number,
-    outcome: OptimizeOutcome
+    outcome: OptimizeOutcome,
   ): Promise<number[]> {
     return await invoke<number[]>('save_optimize_result', {
       schoolYearId,

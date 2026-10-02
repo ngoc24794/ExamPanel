@@ -27,10 +27,7 @@
     "enabled": true,
     "weight": 3.0,
     "params": {
-      "ratio": [
-        2,
-        1
-      ]
+      "ratio": [2, 1]
     }
   },
   {

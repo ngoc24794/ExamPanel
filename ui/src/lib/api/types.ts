@@ -66,7 +66,7 @@ export interface ExamPanelApi {
   setTeacherGrades(
     teacherId: number,
     schoolYearId: number,
-    gradeIds: number[]
+    gradeIds: number[],
   ): Promise<void>
   teachersWithGrades(schoolYearId: number): Promise<TeacherWithGrades[]>
 
@@ -91,32 +91,26 @@ export interface ExamPanelApi {
 
   // Rule Settings
   getRuleSettings(schoolYearId: number): Promise<RuleSetting[]>
-  saveRuleSettings(
-    schoolYearId: number,
-    settings: RuleSetting[]
-  ): Promise<void>
+  saveRuleSettings(schoolYearId: number, settings: RuleSetting[]): Promise<void>
   resetRuleSettingsToDefaults(schoolYearId: number): Promise<void>
 
   // Analysis
   checkFeasibility(schoolYearId: number): Promise<FeasibilityReportWithQuotas>
   evaluateAssignments(
     schoolYearId: number,
-    assignments: Assignment[]
+    assignments: Assignment[],
   ): Promise<EvaluationOutcome>
 
   // Optimization
   startOptimize(
     schoolYearId: number,
     request: OptimizeRequest,
-    onProgress?: (progress: Progress) => void
+    onProgress?: (progress: Progress) => void,
   ): OptimizeHandle
   cancelOptimize(): Promise<boolean>
 
   // Plans
-  saveOptimizeResult(
-    schoolYearId: number,
-    outcome: OptimizeOutcome
-  ): Promise<number[]>
+  saveOptimizeResult(schoolYearId: number, outcome: OptimizeOutcome): Promise<number[]>
   listPlans(schoolYearId: number): Promise<PlanSummary[]>
   getPlan(id: number): Promise<PlanDetails>
   renamePlan(id: number, newName: string): Promise<void>

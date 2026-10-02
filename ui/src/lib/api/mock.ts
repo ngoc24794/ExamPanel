@@ -1,6 +1,5 @@
 import demoCampuses from './fixtures/demo_campuses.json'
 import demoExams from './fixtures/demo_exams.json'
-import demoFeasibility from './fixtures/demo_feasibility.json'
 import demoGrades from './fixtures/demo_grades.json'
 import demoOutcome from './fixtures/demo_outcome.json'
 import demoPlanDetails from './fixtures/demo_plan_details.json'
@@ -32,9 +31,11 @@ import type {
   RuleSetting,
   SchoolYear,
   Teacher,
+  TeacherQuota,
   TeacherWithGrades,
   ThemeMode,
   Unavailability,
+  Violation,
 } from './types'
 
 export class MockExamPanelApi implements ExamPanelApi {
@@ -47,9 +48,7 @@ export class MockExamPanelApi implements ExamPanelApi {
   private campuses: Campus[] = JSON.parse(JSON.stringify(demoCampuses))
   private grades: Grade[] = JSON.parse(JSON.stringify(demoGrades))
   private teachers: Teacher[] = JSON.parse(JSON.stringify(demoTeachers))
-  private schoolYears: SchoolYear[] = [
-    { id: 1, name: '2026-2027', is_current: true },
-  ]
+  private schoolYears: SchoolYear[] = [{ id: 1, name: '2026-2027', is_current: true }]
   private exams: Exam[] = JSON.parse(JSON.stringify(demoExams))
   private unavailabilities: Unavailability[] = [
     { teacher_id: 6, exam_id: 3, reason: null },
@@ -241,7 +240,21 @@ export class MockExamPanelApi implements ExamPanelApi {
     if (idx === -1) {
       throw { code: 'not_found', params: { message: 'Teacher not found' } }
     }
+    const hasAssignments = Array.from(this.planDetailsMap.values()).some((d) =>
+      d.assignments.some((a) => a.teacher_id === id),
+    )
+    if (
+      this.unavailabilities.some((u) => u.teacher_id === id) ||
+      this.locks.some((l) => l.teacher_id === id) ||
+      hasAssignments
+    ) {
+      throw {
+        code: 'teacher_in_use',
+        params: { message: 'Teacher is in use in exams, locks, or assignments' },
+      }
+    }
     this.teachers.splice(idx, 1)
+    this.teacherGradesMap.delete(id)
   }
 
   async deactivateTeacher(id: number): Promise<void> {
@@ -255,14 +268,12 @@ export class MockExamPanelApi implements ExamPanelApi {
   async setTeacherGrades(
     teacherId: number,
     _schoolYearId: number,
-    gradeIds: number[]
+    gradeIds: number[],
   ): Promise<void> {
     this.teacherGradesMap.set(teacherId, [...gradeIds])
   }
 
-  async teachersWithGrades(
-    _schoolYearId: number
-  ): Promise<TeacherWithGrades[]> {
+  async teachersWithGrades(_schoolYearId: number): Promise<TeacherWithGrades[]> {
     return this.teachers.map((t) => ({
       teacher: { ...t },
       grade_ids: this.teacherGradesMap.get(t.id) || [],
@@ -274,9 +285,7 @@ export class MockExamPanelApi implements ExamPanelApi {
     return JSON.parse(JSON.stringify(this.schoolYears))
   }
 
-  async createSchoolYear(
-    input: CreateSchoolYearInput
-  ): Promise<SchoolYear> {
+  async createSchoolYear(input: CreateSchoolYearInput): Promise<SchoolYear> {
     const maxId = this.schoolYears.reduce((max, s) => Math.max(max, s.id), 0)
     const newYear: SchoolYear = {
       id: maxId + 1,
@@ -321,9 +330,7 @@ export class MockExamPanelApi implements ExamPanelApi {
   }
 
   // Unavailability
-  async listUnavailabilities(
-    _schoolYearId: number
-  ): Promise<Unavailability[]> {
+  async listUnavailabilities(_schoolYearId: number): Promise<Unavailability[]> {
     return JSON.parse(JSON.stringify(this.unavailabilities))
   }
 
@@ -333,17 +340,14 @@ export class MockExamPanelApi implements ExamPanelApi {
         !(
           u.teacher_id === unavailability.teacher_id &&
           u.exam_id === unavailability.exam_id
-        )
+        ),
     )
     this.unavailabilities.push({ ...unavailability })
   }
 
-  async deleteUnavailability(
-    teacherId: number,
-    examId: number
-  ): Promise<void> {
+  async deleteUnavailability(teacherId: number, examId: number): Promise<void> {
     this.unavailabilities = this.unavailabilities.filter(
-      (u) => !(u.teacher_id === teacherId && u.exam_id === examId)
+      (u) => !(u.teacher_id === teacherId && u.exam_id === examId),
     )
   }
 
@@ -380,10 +384,7 @@ export class MockExamPanelApi implements ExamPanelApi {
     return JSON.parse(JSON.stringify(this.ruleSettings))
   }
 
-  async saveRuleSettings(
-    _schoolYearId: number,
-    settings: RuleSetting[]
-  ): Promise<void> {
+  async saveRuleSettings(_schoolYearId: number, settings: RuleSetting[]): Promise<void> {
     this.ruleSettings = JSON.parse(JSON.stringify(settings))
   }
 
@@ -392,19 +393,97 @@ export class MockExamPanelApi implements ExamPanelApi {
   }
 
   // Analysis
-  async checkFeasibility(
-    _schoolYearId: number
-  ): Promise<FeasibilityReportWithQuotas> {
-    const data = JSON.parse(
-      JSON.stringify(demoFeasibility)
-    ) as unknown as FeasibilityReportWithQuotas
-    data.report.is_feasible = data.report.errors.length === 0
-    return data
+  async checkFeasibility(_schoolYearId: number): Promise<FeasibilityReportWithQuotas> {
+    const activeTeachers = this.teachers.filter((t) => t.active && t.load_weight > 0)
+    const totalSlots = 4 * this.grades.length * 3
+    const totalWeight = activeTeachers.reduce((sum, t) => sum + t.load_weight, 0)
+
+    const errors: Violation[] = []
+    const warnings: Violation[] = []
+
+    for (const grade of this.grades) {
+      const eligible = activeTeachers.filter((t) =>
+        (this.teacherGradesMap.get(t.id) || []).includes(grade.id),
+      )
+      if (eligible.length < 3) {
+        errors.push({
+          rule: 'h2',
+          code: 'insufficient_panel_teachers',
+          params: {
+            exam: 'Các kỳ thi',
+            grade: grade.code.toString(),
+            count: eligible.length.toString(),
+          },
+        })
+      } else {
+        const campuses = new Set(eligible.map((t) => t.campus_id))
+        if (campuses.size < 2) {
+          errors.push({
+            rule: 'h3',
+            code: 'insufficient_campuses',
+            params: {
+              exam: 'Các kỳ thi',
+              grade: grade.code.toString(),
+              count: campuses.size.toString(),
+            },
+          })
+        }
+        if (eligible.length === 3) {
+          warnings.push({
+            rule: 'h2',
+            code: 'tight_panel_roster',
+            params: {
+              exam: 'Các kỳ thi',
+              grade: grade.code.toString(),
+              count: eligible.length.toString(),
+            },
+          })
+        }
+      }
+    }
+
+    const quotas: TeacherQuota[] = activeTeachers.map((t) => {
+      const q = totalWeight > 0 ? (totalSlots * t.load_weight) / totalWeight : 0
+      const lo = Math.max(0, Math.floor(q) - 1)
+      const hi = Math.min(4, Math.ceil(q) + 1)
+      return {
+        teacher_id: t.id,
+        quota: q,
+        lo,
+        hi,
+      }
+    })
+
+    const totalMax = quotas.reduce((sum, q) => sum + q.hi, 0)
+    if (totalMax < totalSlots) {
+      errors.push({
+        rule: 'h7',
+        code: 'insufficient_total_capacity',
+        params: {
+          max_capacity: totalMax.toString(),
+          total_slots: totalSlots.toString(),
+        },
+      })
+    }
+
+    return {
+      report: {
+        is_feasible: errors.length === 0,
+        errors,
+        warnings,
+        capacity: {
+          target_slots: totalSlots,
+          active_teachers: activeTeachers.length,
+          total_weight: totalWeight,
+        },
+      },
+      quotas,
+    }
   }
 
   async evaluateAssignments(
     _schoolYearId: number,
-    _assignments: Assignment[]
+    _assignments: Assignment[],
   ): Promise<EvaluationOutcome> {
     const outcome = demoOutcome as unknown as OptimizeOutcome
     return {
@@ -417,7 +496,7 @@ export class MockExamPanelApi implements ExamPanelApi {
   startOptimize(
     schoolYearId: number,
     _request: OptimizeRequest,
-    onProgress?: (progress: Progress) => void
+    onProgress?: (progress: Progress) => void,
   ): OptimizeHandle {
     if (this.isOptimizing) {
       throw {
@@ -482,7 +561,7 @@ export class MockExamPanelApi implements ExamPanelApi {
           this.isOptimizing = false
           this.activeCancelCallback = null
           const result: OptimizeOutcome = JSON.parse(
-            JSON.stringify(demoOutcome)
+            JSON.stringify(demoOutcome),
           ) as unknown as OptimizeOutcome
           result.school_year_id = schoolYearId
           resolve(result)
@@ -507,7 +586,7 @@ export class MockExamPanelApi implements ExamPanelApi {
   // Plans
   async saveOptimizeResult(
     _schoolYearId: number,
-    outcome: OptimizeOutcome
+    outcome: OptimizeOutcome,
   ): Promise<number[]> {
     const ids: number[] = []
     for (const p of outcome.plans) {

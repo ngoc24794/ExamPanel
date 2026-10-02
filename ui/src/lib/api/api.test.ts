@@ -68,7 +68,7 @@ describe('MockExamPanelApi Contract Tests', () => {
     })
     const afterUpdate = await api.listCampuses()
     expect(afterUpdate.find((c) => c.id === created.id)?.name).toBe(
-      'Phân hiệu Đã Đổi Tên'
+      'Phân hiệu Đã Đổi Tên',
     )
 
     await api.deleteCampus(created.id)
@@ -228,11 +228,11 @@ describe('MockExamPanelApi Contract Tests', () => {
         runs: 8,
         budget: { type: 'Iterations', value: 200000 },
         k: 3,
-        diversity_threshold: 0.20,
+        diversity_threshold: 0.2,
       },
       (p) => {
         progressList.push(p.iteration)
-      }
+      },
     )
 
     const outcome = await handle.promise
@@ -242,16 +242,13 @@ describe('MockExamPanelApi Contract Tests', () => {
   })
 
   it('cancels optimization promptly when requested', async () => {
-    const handle = api.startOptimize(
-      1,
-      {
-        base_seed: 42,
-        runs: 8,
-        budget: { type: 'Iterations', value: 200000 },
-        k: 3,
-        diversity_threshold: 0.20,
-      }
-    )
+    const handle = api.startOptimize(1, {
+      base_seed: 42,
+      runs: 8,
+      budget: { type: 'Iterations', value: 200000 },
+      k: 3,
+      diversity_threshold: 0.2,
+    })
 
     // Cancel shortly after start
     setTimeout(() => {
@@ -273,7 +270,7 @@ describe('MockExamPanelApi Contract Tests', () => {
       runs: 8,
       budget: { type: 'Iterations', value: 200000 },
       k: 3,
-      diversity_threshold: 0.20,
+      diversity_threshold: 0.2,
     })
 
     try {
@@ -282,7 +279,7 @@ describe('MockExamPanelApi Contract Tests', () => {
         runs: 8,
         budget: { type: 'Iterations', value: 200000 },
         k: 3,
-        diversity_threshold: 0.20,
+        diversity_threshold: 0.2,
       })
       expect.unreachable('Concurrent start should throw optimize_busy')
     } catch (err) {
@@ -307,7 +304,7 @@ describe('MockExamPanelApi Contract Tests', () => {
       runs: 8,
       budget: { type: 'Iterations', value: 200000 },
       k: 3,
-      diversity_threshold: 0.20,
+      diversity_threshold: 0.2,
     })
     const outcome = await handle.promise
 

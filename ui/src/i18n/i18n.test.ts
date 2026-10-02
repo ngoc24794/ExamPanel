@@ -1,29 +1,29 @@
-import { describe, expect, it } from 'vitest';
-import vi from './locales/vi.json';
-import en from './locales/en.json';
+import { describe, expect, it } from 'vitest'
+import vi from './locales/vi.json'
+import en from './locales/en.json'
 
-type JsonObject = { [key: string]: unknown };
+type JsonObject = { [key: string]: unknown }
 
 function getFlatKeys(obj: JsonObject, prefix = ''): string[] {
-  let keys: string[] = [];
+  let keys: string[] = []
   for (const [key, value] of Object.entries(obj)) {
-    const fullPath = prefix ? `${prefix}.${key}` : key;
+    const fullPath = prefix ? `${prefix}.${key}` : key
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      keys = keys.concat(getFlatKeys(value as JsonObject, fullPath));
+      keys = keys.concat(getFlatKeys(value as JsonObject, fullPath))
     } else {
-      keys.push(fullPath);
+      keys.push(fullPath)
     }
   }
-  return keys;
+  return keys
 }
 
 describe('i18n locales parity', () => {
   it('vi.json and en.json have identical key sets', () => {
-    const viKeys = getFlatKeys(vi as JsonObject).sort();
-    const enKeys = getFlatKeys(en as JsonObject).sort();
+    const viKeys = getFlatKeys(vi as JsonObject).sort()
+    const enKeys = getFlatKeys(en as JsonObject).sort()
 
-    expect(viKeys).toEqual(enKeys);
-  });
+    expect(viKeys).toEqual(enKeys)
+  })
 
   it('all diagnostic keys are present in both locales', () => {
     const expectedDiagnosticKeys = [
@@ -62,13 +62,13 @@ describe('i18n locales parity', () => {
       'diagnostics.tight_panel_roster',
       'diagnostics.teacher_single_panel_eligibility',
       'diagnostics.restricted_reviewer_pool',
-    ];
+    ]
 
-    const viKeys = getFlatKeys(vi as JsonObject);
+    const viKeys = getFlatKeys(vi as JsonObject)
     for (const key of expectedDiagnosticKeys) {
-      expect(viKeys).toContain(key);
+      expect(viKeys).toContain(key)
     }
-  });
+  })
 
   it('all soft constraint violation keys are present in both locales', () => {
     const expectedSoftKeys = [
@@ -81,16 +81,16 @@ describe('i18n locales parity', () => {
       'soft.setter_consecutive',
       'soft.grade_not_rotated',
       'soft.load_deviation',
-    ];
+    ]
 
-    const viKeys = getFlatKeys(vi as JsonObject);
+    const viKeys = getFlatKeys(vi as JsonObject)
     for (const key of expectedSoftKeys) {
-      expect(viKeys).toContain(key);
+      expect(viKeys).toContain(key)
     }
-  });
+  })
 
   it('vi.json does not contain the forbidden term "cơ sở" (case-insensitive)', () => {
-    const rawVi = JSON.stringify(vi).toLowerCase();
-    expect(rawVi.includes('cơ sở')).toBe(false);
-  });
-});
+    const rawVi = JSON.stringify(vi).toLowerCase()
+    expect(rawVi.includes('cơ sở')).toBe(false)
+  })
+})
