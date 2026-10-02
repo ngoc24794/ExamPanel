@@ -6,12 +6,12 @@ use exam_panel_core::domain::{
     Assignment, Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockId, PlanId, PlanSummary,
     RuleSetting, SchoolYear, SchoolYearId, Teacher, TeacherId, TeacherWithGrades, Unavailability,
 };
-use exam_panel_core::optimize::Progress;
+use exam_panel_core::optimize::{CandidateEval, Progress, SlotRef};
 use exam_panel_service::dto::{
     AppInfo, AppSettings, CreateCampusInput, CreateExamInput, CreateGradeInput, CreateLockInput,
     CreateSchoolYearInput, CreateTeacherInput, EvaluationOutcome, FeasibilityReportWithQuotas,
-    OptimizeOutcome, OptimizeRequest, PlanDetails, PreviewQuotasInput, QuotaPreviewItem,
-    RulePresetItem,
+    OptimizeOutcome, OptimizeRequest, PlanDetails, PlanStatus, PreviewQuotasInput,
+    QuotaPreviewItem, ReoptimizeRequest, RulePresetItem,
 };
 use exam_panel_service::error::AppError;
 use exam_panel_service::service::AppService;
@@ -420,6 +420,70 @@ pub fn duplicate_plan(
     new_name: String,
 ) -> Result<PlanId, AppError> {
     service.duplicate_plan(id, new_name)
+}
+
+#[tauri::command]
+pub fn plan_status(
+    service: State<'_, Arc<AppService>>,
+    id: PlanId,
+) -> Result<PlanStatus, AppError> {
+    service.plan_status(id)
+}
+
+#[tauri::command]
+pub fn create_manual_copy(
+    service: State<'_, Arc<AppService>>,
+    id: PlanId,
+    name: String,
+) -> Result<PlanId, AppError> {
+    service.create_manual_copy(id, name)
+}
+
+#[tauri::command]
+pub fn update_plan_assignments(
+    service: State<'_, Arc<AppService>>,
+    id: PlanId,
+    assignments: Vec<Assignment>,
+) -> Result<EvaluationOutcome, AppError> {
+    service.update_plan_assignments(id, assignments)
+}
+
+#[tauri::command]
+pub fn evaluate_candidates(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: SchoolYearId,
+    assignments: Vec<Assignment>,
+    slot: SlotRef,
+) -> Result<Vec<CandidateEval>, AppError> {
+    service.evaluate_candidates(school_year_id, assignments, slot)
+}
+
+#[tauri::command]
+pub fn evaluate_swap(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: SchoolYearId,
+    assignments: Vec<Assignment>,
+    slot_a: SlotRef,
+    slot_b: SlotRef,
+) -> Result<CandidateEval, AppError> {
+    service.evaluate_swap(school_year_id, assignments, slot_a, slot_b)
+}
+
+#[tauri::command]
+pub async fn reoptimize_from(
+    service: State<'_, Arc<AppService>>,
+    req: ReoptimizeRequest,
+    on_progress: Channel<Progress>,
+) -> Result<OptimizeOutcome, AppError> {
+    let service_clone = Arc::clone(&service);
+    tauri::async_runtime::spawn_blocking(move || {
+        let sink = Arc::new(move |p: Progress| {
+            let _ = on_progress.send(p);
+        });
+        service_clone.reoptimize_from(req.plan_id, req.keep, req.request, Some(sink), None)
+    })
+    .await
+    .map_err(|e| AppError::new("internal_error").with_param("detail", e.to_string()))?
 }
 
 // -----------------------------------------------------------------------------

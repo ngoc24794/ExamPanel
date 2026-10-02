@@ -190,6 +190,12 @@ pub fn run() {
             commands::delete_plan,
             commands::mark_final,
             commands::duplicate_plan,
+            commands::plan_status,
+            commands::create_manual_copy,
+            commands::update_plan_assignments,
+            commands::evaluate_candidates,
+            commands::evaluate_swap,
+            commands::reoptimize_from,
             commands::seed_demo,
         ])
         .run(tauri::generate_context!())

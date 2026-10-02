@@ -11,6 +11,7 @@ import type {
   AppSettings,
   Assignment,
   Campus,
+  CandidateEval,
   CreateCampusInput,
   CreateExamInput,
   CreateGradeInput,
@@ -27,13 +28,16 @@ import type {
   OptimizeOutcome,
   OptimizeRequest,
   PlanDetails,
+  PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
   Progress,
   QuotaPreviewItem,
+  ReoptimizeRequest,
   RulePresetItem,
   RuleSetting,
   SchoolYear,
+  SlotRef,
   Teacher,
   TeacherQuota,
   TeacherWithGrades,
@@ -68,10 +72,10 @@ export class MockExamPanelApi implements ExamPanelApi {
     [2, [1, 2]],
     [3, [1, 3]],
     [4, [2, 3]],
-    [5, [2, 3]],
+    [5, [1, 2, 3]],
     [6, [1, 2]],
     [7, [1, 3]],
-    [8, [2, 3]],
+    [8, [1, 2, 3]],
     [9, [1, 2]],
     [10, [2, 3]],
     [11, [1, 3]],
@@ -423,7 +427,6 @@ export class MockExamPanelApi implements ExamPanelApi {
     const maxId = this.locks.reduce((max, l) => Math.max(max, l.id), 0)
     const newLock: Lock = {
       id: maxId + 1,
-      school_year_id: 1,
       exam_id: input.exam_id,
       grade_id: input.grade_id,
       teacher_id: input.teacher_id,
@@ -560,7 +563,7 @@ export class MockExamPanelApi implements ExamPanelApi {
           is_feasible: false,
           errors: [{ rule: 'h3', code: 'no_campuses', params: {} }],
           warnings: [],
-          capacity: { target_slots: 0, active_teachers: 0, total_weight: 0 },
+          quotas: [],
         },
         quotas: [],
       }
@@ -571,7 +574,7 @@ export class MockExamPanelApi implements ExamPanelApi {
           is_feasible: false,
           errors: [{ rule: 'h2', code: 'no_active_teachers', params: {} }],
           warnings: [],
-          capacity: { target_slots: 0, active_teachers: 0, total_weight: 0 },
+          quotas: [],
         },
         quotas: [],
       }
@@ -583,11 +586,7 @@ export class MockExamPanelApi implements ExamPanelApi {
           is_feasible: false,
           errors: [{ rule: 'h3', code: 'single_campus', params: {} }],
           warnings: [],
-          capacity: {
-            target_slots: 0,
-            active_teachers: activeTeachers.length,
-            total_weight: totalWeight,
-          },
+          quotas: [],
         },
         quotas: [],
       }
@@ -598,11 +597,7 @@ export class MockExamPanelApi implements ExamPanelApi {
           is_feasible: false,
           errors: [{ rule: 'h2', code: 'no_grades', params: {} }],
           warnings: [],
-          capacity: {
-            target_slots: 0,
-            active_teachers: activeTeachers.length,
-            total_weight: totalWeight,
-          },
+          quotas: [],
         },
         quotas: [],
       }
@@ -613,11 +608,7 @@ export class MockExamPanelApi implements ExamPanelApi {
           is_feasible: false,
           errors: [{ rule: 'h2', code: 'no_exams', params: {} }],
           warnings: [],
-          capacity: {
-            target_slots: 0,
-            active_teachers: activeTeachers.length,
-            total_weight: totalWeight,
-          },
+          quotas: [],
         },
         quotas: [],
       }
@@ -812,11 +803,7 @@ export class MockExamPanelApi implements ExamPanelApi {
         is_feasible: errors.length === 0,
         errors,
         warnings,
-        capacity: {
-          target_slots: totalSlots,
-          active_teachers: activeTeachers.length,
-          total_weight: totalWeight,
-        },
+        quotas,
       },
       quotas,
     }
@@ -941,6 +928,8 @@ export class MockExamPanelApi implements ExamPanelApi {
         created_at: new Date().toISOString(),
         is_final: false,
         source: 'optimizer',
+        is_stale: false,
+        problem_hash: undefined,
       }
       this.plans.push(summary)
       this.planDetailsMap.set(nextId, {
@@ -991,10 +980,90 @@ export class MockExamPanelApi implements ExamPanelApi {
     this.planDetailsMap.delete(id)
   }
 
+  private mockValidateAssignments(assignments: Assignment[]): Violation[] {
+    const violations: Violation[] = []
+    // H1: Duplicate teacher in the same panel
+    const panelTeacherCount = new Map<string, number>()
+    for (const a of assignments) {
+      const key = `${a.exam_id}_${a.grade_id}_${a.teacher_id}`
+      panelTeacherCount.set(key, (panelTeacherCount.get(key) || 0) + 1)
+      if (panelTeacherCount.get(key)! > 1) {
+        violations.push({
+          rule: 'h1',
+          code: 'duplicate_teacher_in_panel',
+          params: { teacher_id: a.teacher_id.toString(), exam_id: a.exam_id.toString(), grade_id: a.grade_id.toString() },
+        })
+      }
+    }
+
+    // H2: Teacher inactive or unqualified
+    const activeTeacherMap = new Map(this.teachers.map((t) => [t.id, t]))
+    for (const a of assignments) {
+      const t = activeTeacherMap.get(a.teacher_id)
+      if (!t || !t.active || t.load_weight <= 0) {
+        violations.push({
+          rule: 'h2',
+          code: 'inactive_or_zero_weight',
+          params: { teacher_id: a.teacher_id.toString() },
+        })
+      }
+      const tg = this.teacherGradesMap.get(a.teacher_id) || []
+      if (!tg.includes(a.grade_id)) {
+        violations.push({
+          rule: 'h2',
+          code: 'unqualified_grade',
+          params: { teacher_id: a.teacher_id.toString(), grade_id: a.grade_id.toString() },
+        })
+      }
+    }
+
+    // H4: Same teacher assigned to multiple panels in same exam
+    const examTeacherPanels = new Map<string, Set<number>>()
+    for (const a of assignments) {
+      const key = `${a.exam_id}_${a.teacher_id}`
+      if (!examTeacherPanels.has(key)) {
+        examTeacherPanels.set(key, new Set())
+      }
+      const set = examTeacherPanels.get(key)!
+      set.add(a.grade_id)
+      if (set.size > 1) {
+        violations.push({
+          rule: 'h4',
+          code: 'multiple_panels_in_same_exam',
+          params: { teacher_id: a.teacher_id.toString(), exam_id: a.exam_id.toString() },
+        })
+      }
+    }
+
+    // H5: Teacher unavailable
+    for (const a of assignments) {
+      const unavail = this.unavailabilities.some(
+        (u) => u.teacher_id === a.teacher_id && u.exam_id === a.exam_id,
+      )
+      if (unavail) {
+        violations.push({
+          rule: 'h5',
+          code: 'teacher_unavailable',
+          params: { teacher_id: a.teacher_id.toString(), exam_id: a.exam_id.toString() },
+        })
+      }
+    }
+
+    return violations
+  }
+
   async markFinal(id: number): Promise<void> {
-    const plan = this.plans.find((p) => p.id === id)
-    if (!plan) {
+    const details = this.planDetailsMap.get(id)
+    if (!details) {
       throw { code: 'not_found', params: { message: 'Plan not found' } }
+    }
+    const isStale = this.plans.find((p) => p.id === id)?.is_stale ?? false
+    if (isStale) {
+      throw { code: 'plan_stale', params: { id: id.toString() } }
+    }
+    const hardViolations = this.mockValidateAssignments(details.assignments)
+    if (hardViolations.length > 0) {
+      throw { code: 'plan_invalid', params: { count: hardViolations.length.toString() } }
     }
     for (const p of this.plans) {
       p.is_final = p.id === id
@@ -1004,6 +1073,30 @@ export class MockExamPanelApi implements ExamPanelApi {
   }
 
   async duplicatePlan(id: number, newName: string): Promise<number> {
+    return this.createManualCopy(id, newName)
+  }
+
+  async planStatus(id: number): Promise<PlanStatus> {
+    const details = this.planDetailsMap.get(id)
+    if (!details) {
+      throw { code: 'not_found', params: { message: 'Plan not found' } }
+    }
+    const hardViolations = this.mockValidateAssignments(details.assignments)
+    const isStale = this.plans.find((p) => p.id === id)?.is_stale ?? false
+    const scoreReport = details.score_report ?? {
+      total: 0,
+      by_rule: [],
+      violations: [],
+      per_teacher: [],
+    }
+    return {
+      problem_changed: isStale,
+      hard_violations_now: hardViolations,
+      score_now: scoreReport,
+    }
+  }
+
+  async createManualCopy(id: number, name: string): Promise<number> {
     const orig = this.planDetailsMap.get(id)
     if (!orig) {
       throw { code: 'not_found', params: { message: 'Plan not found' } }
@@ -1011,12 +1104,14 @@ export class MockExamPanelApi implements ExamPanelApi {
     const nextId = this.plans.reduce((max, pl) => Math.max(max, pl.id), 0) + 1
     const summary: PlanSummary = {
       id: nextId,
-      name: newName,
-      rank: null,
+      name,
+      rank: undefined,
       score: orig.plan.score,
       created_at: new Date().toISOString(),
       is_final: false,
       source: 'duplicate',
+      is_stale: false,
+      problem_hash: orig.plan.problem_hash ?? undefined,
     }
     this.plans.push(summary)
     this.planDetailsMap.set(nextId, {
@@ -1031,6 +1126,176 @@ export class MockExamPanelApi implements ExamPanelApi {
       score_report: orig.score_report,
     })
     return nextId
+  }
+
+  async updatePlanAssignments(
+    id: number,
+    assignments: Assignment[],
+  ): Promise<EvaluationOutcome> {
+    const details = this.planDetailsMap.get(id)
+    if (!details) {
+      throw { code: 'not_found', params: { message: 'Plan not found' } }
+    }
+    if (details.plan.source === 'optimizer') {
+      throw { code: 'plan_immutable', params: { id: id.toString() } }
+    }
+    if (details.plan.is_final) {
+      throw { code: 'plan_final_immutable', params: { id: id.toString() } }
+    }
+
+    const hardViolations = this.mockValidateAssignments(assignments)
+    details.assignments = JSON.parse(JSON.stringify(assignments))
+    const scoreReport = details.score_report ?? {
+      total: 0,
+      by_rule: [],
+      violations: [],
+      per_teacher: [],
+    }
+    return {
+      hard_violations: hardViolations,
+      score_report: scoreReport,
+    }
+  }
+
+  async evaluateCandidates(
+    _schoolYearId: number,
+    assignments: Assignment[],
+    slot: SlotRef,
+  ): Promise<CandidateEval[]> {
+    const currentBaseScore = 150.0
+    const results: CandidateEval[] = []
+
+    for (const teacher of this.teachers) {
+      const simAssignments = assignments.map((a) => ({ ...a }))
+      let replaced = false
+      let sCount = 0
+      for (const a of simAssignments) {
+        if (a.exam_id === slot.exam_id && a.grade_id === slot.grade_id && a.role === slot.role) {
+          if (slot.role === 'reviewer' || sCount === slot.position) {
+            a.teacher_id = teacher.id
+            replaced = true
+            break
+          }
+          sCount += 1
+        }
+      }
+      if (!replaced) {
+        simAssignments.push({
+          plan_id: assignments[0]?.plan_id ?? 0,
+          exam_id: slot.exam_id,
+          grade_id: slot.grade_id,
+          teacher_id: teacher.id,
+          role: slot.role,
+        })
+      }
+
+      const hardViolations = this.mockValidateAssignments(simAssignments)
+      // Deterministic placeholder delta for candidates (mock only)
+      const delta = ((teacher.id * 7) % 17) - 8.5
+      const newTotal = Math.max(0, currentBaseScore + delta)
+
+      results.push({
+        teacher_id: teacher.id,
+        hard_violations: hardViolations,
+        delta_score: delta,
+        new_total: newTotal,
+      })
+    }
+
+    results.sort((a, b) => a.delta_score - b.delta_score)
+    return results
+  }
+
+  async evaluateSwap(
+    _schoolYearId: number,
+    assignments: Assignment[],
+    slotA: SlotRef,
+    slotB: SlotRef,
+  ): Promise<CandidateEval> {
+    const currentBaseScore = 150.0
+    let tA: number | undefined
+    let tB: number | undefined
+    let sCountA = 0
+    let sCountB = 0
+    for (const a of assignments) {
+      if (a.exam_id === slotA.exam_id && a.grade_id === slotA.grade_id && a.role === slotA.role) {
+        if (slotA.role === 'reviewer' || sCountA === slotA.position) {
+          tA = a.teacher_id
+        }
+        sCountA += 1
+      }
+      if (a.exam_id === slotB.exam_id && a.grade_id === slotB.grade_id && a.role === slotB.role) {
+        if (slotB.role === 'reviewer' || sCountB === slotB.position) {
+          tB = a.teacher_id
+        }
+        sCountB += 1
+      }
+    }
+
+    const simAssignments = assignments.map((a) => ({ ...a }))
+    if (tA !== undefined && tB !== undefined) {
+      for (const a of simAssignments) {
+        if (a.exam_id === slotA.exam_id && a.grade_id === slotA.grade_id && a.role === slotA.role && a.teacher_id === tA) {
+          a.teacher_id = tB
+          break
+        }
+      }
+      for (const a of simAssignments) {
+        if (a.exam_id === slotB.exam_id && a.grade_id === slotB.grade_id && a.role === slotB.role && a.teacher_id === tB) {
+          a.teacher_id = tA
+          break
+        }
+      }
+    }
+
+    const hardViolations = this.mockValidateAssignments(simAssignments)
+    const delta = (((tA ?? 1) + (tB ?? 2)) % 11) - 5.0
+    return {
+      teacher_id: tB ?? 0,
+      hard_violations: hardViolations,
+      delta_score: delta,
+      new_total: Math.max(0, currentBaseScore + delta),
+    }
+  }
+
+  reoptimizeFrom(
+    _req: ReoptimizeRequest,
+    onProgress?: (progress: Progress) => void,
+  ): OptimizeHandle {
+    let cancelled = false
+    const promise = new Promise<OptimizeOutcome>((resolve) => {
+      let it = 0
+      const totalIt = 1000
+      const interval = setInterval(() => {
+        if (cancelled) {
+          clearInterval(interval)
+          return
+        }
+        it += 200
+        if (onProgress) {
+          onProgress({
+            run: 1,
+            iteration: it,
+            elapsed_ms: it * 2,
+            current_score: 120.0 - it * 0.05,
+            best_score: 100.0 - it * 0.04,
+          })
+        }
+        if (it >= totalIt) {
+          clearInterval(interval)
+          const outcome: OptimizeOutcome = JSON.parse(JSON.stringify(demoOutcome))
+          resolve(outcome)
+        }
+      }, 100)
+    })
+
+    return {
+      promise,
+      cancel: async () => {
+        cancelled = true
+        return true
+      },
+    }
   }
 
   async seedDemo(): Promise<void> {

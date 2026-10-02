@@ -5,6 +5,7 @@ import type {
   AppSettings,
   Assignment,
   Campus,
+  CandidateEval,
   CreateCampusInput,
   CreateExamInput,
   CreateGradeInput,
@@ -19,13 +20,16 @@ import type {
   OptimizeOutcome,
   OptimizeRequest,
   PlanDetails,
+  PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
   Progress,
   QuotaPreviewItem,
+  ReoptimizeRequest,
   RulePresetItem,
   RuleSetting,
   SchoolYear,
+  SlotRef,
   Teacher,
   TeacherWithGrades,
   Unavailability,
@@ -127,6 +131,24 @@ export interface ExamPanelApi {
   deletePlan(id: number): Promise<void>
   markFinal(id: number): Promise<void>
   duplicatePlan(id: number, newName: string): Promise<number>
+  planStatus(id: number): Promise<PlanStatus>
+  createManualCopy(id: number, name: string): Promise<number>
+  updatePlanAssignments(id: number, assignments: Assignment[]): Promise<EvaluationOutcome>
+  evaluateCandidates(
+    schoolYearId: number,
+    assignments: Assignment[],
+    slot: SlotRef,
+  ): Promise<CandidateEval[]>
+  evaluateSwap(
+    schoolYearId: number,
+    assignments: Assignment[],
+    slotA: SlotRef,
+    slotB: SlotRef,
+  ): Promise<CandidateEval>
+  reoptimizeFrom(
+    req: ReoptimizeRequest,
+    onProgress?: (progress: Progress) => void,
+  ): OptimizeHandle
 
   // Dev Tools
   seedDemo(): Promise<void>

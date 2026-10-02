@@ -5,6 +5,7 @@ import type {
   AppSettings,
   Assignment,
   Campus,
+  CandidateEval,
   CreateCampusInput,
   CreateExamInput,
   CreateGradeInput,
@@ -21,13 +22,16 @@ import type {
   OptimizeOutcome,
   OptimizeRequest,
   PlanDetails,
+  PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
   Progress,
   QuotaPreviewItem,
+  ReoptimizeRequest,
   RulePresetItem,
   RuleSetting,
   SchoolYear,
+  SlotRef,
   Teacher,
   TeacherWithGrades,
   ThemeMode,
@@ -326,6 +330,74 @@ export class TauriExamPanelApi implements ExamPanelApi {
 
   async duplicatePlan(id: number, newName: string): Promise<number> {
     return await invoke<number>('duplicate_plan', { id, newName })
+  }
+
+  async planStatus(id: number): Promise<PlanStatus> {
+    return await invoke<PlanStatus>('plan_status', { id })
+  }
+
+  async createManualCopy(id: number, name: string): Promise<number> {
+    return await invoke<number>('create_manual_copy', { id, name })
+  }
+
+  async updatePlanAssignments(
+    id: number,
+    assignments: Assignment[],
+  ): Promise<EvaluationOutcome> {
+    return await invoke<EvaluationOutcome>('update_plan_assignments', {
+      id,
+      assignments,
+    })
+  }
+
+  async evaluateCandidates(
+    schoolYearId: number,
+    assignments: Assignment[],
+    slot: SlotRef,
+  ): Promise<CandidateEval[]> {
+    return await invoke<CandidateEval[]>('evaluate_candidates', {
+      schoolYearId,
+      assignments,
+      slot,
+    })
+  }
+
+  async evaluateSwap(
+    schoolYearId: number,
+    assignments: Assignment[],
+    slotA: SlotRef,
+    slotB: SlotRef,
+  ): Promise<CandidateEval> {
+    return await invoke<CandidateEval>('evaluate_swap', {
+      schoolYearId,
+      assignments,
+      slotA,
+      slotB,
+    })
+  }
+
+  reoptimizeFrom(
+    req: ReoptimizeRequest,
+    onProgress?: (progress: Progress) => void,
+  ): OptimizeHandle {
+    const channel = new Channel<Progress>()
+    if (onProgress) {
+      channel.onmessage = (message) => {
+        onProgress(message)
+      }
+    }
+
+    const promise = invoke<OptimizeOutcome>('reoptimize_from', {
+      req,
+      onProgress: channel,
+    })
+
+    return {
+      promise,
+      cancel: () => {
+        void this.cancelOptimize()
+      },
+    }
   }
 
   // Dev Tools

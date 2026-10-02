@@ -6,6 +6,7 @@ use rusqlite::Connection;
 const MIGRATIONS: &[(i32, &str)] = &[
     (1, include_str!("../migrations/0001_initial.sql")),
     (2, include_str!("../migrations/0002_plans_extension.sql")),
+    (3, include_str!("../migrations/0003_plans_problem_hash.sql")),
 ];
 
 /// Returns the latest migration version available in the binary.
@@ -72,7 +73,7 @@ mod tests {
     }
 
     #[test]
-    fn test_upgrade_from_v1_to_v2_preserves_data() {
+    fn test_upgrade_from_v1_to_v3_preserves_data() {
         let mut conn = Connection::open_in_memory().unwrap();
         conn.execute_batch("PRAGMA foreign_keys = ON;").unwrap();
 
@@ -95,12 +96,12 @@ mod tests {
         )
         .unwrap();
 
-        // Now run full migrations to upgrade to v2
+        // Now run full migrations to upgrade to v3
         run_migrations(&mut conn).unwrap();
-        assert_eq!(get_current_version(&conn).unwrap(), 2);
+        assert_eq!(get_current_version(&conn).unwrap(), 3);
 
         // Verify data intact and new columns populated with defaults
-        let (id, name, seed, score, is_final, rank, score_report, run_params, source): (
+        let (id, name, seed, score, is_final, rank, score_report, run_params, source, problem_hash): (
             i64,
             String,
             u64,
@@ -110,9 +111,10 @@ mod tests {
             Option<String>,
             Option<String>,
             String,
+            Option<String>,
         ) = conn
             .query_row(
-                "SELECT id, name, seed, score, is_final, rank, score_report_json, run_params_json, source FROM plans WHERE id = 10",
+                "SELECT id, name, seed, score, is_final, rank, score_report_json, run_params_json, source, problem_hash FROM plans WHERE id = 10",
                 [],
                 |row| {
                     Ok((
@@ -125,6 +127,7 @@ mod tests {
                         row.get(6)?,
                         row.get(7)?,
                         row.get(8)?,
+                        row.get(9)?,
                     ))
                 },
             )
@@ -139,5 +142,48 @@ mod tests {
         assert_eq!(score_report, None);
         assert_eq!(run_params, None);
         assert_eq!(source, "optimizer");
+        assert_eq!(problem_hash, None);
+    }
+
+    #[test]
+    fn test_upgrade_from_v2_to_v3_preserves_data() {
+        let mut conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch("PRAGMA foreign_keys = ON;").unwrap();
+
+        // Run migrations 1 and 2
+        let sql_v1 = include_str!("../migrations/0001_initial.sql");
+        let sql_v2 = include_str!("../migrations/0002_plans_extension.sql");
+        conn.execute_batch(sql_v1).unwrap();
+        conn.execute_batch(sql_v2).unwrap();
+        conn.pragma_update(None, "user_version", 2).unwrap();
+        assert_eq!(get_current_version(&conn).unwrap(), 2);
+
+        conn.execute(
+            "INSERT INTO school_years (id, name, is_current) VALUES (1, '2026-2027', 1);",
+            [],
+        )
+        .unwrap();
+        conn.execute(
+            "INSERT INTO plans (id, school_year_id, name, created_at, seed, score, is_final, rank, source)
+             VALUES (20, 1, 'V2 Plan', '2026-09-02T00:00:00', 99, 5.0, 0, 1, 'manual');",
+            [],
+        )
+        .unwrap();
+
+        run_migrations(&mut conn).unwrap();
+        assert_eq!(get_current_version(&conn).unwrap(), 3);
+
+        let (id, name, source, problem_hash): (i64, String, String, Option<String>) = conn
+            .query_row(
+                "SELECT id, name, source, problem_hash FROM plans WHERE id = 20",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .unwrap();
+
+        assert_eq!(id, 20);
+        assert_eq!(name, "V2 Plan");
+        assert_eq!(source, "manual");
+        assert_eq!(problem_hash, None);
     }
 }

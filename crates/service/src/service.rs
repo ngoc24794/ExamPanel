@@ -3,17 +3,19 @@
 use crate::dto::{
     AppInfo, AppSettings, CreateCampusInput, CreateExamInput, CreateGradeInput, CreateLockInput,
     CreateSchoolYearInput, CreateTeacherInput, EvaluationOutcome, FeasibilityReportWithQuotas,
-    OptimizeBudget, OptimizeOutcome, OptimizeRequest, PlanDetails, PreviewQuotasInput,
+    OptimizeBudget, OptimizeOutcome, OptimizeRequest, PlanDetails, PlanStatus, PreviewQuotasInput,
     QuotaPreviewItem, RulePresetItem,
 };
 use crate::error::AppError;
 use exam_panel_core::domain::{
     calculate_quotas, Assignment, Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockId,
-    Plan, PlanId, PlanSummary, Problem, RulePreset, RuleSetting, SchoolYear, SchoolYearId, Teacher,
-    TeacherId, TeacherWithGrades, Unavailability,
+    LockKind, Plan, PlanId, PlanSummary, Problem, Role, RulePreset, RuleSetting, SchoolYear,
+    SchoolYearId, Teacher, TeacherId, TeacherWithGrades, Unavailability,
 };
 use exam_panel_core::feasibility::check_feasibility;
-use exam_panel_core::optimize::{optimize, Budget, OptimizeOptions, Progress};
+use exam_panel_core::optimize::{
+    optimize, Budget, CandidateEval, OptimizeOptions, Progress, SlotRef,
+};
 use exam_panel_core::score::{bounds::lower_bounds, evaluate, ScoreReport};
 use exam_panel_core::validate::{validate_assignments, ValidateOptions};
 use exam_panel_storage::paths::{fallback_app_data_dir, resolve_data_dir, resolve_database_path};
@@ -71,6 +73,9 @@ impl AppService {
             data_dir: data_dir.to_string_lossy().to_string(),
             is_portable,
             db_path: db_path.to_string_lossy().to_string(),
+            name: Some("ExamPanel".to_string()),
+            identifier: Some("com.exampanel.app".to_string()),
+            mode: Some("tauri".to_string()),
         })
     }
 
@@ -676,6 +681,7 @@ impl AppService {
         school_year_id: SchoolYearId,
         outcome: OptimizeOutcome,
     ) -> Result<Vec<PlanId>, AppError> {
+        let problem_hash = self.load_problem_snapshot(school_year_id)?.canonical_hash();
         let mut batch = Vec::with_capacity(outcome.plans.len());
 
         for rp in outcome.plans {
@@ -692,6 +698,7 @@ impl AppService {
                 score_report_json: Some(score_json),
                 run_params_json: Some(outcome.run_params_json.clone()),
                 source: "optimizer".to_string(),
+                problem_hash: Some(problem_hash.clone()),
             };
             batch.push((plan, rp.assignments));
         }
@@ -705,11 +712,15 @@ impl AppService {
     }
 
     pub fn list_plans(&self, school_year_id: SchoolYearId) -> Result<Vec<PlanSummary>, AppError> {
+        let current_hash = self.load_problem_snapshot(school_year_id)?.canonical_hash();
         let store = self
             .store
             .lock()
             .map_err(|_| AppError::new("lock_poisoned"))?;
-        let plans = store.list_plans(school_year_id)?;
+        let mut plans = store.list_plans(school_year_id)?;
+        for p in &mut plans {
+            p.is_stale = p.problem_hash.as_deref() != Some(&current_hash);
+        }
         Ok(plans)
     }
 
@@ -750,7 +761,89 @@ impl AppService {
         Ok(())
     }
 
+    pub fn duplicate_plan(&self, id: PlanId, new_name: String) -> Result<PlanId, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let new_id = store.duplicate_plan(id, &new_name)?;
+        Ok(new_id)
+    }
+
+    pub fn plan_status(&self, plan_id: PlanId) -> Result<PlanStatus, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let (plan, assignments) = store.load_plan(plan_id)?;
+        let current_problem = store.load_problem(plan.school_year_id)?;
+        drop(store);
+
+        let current_hash = current_problem.canonical_hash();
+        let problem_changed = plan.problem_hash.as_deref() != Some(&current_hash);
+        let total_slots = current_problem.exams.len() * current_problem.grades.len() * 3;
+        let hard_violations_now = validate_assignments(
+            &current_problem,
+            &assignments,
+            &ValidateOptions {
+                require_complete: !assignments.is_empty() && assignments.len() >= total_slots,
+            },
+        );
+        let score_now = evaluate(&current_problem, &assignments);
+        Ok(PlanStatus {
+            problem_changed,
+            hard_violations_now,
+            score_now,
+        })
+    }
+
+    pub fn create_manual_copy(&self, plan_id: PlanId, name: String) -> Result<PlanId, AppError> {
+        self.duplicate_plan(plan_id, name)
+    }
+
+    pub fn update_plan_assignments(
+        &self,
+        plan_id: PlanId,
+        assignments: Vec<Assignment>,
+    ) -> Result<EvaluationOutcome, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let (mut plan, _) = store.load_plan(plan_id)?;
+        if plan.source != "manual" && plan.source != "duplicate" {
+            return Err(AppError::new("plan_immutable"));
+        }
+        if plan.is_final {
+            return Err(AppError::new("plan_final"));
+        }
+        let problem = store.load_problem(plan.school_year_id)?;
+        let total_slots = problem.exams.len() * problem.grades.len() * 3;
+        let hard_violations = validate_assignments(
+            &problem,
+            &assignments,
+            &ValidateOptions {
+                require_complete: !assignments.is_empty() && assignments.len() >= total_slots,
+            },
+        );
+        let score_report = evaluate(&problem, &assignments);
+        plan.score = Some(score_report.total);
+        plan.score_report_json = Some(serde_json::to_string(&score_report)?);
+        store.save_plan(&plan, &assignments)?;
+        Ok(EvaluationOutcome {
+            hard_violations,
+            score_report,
+        })
+    }
+
     pub fn mark_final(&self, id: PlanId) -> Result<(), AppError> {
+        let status = self.plan_status(id)?;
+        if status.problem_changed {
+            return Err(AppError::new("plan_stale"));
+        }
+        if !status.hard_violations_now.is_empty() {
+            return Err(AppError::new("plan_invalid"));
+        }
         let store = self
             .store
             .lock()
@@ -759,13 +852,129 @@ impl AppService {
         Ok(())
     }
 
-    pub fn duplicate_plan(&self, id: PlanId, new_name: String) -> Result<PlanId, AppError> {
-        let store = self
-            .store
-            .lock()
-            .map_err(|_| AppError::new("lock_poisoned"))?;
-        let new_id = store.duplicate_plan(id, &new_name)?;
-        Ok(new_id)
+    pub fn evaluate_candidates(
+        &self,
+        school_year_id: SchoolYearId,
+        assignments: Vec<Assignment>,
+        slot: SlotRef,
+    ) -> Result<Vec<CandidateEval>, AppError> {
+        let problem = self.load_problem_snapshot(school_year_id)?;
+        Ok(exam_panel_core::optimize::evaluate_candidates(
+            &problem,
+            &assignments,
+            slot,
+        ))
+    }
+
+    pub fn evaluate_swap(
+        &self,
+        school_year_id: SchoolYearId,
+        assignments: Vec<Assignment>,
+        slot_a: SlotRef,
+        slot_b: SlotRef,
+    ) -> Result<CandidateEval, AppError> {
+        let problem = self.load_problem_snapshot(school_year_id)?;
+        Ok(exam_panel_core::optimize::evaluate_swap(
+            &problem,
+            &assignments,
+            slot_a,
+            slot_b,
+        ))
+    }
+
+    pub fn reoptimize_from(
+        &self,
+        plan_id: PlanId,
+        keep: Vec<SlotRef>,
+        request: OptimizeRequest,
+        progress_sink: Option<Arc<dyn Fn(Progress) + Send + Sync>>,
+        cancel_flag: Option<Arc<AtomicBool>>,
+    ) -> Result<OptimizeOutcome, AppError> {
+        let job_cancel = cancel_flag.unwrap_or_else(|| Arc::new(AtomicBool::new(false)));
+        {
+            let mut guard = self
+                .active_job
+                .lock()
+                .map_err(|_| AppError::new("lock_poisoned"))?;
+            if guard.is_some() {
+                return Err(AppError::new("optimize_busy"));
+            }
+            *guard = Some(Arc::clone(&job_cancel));
+        }
+
+        let res = (|| -> Result<OptimizeOutcome, AppError> {
+            let (plan, assignments) = {
+                let store = self
+                    .store
+                    .lock()
+                    .map_err(|_| AppError::new("lock_poisoned"))?;
+                store.load_plan(plan_id)?
+            };
+            let mut problem = self.load_problem_snapshot(plan.school_year_id)?;
+
+            // Temporarily pin the kept slots without persisting locks
+            for slot in &keep {
+                let mut s_count = 0;
+                for a in &assignments {
+                    if a.exam_id == slot.exam_id
+                        && a.grade_id == slot.grade_id
+                        && a.role == slot.role
+                    {
+                        if slot.role == Role::Reviewer || s_count == slot.position {
+                            problem.locks.push(exam_panel_core::domain::Lock {
+                                id: exam_panel_core::domain::LockId(0),
+                                exam_id: slot.exam_id,
+                                grade_id: slot.grade_id,
+                                teacher_id: a.teacher_id,
+                                role: Some(slot.role),
+                                kind: LockKind::Pin,
+                            });
+                            break;
+                        }
+                        s_count += 1;
+                    }
+                }
+            }
+
+            let budget = match request.budget {
+                OptimizeBudget::Iterations(it) => Budget::Iterations(it),
+                OptimizeBudget::TimeMs(ms) => Budget::TimeMs(ms),
+            };
+
+            let opt_options = OptimizeOptions {
+                base_seed: request.base_seed.unwrap_or(42),
+                budget,
+                num_runs: request.runs,
+                max_plans: request.k,
+                diversity_threshold: request.diversity_threshold.unwrap_or(0.20),
+                cancel: Some(Arc::clone(&job_cancel)),
+                progress: progress_sink,
+                initial_assignments: Some(assignments),
+            };
+
+            let opt_res = optimize(&problem, &opt_options)?;
+            let lb = lower_bounds(&problem);
+            let run_params_json = serde_json::to_string(&request)?;
+
+            Ok(OptimizeOutcome {
+                school_year_id: plan.school_year_id,
+                plans: opt_res.plans,
+                initial_report: opt_res.initial_report,
+                stats: opt_res.stats,
+                lower_bounds: lb,
+                run_params_json,
+            })
+        })();
+
+        {
+            let mut guard = self
+                .active_job
+                .lock()
+                .map_err(|_| AppError::new("lock_poisoned"))?;
+            *guard = None;
+        }
+
+        res
     }
 
     // -------------------------------------------------------------------------

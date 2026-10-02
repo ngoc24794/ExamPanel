@@ -188,6 +188,7 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
+            problem_hash: None,
         };
         let plan2 = Plan {
             id: PlanId(2),
@@ -201,6 +202,7 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
+            problem_hash: None,
         };
         store.save_plan(&plan1, &[]).expect("save plan 1");
         store.save_plan(&plan2, &[]).expect("save plan 2");
@@ -306,6 +308,7 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
+            problem_hash: None,
         };
 
         let assignments = vec![Assignment {
@@ -394,6 +397,7 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
+            problem_hash: None,
         };
         let assignments = vec![Assignment {
             plan_id: PlanId(0),
@@ -522,6 +526,7 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
+            problem_hash: None,
         };
         let plan2 = Plan {
             id: PlanId(0),
@@ -535,6 +540,7 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
+            problem_hash: None,
         };
 
         let asg1 = vec![Assignment {
