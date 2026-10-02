@@ -20,6 +20,10 @@ name = "generate_sample_excels"
 path = "src/bin/generate_sample_excels.rs"
 required-features = ["dev-tools"]
 
+[[bin]]
+name = "phase11_report"
+path = "src/bin/phase11_report.rs"
+
 [[test]]
 name = "generate_types"
 path = "tests/generate_types.rs"

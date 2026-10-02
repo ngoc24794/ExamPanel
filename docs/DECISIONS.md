@@ -222,3 +222,25 @@
 - **Decision:** Enhance `crates/storage/src/paths.rs` with `inspect_data_location_for_exe` to recognize macOS `.app` bundle hierarchies: if the executable path resides within an `.app` directory and `ExamPanel.portable` is present in the parent directory containing the `.app` bundle, the portable data path resolves to `./data` beside `ExamPanel.app`. Support read-only fallback (`PortableReadOnly`) if running on read-only mounted disk images. Add platform-specific `src-tauri/tauri.macos.conf.json` for `app` and `dmg` targets, automated packaging scripts (`scripts/build-portable-macos.sh`, `scripts/build-portable-macos.mjs`), and CI release pipeline steps.
 - **Consequences:** Consistent, zero-configuration portable execution across macOS and Windows, honoring USB drive isolation and macOS bundle conventions.
 
+## ADR-0035: Multi-Subject Exam Panels, Competencies with Grade Scoping, and Structural Forced Propagation
+- **Status:** Accepted
+- **Context:** Prior to Phase 11, panels were defined strictly as (Exam × Grade) with a hard-coded 2 setters + 1 reviewer composition, and teachers were restricted to teaching their assigned grades. Real-world high school operation (such as the manual schedule constructed by Coordinator Q) requires multiple subjects (e.g., Physics "VL" and Technology "CN"), subject-specific compositions (VL 2+1, CN 1+1, customizable min campuses), and qualifications where a teacher can review across grades outside their direct teaching assignment (`GradeScope::Any`), or serve as the sole specialized setter across all panels (e.g. Teacher Nghĩa setting all 12 CN panels).
+- **Decision:**
+  1. Introduce `Subject` entity with configurable `setters`, `reviewers`, and `min_campuses`.
+  2. Redefine `PanelKey` as `(ExamId, GradeId, SubjectId)`, with seats identified by `(PanelKey, Role, position)`.
+  3. Introduce `Competency` mapping `(TeacherId, SubjectId, Role, GradeScope)` per academic year, where `GradeScope::Taught` requires the teacher to teach the grade in that school year, and `GradeScope::Any` allows assignment across all grades.
+  4. Implement fixpoint forced placement propagation (`find_forced_placements`): when a panel role has exactly as many eligible candidates as seats, those assignments are permanently forced, removing them from consideration in other roles for that panel, repeating until fixpoint. Forced placements are immutable in solver, optimizer, and manual drag-drop editing.
+- **Consequences:** Accurate modeling of multi-subject schools; automated handling of specialized teachers without manual locks; zero hard violations when evaluating real school schedules under configurable process constraints.
+
+## ADR-0036: Workload Quota Formula v2 with Capacity Bounds and Bisection Balancing
+- **Status:** Accepted
+- **Context:** The Phase 3 quota formula assumed equal distribution among active teachers with single-panel-per-exam limits. With multi-subject scheduling, per-exam task limits (Rule H4) allowing up to $M$ tasks (and setter tasks) per teacher per exam, manual quota overrides, and structural forced placements (e.g., 12 forced setter tasks for Teacher Nghĩa), the legacy quota calculation led to unachievable bounds and violated total demand $D = \sum \text{seats}$.
+- **Decision:** Implement Quota Formula v2 in `crates/core::domain::quota`:
+  1. For each teacher $t$, compute forced seats $F_t$, effective exam limit $\text{eff\_max\_tasks}(t, e)$, and capacity bound $\text{cap}_t = \min(\text{eligible\_seats}_t, \sum_{e \in \text{avail}_t} \text{eff\_max\_tasks}(t, e))$.
+  2. For teachers without manual overrides, set $q_t(\lambda) = \text{clamp}(\lambda \cdot w'_t, F_t, \text{cap}_t)$, where $w'_t = \text{load\_weight}_t \times \text{avail}_t / E$.
+  3. Solve for $\lambda$ using binary search / bisection until $\sum q_t(\lambda) = D$.
+  4. Set integer tolerance bounds: $\text{lo}_t = \max(F_t, \lfloor q_t \rfloor - k)$ and $\text{hi}_t = \min(\text{cap}_t, \max(F_t, \lceil q_t \rceil + k))$.
+  5. Add soft rules S9 (Exam Crowding Relief: penalizing teachers holding > 1 task in a single exam when unnecessary) and S10 (Review Subject Coverage: encouraging reviewer-qualified teachers to review every competent subject at least once).
+- **Consequences:** Mathematically sound quota balancing that perfectly absorbs forced workloads, honors capacity limits and overrides, preserves exact backward compatibility with single-subject legacy databases, and optimizes cross-subject fairness.
+
+
