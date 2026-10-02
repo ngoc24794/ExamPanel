@@ -60,7 +60,25 @@ impl AppService {
     /// Initializes a service opening the default portable/app-data database.
     pub fn open_default() -> Result<Self, AppError> {
         let store = Store::open_default()?;
-        Ok(Self::new(store))
+        let service = Self::new(store);
+        service.ensure_default_school_year()?;
+        Ok(service)
+    }
+
+    /// Ensures that at least one school year exists.
+    /// If no school years exist (fresh database), initializes "2026 - 2027" as current,
+    /// complete with 4 default exams (GK1, CK1, GK2, CK2) and standard rule settings.
+    pub fn ensure_default_school_year(&self) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let years = store.get_school_years()?;
+        if years.is_empty() {
+            let sy = store.create_school_year("2026 - 2027", None)?;
+            store.set_current_school_year(sy.id)?;
+        }
+        Ok(())
     }
 
     // -------------------------------------------------------------------------

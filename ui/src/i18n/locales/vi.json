@@ -165,7 +165,11 @@
     "deleteGradeDesc": "Chỉ có thể xóa khối nếu chưa có giáo viên nào được phân công giảng dạy khối này.",
     "gradeInUse": "Khối lớp đang có giáo viên giảng dạy hoặc ghim/cấm, không thể xóa.",
     "emptyExams": "Chưa có kỳ thi nào. Vui lòng thêm kỳ thi mới.",
-    "emptyGrades": "Chưa có khối lớp nào. Vui lòng thêm khối mới."
+    "emptyGrades": "Chưa có khối lớp nào. Vui lòng thêm khối mới.",
+    "createSuccess": "Thêm kỳ thi thành công",
+    "updateSuccess": "Cập nhật kỳ thi thành công",
+    "gradeCreateSuccess": "Thêm khối lớp thành công",
+    "gradeUpdateSuccess": "Cập nhật khối lớp thành công"
   },
   "rules": {
     "title": "Quy tắc & Tiêu chuẩn",

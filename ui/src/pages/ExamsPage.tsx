@@ -28,6 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   useExams,
   useGrades,
@@ -39,13 +40,16 @@ import {
   useCreateGrade,
   useUpdateGrade,
   useDeleteGrade,
+  queryKeys,
 } from '@/lib/query/hooks'
 import { getErrorMessage } from '@/lib/query/query-client'
+import { api } from '@/lib/api'
 import { toast } from 'sonner'
 import type { Exam, Grade } from '@/lib/api'
 
 export const ExamsPage: React.FC = () => {
   const { t } = useTranslation()
+  const qc = useQueryClient()
   const { data: schoolYears = [] } = useSchoolYears()
   const currentYear = schoolYears.find((y) => y.is_current) || schoolYears[0]
 
@@ -99,7 +103,20 @@ export const ExamsPage: React.FC = () => {
 
   const handleSaveExam = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!currentYear) return
+    let activeYear = currentYear
+    if (!activeYear) {
+      try {
+        const created = await api.createSchoolYear({
+          name: t('app.schoolYearDefault', { defaultValue: '2026 - 2027' }),
+          is_current: true,
+        })
+        activeYear = created
+        await qc.invalidateQueries({ queryKey: queryKeys.schoolYears })
+      } catch (err) {
+        toast.error(getErrorMessage(err))
+        return
+      }
+    }
 
     try {
       if (editingExam) {
@@ -107,15 +124,17 @@ export const ExamsPage: React.FC = () => {
           ...editingExam,
           name: examName.trim(),
         })
+        toast.success(t('exams.updateSuccess'))
       } else {
         const nextOrder =
           exams.length > 0 ? Math.max(...exams.map((x) => x.sort_order)) + 1 : 1
         await createExamMutation.mutateAsync({
-          school_year_id: currentYear.id,
+          school_year_id: activeYear.id,
           code: examCode.trim().toUpperCase(),
           name: examName.trim(),
           sort_order: nextOrder,
         })
+        toast.success(t('exams.createSuccess'))
       }
       setExamDialogOpen(false)
     } catch (err) {
@@ -128,6 +147,7 @@ export const ExamsPage: React.FC = () => {
     try {
       await deleteExamMutation.mutateAsync(deletingExam.id)
       setDeletingExam(null)
+      toast.success(t('exams.deleteExam'))
     } catch (err) {
       toast.error(getErrorMessage(err))
     }
@@ -174,6 +194,7 @@ export const ExamsPage: React.FC = () => {
           ...editingGrade,
           name: gradeName.trim(),
         })
+        toast.success(t('exams.gradeUpdateSuccess'))
       } else {
         const nextOrder =
           grades.length > 0 ? Math.max(...grades.map((g) => g.sort_order)) + 1 : 1
@@ -182,6 +203,7 @@ export const ExamsPage: React.FC = () => {
           name: gradeName.trim() || `Khối ${gradeCode}`,
           sort_order: nextOrder,
         })
+        toast.success(t('exams.gradeCreateSuccess'))
       }
       setGradeDialogOpen(false)
     } catch (err) {
@@ -194,6 +216,7 @@ export const ExamsPage: React.FC = () => {
     try {
       await deleteGradeMutation.mutateAsync(deletingGrade.id)
       setDeletingGrade(null)
+      toast.success(t('exams.deleteGrade'))
     } catch (err) {
       toast.error(getErrorMessage(err))
     }
@@ -433,8 +456,14 @@ export const ExamsPage: React.FC = () => {
               >
                 {t('common.cancel')}
               </Button>
-              <Button type="submit" data-testid="exam-save-btn">
-                {t('common.save')}
+              <Button
+                type="submit"
+                data-testid="exam-save-btn"
+                disabled={createExamMutation.isPending || updateExamMutation.isPending}
+              >
+                {createExamMutation.isPending || updateExamMutation.isPending
+                  ? t('common.loading', { defaultValue: 'Đang lưu...' })
+                  : t('common.save')}
               </Button>
             </DialogFooter>
           </form>
@@ -512,8 +541,14 @@ export const ExamsPage: React.FC = () => {
               >
                 {t('common.cancel')}
               </Button>
-              <Button type="submit" data-testid="grade-save-btn">
-                {t('common.save')}
+              <Button
+                type="submit"
+                data-testid="grade-save-btn"
+                disabled={createGradeMutation.isPending || updateGradeMutation.isPending}
+              >
+                {createGradeMutation.isPending || updateGradeMutation.isPending
+                  ? t('common.loading', { defaultValue: 'Đang lưu...' })
+                  : t('common.save')}
               </Button>
             </DialogFooter>
           </form>

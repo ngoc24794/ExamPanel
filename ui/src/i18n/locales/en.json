@@ -165,7 +165,11 @@
     "deleteGradeDesc": "A grade can only be deleted if no teachers are assigned to it.",
     "gradeInUse": "This grade is currently taught by teachers or referenced in locks and cannot be deleted.",
     "emptyExams": "No exams found. Please add an exam.",
-    "emptyGrades": "No grades found. Please add a grade."
+    "emptyGrades": "No grades found. Please add a grade.",
+    "createSuccess": "Exam created successfully",
+    "updateSuccess": "Exam updated successfully",
+    "gradeCreateSuccess": "Grade created successfully",
+    "gradeUpdateSuccess": "Grade updated successfully"
   },
   "rules": {
     "title": "Rules & Criteria",

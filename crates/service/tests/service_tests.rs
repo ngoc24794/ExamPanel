@@ -532,3 +532,35 @@ fn test_exam_crud_and_reorder() {
     let after_delete = service.list_exams(sy_id).expect("list after delete");
     assert_eq!(after_delete.len(), initial_count);
 }
+
+#[test]
+fn test_ensure_default_school_year() {
+    let (service, _tmp) = create_temp_service();
+    // Initially empty
+    let years = service.list_school_years().expect("list school years");
+    assert!(years.is_empty());
+
+    // Ensure default
+    service
+        .ensure_default_school_year()
+        .expect("ensure default");
+    let after = service
+        .list_school_years()
+        .expect("list school years after");
+    assert_eq!(after.len(), 1);
+    assert_eq!(after[0].name, "2026 - 2027");
+    assert!(after[0].is_current);
+
+    // Exams created
+    let exams = service.list_exams(after[0].id).expect("list exams");
+    assert_eq!(exams.len(), 4);
+
+    // Calling again is idempotent
+    service
+        .ensure_default_school_year()
+        .expect("ensure default again");
+    let after2 = service
+        .list_school_years()
+        .expect("list school years after 2");
+    assert_eq!(after2.len(), 1);
+}
