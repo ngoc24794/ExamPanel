@@ -390,9 +390,12 @@ mod tests {
             .map(|&(id, name, campus_id, weight)| Teacher {
                 id: TeacherId(id),
                 full_name: name.to_string(),
+                display_name: None,
                 campus_id: CampusId(campus_id),
                 load_weight: weight,
                 active: true,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
                 note: None,
                 code: None,
             })
@@ -429,6 +432,32 @@ mod tests {
             }
         }
 
+        let sub = Subject {
+            id: SubjectId(1),
+            code: "CHUNG".to_string(),
+            name: "Chung".to_string(),
+            color: "blue".to_string(),
+            sort_order: 1,
+            setters: 2,
+            reviewers: 1,
+            min_campuses: 2,
+        };
+        let mut competencies = Vec::new();
+        for t in &teachers {
+            competencies.push(Competency {
+                teacher_id: t.id,
+                subject_id: sub.id,
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            });
+            competencies.push(Competency {
+                teacher_id: t.id,
+                subject_id: sub.id,
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            });
+        }
+
         let unavailabilities = vec![Unavailability {
             teacher_id: TeacherId(6),
             exam_id: ExamId(3),
@@ -439,9 +468,11 @@ mod tests {
             school_year: sy,
             campuses,
             grades,
+            subjects: vec![sub],
             exams,
             teachers,
             teacher_grades,
+            competencies,
             unavailabilities,
             locks: vec![],
             rule_settings: RuleSetting::default_settings(),
@@ -492,9 +523,12 @@ mod tests {
             teachers.push(Teacher {
                 id: TeacherId(tid),
                 full_name: format!("Giao vien {tid}"),
+                display_name: None,
                 campus_id: CampusId(cid),
                 load_weight: 1.0,
                 active: true,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
                 note: None,
                 code: None,
             });
@@ -515,13 +549,41 @@ mod tests {
             }
         }
 
+        let sub = Subject {
+            id: SubjectId(1),
+            code: "CHUNG".to_string(),
+            name: "Chung".to_string(),
+            color: "blue".to_string(),
+            sort_order: 1,
+            setters: 2,
+            reviewers: 1,
+            min_campuses: 2,
+        };
+        let mut competencies = Vec::new();
+        for t in &teachers {
+            competencies.push(Competency {
+                teacher_id: t.id,
+                subject_id: sub.id,
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            });
+            competencies.push(Competency {
+                teacher_id: t.id,
+                subject_id: sub.id,
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            });
+        }
+
         Problem {
             school_year: sy,
             campuses,
             grades,
+            subjects: vec![sub],
             exams,
             teachers,
             teacher_grades,
+            competencies,
             unavailabilities: vec![],
             locks: vec![],
             rule_settings: RuleSetting::default_settings(),
@@ -927,6 +989,7 @@ mod tests {
             id: LockId(101),
             exam_id: ExamId(1),
             grade_id: GradeId(1),
+            subject_id: problem.effective_subjects()[0].id,
             teacher_id: TeacherId(1),
             role: Some(Role::Setter),
             kind: LockKind::Pin,

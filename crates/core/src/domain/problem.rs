@@ -1,10 +1,10 @@
 //! Problem snapshot and structural validation.
 
 use super::entities::{
-    Campus, Exam, Grade, Lock, RuleKey, RuleSetting, SchoolYear, Teacher, TeacherGrade,
-    Unavailability,
+    Campus, Competency, Exam, Grade, Lock, PanelKey, Role, RuleKey, RuleSetting, SchoolYear,
+    Subject, Teacher, TeacherGrade, Unavailability,
 };
-use super::ids::{CampusId, ExamId, GradeId, TeacherId};
+use super::ids::{CampusId, ExamId, GradeId, SubjectId, TeacherId};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
@@ -23,6 +23,21 @@ pub enum ValidationError {
     #[error("Duplicate grade code: {0}")]
     DuplicateGradeCode(i32),
 
+    #[error("Duplicate subject ID: {0}")]
+    DuplicateSubjectId(SubjectId),
+
+    #[error("Duplicate subject code: '{0}'")]
+    DuplicateSubjectCode(String),
+
+    #[error("Subject {0} has invalid setter seat count {1} (must be 1..=4)")]
+    InvalidSubjectSetters(SubjectId, u8),
+
+    #[error("Subject {0} has invalid reviewer seat count {1} (must be 0..=2)")]
+    InvalidSubjectReviewers(SubjectId, u8),
+
+    #[error("Subject {0} has invalid min_campuses {1} (must be 0..=3)")]
+    InvalidSubjectMinCampuses(SubjectId, u8),
+
     #[error("Duplicate exam ID: {0}")]
     DuplicateExamId(ExamId),
 
@@ -38,6 +53,9 @@ pub enum ValidationError {
     #[error("Teacher {0} load_weight {1} is out of range [0.0, 1.0]")]
     InvalidLoadWeight(TeacherId, String),
 
+    #[error("Teacher {0} max_tasks_per_exam_override must be >= 1")]
+    InvalidMaxTasksOverride(TeacherId, u32),
+
     #[error("TeacherGrade references unknown teacher {0}")]
     TeacherGradeUnknownTeacher(TeacherId),
 
@@ -47,6 +65,15 @@ pub enum ValidationError {
     #[error("Duplicate teacher grade entry for teacher {0}, grade {1}")]
     DuplicateTeacherGrade(TeacherId, GradeId),
 
+    #[error("Competency references unknown teacher {0}")]
+    CompetencyUnknownTeacher(TeacherId),
+
+    #[error("Competency references unknown subject {0}")]
+    CompetencyUnknownSubject(SubjectId),
+
+    #[error("Duplicate competency entry for teacher {0}, subject {1}, role {2}")]
+    DuplicateCompetency(TeacherId, SubjectId, Role),
+
     #[error("Lock references unknown teacher {0}")]
     LockUnknownTeacher(TeacherId),
 
@@ -55,6 +82,9 @@ pub enum ValidationError {
 
     #[error("Lock references unknown grade {0}")]
     LockUnknownGrade(GradeId),
+
+    #[error("Lock references unknown subject {0}")]
+    LockUnknownSubject(SubjectId),
 
     #[error("Unavailability references unknown teacher {0}")]
     UnavailabilityUnknownTeacher(TeacherId),
@@ -79,8 +109,10 @@ pub struct Problem {
     pub school_year: SchoolYear,
     pub campuses: Vec<Campus>,
     pub grades: Vec<Grade>,
+    pub subjects: Vec<Subject>,
     pub teachers: Vec<Teacher>,
     pub teacher_grades: Vec<TeacherGrade>,
+    pub competencies: Vec<Competency>,
     pub exams: Vec<Exam>,
     pub unavailabilities: Vec<Unavailability>,
     pub locks: Vec<Lock>,
@@ -124,7 +156,37 @@ impl Problem {
             }
         }
 
-        // 3. Exams
+        // 3. Subjects
+        let mut subject_ids = HashSet::new();
+        let mut subject_codes = HashSet::new();
+        for subject in &self.subjects {
+            if !subject_ids.insert(subject.id) {
+                errors.push(ValidationError::DuplicateSubjectId(subject.id));
+            }
+            if !subject_codes.insert(subject.code.clone()) {
+                errors.push(ValidationError::DuplicateSubjectCode(subject.code.clone()));
+            }
+            if !(1..=4).contains(&subject.setters) {
+                errors.push(ValidationError::InvalidSubjectSetters(
+                    subject.id,
+                    subject.setters,
+                ));
+            }
+            if !(0..=2).contains(&subject.reviewers) {
+                errors.push(ValidationError::InvalidSubjectReviewers(
+                    subject.id,
+                    subject.reviewers,
+                ));
+            }
+            if !(0..=3).contains(&subject.min_campuses) {
+                errors.push(ValidationError::InvalidSubjectMinCampuses(
+                    subject.id,
+                    subject.min_campuses,
+                ));
+            }
+        }
+
+        // 4. Exams
         let mut exam_ids = HashSet::new();
         let mut exam_codes = HashSet::new();
         for exam in &self.exams {
@@ -136,7 +198,7 @@ impl Problem {
             }
         }
 
-        // 4. Teachers
+        // 5. Teachers
         let mut teacher_ids = HashSet::new();
         for teacher in &self.teachers {
             if !teacher_ids.insert(teacher.id) {
@@ -154,9 +216,14 @@ impl Problem {
                     teacher.load_weight.to_string(),
                 ));
             }
+            if let Some(m) = teacher.max_tasks_per_exam_override {
+                if m < 1 {
+                    errors.push(ValidationError::InvalidMaxTasksOverride(teacher.id, m));
+                }
+            }
         }
 
-        // 5. TeacherGrades
+        // 6. TeacherGrades
         let mut seen_teacher_grades = HashSet::new();
         for tg in &self.teacher_grades {
             if !teacher_ids.contains(&tg.teacher_id) {
@@ -173,7 +240,25 @@ impl Problem {
             }
         }
 
-        // 6. Unavailabilities
+        // 7. Competencies
+        let mut seen_competencies = HashSet::new();
+        for comp in &self.competencies {
+            if !teacher_ids.contains(&comp.teacher_id) {
+                errors.push(ValidationError::CompetencyUnknownTeacher(comp.teacher_id));
+            }
+            if !subject_ids.contains(&comp.subject_id) {
+                errors.push(ValidationError::CompetencyUnknownSubject(comp.subject_id));
+            }
+            if !seen_competencies.insert((comp.teacher_id, comp.subject_id, comp.role)) {
+                errors.push(ValidationError::DuplicateCompetency(
+                    comp.teacher_id,
+                    comp.subject_id,
+                    comp.role,
+                ));
+            }
+        }
+
+        // 8. Unavailabilities
         let mut seen_unavailabilities = HashSet::new();
         for u in &self.unavailabilities {
             if !teacher_ids.contains(&u.teacher_id) {
@@ -190,7 +275,7 @@ impl Problem {
             }
         }
 
-        // 7. Locks
+        // 9. Locks
         for lock in &self.locks {
             if !teacher_ids.contains(&lock.teacher_id) {
                 errors.push(ValidationError::LockUnknownTeacher(lock.teacher_id));
@@ -201,9 +286,12 @@ impl Problem {
             if !grade_ids.contains(&lock.grade_id) {
                 errors.push(ValidationError::LockUnknownGrade(lock.grade_id));
             }
+            if !subject_ids.contains(&lock.subject_id) {
+                errors.push(ValidationError::LockUnknownSubject(lock.subject_id));
+            }
         }
 
-        // 8. RuleSettings
+        // 10. RuleSettings
         let mut seen_rule_keys = HashSet::new();
         for rule in &self.rule_settings {
             if !seen_rule_keys.insert(rule.key) {
@@ -221,22 +309,6 @@ impl Problem {
     }
 
     /// Computes a stable, deterministic canonical SHA-256 hash representing this problem snapshot.
-    ///
-    /// Canonicalization algorithm:
-    /// 1. Extract each entity type and sort by primary identity:
-    ///    - campuses sorted by (code, id)
-    ///    - grades sorted by (code, sort_order, id)
-    ///    - teachers sorted by (id, full_name, campus_id, normalized load_weight)
-    ///    - teacher_grades sorted by (teacher_id, grade_id)
-    ///    - exams sorted by (sort_order, code, id)
-    ///    - unavailabilities sorted by (teacher_id, exam_id)
-    ///    - locks sorted by (exam_id, grade_id, teacher_id, role, kind)
-    ///    - rule_settings sorted by rule key string
-    /// 2. Build a stable JSON structure where numbers and floats are formatted deterministically.
-    /// 3. Hash the resulting UTF-8 bytes with SHA-256 and encode as a 64-char lowercase hexadecimal string.
-    ///
-    /// Computes a canonical SHA-256 hash of problem DATA (campuses, grades, teachers with codes,
-    /// teacher_grades, exams, unavailabilities, locks, and hard rules H4 and H7 tolerance).
     #[must_use]
     pub fn data_hash(&self) -> String {
         use sha2::{Digest, Sha256};
@@ -279,6 +351,29 @@ impl Problem {
                 .then(a["id"].as_i64().cmp(&b["id"].as_i64()))
         });
 
+        let mut subjects: Vec<_> = self
+            .subjects
+            .iter()
+            .map(|s| {
+                serde_json::json!({
+                    "id": s.id.0,
+                    "code": &s.code,
+                    "name": &s.name,
+                    "color": &s.color,
+                    "sort_order": s.sort_order,
+                    "setters": s.setters,
+                    "reviewers": s.reviewers,
+                    "min_campuses": s.min_campuses,
+                })
+            })
+            .collect();
+        subjects.sort_by(|a, b| {
+            a["code"]
+                .as_str()
+                .cmp(&b["code"].as_str())
+                .then(a["id"].as_i64().cmp(&b["id"].as_i64()))
+        });
+
         let mut teachers: Vec<_> = self
             .teachers
             .iter()
@@ -291,6 +386,8 @@ impl Problem {
                     "active": t.active,
                     "note": &t.note,
                     "code": &t.code,
+                    "quota_override": t.quota_override,
+                    "max_tasks_per_exam_override": t.max_tasks_per_exam_override,
                 })
             })
             .collect();
@@ -311,6 +408,26 @@ impl Problem {
                 .as_i64()
                 .cmp(&b["teacher_id"].as_i64())
                 .then(a["grade_id"].as_i64().cmp(&b["grade_id"].as_i64()))
+        });
+
+        let mut competencies: Vec<_> = self
+            .competencies
+            .iter()
+            .map(|c| {
+                serde_json::json!({
+                    "teacher_id": c.teacher_id.0,
+                    "subject_id": c.subject_id.0,
+                    "role": c.role.as_str(),
+                    "grade_scope": c.grade_scope.as_str(),
+                })
+            })
+            .collect();
+        competencies.sort_by(|a, b| {
+            a["teacher_id"]
+                .as_i64()
+                .cmp(&b["teacher_id"].as_i64())
+                .then(a["subject_id"].as_i64().cmp(&b["subject_id"].as_i64()))
+                .then(a["role"].as_str().cmp(&b["role"].as_str()))
         });
 
         let mut exams: Vec<_> = self
@@ -358,6 +475,7 @@ impl Problem {
                 serde_json::json!({
                     "exam_id": l.exam_id.0,
                     "grade_id": l.grade_id.0,
+                    "subject_id": l.subject_id.0,
                     "teacher_id": l.teacher_id.0,
                     "role": l.role.as_ref().map(|r| r.as_str()),
                     "kind": l.kind.as_str(),
@@ -369,15 +487,29 @@ impl Problem {
                 .as_i64()
                 .cmp(&b["exam_id"].as_i64())
                 .then(a["grade_id"].as_i64().cmp(&b["grade_id"].as_i64()))
+                .then(a["subject_id"].as_i64().cmp(&b["subject_id"].as_i64()))
                 .then(a["teacher_id"].as_i64().cmp(&b["teacher_id"].as_i64()))
                 .then(a["kind"].as_str().cmp(&b["kind"].as_str()))
         });
 
-        let h4_enabled = self
+        let h3_enabled = self
             .rule_settings
             .iter()
-            .find(|rs| rs.key == RuleKey::H4)
+            .find(|rs| rs.key == RuleKey::H3)
             .is_none_or(|rs| rs.enabled);
+
+        let h4_setting = self.rule_settings.iter().find(|rs| rs.key == RuleKey::H4);
+        let h4_enabled = h4_setting.is_none_or(|rs| rs.enabled);
+        let h4_max_tasks = h4_setting
+            .and_then(|rs| rs.params.get("max_tasks_per_exam").and_then(|v| v.as_u64()))
+            .unwrap_or(2);
+        let h4_max_setter = h4_setting
+            .and_then(|rs| {
+                rs.params
+                    .get("max_setter_per_exam")
+                    .and_then(|v| v.as_u64())
+            })
+            .unwrap_or(1);
 
         let h7_tolerance = self
             .rule_settings
@@ -393,13 +525,18 @@ impl Problem {
             },
             "campuses": campuses,
             "grades": grades,
+            "subjects": subjects,
             "teachers": teachers,
             "teacher_grades": teacher_grades,
+            "competencies": competencies,
             "exams": exams,
             "unavailabilities": unavailabilities,
             "locks": locks,
             "hard_rules": {
+                "h3_multi_campus_diversity_enabled": h3_enabled,
                 "h4_single_panel_per_exam_enabled": h4_enabled,
+                "h4_max_tasks_per_exam": h4_max_tasks,
+                "h4_max_setter_per_exam": h4_max_setter,
                 "h7_tolerance": h7_tolerance,
             },
         });
@@ -409,7 +546,7 @@ impl Problem {
         format!("{hash:x}")
     }
 
-    /// Computes a canonical SHA-256 hash of problem soft RULES (weights, enabled status, params for S1..S8).
+    /// Computes a canonical SHA-256 hash of problem soft RULES (weights, enabled status, params for S1..S10).
     #[must_use]
     pub fn rules_hash(&self) -> String {
         use sha2::{Digest, Sha256};
@@ -423,6 +560,8 @@ impl Problem {
             RuleKey::S6,
             RuleKey::S7,
             RuleKey::S8,
+            RuleKey::S9,
+            RuleKey::S10,
         ];
 
         let mut soft_rules: Vec<_> = self
@@ -454,12 +593,46 @@ impl Problem {
     pub fn canonical_hash(&self) -> String {
         format!("{}:{}", self.data_hash(), self.rules_hash())
     }
+
+    /// Returns the subjects defined in the problem, or a default CHUNG subject if empty.
+    #[must_use]
+    pub fn effective_subjects(&self) -> Vec<Subject> {
+        if self.subjects.is_empty() {
+            vec![Subject {
+                id: SubjectId(1),
+                code: "CHUNG".to_string(),
+                name: "Chung".to_string(),
+                color: "slate".to_string(),
+                sort_order: 1,
+                setters: 2,
+                reviewers: 1,
+                min_campuses: 2,
+            }]
+        } else {
+            self.subjects.clone()
+        }
+    }
+
+    /// Returns all valid panels defined by the problem snapshot (Exam × Grade × Subject).
+    #[must_use]
+    pub fn all_panels(&self) -> Vec<PanelKey> {
+        let subjects = self.effective_subjects();
+        let mut panels = Vec::with_capacity(self.exams.len() * self.grades.len() * subjects.len());
+        for exam in &self.exams {
+            for grade in &self.grades {
+                for subject in &subjects {
+                    panels.push(PanelKey::new(exam.id, grade.id, subject.id));
+                }
+            }
+        }
+        panels
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::entities::{LockKind, Role};
+    use crate::domain::entities::{GradeScope, LockKind, Role};
     use crate::domain::ids::{CampusId, ExamId, GradeId, LockId, SchoolYearId, TeacherId};
 
     fn make_valid_problem() -> Problem {
@@ -480,19 +653,38 @@ mod tests {
             name: "Khối 10".to_string(),
             sort_order: 1,
         };
+        let s1 = Subject {
+            id: SubjectId(1),
+            code: "VL".to_string(),
+            name: "Vật lí".to_string(),
+            color: "blue".to_string(),
+            sort_order: 1,
+            setters: 2,
+            reviewers: 1,
+            min_campuses: 2,
+        };
         let t1 = Teacher {
             id: TeacherId(1),
             full_name: "Nguyen Van A".to_string(),
+            display_name: None,
             campus_id: CampusId(1),
             load_weight: 1.0,
             active: true,
             note: None,
             code: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         };
         let tg1 = TeacherGrade {
             teacher_id: TeacherId(1),
             school_year_id: SchoolYearId(1),
             grade_id: GradeId(10),
+        };
+        let c_comp = Competency {
+            teacher_id: TeacherId(1),
+            subject_id: SubjectId(1),
+            role: Role::Setter,
+            grade_scope: GradeScope::Taught,
         };
         let e1 = Exam {
             id: ExamId(1),
@@ -510,6 +702,7 @@ mod tests {
             id: LockId(1),
             exam_id: ExamId(1),
             grade_id: GradeId(10),
+            subject_id: SubjectId(1),
             teacher_id: TeacherId(1),
             role: Some(Role::Setter),
             kind: LockKind::Pin,
@@ -519,8 +712,10 @@ mod tests {
             school_year: sy,
             campuses: vec![c1],
             grades: vec![g1],
+            subjects: vec![s1],
             teachers: vec![t1],
             teacher_grades: vec![tg1],
+            competencies: vec![c_comp],
             exams: vec![e1],
             unavailabilities: vec![u1],
             locks: vec![lock1],
@@ -601,9 +796,12 @@ mod tests {
         let t2 = Teacher {
             id: TeacherId(2),
             full_name: "Tran Thi B".to_string(),
+            display_name: None,
             campus_id: CampusId(1),
             load_weight: 0.8,
             active: true,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
             note: None,
             code: Some("GV002".to_string()),
         };

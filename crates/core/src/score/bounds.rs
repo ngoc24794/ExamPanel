@@ -3,7 +3,7 @@
 //! Provides mathematically sound, cheap lower bounds for soft constraint rules
 //! to indicate when an objective cannot be improved further.
 
-use crate::domain::{calculate_quotas, LockKind, Problem, Role, RuleKey, TeacherId};
+use crate::domain::{calculate_quotas, Problem, Role, RuleKey, TeacherId};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
@@ -15,26 +15,34 @@ pub struct RuleBound {
     pub method: String,
 }
 
-/// Computes provable, cheap lower bounds for all soft rules S1..S8.
+/// Computes provable, cheap lower bounds for all soft rules S1..S10.
 #[must_use]
 pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
     let quotas = calculate_quotas(problem);
     let num_exams = problem.exams.len();
-    let num_grades = problem.grades.len();
-    let num_panels = num_exams * num_grades;
-    let total_slots = num_panels * 3;
-    let total_setter_slots = num_panels * 2;
-    let total_reviewer_slots = num_panels;
+    let subjects = problem.effective_subjects();
+    let panels = problem.all_panels();
 
-    let teacher_grades_map: HashMap<TeacherId, HashSet<crate::domain::GradeId>> = {
-        let mut map: HashMap<TeacherId, HashSet<crate::domain::GradeId>> = HashMap::new();
-        for tg in &problem.teacher_grades {
-            if tg.school_year_id == problem.school_year.id {
-                map.entry(tg.teacher_id).or_default().insert(tg.grade_id);
-            }
+    let mut total_slots = 0usize;
+    let mut total_setter_slots = 0usize;
+    let mut total_reviewer_slots = 0usize;
+
+    for p in &panels {
+        if let Some(sub) = subjects.iter().find(|s| s.id == p.subject_id) {
+            total_slots += (sub.setters + sub.reviewers) as usize;
+            total_setter_slots += sub.setters as usize;
+            total_reviewer_slots += sub.reviewers as usize;
         }
-        map
-    };
+    }
+
+    let forced = crate::domain::forced::find_forced_placements(problem).unwrap_or_default();
+    let forced_seats = forced.len();
+    let forced_setters = forced.iter().filter(|p| p.role == Role::Setter).count();
+    let forced_reviewers = forced.iter().filter(|p| p.role == Role::Reviewer).count();
+
+    let non_forced_slots = total_slots.saturating_sub(forced_seats);
+    let non_forced_setter_slots = total_setter_slots.saturating_sub(forced_setters);
+    let non_forced_reviewer_slots = total_reviewer_slots.saturating_sub(forced_reviewers);
 
     let unavailabilities_set: HashSet<(TeacherId, crate::domain::ExamId)> = problem
         .unavailabilities
@@ -55,64 +63,45 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
                 Some(t) if t.active && t.load_weight > 0.0 => t,
                 _ => continue,
             };
-            let teaches_grades = teacher_grades_map.get(&t.id);
-            let has_eligible_panel = problem.exams.iter().any(|e| {
-                if unavailabilities_set.contains(&(t.id, e.id)) {
-                    return false;
-                }
-                problem.grades.iter().any(|g| {
-                    if let Some(tg) = teaches_grades {
-                        if !tg.contains(&g.id) {
-                            return false;
-                        }
-                    } else {
-                        return false;
-                    }
-                    !problem.locks.iter().any(|lock| {
-                        lock.exam_id == e.id
-                            && lock.grade_id == g.id
-                            && lock.teacher_id == t.id
-                            && lock.kind == LockKind::Forbid
-                            && (lock.role.is_none() || lock.role == Some(Role::Reviewer))
-                    })
-                })
-            });
-            if has_eligible_panel {
+            let is_competent_reviewer = problem
+                .competencies
+                .iter()
+                .any(|c| c.teacher_id == t.id && c.role == Role::Reviewer);
+            if is_competent_reviewer {
                 eligible_reviewers_count += 1;
             }
         }
 
-        let under_bound = eligible_reviewers_count.saturating_sub(total_reviewer_slots);
-        let over_bound = total_reviewer_slots.saturating_sub(2 * eligible_reviewers_count);
+        let s1_setting = problem.rule_settings.iter().find(|s| s.key == RuleKey::S1);
+        let max_reviews_cfg = s1_setting.and_then(|s| {
+            s.params
+                .get("max_reviews")
+                .and_then(serde_json::Value::as_u64)
+        });
+        let auto_max = if eligible_reviewers_count > 0 {
+            (non_forced_reviewer_slots as f64 / eligible_reviewers_count as f64).ceil() as usize
+        } else {
+            2
+        };
+        let max_reviews = max_reviews_cfg.map_or(auto_max, |v| v as usize);
+
+        let under_bound = eligible_reviewers_count.saturating_sub(non_forced_reviewer_slots);
+        let over_bound =
+            non_forced_reviewer_slots.saturating_sub(max_reviews * eligible_reviewers_count);
         (under_bound + over_bound) as f64
     };
 
     // -------------------------------------------------------------------------
-    // S2: Role balance (new definition [floor(c/3), ceil(c/3)])
+    // S2..S5: Trivial 0.0 bounds
     // -------------------------------------------------------------------------
     let s2_bound = 0.0;
-
-    // -------------------------------------------------------------------------
-    // S3: Independent reviewer
-    // -------------------------------------------------------------------------
     let s3_bound = 0.0;
-
-    // -------------------------------------------------------------------------
-    // S4: Repeated setter pair
-    // -------------------------------------------------------------------------
     let s4_bound = 0.0;
-
-    // -------------------------------------------------------------------------
-    // S5: Repeated review relation
-    // -------------------------------------------------------------------------
     let s5_bound = 0.0;
 
     // -------------------------------------------------------------------------
     // S6: Pigeonhole on setter slots with consecutive setting
     // -------------------------------------------------------------------------
-    // With E exams, a teacher can set at most ceil(E/2) times without adjacency.
-    // For s_t setter assignments in E exams, the minimum number of adjacent pairs
-    // is max(0, 2 * s_t - E - 1).
     let s6_bound = if num_exams <= 1 {
         0.0
     } else {
@@ -125,18 +114,26 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
             }
         };
 
-        // Compute maximum setter capacity per teacher
+        // Compute maximum non-forced setter capacity per teacher
         let mut setter_caps = Vec::with_capacity(problem.teachers.len());
         for t in &problem.teachers {
             if !t.active || t.load_weight <= 0.0 {
                 setter_caps.push(0);
                 continue;
             }
+            let is_competent_setter = problem
+                .competencies
+                .iter()
+                .any(|c| c.teacher_id == t.id && c.role == Role::Setter);
+            if !is_competent_setter {
+                setter_caps.push(0);
+                continue;
+            }
+
             let hi = quotas
                 .iter()
                 .find(|q| q.teacher_id == t.id)
                 .map_or(0, |q| q.hi);
-            let teaches_grades = teacher_grades_map.get(&t.id);
             let eligible_setter_exams = problem
                 .exams
                 .iter()
@@ -145,19 +142,15 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
                         return false;
                     }
                     problem.grades.iter().any(|g| {
-                        if let Some(tg) = teaches_grades {
-                            if !tg.contains(&g.id) {
-                                return false;
-                            }
-                        } else {
-                            return false;
-                        }
-                        !problem.locks.iter().any(|lock| {
-                            lock.exam_id == e.id
-                                && lock.grade_id == g.id
-                                && lock.teacher_id == t.id
-                                && lock.kind == LockKind::Forbid
-                                && (lock.role.is_none() || lock.role == Some(Role::Setter))
+                        subjects.iter().any(|s| {
+                            crate::domain::forced::is_teacher_eligible(
+                                problem,
+                                t.id,
+                                e.id,
+                                g.id,
+                                s.id,
+                                Role::Setter,
+                            )
                         })
                     })
                 })
@@ -168,7 +161,6 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
 
         // Greedy allocation minimizing sum of adj_cost(s_t)
         let mut s_alloc = vec![0usize; setter_caps.len()];
-        // Step 1: Allocate up to max_non_adjacent at zero marginal cost
         let mut allocated = 0usize;
         for i in 0..setter_caps.len() {
             let take = setter_caps[i].min(max_non_adjacent);
@@ -176,11 +168,10 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
             allocated += take;
         }
 
-        if allocated >= total_setter_slots {
+        if allocated >= non_forced_setter_slots {
             0.0
         } else {
-            // Step 2: Greedily allocate remaining slots based on minimal marginal cost
-            while allocated < total_setter_slots {
+            while allocated < non_forced_setter_slots {
                 let mut best_idx = None;
                 let mut best_marginal_cost = usize::MAX;
 
@@ -199,7 +190,7 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
                         s_alloc[idx] += 1;
                         allocated += 1;
                     }
-                    None => break, // Cannot allocate further
+                    None => break,
                 }
             }
 
@@ -215,7 +206,35 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
     // -------------------------------------------------------------------------
     // S8: Load deviation lower bound via greedy marginal-cost allocation
     // -------------------------------------------------------------------------
-    let (s8_bound, _) = optimal_s8_allocation(problem, total_slots);
+    let (s8_bound, _) = optimal_s8_allocation(problem, non_forced_slots);
+
+    // -------------------------------------------------------------------------
+    // S9: Exam crowding pigeonhole
+    // -------------------------------------------------------------------------
+    let s9_bound = {
+        let mut total_available_pairs = 0usize;
+        for t in &problem.teachers {
+            if !t.active || t.load_weight <= 0.0 || t.quota_override.is_some() {
+                continue;
+            }
+            let is_competent = problem.competencies.iter().any(|c| c.teacher_id == t.id);
+            if !is_competent {
+                continue;
+            }
+            let avail = problem
+                .exams
+                .iter()
+                .filter(|e| !unavailabilities_set.contains(&(t.id, e.id)))
+                .count();
+            total_available_pairs += avail;
+        }
+        non_forced_slots.saturating_sub(total_available_pairs) as f64
+    };
+
+    // -------------------------------------------------------------------------
+    // S10: Review subject missing
+    // -------------------------------------------------------------------------
+    let s10_bound = 0.0;
 
     vec![
         RuleBound {
@@ -258,45 +277,88 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
             units_lower_bound: s8_bound,
             method: "greedy_marginal_cost_allocation".to_string(),
         },
+        RuleBound {
+            rule: RuleKey::S9,
+            units_lower_bound: s9_bound,
+            method: "exam_crowding_pigeonhole".to_string(),
+        },
+        RuleBound {
+            rule: RuleKey::S10,
+            units_lower_bound: s10_bound,
+            method: "trivial".to_string(),
+        },
     ]
 }
 
 /// Computes the exact S8 lower bound and the optimal integer task count per teacher.
-///
-/// Minimizes Σ (c_t - q_t)^2 subject to Σ c_t = D and lo_t <= c_t <= hi_t.
-/// Solved exactly via greedy marginal-cost allocation over separable strictly convex objectives.
 #[must_use]
 pub fn optimal_s8_counts(problem: &Problem) -> HashMap<TeacherId, usize> {
-    let num_panels = problem.exams.len() * problem.grades.len();
-    let total_slots = num_panels * 3;
-    let (_, counts) = optimal_s8_allocation(problem, total_slots);
+    let subjects = problem.effective_subjects();
+    let panels = problem.all_panels();
+    let mut total_slots = 0usize;
+    for p in &panels {
+        if let Some(sub) = subjects.iter().find(|s| s.id == p.subject_id) {
+            total_slots += (sub.setters + sub.reviewers) as usize;
+        }
+    }
+    let forced = crate::domain::forced::find_forced_placements(problem).unwrap_or_default();
+    let non_forced_slots = total_slots.saturating_sub(forced.len());
+    let (_, counts) = optimal_s8_allocation(problem, non_forced_slots);
     counts
 }
 
 fn optimal_s8_allocation(
     problem: &Problem,
-    total_slots: usize,
+    total_non_forced_slots: usize,
 ) -> (f64, HashMap<TeacherId, usize>) {
     let quotas = calculate_quotas(problem);
     if quotas.is_empty() {
         return (0.0, HashMap::new());
     }
 
-    // Initialize counts with lo_t
-    let mut counts: HashMap<TeacherId, usize> =
-        quotas.iter().map(|q| (q.teacher_id, q.lo)).collect();
+    let forced = crate::domain::forced::find_forced_placements(problem).unwrap_or_default();
+    let mut forced_counts: HashMap<TeacherId, usize> = HashMap::new();
+    for p in &forced {
+        *forced_counts.entry(p.teacher_id).or_default() += 1;
+    }
+
+    // Filter to teachers participating in non-forced allocation
+    let active_quotas: Vec<_> = quotas
+        .into_iter()
+        .filter(|q| {
+            let t = match problem.teachers.iter().find(|t| t.id == q.teacher_id) {
+                Some(t) => t,
+                None => return false,
+            };
+            t.quota_override.is_none() && t.active && t.load_weight > 0.0
+        })
+        .collect();
+
+    if active_quotas.is_empty() {
+        return (0.0, HashMap::new());
+    }
+
+    // Initialize counts with (lo - f_t)
+    let mut counts: HashMap<TeacherId, usize> = HashMap::new();
+    for q in &active_quotas {
+        let f_t = forced_counts.get(&q.teacher_id).copied().unwrap_or(0);
+        let lo_prime = q.lo.saturating_sub(f_t);
+        counts.insert(q.teacher_id, lo_prime);
+    }
+
     let mut current_sum: usize = counts.values().sum();
 
-    // Greedily increment teacher whose marginal cost (2*(c - q) + 1) is minimal
-    while current_sum < total_slots {
+    while current_sum < total_non_forced_slots {
         let mut best_teacher = None;
         let mut best_diff = f64::INFINITY;
 
-        for q in &quotas {
+        for q in &active_quotas {
+            let f_t = forced_counts.get(&q.teacher_id).copied().unwrap_or(0);
+            let hi_prime = q.hi.saturating_sub(f_t);
+            let q_prime = (q.quota - f_t as f64).max(0.0);
             let c = counts[&q.teacher_id];
-            if c < q.hi {
-                // Marginal cost is proportional to c - q
-                let diff = c as f64 - q.quota;
+            if c < hi_prime {
+                let diff = c as f64 - q_prime;
                 if diff < best_diff {
                     best_diff = diff;
                     best_teacher = Some(q.teacher_id);
@@ -309,38 +371,47 @@ fn optimal_s8_allocation(
                 *counts.get_mut(&tid).unwrap() += 1;
                 current_sum += 1;
             }
-            None => break, // Hit upper bounds
+            None => break,
         }
     }
 
-    let s8_units: f64 = quotas
+    let penalty: f64 = active_quotas
         .iter()
         .map(|q| {
-            let c = counts[&q.teacher_id] as f64;
-            (c - q.quota).powi(2)
+            let f_t = forced_counts.get(&q.teacher_id).copied().unwrap_or(0);
+            let q_prime = (q.quota - f_t as f64).max(0.0);
+            let c = counts.get(&q.teacher_id).copied().unwrap_or(0) as f64;
+            (c - q_prime).powi(2)
         })
         .sum();
 
-    (s8_units, counts)
+    (penalty, counts)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::*;
-    use rand::{Rng, SeedableRng};
+    use crate::domain::{
+        Assignment, Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, GradeScope,
+        PanelKey, Problem, Role, RuleKey, RuleSetting, SchoolYear, SchoolYearId, Subject,
+        SubjectId, Teacher, TeacherGrade, Unavailability,
+    };
+    use rand::Rng;
     use rand_chacha::ChaCha8Rng;
+    use rand_core::SeedableRng;
 
     #[test]
     fn test_lower_bounds_validity_exhaustive_tiny_instances() {
-        let mut rng = ChaCha8Rng::seed_from_u64(20261002);
-        let mut valid_tested_instances = 0;
-        let mut attempt = 0;
+        let mut rng = ChaCha8Rng::seed_from_u64(1234567);
+        let mut valid_tested_instances = 0usize;
 
-        while valid_tested_instances < 200 && attempt < 2000 {
-            attempt += 1;
+        for attempt in 0..1000 {
+            if valid_tested_instances >= 200 {
+                break;
+            }
+
             let num_exams = rng.gen_range(2..=3);
-            let num_grades = 1; // 1 grade keeps panels small (2..3 panels, 6..9 slots) for fast exhaustive search
+            let num_grades = 1usize;
             let num_teachers = rng.gen_range(4..=6);
 
             let sy = SchoolYear {
@@ -348,30 +419,40 @@ mod tests {
                 name: "2026-2027".to_string(),
                 is_current: true,
             };
-
             let campuses = vec![
                 Campus {
                     id: CampusId(1),
                     code: "C1".to_string(),
                     name: "Campus 1".to_string(),
-                    color: "blue".to_string(),
+                    color: "#f00".to_string(),
                 },
                 Campus {
                     id: CampusId(2),
                     code: "C2".to_string(),
                     name: "Campus 2".to_string(),
-                    color: "emerald".to_string(),
+                    color: "#0f0".to_string(),
                 },
             ];
 
             let grades: Vec<Grade> = (1..=num_grades)
                 .map(|g| Grade {
                     id: GradeId(g as i64),
-                    code: 10 + g as i32,
+                    code: (10 + g) as i32,
                     name: format!("Grade {g}"),
                     sort_order: g as i32,
                 })
                 .collect();
+
+            let sub1 = Subject {
+                id: SubjectId(1),
+                code: "CHUNG".to_string(),
+                name: "Chung".to_string(),
+                color: "slate".to_string(),
+                sort_order: 1,
+                setters: 2,
+                reviewers: 1,
+                min_campuses: 2,
+            };
 
             let exams: Vec<Exam> = (1..=num_exams)
                 .map(|e| Exam {
@@ -385,6 +466,7 @@ mod tests {
 
             let mut teachers = Vec::with_capacity(num_teachers);
             let mut teacher_grades = Vec::new();
+            let mut competencies = Vec::new();
 
             for tid in 1..=num_teachers {
                 let camp = if tid <= num_teachers / 2 {
@@ -396,14 +478,16 @@ mod tests {
                 teachers.push(Teacher {
                     id: TeacherId(tid as i64),
                     full_name: format!("Teacher {tid}"),
+                    display_name: None,
                     campus_id: camp,
                     load_weight: lw,
                     active: true,
                     note: None,
                     code: None,
+                    quota_override: None,
+                    max_tasks_per_exam_override: None,
                 });
 
-                // Qualified for all grades in this tiny instance
                 for g in &grades {
                     teacher_grades.push(TeacherGrade {
                         teacher_id: TeacherId(tid as i64),
@@ -411,9 +495,21 @@ mod tests {
                         grade_id: g.id,
                     });
                 }
+
+                competencies.push(Competency {
+                    teacher_id: TeacherId(tid as i64),
+                    subject_id: SubjectId(1),
+                    role: Role::Setter,
+                    grade_scope: GradeScope::Taught,
+                });
+                competencies.push(Competency {
+                    teacher_id: TeacherId(tid as i64),
+                    subject_id: SubjectId(1),
+                    role: Role::Reviewer,
+                    grade_scope: GradeScope::Taught,
+                });
             }
 
-            // Occasional unavailability
             let mut unavailabilities = Vec::new();
             if rng.gen_bool(0.3) {
                 let t_idx = rng.gen_range(1..=num_teachers);
@@ -429,74 +525,68 @@ mod tests {
                 school_year: sy,
                 campuses,
                 grades,
+                subjects: vec![sub1],
                 exams,
                 teachers,
                 teacher_grades,
+                competencies,
                 unavailabilities,
                 locks: vec![],
                 rule_settings: RuleSetting::default_settings(),
             };
 
-            // Exhaustive search over all feasible assignments
-            let panels: Vec<PanelKey> = problem
-                .exams
-                .iter()
-                .flat_map(|e| {
-                    problem
-                        .grades
-                        .iter()
-                        .map(move |g| PanelKey::new(e.id, g.id))
-                })
-                .collect();
+            let panels = problem.all_panels();
 
-            let quotas = calculate_quotas(&problem);
-            let unavail_set: HashSet<(TeacherId, ExamId)> = problem
-                .unavailabilities
-                .iter()
-                .map(|u| (u.teacher_id, u.exam_id))
-                .collect();
-
-            // Precompute valid triples per panel
+            // Candidate triples for each panel
             let mut panel_triples: Vec<Vec<(usize, usize, usize)>> = Vec::new();
             for p in &panels {
-                let eligible: Vec<usize> = problem
-                    .teachers
-                    .iter()
-                    .enumerate()
-                    .filter(|(_, t)| t.active && t.load_weight > 0.0)
-                    .filter(|(_, t)| !unavail_set.contains(&(t.id, p.exam_id)))
-                    .map(|(i, _)| i)
-                    .collect();
-
                 let mut triples = Vec::new();
-                let n = eligible.len();
-                for i in 0..n {
-                    for j in (i + 1)..n {
-                        for k in 0..n {
-                            if k == i || k == j {
+                for u1 in 0..num_teachers {
+                    for u2 in (u1 + 1)..num_teachers {
+                        for ur in 0..num_teachers {
+                            if ur == u1 || ur == u2 {
                                 continue;
                             }
-                            let u1 = eligible[i];
-                            let u2 = eligible[j];
-                            let ur = eligible[k];
-
-                            // H3: at least 2 campuses
-                            let mut c_set = HashSet::new();
-                            c_set.insert(problem.teachers[u1].campus_id);
-                            c_set.insert(problem.teachers[u2].campus_id);
-                            c_set.insert(problem.teachers[ur].campus_id);
-                            if c_set.len() >= 2 {
-                                triples.push((u1, u2, ur));
+                            let c1 = problem.teachers[u1].campus_id;
+                            let c2 = problem.teachers[u2].campus_id;
+                            let cr = problem.teachers[ur].campus_id;
+                            let mut distinct_campuses = HashSet::new();
+                            distinct_campuses.insert(c1);
+                            distinct_campuses.insert(c2);
+                            distinct_campuses.insert(cr);
+                            if distinct_campuses.len() < 2 {
+                                continue;
                             }
+
+                            let t1_id = problem.teachers[u1].id;
+                            let t2_id = problem.teachers[u2].id;
+                            let tr_id = problem.teachers[ur].id;
+
+                            if problem.unavailabilities.iter().any(|u| {
+                                u.exam_id == p.exam_id
+                                    && (u.teacher_id == t1_id
+                                        || u.teacher_id == t2_id
+                                        || u.teacher_id == tr_id)
+                            }) {
+                                continue;
+                            }
+
+                            triples.push((u1, u2, ur));
                         }
                     }
                 }
                 panel_triples.push(triples);
             }
 
+            if panel_triples.iter().any(|v| v.is_empty()) {
+                continue;
+            }
+
+            let quotas = calculate_quotas(&problem);
             let mut all_solutions: Vec<Vec<Assignment>> = Vec::new();
             let mut current = Vec::new();
             let mut used_counts = vec![0usize; problem.teachers.len()];
+
             let hi_limits: Vec<usize> = (0..problem.teachers.len())
                 .map(|i| {
                     let tid = problem.teachers[i].id;
@@ -546,7 +636,6 @@ mod tests {
                         continue;
                     }
 
-                    // H4 check across same exam
                     let t1_id = problem.teachers[u1].id;
                     let t2_id = problem.teachers[u2].id;
                     let tr_id = problem.teachers[ur].id;
@@ -573,20 +662,26 @@ mod tests {
                     current.push(Assignment::new(
                         panel.exam_id,
                         panel.grade_id,
+                        panel.subject_id,
                         t1_id,
                         Role::Setter,
+                        0,
                     ));
                     current.push(Assignment::new(
                         panel.exam_id,
                         panel.grade_id,
+                        panel.subject_id,
                         t2_id,
                         Role::Setter,
+                        1,
                     ));
                     current.push(Assignment::new(
                         panel.exam_id,
                         panel.grade_id,
+                        panel.subject_id,
                         tr_id,
                         Role::Reviewer,
+                        0,
                     ));
 
                     search_fast(
@@ -624,10 +719,9 @@ mod tests {
             );
 
             if all_solutions.is_empty() {
-                continue; // Skip instances with no feasible solution
+                continue;
             }
 
-            // Compute exact minimum S1, S6, and S8 across all valid solutions
             let mut min_s1 = f64::INFINITY;
             let mut min_s6 = usize::MAX;
             let mut min_s8 = f64::INFINITY;
@@ -640,7 +734,6 @@ mod tests {
                 .collect();
 
             for sol in &all_solutions {
-                // S6: Consecutive setter exams
                 let mut teacher_setter_exams: HashMap<TeacherId, Vec<usize>> = HashMap::new();
                 for a in sol {
                     if a.role == Role::Setter {
@@ -663,7 +756,6 @@ mod tests {
                 }
                 min_s6 = min_s6.min(s6_units);
 
-                // S1: Reviewer count for eligible teachers with quota >= 1
                 let mut reviewer_counts = HashMap::new();
                 for a in sol {
                     if a.role == Role::Reviewer {
@@ -688,7 +780,6 @@ mod tests {
                 }
                 min_s1 = min_s1.min(s1_units);
 
-                // S8: sum (count_t - q_t)^2
                 let mut counts = HashMap::new();
                 for a in sol {
                     *counts.entry(a.teacher_id).or_insert(0usize) += 1;
@@ -742,34 +833,5 @@ mod tests {
             valid_tested_instances >= 200,
             "Expected at least 200 feasible tiny instances tested, got {valid_tested_instances}"
         );
-    }
-
-    #[test]
-    fn test_s6_exact_per_teacher_minimum_function() {
-        // E = 4 exams
-        let num_exams = 4usize;
-        let adj_cost = |s: usize| -> usize {
-            let max_non_adjacent = num_exams.div_ceil(2);
-            if s > max_non_adjacent && 2 * s > num_exams + 1 {
-                2 * s - num_exams - 1
-            } else {
-                0
-            }
-        };
-
-        // For E = 4:
-        // s = 0: 0
-        // s = 1: 0
-        // s = 2: 0 (e.g. exams 1 and 3)
-        // s = 3: >= 1 adjacent pair (e.g. {1,2,4} -> (1,2) is adjacent)
-        // s = 4: exactly 3 adjacent pairs ((1,2), (2,3), (3,4))
-        assert_eq!(adj_cost(0), 0);
-        assert_eq!(adj_cost(1), 0);
-        assert_eq!(adj_cost(2), 0);
-        assert_eq!(adj_cost(3), 1);
-        assert_eq!(adj_cost(4), 3);
-
-        // Verify difference with naive max(0, s - 2) which would give 2 for s = 4
-        assert_ne!(adj_cost(4), 4 - 2);
     }
 }

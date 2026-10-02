@@ -1,7 +1,8 @@
-//! Workload quota calculations per rule H7 with availability scaling.
+//! Workload quota calculations per rule H7 (v2) with availability scaling and bisection.
 
-use super::entities::{LockKind, Role, RuleKey};
-use super::ids::{ExamId, GradeId, TeacherId};
+use super::entities::{Role, RuleKey};
+use super::forced::{find_forced_placements, is_teacher_eligible};
+use super::ids::{ExamId, TeacherId};
 use super::problem::Problem;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -17,23 +18,31 @@ pub struct TeacherQuota {
     pub available_exams: usize,
 }
 
-/// Computes the workload quota bounds for all teachers in the problem snapshot according to H7.
+/// Computes the workload quota bounds for all teachers in the problem snapshot according to H7 (v2).
 ///
-/// Quota formulation:
-/// - $D = \text{number of panels} \times 3$ (total slots).
-/// - $\text{availability}_t = \text{exams where } t \text{ is available and eligible for at least one grade}$.
-/// - Effective weight: $w'_t = \text{load\_weight}_t \times \frac{\text{availability}_t}{\text{number of exams}}$ (0 if ineligible).
-/// - Base quota: $q_t = D \times \frac{w'_t}{\sum w'}$.
-/// - Lower bound: $\text{lo}_t = \max(0, \lfloor q_t \rfloor - k)$.
-/// - Upper bound: $\text{hi}_t = \min(\text{achievable}, \lceil q_t \rceil + k)$.
-///   When H4 is enabled, achievable $\le \text{availability}_t$.
-/// - Teachers with `load_weight = 0`, `active = false`, or `availability = 0` have $\text{lo}_t = \text{hi}_t = 0$.
+/// Quota formulation v2:
+/// - $D = \text{total seats across all panels}$ ($\sum_{e,g,s} (s.\text{setters} + s.\text{reviewers})$).
+/// - $F_t = \text{forced seats of } t$ from propagation.
+/// - $\text{cap}_t = \min(\text{number of seats } t \text{ is eligible for}, \sum_{e \text{ avail}} \text{eff\_max\_tasks}(t, e))$.
+/// - $w'_t = \text{load\_weight}_t \times \frac{\text{availability}_t}{E}$ (0 if eligible nowhere).
+/// - $q_t = \text{clamp}(\lambda \cdot w'_t, F_t, \text{cap}_t)$ with $\lambda$ found by bisection so that $\sum q_t = D$.
+/// - Teachers with `quota_override` use the override.
+/// - Bounds with tolerance $k$:
+///   $\text{lo}_t = \max(F_t, \lfloor q_t \rfloor - k, 0)$.
+///   $\text{hi}_t = \min(\text{cap}_t, \max(F_t, \lceil q_t \rceil + k))$.
+///   Override teachers have $\text{lo}_t = \text{hi}_t = \text{override}$.
 #[must_use]
 pub fn calculate_quotas(problem: &Problem) -> Vec<TeacherQuota> {
     let num_exams = problem.exams.len();
-    let num_grades = problem.grades.len();
-    let total_panels = num_exams * num_grades;
-    let total_slots = total_panels * 3;
+    let subjects = problem.effective_subjects();
+    let panels = problem.all_panels();
+
+    let mut total_slots = 0usize;
+    for p in &panels {
+        if let Some(s) = subjects.iter().find(|sub| sub.id == p.subject_id) {
+            total_slots += (s.setters + s.reviewers) as usize;
+        }
+    }
 
     if total_slots == 0 || problem.teachers.is_empty() {
         return problem
@@ -49,11 +58,15 @@ pub fn calculate_quotas(problem: &Problem) -> Vec<TeacherQuota> {
             .collect();
     }
 
-    let h4_enabled = problem
-        .rule_settings
-        .iter()
-        .find(|s| s.key == RuleKey::H4)
-        .is_none_or(|s| s.enabled);
+    let h4_setting = problem.rule_settings.iter().find(|s| s.key == RuleKey::H4);
+    let h4_enabled = h4_setting.is_none_or(|s| s.enabled);
+    let default_max_tasks_per_exam = h4_setting
+        .and_then(|s| {
+            s.params
+                .get("max_tasks_per_exam")
+                .and_then(serde_json::Value::as_u64)
+        })
+        .map_or(2, |v| v as usize);
 
     let tolerance = problem
         .rule_settings
@@ -72,122 +85,195 @@ pub fn calculate_quotas(problem: &Problem) -> Vec<TeacherQuota> {
         .map(|u| (u.teacher_id, u.exam_id))
         .collect();
 
-    let mut teacher_grades_map: HashMap<TeacherId, HashSet<GradeId>> = HashMap::new();
-    for tg in &problem.teacher_grades {
-        if tg.school_year_id == problem.school_year.id {
-            teacher_grades_map
-                .entry(tg.teacher_id)
-                .or_default()
-                .insert(tg.grade_id);
-        }
+    let forced_placements = find_forced_placements(problem).unwrap_or_default();
+    let mut forced_counts: HashMap<TeacherId, usize> = HashMap::new();
+    let mut forced_per_exam: HashMap<(TeacherId, ExamId), usize> = HashMap::new();
+    for p in &forced_placements {
+        *forced_counts.entry(p.teacher_id).or_default() += 1;
+        *forced_per_exam
+            .entry((p.teacher_id, p.panel.exam_id))
+            .or_default() += 1;
     }
 
-    let active_grades: HashSet<GradeId> = problem.grades.iter().map(|g| g.id).collect();
-
-    // Check FORBID locks that completely block a teacher on (exam, grade)
-    // A teacher is blocked on (exam, grade) if there is a FORBID with role None,
-    // or both FORBID(Setter) and FORBID(Reviewer).
-    let mut forbid_any_map: HashSet<(ExamId, GradeId, TeacherId)> = HashSet::new();
-    let mut forbid_roles_map: HashMap<(ExamId, GradeId, TeacherId), HashSet<Role>> = HashMap::new();
-    for lock in &problem.locks {
-        if lock.kind == LockKind::Forbid {
-            let key = (lock.exam_id, lock.grade_id, lock.teacher_id);
-            match lock.role {
-                None => {
-                    forbid_any_map.insert(key);
-                }
-                Some(r) => {
-                    forbid_roles_map.entry(key).or_default().insert(r);
-                }
-            }
-        }
-    }
-
-    let is_forbidden_all_roles = |e: ExamId, g: GradeId, t: TeacherId| -> bool {
-        let key = (e, g, t);
-        if forbid_any_map.contains(&key) {
-            return true;
-        }
-        if let Some(roles) = forbid_roles_map.get(&key) {
-            if roles.contains(&Role::Setter) && roles.contains(&Role::Reviewer) {
-                return true;
-            }
-        }
-        false
-    };
-
-    let mut availabilities: Vec<usize> = Vec::with_capacity(problem.teachers.len());
-    let mut effective_weights: Vec<f64> = Vec::with_capacity(problem.teachers.len());
+    let total_teachers = problem.teachers.len();
+    let mut availabilities = Vec::with_capacity(total_teachers);
+    let mut effective_weights = Vec::with_capacity(total_teachers);
+    let mut caps = Vec::with_capacity(total_teachers);
+    let mut forced_list = Vec::with_capacity(total_teachers);
 
     for teacher in &problem.teachers {
+        let f_t = forced_counts.get(&teacher.id).copied().unwrap_or(0);
+        forced_list.push(f_t);
+
         if !teacher.active || teacher.load_weight <= 0.0 {
             availabilities.push(0);
             effective_weights.push(0.0);
+            caps.push(f_t);
             continue;
         }
 
-        let taught = match teacher_grades_map.get(&teacher.id) {
-            Some(set) if !set.is_empty() => set,
-            _ => {
-                availabilities.push(0);
-                effective_weights.push(0.0);
-                continue;
-            }
-        };
-
+        // Count eligible seats and availability per exam
         let mut available_exams = 0usize;
+        let mut eligible_seats = 0usize;
+        let mut sum_eff_max_tasks = 0usize;
+
+        let max_tasks_configured = teacher
+            .max_tasks_per_exam_override
+            .map_or(default_max_tasks_per_exam, |v| v as usize);
+
         for exam in &problem.exams {
             if unavailability_set.contains(&(teacher.id, exam.id)) {
                 continue;
             }
 
-            // Must be eligible for at least one active grade in this exam
-            let has_eligible_grade = taught.iter().any(|&g_id| {
-                active_grades.contains(&g_id) && !is_forbidden_all_roles(exam.id, g_id, teacher.id)
-            });
+            let mut exam_eligible_seats = 0usize;
+            for p in &panels {
+                if p.exam_id != exam.id {
+                    continue;
+                }
+                let subject = match subjects.iter().find(|sub| sub.id == p.subject_id) {
+                    Some(s) => s,
+                    None => continue,
+                };
 
-            if has_eligible_grade {
+                let setter_elig = is_teacher_eligible(
+                    problem,
+                    teacher.id,
+                    p.exam_id,
+                    p.grade_id,
+                    p.subject_id,
+                    Role::Setter,
+                );
+                let reviewer_elig = is_teacher_eligible(
+                    problem,
+                    teacher.id,
+                    p.exam_id,
+                    p.grade_id,
+                    p.subject_id,
+                    Role::Reviewer,
+                );
+
+                if setter_elig {
+                    exam_eligible_seats += subject.setters as usize;
+                }
+                if reviewer_elig {
+                    exam_eligible_seats += subject.reviewers as usize;
+                }
+            }
+
+            if exam_eligible_seats > 0 {
                 available_exams += 1;
+                eligible_seats += exam_eligible_seats;
+
+                let forced_e = forced_per_exam
+                    .get(&(teacher.id, exam.id))
+                    .copied()
+                    .unwrap_or(0);
+                let eff_max = if h4_enabled {
+                    max_tasks_configured.max(forced_e)
+                } else {
+                    total_slots
+                };
+                sum_eff_max_tasks += eff_max;
             }
         }
 
-        let w_prime = if num_exams > 0 && available_exams > 0 {
+        availabilities.push(available_exams);
+
+        let cap_t = eligible_seats.min(sum_eff_max_tasks).max(f_t);
+        caps.push(cap_t);
+
+        let w_prime = if num_exams > 0 && available_exams > 0 && eligible_seats > 0 {
             teacher.load_weight * (available_exams as f64) / (num_exams as f64)
         } else {
             0.0
         };
-
-        availabilities.push(available_exams);
         effective_weights.push(w_prime);
     }
 
-    let sum_w_prime: f64 = effective_weights.iter().sum();
+    // Bisection to find lambda such that sum(q_t) == D
+    let target_sum = total_slots as f64;
 
-    let mut quotas = Vec::with_capacity(problem.teachers.len());
+    // Helper to evaluate sum of quotas for a given lambda
+    let eval_quota = |lambda: f64, idx: usize| -> f64 {
+        let teacher = &problem.teachers[idx];
+        if let Some(override_val) = teacher.quota_override {
+            return override_val as f64;
+        }
+        let w_prime = effective_weights[idx];
+        let f_t = forced_list[idx] as f64;
+        let cap_t = caps[idx] as f64;
+
+        if w_prime <= 0.0 {
+            return f_t;
+        }
+
+        let raw = lambda * w_prime;
+        raw.clamp(f_t, cap_t)
+    };
+
+    let eval_total = |lambda: f64| -> f64 {
+        let mut sum = 0.0;
+        for i in 0..total_teachers {
+            sum += eval_quota(lambda, i);
+        }
+        sum
+    };
+
+    // Find upper bound for bisection
+    let mut lo_lambda = 0.0f64;
+    let mut hi_lambda = 1.0f64;
+    while eval_total(hi_lambda) < target_sum && hi_lambda < 1e8 {
+        hi_lambda *= 2.0;
+    }
+
+    // Binary search 60 iterations
+    for _ in 0..60 {
+        let mid = (lo_lambda + hi_lambda) / 2.0;
+        if eval_total(mid) < target_sum {
+            lo_lambda = mid;
+        } else {
+            hi_lambda = mid;
+        }
+    }
+    let best_lambda = (lo_lambda + hi_lambda) / 2.0;
+
+    let mut quotas = Vec::with_capacity(total_teachers);
     for (i, teacher) in problem.teachers.iter().enumerate() {
-        let w_prime = effective_weights[i];
         let avail = availabilities[i];
+        let f_t = forced_list[i];
+        let cap_t = caps[i];
 
-        if !teacher.active || teacher.load_weight <= 0.0 || avail == 0 || sum_w_prime <= 0.0 {
+        if let Some(override_val) = teacher.quota_override {
+            let ov = override_val as usize;
             quotas.push(TeacherQuota {
                 teacher_id: teacher.id,
-                quota: 0.0,
-                lo: 0,
-                hi: 0,
+                quota: ov as f64,
+                lo: ov,
+                hi: ov,
                 available_exams: avail,
             });
             continue;
         }
 
-        let q_t = (total_slots as f64) * w_prime / sum_w_prime;
-        let floor_q = q_t.floor() as usize;
-        let lo = floor_q.saturating_sub(tolerance);
-
-        let mut hi = (q_t.ceil() as usize) + tolerance;
-        if h4_enabled {
-            hi = hi.min(avail);
+        let _w_prime = effective_weights[i];
+        if !teacher.active || teacher.load_weight <= 0.0 || (avail == 0 && f_t == 0) {
+            quotas.push(TeacherQuota {
+                teacher_id: teacher.id,
+                quota: f_t as f64,
+                lo: f_t,
+                hi: f_t,
+                available_exams: avail,
+            });
+            continue;
         }
-        hi = hi.min(total_slots);
+
+        let q_t = eval_quota(best_lambda, i);
+        let floor_q = q_t.floor() as usize;
+        let lo = f_t.max(floor_q.saturating_sub(tolerance));
+
+        let ceil_q = q_t.ceil() as usize;
+        let hi = cap_t.min(f_t.max(ceil_q + tolerance));
         let lo = lo.min(hi);
 
         quotas.push(TeacherQuota {
