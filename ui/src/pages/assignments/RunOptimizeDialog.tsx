@@ -186,13 +186,13 @@ export function RunOptimizeDialog({
               <label className="text-sm font-medium text-foreground">
                 {t('assignments.effort')}
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="flex gap-2">
                 <Button
                   type="button"
                   variant={effort === 'fast' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setEffort('fast')}
-                  className="text-xs"
+                  className="flex-1 text-xs"
                 >
                   {t('assignments.effortFast')}
                 </Button>
@@ -201,7 +201,7 @@ export function RunOptimizeDialog({
                   variant={effort === 'standard' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setEffort('standard')}
-                  className="text-xs"
+                  className="flex-1 text-xs"
                 >
                   {t('assignments.effortStandard')}
                 </Button>
@@ -210,11 +210,16 @@ export function RunOptimizeDialog({
                   variant={effort === 'thorough' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setEffort('thorough')}
-                  className="text-xs"
+                  className="flex-1 text-xs"
                 >
                   {t('assignments.effortThorough')}
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground">
+                {effort === 'fast' && t('assignments.effortFastDesc')}
+                {effort === 'standard' && t('assignments.effortStandardDesc')}
+                {effort === 'thorough' && t('assignments.effortThoroughDesc')}
+              </p>
             </div>
 
             {/* Advanced Options */}
