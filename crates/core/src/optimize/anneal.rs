@@ -19,8 +19,10 @@ pub enum Budget {
     TimeMs(u64),
 }
 
+use serde::{Deserialize, Serialize};
+
 /// Progress snapshot sent to callers during optimization.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Progress {
     pub run: usize,
     pub iteration: u64,

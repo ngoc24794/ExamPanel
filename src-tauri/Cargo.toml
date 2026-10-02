@@ -12,9 +12,14 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [build-dependencies]
 tauri-build = { version = "2.0", features = [] }
 
+[features]
+default = ["dev-tools"]
+dev-tools = ["exam-panel-service/dev-tools"]
+
 [dependencies]
 tauri = { version = "2.0", features = [] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 exam-panel-core = { workspace = true }
 exam-panel-storage = { workspace = true }
+exam-panel-service = { workspace = true }

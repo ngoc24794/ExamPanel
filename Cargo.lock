@@ -783,6 +783,7 @@ name = "exam-panel-app"
 version = "0.1.0"
 dependencies = [
  "exam-panel-core",
+ "exam-panel-service",
  "exam-panel-storage",
  "serde",
  "serde_json",
