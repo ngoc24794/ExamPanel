@@ -18,12 +18,32 @@ for arg in "$@"; do
   esac
 done
 
+# Nạp môi trường Cargo nếu có
+if [ -f "$HOME/.cargo/env" ]; then
+  # shellcheck source=/dev/null
+  source "$HOME/.cargo/env"
+fi
+export PATH="$HOME/.cargo/bin:$PATH"
+
 echo "=========================================================="
 echo "   BẮT ĐẦU ĐÓNG GÓI EXAMPANEL PHIÊN BẢN PORTABLE (macOS)"
 echo "=========================================================="
 
 # 1. Biên dịch ứng dụng nếu không bật --skip-build
 if [ "$SKIP_BUILD" = false ]; then
+  if ! command -v cargo >/dev/null 2>&1; then
+    echo "" >&2
+    echo "==========================================================" >&2
+    echo "LỖI: Không tìm thấy công cụ biên dịch Rust ('cargo')!" >&2
+    echo "==========================================================" >&2
+    echo "Vui lòng cài đặt Rust và Xcode Command Line Tools trên macOS:" >&2
+    echo "  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh" >&2
+    echo "  source \"\$HOME/.cargo/env\"" >&2
+    echo "  xcode-select --install" >&2
+    echo "==========================================================" >&2
+    exit 1
+  fi
+
   echo ""
   echo "[1/4] Đang biên dịch frontend và ứng dụng Tauri (Release cho macOS)..."
   pnpm tauri build
