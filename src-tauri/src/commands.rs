@@ -8,9 +8,10 @@ use exam_panel_core::domain::{
 };
 use exam_panel_core::optimize::Progress;
 use exam_panel_service::dto::{
-    AppInfo, AppSettings, CreateCampusInput, CreateGradeInput, CreateLockInput,
+    AppInfo, AppSettings, CreateCampusInput, CreateExamInput, CreateGradeInput, CreateLockInput,
     CreateSchoolYearInput, CreateTeacherInput, EvaluationOutcome, FeasibilityReportWithQuotas,
-    OptimizeOutcome, OptimizeRequest, PlanDetails,
+    OptimizeOutcome, OptimizeRequest, PlanDetails, PreviewQuotasInput, QuotaPreviewItem,
+    RulePresetItem,
 };
 use exam_panel_service::error::AppError;
 use exam_panel_service::service::AppService;
@@ -202,6 +203,27 @@ pub fn update_exam(service: State<'_, Arc<AppService>>, exam: Exam) -> Result<()
     service.update_exam(exam)
 }
 
+#[tauri::command]
+pub fn create_exam(
+    service: State<'_, Arc<AppService>>,
+    input: CreateExamInput,
+) -> Result<Exam, AppError> {
+    service.create_exam(input)
+}
+
+#[tauri::command]
+pub fn delete_exam(service: State<'_, Arc<AppService>>, id: ExamId) -> Result<(), AppError> {
+    service.delete_exam(id)
+}
+
+#[tauri::command]
+pub fn reorder_exams(
+    service: State<'_, Arc<AppService>>,
+    exam_ids: Vec<ExamId>,
+) -> Result<(), AppError> {
+    service.reorder_exams(exam_ids)
+}
+
 // -----------------------------------------------------------------------------
 // Unavailability
 // -----------------------------------------------------------------------------
@@ -283,6 +305,19 @@ pub fn reset_rule_settings_to_defaults(
     school_year_id: SchoolYearId,
 ) -> Result<(), AppError> {
     service.reset_rule_settings_to_defaults(school_year_id)
+}
+
+#[tauri::command]
+pub fn preview_quotas(
+    service: State<'_, Arc<AppService>>,
+    input: PreviewQuotasInput,
+) -> Result<Vec<QuotaPreviewItem>, AppError> {
+    service.preview_quotas(input)
+}
+
+#[tauri::command]
+pub fn get_rule_presets(service: State<'_, Arc<AppService>>) -> Vec<RulePresetItem> {
+    service.get_rule_presets()
 }
 
 // -----------------------------------------------------------------------------

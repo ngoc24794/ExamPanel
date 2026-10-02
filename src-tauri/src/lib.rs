@@ -138,6 +138,7 @@ pub fn run() {
         Arc::new(AppService::open_default().expect("failed to open database and apply migrations"));
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .manage(service)
         .invoke_handler(tauri::generate_handler![
             commands::ping,
@@ -163,7 +164,10 @@ pub fn run() {
             commands::create_school_year,
             commands::set_current_school_year,
             commands::list_exams,
+            commands::create_exam,
             commands::update_exam,
+            commands::delete_exam,
+            commands::reorder_exams,
             commands::list_unavailabilities,
             commands::set_unavailability,
             commands::delete_unavailability,
@@ -173,6 +177,8 @@ pub fn run() {
             commands::get_rule_settings,
             commands::save_rule_settings,
             commands::reset_rule_settings_to_defaults,
+            commands::preview_quotas,
+            commands::get_rule_presets,
             commands::check_feasibility,
             commands::evaluate_assignments,
             commands::start_optimize,
