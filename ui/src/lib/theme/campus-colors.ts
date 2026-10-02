@@ -50,3 +50,11 @@ export function getCampusColorStyle(color: string): React.CSSProperties {
     borderColor: `hsl(var(--campus-${key}-border))`,
   }
 }
+
+export function getCampusDotColor(color: string | undefined | null): string {
+  if (!color) return '#94a3b8'
+  const key = normalizeCampusColorKey(color)
+  const opt = CAMPUS_PALETTE_OPTIONS.find((o) => o.key === key)
+  return opt ? opt.previewColor : '#94a3b8'
+}
+

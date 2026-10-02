@@ -98,4 +98,16 @@ describe('i18n locales parity', () => {
     const rawVi = JSON.stringify(vi).toLowerCase()
     expect(rawVi.includes('cơ sở')).toBe(false)
   })
+
+  it('vi.json does not contain the forbidden term "kế hoạch" (case-insensitive)', () => {
+    const rawVi = JSON.stringify(vi).toLowerCase()
+    expect(rawVi.includes('kế hoạch')).toBe(false)
+  })
+
+  it('vi.json does not contain the forbidden terms "ràng buộc cứng" or "ràng buộc mềm" (case-insensitive)', () => {
+    const rawVi = JSON.stringify(vi).toLowerCase()
+    expect(rawVi.includes('ràng buộc cứng')).toBe(false)
+    expect(rawVi.includes('ràng buộc mềm')).toBe(false)
+  })
 })
+

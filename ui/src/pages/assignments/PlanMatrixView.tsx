@@ -39,7 +39,10 @@ import {
   ArrowRightLeft,
   Sparkles,
   Info,
+  FileEdit,
+  Eye,
 } from 'lucide-react'
+import { getCampusDotColor } from '@/lib/theme/campus-colors'
 import { CandidateSelectModal } from './CandidateSelectModal'
 
 interface PlanMatrixViewProps {
@@ -275,7 +278,7 @@ export function PlanMatrixView({
           {/* Rule Breakdown with Lower Bounds */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {scoreReport.by_rule.map((r) => {
-              const atBound = r.penalty <= r.lower_bound
+              const atBound = Math.abs(r.units - r.lower_bound) <= 1e-4
               return (
                 <TooltipProvider key={r.rule}>
                   <Tooltip>
@@ -607,8 +610,18 @@ function SlotChip({
       <div className="flex items-center gap-1.5 min-w-0">
         <div
           className="w-2.5 h-2.5 rounded-full shrink-0"
-          style={{ backgroundColor: campus?.color ?? '#94a3b8' }}
+          style={{ backgroundColor: getCampusDotColor(campus?.color) }}
         />
+        <span
+          className={`inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[10px] font-semibold border shrink-0 ${
+            isReviewer
+              ? 'bg-primary/10 text-primary border-primary/20'
+              : 'bg-muted text-muted-foreground border-border'
+          }`}
+        >
+          {isReviewer ? <Eye className="h-2.5 w-2.5" /> : <FileEdit className="h-2.5 w-2.5" />}
+          {isReviewer ? 'PB' : 'Đề'}
+        </span>
         <span
           className={`font-medium truncate ${
             isReviewer ? 'text-primary font-semibold' : 'text-foreground'

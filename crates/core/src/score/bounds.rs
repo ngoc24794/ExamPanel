@@ -627,7 +627,8 @@ mod tests {
                 continue; // Skip instances with no feasible solution
             }
 
-            // Compute exact minimum S6 and S8 across all valid solutions
+            // Compute exact minimum S1, S6, and S8 across all valid solutions
+            let mut min_s1 = f64::INFINITY;
             let mut min_s6 = usize::MAX;
             let mut min_s8 = f64::INFINITY;
 
@@ -662,6 +663,31 @@ mod tests {
                 }
                 min_s6 = min_s6.min(s6_units);
 
+                // S1: Reviewer count for eligible teachers with quota >= 1
+                let mut reviewer_counts = HashMap::new();
+                for a in sol {
+                    if a.role == Role::Reviewer {
+                        *reviewer_counts.entry(a.teacher_id).or_insert(0usize) += 1;
+                    }
+                }
+                let mut s1_units = 0.0;
+                for q in &quotas {
+                    if q.quota < 1.0 {
+                        continue;
+                    }
+                    let t = match problem.teachers.iter().find(|t| t.id == q.teacher_id) {
+                        Some(t) if t.active && t.load_weight > 0.0 => t,
+                        _ => continue,
+                    };
+                    let revs = reviewer_counts.get(&t.id).copied().unwrap_or(0);
+                    if revs == 0 {
+                        s1_units += 1.0;
+                    } else if revs > 2 {
+                        s1_units += (revs - 2) as f64;
+                    }
+                }
+                min_s1 = min_s1.min(s1_units);
+
                 // S8: sum (count_t - q_t)^2
                 let mut counts = HashMap::new();
                 for a in sol {
@@ -680,6 +706,11 @@ mod tests {
             }
 
             let bounds = lower_bounds(&problem);
+            let s1_bound = bounds
+                .iter()
+                .find(|b| b.rule == RuleKey::S1)
+                .unwrap()
+                .units_lower_bound;
             let s6_bound = bounds
                 .iter()
                 .find(|b| b.rule == RuleKey::S6)
@@ -691,6 +722,10 @@ mod tests {
                 .unwrap()
                 .units_lower_bound;
 
+            assert!(
+                min_s1 >= s1_bound - 1e-6,
+                "Instance {attempt}: Exhaustive min S1 ({min_s1}) is LESS than computed bound ({s1_bound})! S1 bound is invalid."
+            );
             assert!(
                 min_s6 as f64 >= s6_bound - 1e-6,
                 "Instance {attempt}: Exhaustive min S6 ({min_s6}) is LESS than computed bound ({s6_bound})! S6 bound is invalid."

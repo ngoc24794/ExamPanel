@@ -8,6 +8,7 @@ import {
   isTauriEnvironment,
 } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
+import { getCampusDotColor } from '@/lib/theme/campus-colors'
 import {
   useSchoolYears,
   usePlans,
@@ -609,7 +610,7 @@ export function AssignmentsPage() {
                         <div className="flex items-center gap-1.5 min-w-0">
                           <div
                             className="w-2.5 h-2.5 rounded-full shrink-0"
-                            style={{ backgroundColor: campus?.color ?? '#94a3b8' }}
+                            style={{ backgroundColor: getCampusDotColor(campus?.color) }}
                           />
                           <span className="font-medium text-foreground truncate">
                             {tRec.full_name}

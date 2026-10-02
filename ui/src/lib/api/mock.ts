@@ -70,8 +70,8 @@ export class MockExamPanelApi implements ExamPanelApi {
   private plans: PlanSummary[] = JSON.parse(JSON.stringify(demoPlans))
   private planDetailsMap: Map<number, PlanDetails> = new Map([
     [1, JSON.parse(JSON.stringify(demoPlanDetails))],
-    [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Kế hoạch #2', rank: 2 } }))],
-    [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Kế hoạch #3', rank: 3 } }))],
+    [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Phương án #2', rank: 2 } }))],
+    [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Phương án #3', rank: 3 } }))],
   ])
   private teacherGradesMap: Map<number, number[]> = new Map([
     [1, [1, 2]],
@@ -955,7 +955,7 @@ export class MockExamPanelApi implements ExamPanelApi {
       ids.push(nextId)
       const summary: PlanSummary = {
         id: nextId,
-        name: `Kế hoạch #${p.rank}`,
+        name: `Phương án #${p.rank}`,
         rank: p.rank,
         score: p.report.total,
         created_at: new Date().toISOString(),
@@ -1533,8 +1533,8 @@ export class MockExamPanelApi implements ExamPanelApi {
     this.plans = JSON.parse(JSON.stringify(demoPlans))
     this.planDetailsMap = new Map([
       [1, JSON.parse(JSON.stringify(demoPlanDetails))],
-      [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Kế hoạch #2', rank: 2 } }))],
-      [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Kế hoạch #3', rank: 3 } }))],
+      [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Phương án #2', rank: 2 } }))],
+      [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Phương án #3', rank: 3 } }))],
     ])
   }
 }

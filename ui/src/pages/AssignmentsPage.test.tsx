@@ -97,7 +97,7 @@ describe('AssignmentsPage Component Tests', () => {
 
     // Plans in mock demo data inside the history list
     const historyList = screen.getByTestId('plans-history-list')
-    expect(historyList).toHaveTextContent(/Kế hoạch #1/i)
+    expect(historyList).toHaveTextContent(/Phương án #1/i)
   })
 
   it('focuses on teacher when chip or teacher row is clicked', async () => {

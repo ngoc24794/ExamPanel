@@ -797,7 +797,7 @@ impl AppService {
             let plan = Plan {
                 id: PlanId(0),
                 school_year_id,
-                name: format!("Kế hoạch #{}", rp.rank),
+                name: format!("Phương án #{}", rp.rank),
                 created_at: String::new(),
                 seed: rp.seed,
                 score: Some(rp.report.total),
@@ -1181,7 +1181,7 @@ impl AppService {
             &settings,
             &rule_settings,
         )
-        .map_err(|e| AppError::internal(format!("Lỗi xuất kế hoạch Excel: {e}")))?;
+        .map_err(|e| AppError::internal(format!("Lỗi xuất phương án Excel: {e}")))?;
 
         Ok(())
     }
