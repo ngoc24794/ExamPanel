@@ -32,3 +32,5 @@ src-tauri/target/
 *.swo
 .DS_Store
 Thumbs.db
+/.tools/
+ExamPanel.portable

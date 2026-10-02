@@ -1,0 +1,14 @@
+verbose: Linting 2 files
+verbose: Linting .github/workflows/release.yml
+verbose: Using project at C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel
+verbose: Linting .github/workflows/ci.yml
+verbose: Using project at C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel
+verbose: Found 0 parse errors in 0 ms for .github/workflows/release.yml
+verbose: Found 0 parse errors in 0 ms for .github/workflows/ci.yml
+verbose: Rule "shellcheck" was disabled: exec: "shellcheck": executable file not found in %PATH%
+verbose: Rule "shellcheck" was disabled: exec: "shellcheck": executable file not found in %PATH%
+verbose: Rule "pyflakes" was disabled: exec: "pyflakes": executable file not found in %PATH%
+verbose: Found total 0 errors in 43 ms for .github/workflows/ci.yml
+verbose: Rule "pyflakes" was disabled: exec: "pyflakes": executable file not found in %PATH%
+verbose: Found total 0 errors in 49 ms for .github/workflows/release.yml
+verbose: Found 0 errors in 2 files

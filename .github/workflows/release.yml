@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+          - os: ubuntu-22.04
+            platform: linux
+          - os: macos-latest
+            platform: macos
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Install Linux build dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libjavascriptcoregtk-4.1-dev libsoup-3.0-dev
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm -C ui build
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'ExamPanel ${{ github.ref_name }}'
+          releaseBody: 'See CHANGELOG.md for release notes and changes.'
+          releaseDraft: true
+          prerelease: false
+
+      - name: Create Windows Portable ZIP Artifact
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart('v')
+          $zipName = "ExamPanel-$ver-windows-x64-portable.zip"
+          $distFolder = "target/portable"
+          New-Item -ItemType Directory -Force -Path $distFolder
+          Copy-Item "target/release/ExamPanel.exe" -Destination "$distFolder/ExamPanel.exe"
+          New-Item -ItemType File -Force -Path "$distFolder/ExamPanel.portable"
+          Copy-Item "DOC-TOI.txt" -Destination "$distFolder/DOC-TOI.txt"
+          Copy-Item "THIRD_PARTY_NOTICES" -Destination "$distFolder/THIRD_PARTY_NOTICES.txt"
+          Compress-Archive -Path "$distFolder/*" -DestinationPath "target/$zipName" -Force
+          Get-FileHash -Algorithm SHA256 "target/$zipName" | Out-File -Encoding utf8 "target/SHA256SUMS-windows.txt"
