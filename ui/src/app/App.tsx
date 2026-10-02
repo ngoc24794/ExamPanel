@@ -14,6 +14,7 @@ import {
   Users,
   Building2,
   Calendar,
+  CalendarX,
   Sliders,
   ClipboardCheck,
   BarChart3,
@@ -29,9 +30,15 @@ import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/lib/theme/ThemeToggle'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { SchoolYearSelector } from '@/components/SchoolYearSelector'
+import { FeasibilityIndicator } from '@/components/FeasibilityIndicator'
+import { useSchoolYears } from '@/lib/query/hooks'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { CampusesPage } from '@/pages/CampusesPage'
 import { TeachersPage } from '@/pages/TeachersPage'
+import { ExamsPage } from '@/pages/ExamsPage'
+import { UnavailabilityPage } from '@/pages/UnavailabilityPage'
+import { RulesPage } from '@/pages/RulesPage'
+import { SettingsPage } from '@/pages/SettingsPage'
 import { DevPage } from '@/pages/DevPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
@@ -62,6 +69,11 @@ const NAV_ENTRIES: NavEntry[] = [
     path: '/exams',
     labelKey: 'nav.exams',
     icon: <Calendar className="h-4 w-4" />,
+  },
+  {
+    path: '/unavailability',
+    labelKey: 'nav.unavailability',
+    icon: <CalendarX className="h-4 w-4" />,
   },
   {
     path: '/rules',
@@ -95,6 +107,8 @@ function AppLayout() {
   const { t } = useTranslation()
   const location = useLocation()
   const [collapsed, setCollapsed] = React.useState(false)
+  const { data: schoolYears = [] } = useSchoolYears()
+  const currentYear = schoolYears.find((y) => y.is_current) || schoolYears[0]
 
   const activeNav =
     NAV_ENTRIES.find((item) =>
@@ -195,8 +209,13 @@ function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            <FeasibilityIndicator
+              schoolYearId={currentYear?.id}
+              schoolYearName={currentYear?.name}
+            />
+            <div className="h-4 w-px bg-border mx-0.5" />
             <SchoolYearSelector />
-            <div className="h-4 w-px bg-border mx-1" />
+            <div className="h-4 w-px bg-border mx-0.5" />
             <LanguageSwitcher />
             <ThemeToggle />
           </div>
@@ -209,18 +228,9 @@ function AppLayout() {
               <Route path="/" element={<OverviewPage />} />
               <Route path="/teachers" element={<TeachersPage />} />
               <Route path="/campuses" element={<CampusesPage />} />
-              <Route
-                path="/exams"
-                element={
-                  <PlaceholderPage titleKey="exams.title" descKey="exams.description" />
-                }
-              />
-              <Route
-                path="/rules"
-                element={
-                  <PlaceholderPage titleKey="rules.title" descKey="rules.description" />
-                }
-              />
+              <Route path="/exams" element={<ExamsPage />} />
+              <Route path="/unavailability" element={<UnavailabilityPage />} />
+              <Route path="/rules" element={<RulesPage />} />
               <Route
                 path="/assignments"
                 element={
@@ -236,15 +246,7 @@ function AppLayout() {
                   <PlaceholderPage titleKey="stats.title" descKey="stats.description" />
                 }
               />
-              <Route
-                path="/settings"
-                element={
-                  <PlaceholderPage
-                    titleKey="settings.title"
-                    descKey="settings.description"
-                  />
-                }
-              />
+              <Route path="/settings" element={<SettingsPage />} />
               {import.meta.env.DEV && <Route path="/dev" element={<DevPage />} />}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

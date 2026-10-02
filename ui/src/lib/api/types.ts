@@ -6,6 +6,7 @@ import type {
   Assignment,
   Campus,
   CreateCampusInput,
+  CreateExamInput,
   CreateGradeInput,
   CreateLockInput,
   CreateSchoolYearInput,
@@ -19,7 +20,10 @@ import type {
   OptimizeRequest,
   PlanDetails,
   PlanSummary,
+  PreviewQuotasInput,
   Progress,
+  QuotaPreviewItem,
+  RulePresetItem,
   RuleSetting,
   SchoolYear,
   Teacher,
@@ -44,6 +48,7 @@ export interface ExamPanelApi {
   setTheme(theme: ThemeMode): Promise<void>
   getLanguage(): Promise<string>
   setLanguage(lang: string): Promise<void>
+  openDataFolder(): Promise<void>
 
   // Campuses
   listCampuses(): Promise<Campus[]>
@@ -77,7 +82,10 @@ export interface ExamPanelApi {
 
   // Exams
   listExams(schoolYearId: number): Promise<Exam[]>
+  createExam(input: CreateExamInput): Promise<Exam>
   updateExam(exam: Exam): Promise<void>
+  deleteExam(id: number): Promise<void>
+  reorderExams(examIds: number[]): Promise<void>
 
   // Unavailability
   listUnavailabilities(schoolYearId: number): Promise<Unavailability[]>
@@ -93,6 +101,8 @@ export interface ExamPanelApi {
   getRuleSettings(schoolYearId: number): Promise<RuleSetting[]>
   saveRuleSettings(schoolYearId: number, settings: RuleSetting[]): Promise<void>
   resetRuleSettingsToDefaults(schoolYearId: number): Promise<void>
+  getRulePresets(): Promise<RulePresetItem[]>
+  previewQuotas(input: PreviewQuotasInput): Promise<QuotaPreviewItem[]>
 
   // Analysis
   checkFeasibility(schoolYearId: number): Promise<FeasibilityReportWithQuotas>

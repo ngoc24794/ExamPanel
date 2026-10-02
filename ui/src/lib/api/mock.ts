@@ -12,6 +12,7 @@ import type {
   Assignment,
   Campus,
   CreateCampusInput,
+  CreateExamInput,
   CreateGradeInput,
   CreateLockInput,
   CreateSchoolYearInput,
@@ -27,7 +28,10 @@ import type {
   OptimizeRequest,
   PlanDetails,
   PlanSummary,
+  PreviewQuotasInput,
   Progress,
+  QuotaPreviewItem,
+  RulePresetItem,
   RuleSetting,
   SchoolYear,
   Teacher,
@@ -124,6 +128,10 @@ export class MockExamPanelApi implements ExamPanelApi {
     this.settings.language = lang
   }
 
+  async openDataFolder(): Promise<void> {
+    // In mock mode, no native filesystem to open
+  }
+
   // Campuses
   async listCampuses(): Promise<Campus[]> {
     return JSON.parse(JSON.stringify(this.campuses))
@@ -201,6 +209,16 @@ export class MockExamPanelApi implements ExamPanelApi {
   }
 
   async deleteGrade(id: number): Promise<void> {
+    const hasTeachers = Array.from(this.teacherGradesMap.values()).some((grades) =>
+      grades.includes(id),
+    )
+    const hasLocks = this.locks.some((l) => l.grade_id === id)
+    if (hasTeachers || hasLocks) {
+      throw {
+        code: 'grade_in_use',
+        params: { message: 'Grade is in use in teacher qualifications or locks' },
+      }
+    }
     const idx = this.grades.findIndex((g) => g.id === id)
     if (idx === -1) {
       throw { code: 'not_found', params: { message: 'Grade not found' } }
@@ -321,12 +339,57 @@ export class MockExamPanelApi implements ExamPanelApi {
     return JSON.parse(JSON.stringify(this.exams))
   }
 
+  async createExam(input: CreateExamInput): Promise<Exam> {
+    if (this.exams.some((e) => e.code === input.code)) {
+      throw {
+        code: 'duplicate_entry',
+        params: { detail: `Exam code ${input.code} already exists` },
+      }
+    }
+    const maxId = this.exams.reduce((max, e) => Math.max(max, e.id), 0)
+    const newExam: Exam = {
+      id: maxId + 1,
+      school_year_id: input.school_year_id,
+      code: input.code,
+      name: input.name,
+      sort_order: input.sort_order,
+    }
+    this.exams.push(newExam)
+    return { ...newExam }
+  }
+
   async updateExam(exam: Exam): Promise<void> {
     const idx = this.exams.findIndex((e) => e.id === exam.id)
     if (idx === -1) {
       throw { code: 'not_found', params: { message: 'Exam not found' } }
     }
     this.exams[idx] = { ...exam }
+  }
+
+  async deleteExam(id: number): Promise<void> {
+    const hasUnavailability = this.unavailabilities.some((u) => u.exam_id === id)
+    const hasLocks = this.locks.some((l) => l.exam_id === id)
+    if (hasUnavailability || hasLocks) {
+      throw {
+        code: 'exam_in_use',
+        params: { message: 'Exam is in use in unavailabilities or locks' },
+      }
+    }
+    const idx = this.exams.findIndex((e) => e.id === id)
+    if (idx === -1) {
+      throw { code: 'not_found', params: { message: 'Exam not found' } }
+    }
+    this.exams.splice(idx, 1)
+  }
+
+  async reorderExams(examIds: number[]): Promise<void> {
+    examIds.forEach((id, idx) => {
+      const exam = this.exams.find((e) => e.id === id)
+      if (exam) {
+        exam.sort_order = idx + 1
+      }
+    })
+    this.exams.sort((a, b) => a.sort_order - b.sort_order)
   }
 
   // Unavailability
@@ -392,11 +455,173 @@ export class MockExamPanelApi implements ExamPanelApi {
     this.ruleSettings = JSON.parse(JSON.stringify(demoRules))
   }
 
+  async getRulePresets(): Promise<RulePresetItem[]> {
+    const makeSettings = (weights: Record<string, number>): RuleSetting[] => {
+      const base: RuleSetting[] = JSON.parse(JSON.stringify(demoRules))
+      for (const s of base) {
+        if (s.key in weights) {
+          s.weight = weights[s.key]
+        }
+      }
+      return base
+    }
+
+    return [
+      {
+        id: 'balanced',
+        name: 'Cân bằng (mặc định)',
+        settings: makeSettings({
+          s1: 10,
+          s2: 10,
+          s3: 10,
+          s4: 10,
+          s5: 10,
+          s6: 10,
+          s7: 10,
+          s8: 10,
+        }),
+      },
+      {
+        id: 'workload_fairness',
+        name: 'Ưu tiên công bằng khối lượng',
+        settings: makeSettings({
+          s8: 20,
+          s1: 18,
+          s2: 10,
+          s3: 8,
+          s4: 8,
+          s5: 8,
+          s6: 8,
+          s7: 8,
+        }),
+      },
+      {
+        id: 'team_diversity',
+        name: 'Ưu tiên đa dạng ê-kíp',
+        settings: makeSettings({
+          s4: 20,
+          s5: 18,
+          s3: 16,
+          s1: 8,
+          s2: 8,
+          s6: 8,
+          s7: 8,
+          s8: 10,
+        }),
+      },
+    ]
+  }
+
+  async previewQuotas(input: PreviewQuotasInput): Promise<QuotaPreviewItem[]> {
+    const activeTeachers = this.teachers.filter((t) => t.active && t.load_weight > 0)
+    const totalSlots = this.exams.length * this.grades.length * 3
+    const totalWeight = activeTeachers.reduce((sum, t) => sum + t.load_weight, 0)
+
+    const h7Setting = input.rule_settings.find((s) => s.key === 'h7')
+    const tolerance =
+      h7Setting && typeof h7Setting.params?.tolerance === 'number'
+        ? (h7Setting.params.tolerance as number)
+        : 1
+
+    return activeTeachers.map((t) => {
+      const unavailableCount = this.unavailabilities.filter(
+        (u) => u.teacher_id === t.id,
+      ).length
+      const availableExams = Math.max(0, this.exams.length - unavailableCount)
+      const q = totalWeight > 0 ? (totalSlots * t.load_weight) / totalWeight : 0
+      const lo = Math.max(0, Math.floor(q) - tolerance)
+      const hi = Math.min(availableExams, Math.ceil(q) + tolerance)
+      const campus = this.campuses.find((c) => c.id === t.campus_id)
+
+      return {
+        teacher_id: t.id,
+        teacher_name: t.full_name,
+        campus_id: t.campus_id,
+        campus_name: campus?.name || '',
+        load_weight: t.load_weight,
+        available_exams: availableExams,
+        quota: Math.round(q * 100) / 100,
+        lo,
+        hi,
+      }
+    })
+  }
+
   // Analysis
   async checkFeasibility(_schoolYearId: number): Promise<FeasibilityReportWithQuotas> {
     const activeTeachers = this.teachers.filter((t) => t.active && t.load_weight > 0)
-    const totalSlots = 4 * this.grades.length * 3
+    const totalSlots = this.exams.length * this.grades.length * 3
     const totalWeight = activeTeachers.reduce((sum, t) => sum + t.load_weight, 0)
+
+    // Degenerate database diagnostics (Part A3)
+    if (this.campuses.length === 0) {
+      return {
+        report: {
+          is_feasible: false,
+          errors: [{ rule: 'h3', code: 'no_campuses', params: {} }],
+          warnings: [],
+          capacity: { target_slots: 0, active_teachers: 0, total_weight: 0 },
+        },
+        quotas: [],
+      }
+    }
+    if (activeTeachers.length === 0) {
+      return {
+        report: {
+          is_feasible: false,
+          errors: [{ rule: 'h2', code: 'no_active_teachers', params: {} }],
+          warnings: [],
+          capacity: { target_slots: 0, active_teachers: 0, total_weight: 0 },
+        },
+        quotas: [],
+      }
+    }
+    const campusesWithActiveTeachers = new Set(activeTeachers.map((t) => t.campus_id))
+    if (campusesWithActiveTeachers.size < 2) {
+      return {
+        report: {
+          is_feasible: false,
+          errors: [{ rule: 'h3', code: 'single_campus', params: {} }],
+          warnings: [],
+          capacity: {
+            target_slots: 0,
+            active_teachers: activeTeachers.length,
+            total_weight: totalWeight,
+          },
+        },
+        quotas: [],
+      }
+    }
+    if (this.grades.length === 0) {
+      return {
+        report: {
+          is_feasible: false,
+          errors: [{ rule: 'h2', code: 'no_grades', params: {} }],
+          warnings: [],
+          capacity: {
+            target_slots: 0,
+            active_teachers: activeTeachers.length,
+            total_weight: totalWeight,
+          },
+        },
+        quotas: [],
+      }
+    }
+    if (this.exams.length === 0) {
+      return {
+        report: {
+          is_feasible: false,
+          errors: [{ rule: 'h2', code: 'no_exams', params: {} }],
+          warnings: [],
+          capacity: {
+            target_slots: 0,
+            active_teachers: activeTeachers.length,
+            total_weight: totalWeight,
+          },
+        },
+        quotas: [],
+      }
+    }
 
     const errors: Violation[] = []
     const warnings: Violation[] = []
@@ -409,6 +634,7 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h2',
           code: 'insufficient_panel_teachers',
+          panel: { exam_id: this.exams[0]?.id ?? 1, grade_id: grade.id },
           params: {
             exam: 'Các kỳ thi',
             grade: grade.code.toString(),
@@ -421,6 +647,7 @@ export class MockExamPanelApi implements ExamPanelApi {
           errors.push({
             rule: 'h3',
             code: 'insufficient_campuses',
+            panel: { exam_id: this.exams[0]?.id ?? 1, grade_id: grade.id },
             params: {
               exam: 'Các kỳ thi',
               grade: grade.code.toString(),
@@ -432,6 +659,7 @@ export class MockExamPanelApi implements ExamPanelApi {
           warnings.push({
             rule: 'h2',
             code: 'tight_panel_roster',
+            panel: { exam_id: this.exams[0]?.id ?? 1, grade_id: grade.id },
             params: {
               exam: 'Các kỳ thi',
               grade: grade.code.toString(),
@@ -442,12 +670,125 @@ export class MockExamPanelApi implements ExamPanelApi {
       }
     }
 
+    // Live lock diagnostics (Part F)
+    for (const lock of this.locks) {
+      const teacher = this.teachers.find((t) => t.id === lock.teacher_id)
+      const exam = this.exams.find((e) => e.id === lock.exam_id)
+      const grade = this.grades.find((g) => g.id === lock.grade_id)
+      const teacherName = teacher?.full_name || `Teacher #${lock.teacher_id}`
+      const examCode = exam?.code || `Exam #${lock.exam_id}`
+      const gradeCode = grade?.code.toString() || `Grade #${lock.grade_id}`
+
+      if (lock.kind === 'pin') {
+        const isUnavailable = this.unavailabilities.some(
+          (u) => u.teacher_id === lock.teacher_id && u.exam_id === lock.exam_id,
+        )
+        if (isUnavailable) {
+          errors.push({
+            rule: 'h6',
+            code: 'pinned_teacher_ineligible_due_to_unavailability',
+            panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+            teacher: lock.teacher_id,
+            params: {
+              teacher: teacherName,
+              exam: examCode,
+              grade: gradeCode,
+            },
+          })
+        }
+
+        const isQualified = (this.teacherGradesMap.get(lock.teacher_id) || []).includes(
+          lock.grade_id,
+        )
+        if (!isQualified) {
+          errors.push({
+            rule: 'h6',
+            code: 'pinned_teacher_not_qualified',
+            panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+            teacher: lock.teacher_id,
+            params: {
+              teacher: teacherName,
+              exam: examCode,
+              grade: gradeCode,
+            },
+          })
+        }
+      }
+    }
+
+    const lockMap = new Map<string, Lock[]>()
+    for (const lock of this.locks) {
+      const key = `${lock.exam_id}-${lock.grade_id}-${lock.teacher_id}`
+      if (!lockMap.has(key)) lockMap.set(key, [])
+      lockMap.get(key)!.push(lock)
+    }
+    for (const [, group] of lockMap) {
+      const hasPin = group.some((l) => l.kind === 'pin')
+      const hasForbid = group.some((l) => l.kind === 'forbid')
+      if (hasPin && hasForbid) {
+        const lock = group[0]
+        const teacher = this.teachers.find((t) => t.id === lock.teacher_id)
+        errors.push({
+          rule: 'h6',
+          code: 'lock_conflict',
+          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          teacher: lock.teacher_id,
+          params: {
+            teacher: teacher?.full_name || `Teacher #${lock.teacher_id}`,
+          },
+        })
+      }
+    }
+
+    const panelPins = new Map<string, Lock[]>()
+    for (const lock of this.locks.filter((l) => l.kind === 'pin')) {
+      const key = `${lock.exam_id}-${lock.grade_id}`
+      if (!panelPins.has(key)) panelPins.set(key, [])
+      panelPins.get(key)!.push(lock)
+    }
+    for (const [, pins] of panelPins) {
+      if (pins.length > 3) {
+        const lock = pins[0]
+        errors.push({
+          rule: 'h6',
+          code: 'excess_pinned_setters_and_reviewers_and_pins',
+          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          params: { count: pins.length.toString() },
+        })
+      }
+      const pinnedSetters = pins.filter((l) => l.role === 'setter')
+      if (pinnedSetters.length > 2) {
+        const lock = pinnedSetters[0]
+        errors.push({
+          rule: 'h6',
+          code: 'excess_pinned_setters_and_reviewers_and_pins',
+          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          params: { count: pinnedSetters.length.toString() },
+        })
+      }
+      const pinnedReviewers = pins.filter((l) => l.role === 'reviewer')
+      if (pinnedReviewers.length > 1) {
+        const lock = pinnedReviewers[0]
+        errors.push({
+          rule: 'h6',
+          code: 'excess_pinned_setters_and_reviewers_and_pins',
+          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          params: { count: pinnedReviewers.length.toString() },
+        })
+      }
+    }
+
     const quotas: TeacherQuota[] = activeTeachers.map((t) => {
+      const unavailableCount = this.unavailabilities.filter(
+        (u) => u.teacher_id === t.id,
+      ).length
+      const availableExams = Math.max(0, this.exams.length - unavailableCount)
       const q = totalWeight > 0 ? (totalSlots * t.load_weight) / totalWeight : 0
       const lo = Math.max(0, Math.floor(q) - 1)
-      const hi = Math.min(4, Math.ceil(q) + 1)
+      const hi = Math.min(availableExams, Math.ceil(q) + 1)
       return {
         teacher_id: t.id,
+        available_exams: availableExams,
         quota: q,
         lo,
         hi,

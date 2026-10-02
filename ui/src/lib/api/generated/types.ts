@@ -98,6 +98,13 @@ export interface SchoolYear {
   is_current: boolean
 }
 
+export interface CreateExamInput {
+  school_year_id: number
+  code: string
+  name: string
+  sort_order: number
+}
+
 export interface Exam {
   id: number
   school_year_id: number
@@ -137,6 +144,29 @@ export interface RuleSetting {
   params: Record<string, unknown>
 }
 
+export interface QuotaPreviewItem {
+  teacher_id: number
+  teacher_name: string
+  campus_id: number
+  campus_name: string
+  load_weight: number
+  available_exams: number
+  quota: number
+  lo: number
+  hi: number
+}
+
+export interface PreviewQuotasInput {
+  school_year_id: number
+  rule_settings: RuleSetting[]
+}
+
+export interface RulePresetItem {
+  id: string
+  name: string
+  settings: RuleSetting[]
+}
+
 export interface PanelKey {
   exam_id: number
   grade_id: number
@@ -152,6 +182,7 @@ export interface Violation {
 
 export interface TeacherQuota {
   teacher_id: number
+  available_exams: number
   quota: number
   lo: number
   hi: number

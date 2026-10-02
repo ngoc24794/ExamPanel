@@ -1,10 +1,12 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
+import { openPath } from '@tauri-apps/plugin-opener'
 import type {
   AppInfo,
   AppSettings,
   Assignment,
   Campus,
   CreateCampusInput,
+  CreateExamInput,
   CreateGradeInput,
   CreateLockInput,
   CreateSchoolYearInput,
@@ -20,7 +22,10 @@ import type {
   OptimizeRequest,
   PlanDetails,
   PlanSummary,
+  PreviewQuotasInput,
   Progress,
+  QuotaPreviewItem,
+  RulePresetItem,
   RuleSetting,
   SchoolYear,
   Teacher,
@@ -73,6 +78,11 @@ export class TauriExamPanelApi implements ExamPanelApi {
 
   async setLanguage(lang: string): Promise<void> {
     await this.setSetting('language', lang)
+  }
+
+  async openDataFolder(): Promise<void> {
+    const info = await this.getAppInfo()
+    await openPath(info.data_dir)
   }
 
   // Campuses
@@ -166,8 +176,20 @@ export class TauriExamPanelApi implements ExamPanelApi {
     return await invoke<Exam[]>('list_exams', { schoolYearId })
   }
 
+  async createExam(input: CreateExamInput): Promise<Exam> {
+    return await invoke<Exam>('create_exam', { input })
+  }
+
   async updateExam(exam: Exam): Promise<void> {
     await invoke<void>('update_exam', { exam })
+  }
+
+  async deleteExam(id: number): Promise<void> {
+    await invoke<void>('delete_exam', { id })
+  }
+
+  async reorderExams(examIds: number[]): Promise<void> {
+    await invoke<void>('reorder_exams', { examIds })
   }
 
   // Unavailability
@@ -211,6 +233,14 @@ export class TauriExamPanelApi implements ExamPanelApi {
 
   async resetRuleSettingsToDefaults(schoolYearId: number): Promise<void> {
     await invoke<void>('reset_rule_settings_to_defaults', { schoolYearId })
+  }
+
+  async getRulePresets(): Promise<RulePresetItem[]> {
+    return await invoke<RulePresetItem[]>('get_rule_presets')
+  }
+
+  async previewQuotas(input: PreviewQuotasInput): Promise<QuotaPreviewItem[]> {
+    return await invoke<QuotaPreviewItem[]>('preview_quotas', { input })
   }
 
   // Analysis

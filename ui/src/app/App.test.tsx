@@ -56,10 +56,20 @@ describe('App', () => {
       ).toBeInTheDocument()
     })
 
-    // Click on Exams nav item (placeholder screen)
+    // Click on Exams nav item (real screen in Phase 7)
     const examsNav = screen.getByRole('link', { name: /Kỳ thi|Exams/i })
     await act(async () => {
       examsNav.click()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('exams-page')).toBeInTheDocument()
+    })
+
+    // Click on Assignments nav item (placeholder screen)
+    const assignmentsNav = screen.getByRole('link', { name: /Phân công|Assignments/i })
+    await act(async () => {
+      assignmentsNav.click()
     })
 
     await waitFor(() => {

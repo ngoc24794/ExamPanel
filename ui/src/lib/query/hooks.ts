@@ -3,10 +3,17 @@ import {
   api,
   type Campus,
   type CreateCampusInput,
+  type CreateExamInput,
+  type CreateGradeInput,
+  type CreateLockInput,
+  type CreateSchoolYearInput,
   type CreateTeacherInput,
+  type Exam,
+  type Grade,
+  type RuleSetting,
   type Teacher,
   type TeacherWithGrades,
-  type CreateSchoolYearInput,
+  type Unavailability,
 } from '@/lib/api'
 import { toast } from 'sonner'
 import i18n from '@/i18n'
@@ -19,6 +26,11 @@ export const queryKeys = {
   campuses: ['campuses'] as const,
   grades: ['grades'] as const,
   teachers: (schoolYearId: number) => ['teachers', schoolYearId] as const,
+  exams: (schoolYearId: number) => ['exams', schoolYearId] as const,
+  unavailabilities: (schoolYearId: number) => ['unavailabilities', schoolYearId] as const,
+  locks: (schoolYearId: number) => ['locks', schoolYearId] as const,
+  ruleSettings: (schoolYearId: number) => ['ruleSettings', schoolYearId] as const,
+  rulePresets: ['rulePresets'] as const,
   feasibility: (schoolYearId: number) => ['feasibility', schoolYearId] as const,
 }
 
@@ -64,6 +76,47 @@ export function useTeachers(schoolYearId: number | undefined) {
     queryFn: () =>
       schoolYearId ? api.teachersWithGrades(schoolYearId) : Promise.resolve([]),
     enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+export function useExams(schoolYearId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.exams(schoolYearId ?? 0),
+    queryFn: () => (schoolYearId ? api.listExams(schoolYearId) : Promise.resolve([])),
+    enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+export function useUnavailabilities(schoolYearId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.unavailabilities(schoolYearId ?? 0),
+    queryFn: () =>
+      schoolYearId ? api.listUnavailabilities(schoolYearId) : Promise.resolve([]),
+    enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+export function useLocks(schoolYearId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.locks(schoolYearId ?? 0),
+    queryFn: () => (schoolYearId ? api.listLocks(schoolYearId) : Promise.resolve([])),
+    enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+export function useRuleSettings(schoolYearId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.ruleSettings(schoolYearId ?? 0),
+    queryFn: () =>
+      schoolYearId ? api.getRuleSettings(schoolYearId) : Promise.resolve([]),
+    enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+export function useRulePresets() {
+  return useQuery({
+    queryKey: queryKeys.rulePresets,
+    queryFn: () => api.getRulePresets(),
   })
 }
 
@@ -257,6 +310,201 @@ export function useSeedDemo() {
       toast.success(
         i18n.t('dev.seedSuccess', { defaultValue: 'Đã nạp dữ liệu mẫu thành công' }),
       )
+    },
+  })
+}
+
+// Grades
+export function useCreateGrade() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: CreateGradeInput) => api.createGrade(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.grades })
+      qc.invalidateQueries({ queryKey: ['feasibility'] })
+    },
+  })
+}
+
+export function useUpdateGrade() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (grade: Grade) => api.updateGrade(grade),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.grades })
+      qc.invalidateQueries({ queryKey: ['feasibility'] })
+    },
+  })
+}
+
+export function useDeleteGrade() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => api.deleteGrade(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.grades })
+      qc.invalidateQueries({ queryKey: ['feasibility'] })
+    },
+  })
+}
+
+// Exams
+export function useCreateExam(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: CreateExamInput) => api.createExam(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.exams(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+  })
+}
+
+export function useUpdateExam(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (exam: Exam) => api.updateExam(exam),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.exams(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+  })
+}
+
+export function useDeleteExam(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => api.deleteExam(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.exams(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+  })
+}
+
+export function useReorderExams(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (examIds: number[]) => api.reorderExams(examIds),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.exams(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+  })
+}
+
+// Unavailability (Optimistic toggle with rollback)
+export function useSetUnavailability(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (unavailability: Unavailability) => api.setUnavailability(unavailability),
+    onMutate: async (unavail) => {
+      await qc.cancelQueries({ queryKey: queryKeys.unavailabilities(schoolYearId) })
+      const previous = qc.getQueryData<Unavailability[]>(
+        queryKeys.unavailabilities(schoolYearId),
+      )
+      if (previous) {
+        qc.setQueryData<Unavailability[]>(queryKeys.unavailabilities(schoolYearId), [
+          ...previous.filter(
+            (u) =>
+              !(u.teacher_id === unavail.teacher_id && u.exam_id === unavail.exam_id),
+          ),
+          unavail,
+        ])
+      }
+      return { previous }
+    },
+    onError: (err, _vars, context) => {
+      if (context?.previous) {
+        qc.setQueryData(queryKeys.unavailabilities(schoolYearId), context.previous)
+      }
+      toast.error(getErrorMessage(err))
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.unavailabilities(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+  })
+}
+
+export function useDeleteUnavailability(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ teacherId, examId }: { teacherId: number; examId: number }) =>
+      api.deleteUnavailability(teacherId, examId),
+    onMutate: async ({ teacherId, examId }) => {
+      await qc.cancelQueries({ queryKey: queryKeys.unavailabilities(schoolYearId) })
+      const previous = qc.getQueryData<Unavailability[]>(
+        queryKeys.unavailabilities(schoolYearId),
+      )
+      if (previous) {
+        qc.setQueryData<Unavailability[]>(
+          queryKeys.unavailabilities(schoolYearId),
+          previous.filter((u) => !(u.teacher_id === teacherId && u.exam_id === examId)),
+        )
+      }
+      return { previous }
+    },
+    onError: (err, _vars, context) => {
+      if (context?.previous) {
+        qc.setQueryData(queryKeys.unavailabilities(schoolYearId), context.previous)
+      }
+      toast.error(getErrorMessage(err))
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.unavailabilities(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+  })
+}
+
+// Locks
+export function useCreateLock(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: CreateLockInput) => api.createLock(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.locks(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+  })
+}
+
+export function useDeleteLock(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => api.deleteLock(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.locks(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+  })
+}
+
+// Rule Settings
+export function useSaveRuleSettings(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (settings: RuleSetting[]) => api.saveRuleSettings(schoolYearId, settings),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.ruleSettings(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      toast.success(
+        i18n.t('rules.saveSuccess', {
+          defaultValue: 'Đã lưu cấu hình quy tắc thành công',
+        }),
+      )
+    },
+  })
+}
+
+export function useResetRuleSettings(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.resetRuleSettingsToDefaults(schoolYearId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.ruleSettings(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
     },
   })
 }
