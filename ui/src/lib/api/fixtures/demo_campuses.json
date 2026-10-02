@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "code": "CS1",
+    "name": "Cơ sở 1 - Ba Đình",
+    "color": "#3b82f6"
+  },
+  {
+    "id": 2,
+    "code": "CS2",
+    "name": "Cơ sở 2 - Cầu Giấy",
+    "color": "#10b981"
+  },
+  {
+    "id": 3,
+    "code": "CS3",
+    "name": "Cơ sở 3 - Hà Đông",
+    "color": "#f59e0b"
+  },
+  {
+    "id": 4,
+    "code": "CS4",
+    "name": "Cơ sở 4 - Hoàn Kiếm",
+    "color": "#8b5cf6"
+  }
+]

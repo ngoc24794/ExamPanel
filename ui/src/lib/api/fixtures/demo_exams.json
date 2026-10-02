@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "school_year_id": 1,
+    "code": "GK1",
+    "name": "Giữa kỳ 1",
+    "sort_order": 1
+  },
+  {
+    "id": 2,
+    "school_year_id": 1,
+    "code": "CK1",
+    "name": "Cuối kỳ 1",
+    "sort_order": 2
+  },
+  {
+    "id": 3,
+    "school_year_id": 1,
+    "code": "GK2",
+    "name": "Giữa kỳ 2",
+    "sort_order": 3
+  },
+  {
+    "id": 4,
+    "school_year_id": 1,
+    "code": "CK2",
+    "name": "Cuối kỳ 2",
+    "sort_order": 4
+  }
+]

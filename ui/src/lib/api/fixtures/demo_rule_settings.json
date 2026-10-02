@@ -1,0 +1,72 @@
+[
+  {
+    "key": "h4",
+    "enabled": true,
+    "weight": 100.0,
+    "params": {}
+  },
+  {
+    "key": "h7",
+    "enabled": true,
+    "weight": 100.0,
+    "params": {
+      "tolerance": 1
+    }
+  },
+  {
+    "key": "s1",
+    "enabled": true,
+    "weight": 10.0,
+    "params": {
+      "max": 2,
+      "min": 1
+    }
+  },
+  {
+    "key": "s2",
+    "enabled": true,
+    "weight": 3.0,
+    "params": {
+      "ratio": [
+        2,
+        1
+      ]
+    }
+  },
+  {
+    "key": "s3",
+    "enabled": true,
+    "weight": 4.0,
+    "params": {}
+  },
+  {
+    "key": "s4",
+    "enabled": true,
+    "weight": 6.0,
+    "params": {}
+  },
+  {
+    "key": "s5",
+    "enabled": true,
+    "weight": 6.0,
+    "params": {}
+  },
+  {
+    "key": "s6",
+    "enabled": true,
+    "weight": 2.0,
+    "params": {}
+  },
+  {
+    "key": "s7",
+    "enabled": true,
+    "weight": 1.0,
+    "params": {}
+  },
+  {
+    "key": "s8",
+    "enabled": true,
+    "weight": 8.0,
+    "params": {}
+  }
+]

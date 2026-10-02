@@ -12,10 +12,12 @@ import {
   Activity,
   CalendarDays,
   RefreshCw,
+  Terminal,
 } from 'lucide-react'
 import { api, type AppInfo } from '@/lib/api'
 import { ThemeToggle } from '@/lib/theme/ThemeToggle'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { DevPage } from '@/pages/DevPage'
 import {
   Card,
   CardHeader,
@@ -27,7 +29,14 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
 export type NavItem =
-  'overview' | 'teachers' | 'exams' | 'rules' | 'assignments' | 'stats' | 'settings'
+  | 'overview'
+  | 'teachers'
+  | 'exams'
+  | 'rules'
+  | 'assignments'
+  | 'stats'
+  | 'settings'
+  | 'dev'
 
 export function App() {
   const { t } = useTranslation()
@@ -90,6 +99,14 @@ export function App() {
       icon: <Settings className="h-4 w-4" />,
     },
   ]
+
+  if (import.meta.env.DEV) {
+    navItems.push({
+      key: 'dev',
+      label: t('nav.dev'),
+      icon: <Terminal className="h-4 w-4" />,
+    })
+  }
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
@@ -275,7 +292,9 @@ export function App() {
             </div>
           )}
 
-          {activeTab !== 'overview' && (
+          {activeTab === 'dev' && import.meta.env.DEV && <DevPage />}
+
+          {activeTab !== 'overview' && activeTab !== 'dev' && (
             <div className="max-w-5xl mx-auto space-y-6">
               <div>
                 <h3 className="text-2xl font-bold tracking-tight">

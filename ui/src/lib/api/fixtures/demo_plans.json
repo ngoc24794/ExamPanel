@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Kế hoạch #1",
+    "rank": 1,
+    "score": 38.79837421977065,
+    "created_at": "",
+    "is_final": false,
+    "source": "optimizer"
+  },
+  {
+    "id": 2,
+    "name": "Kế hoạch #2",
+    "rank": 2,
+    "score": 38.79837421977065,
+    "created_at": "",
+    "is_final": false,
+    "source": "optimizer"
+  },
+  {
+    "id": 3,
+    "name": "Kế hoạch #3",
+    "rank": 3,
+    "score": 38.79837421977065,
+    "created_at": "",
+    "is_final": false,
+    "source": "optimizer"
+  }
+]

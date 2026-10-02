@@ -1,34 +1,318 @@
-import { invoke } from '@tauri-apps/api/core'
-import type { AppInfo, ExamPanelApi, ThemeMode } from './types'
-
-const THEME_STORAGE_KEY = 'exampanel_theme_mode'
+import { Channel, invoke } from '@tauri-apps/api/core'
+import type {
+  AppInfo,
+  AppSettings,
+  Assignment,
+  Campus,
+  CreateCampusInput,
+  CreateGradeInput,
+  CreateLockInput,
+  CreateSchoolYearInput,
+  CreateTeacherInput,
+  EvaluationOutcome,
+  Exam,
+  ExamPanelApi,
+  FeasibilityReportWithQuotas,
+  Grade,
+  Lock,
+  OptimizeHandle,
+  OptimizeOutcome,
+  OptimizeRequest,
+  PlanDetails,
+  PlanSummary,
+  Progress,
+  RuleSetting,
+  SchoolYear,
+  Teacher,
+  TeacherWithGrades,
+  ThemeMode,
+  Unavailability,
+} from './types'
 
 export class TauriExamPanelApi implements ExamPanelApi {
+  // App & Settings
   async ping(): Promise<string> {
     return await invoke<string>('ping')
   }
 
   async getAppInfo(): Promise<AppInfo> {
+    const info = await invoke<AppInfo>('get_app_info')
     return {
+      ...info,
       name: 'ExamPanel',
-      version: '0.1.0',
       identifier: 'vn.exampanel.app',
       mode: 'tauri',
     }
   }
 
+  async getSettings(): Promise<AppSettings> {
+    return await invoke<AppSettings>('get_settings')
+  }
+
+  async setSetting(key: string, value: string): Promise<void> {
+    await invoke<void>('set_setting', { key, value })
+  }
+
   async getTheme(): Promise<ThemeMode | null> {
-    // TODO (Phase 2): Read theme preference from SQLite settings repository
-    const saved = localStorage.getItem(THEME_STORAGE_KEY)
-    if (saved === 'light' || saved === 'dark' || saved === 'system') {
-      return saved
+    const settings = await this.getSettings()
+    const theme = settings.theme
+    if (theme === 'light' || theme === 'dark' || theme === 'system') {
+      return theme
     }
     return null
   }
 
   async setTheme(theme: ThemeMode): Promise<void> {
-    // TODO (Phase 2): Persist theme preference into SQLite settings repository
-    localStorage.setItem(THEME_STORAGE_KEY, theme)
+    await this.setSetting('theme', theme)
+  }
+
+  async getLanguage(): Promise<string> {
+    const settings = await this.getSettings()
+    return settings.language || 'vi'
+  }
+
+  async setLanguage(lang: string): Promise<void> {
+    await this.setSetting('language', lang)
+  }
+
+  // Campuses
+  async listCampuses(): Promise<Campus[]> {
+    return await invoke<Campus[]>('list_campuses')
+  }
+
+  async createCampus(input: CreateCampusInput): Promise<Campus> {
+    return await invoke<Campus>('create_campus', { input })
+  }
+
+  async updateCampus(campus: Campus): Promise<void> {
+    await invoke<void>('update_campus', { campus })
+  }
+
+  async deleteCampus(id: number): Promise<void> {
+    await invoke<void>('delete_campus', { id })
+  }
+
+  // Grades
+  async listGrades(): Promise<Grade[]> {
+    return await invoke<Grade[]>('list_grades')
+  }
+
+  async createGrade(input: CreateGradeInput): Promise<Grade> {
+    return await invoke<Grade>('create_grade', { input })
+  }
+
+  async updateGrade(grade: Grade): Promise<void> {
+    await invoke<void>('update_grade', { grade })
+  }
+
+  async deleteGrade(id: number): Promise<void> {
+    await invoke<void>('delete_grade', { id })
+  }
+
+  // Teachers
+  async listTeachers(): Promise<Teacher[]> {
+    return await invoke<Teacher[]>('list_teachers')
+  }
+
+  async createTeacher(input: CreateTeacherInput): Promise<Teacher> {
+    return await invoke<Teacher>('create_teacher', { input })
+  }
+
+  async updateTeacher(teacher: Teacher): Promise<void> {
+    await invoke<void>('update_teacher', { teacher })
+  }
+
+  async deleteTeacher(id: number): Promise<void> {
+    await invoke<void>('delete_teacher', { id })
+  }
+
+  async deactivateTeacher(id: number): Promise<void> {
+    await invoke<void>('deactivate_teacher', { id })
+  }
+
+  async setTeacherGrades(
+    teacherId: number,
+    schoolYearId: number,
+    gradeIds: number[]
+  ): Promise<void> {
+    await invoke<void>('set_teacher_grades', {
+      teacherId,
+      schoolYearId,
+      gradeIds,
+    })
+  }
+
+  async teachersWithGrades(
+    schoolYearId: number
+  ): Promise<TeacherWithGrades[]> {
+    return await invoke<TeacherWithGrades[]>('teachers_with_grades', {
+      schoolYearId,
+    })
+  }
+
+  // School Years
+  async listSchoolYears(): Promise<SchoolYear[]> {
+    return await invoke<SchoolYear[]>('list_school_years')
+  }
+
+  async createSchoolYear(input: CreateSchoolYearInput): Promise<SchoolYear> {
+    return await invoke<SchoolYear>('create_school_year', { input })
+  }
+
+  async setCurrentSchoolYear(id: number): Promise<void> {
+    await invoke<void>('set_current_school_year', { id })
+  }
+
+  // Exams
+  async listExams(schoolYearId: number): Promise<Exam[]> {
+    return await invoke<Exam[]>('list_exams', { schoolYearId })
+  }
+
+  async updateExam(exam: Exam): Promise<void> {
+    await invoke<void>('update_exam', { exam })
+  }
+
+  // Unavailability
+  async listUnavailabilities(
+    schoolYearId: number
+  ): Promise<Unavailability[]> {
+    return await invoke<Unavailability[]>('list_unavailabilities', {
+      schoolYearId,
+    })
+  }
+
+  async setUnavailability(unavailability: Unavailability): Promise<void> {
+    await invoke<void>('set_unavailability', { unavailability })
+  }
+
+  async deleteUnavailability(
+    teacherId: number,
+    examId: number
+  ): Promise<void> {
+    await invoke<void>('delete_unavailability', { teacherId, examId })
+  }
+
+  // Locks
+  async listLocks(schoolYearId: number): Promise<Lock[]> {
+    return await invoke<Lock[]>('list_locks', { schoolYearId })
+  }
+
+  async createLock(input: CreateLockInput): Promise<Lock> {
+    return await invoke<Lock>('create_lock', { input })
+  }
+
+  async deleteLock(id: number): Promise<void> {
+    await invoke<void>('delete_lock', { id })
+  }
+
+  // Rule Settings
+  async getRuleSettings(schoolYearId: number): Promise<RuleSetting[]> {
+    return await invoke<RuleSetting[]>('get_rule_settings', {
+      schoolYearId,
+    })
+  }
+
+  async saveRuleSettings(
+    schoolYearId: number,
+    settings: RuleSetting[]
+  ): Promise<void> {
+    await invoke<void>('save_rule_settings', { schoolYearId, settings })
+  }
+
+  async resetRuleSettingsToDefaults(schoolYearId: number): Promise<void> {
+    await invoke<void>('reset_rule_settings_to_defaults', { schoolYearId })
+  }
+
+  // Analysis
+  async checkFeasibility(
+    schoolYearId: number
+  ): Promise<FeasibilityReportWithQuotas> {
+    const res = await invoke<FeasibilityReportWithQuotas>('check_feasibility', {
+      schoolYearId,
+    })
+    res.report.is_feasible = res.report.errors.length === 0
+    return res
+  }
+
+  async evaluateAssignments(
+    schoolYearId: number,
+    assignments: Assignment[]
+  ): Promise<EvaluationOutcome> {
+    return await invoke<EvaluationOutcome>('evaluate_assignments', {
+      schoolYearId,
+      assignments,
+    })
+  }
+
+  // Optimization
+  startOptimize(
+    schoolYearId: number,
+    request: OptimizeRequest,
+    onProgress?: (progress: Progress) => void
+  ): OptimizeHandle {
+    const channel = new Channel<Progress>()
+    if (onProgress) {
+      channel.onmessage = (message) => {
+        onProgress(message)
+      }
+    }
+
+    const promise = invoke<OptimizeOutcome>('start_optimize', {
+      schoolYearId,
+      request,
+      onProgress: channel,
+    })
+
+    return {
+      promise,
+      cancel: () => {
+        void this.cancelOptimize()
+      },
+    }
+  }
+
+  async cancelOptimize(): Promise<boolean> {
+    return await invoke<boolean>('cancel_optimize')
+  }
+
+  // Plans
+  async saveOptimizeResult(
+    schoolYearId: number,
+    outcome: OptimizeOutcome
+  ): Promise<number[]> {
+    return await invoke<number[]>('save_optimize_result', {
+      schoolYearId,
+      outcome,
+    })
+  }
+
+  async listPlans(schoolYearId: number): Promise<PlanSummary[]> {
+    return await invoke<PlanSummary[]>('list_plans', { schoolYearId })
+  }
+
+  async getPlan(id: number): Promise<PlanDetails> {
+    return await invoke<PlanDetails>('get_plan', { id })
+  }
+
+  async renamePlan(id: number, newName: string): Promise<void> {
+    await invoke<void>('rename_plan', { id, newName })
+  }
+
+  async deletePlan(id: number): Promise<void> {
+    await invoke<void>('delete_plan', { id })
+  }
+
+  async markFinal(id: number): Promise<void> {
+    await invoke<void>('mark_final', { id })
+  }
+
+  async duplicatePlan(id: number, newName: string): Promise<number> {
+    return await invoke<number>('duplicate_plan', { id, newName })
+  }
+
+  // Dev Tools
+  async seedDemo(): Promise<void> {
+    await invoke<void>('seed_demo')
   }
 }
 

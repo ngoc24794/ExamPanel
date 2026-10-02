@@ -17,7 +17,7 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
   // Load persisted theme on mount
   React.useEffect(() => {
     let mounted = true
-    api.getTheme().then((saved) => {
+    api.getTheme().then((saved: ThemeMode | null) => {
       if (mounted && saved) {
         setThemeState(saved)
       }
@@ -50,7 +50,7 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
 
   const setTheme = React.useCallback((newTheme: ThemeMode) => {
     setThemeState(newTheme)
-    api.setTheme(newTheme).catch((err) => {
+    api.setTheme(newTheme).catch((err: unknown) => {
       console.error('Failed to persist theme:', err)
     })
   }, [])
