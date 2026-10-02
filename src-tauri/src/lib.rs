@@ -62,11 +62,75 @@ pub fn run_smoke_test() {
     std::process::exit(0);
 }
 
+/// Executes headless smoke test mode on seeded demo data, printing JSON summary to stdout and exiting with code 0.
+pub fn run_smoke_demo_test() {
+    let service = AppService::open_default().expect("failed to initialize database in smoke mode");
+    let info = service
+        .get_app_info()
+        .expect("failed to get app info in smoke mode");
+
+    service
+        .seed_demo()
+        .expect("failed to seed demo data in smoke demo mode");
+
+    let sy = service
+        .list_school_years()
+        .unwrap_or_default()
+        .into_iter()
+        .find(|y| y.name == "2026-2027")
+        .or_else(|| {
+            service
+                .list_school_years()
+                .unwrap_or_default()
+                .into_iter()
+                .find(|y| y.is_current)
+        })
+        .or_else(|| {
+            service
+                .list_school_years()
+                .unwrap_or_default()
+                .into_iter()
+                .next()
+        })
+        .expect("expected at least one school year after seeding demo");
+
+    let _ = service.set_current_school_year(sy.id);
+
+    let feas = service
+        .check_feasibility(sy.id)
+        .expect("failed to run feasibility check in smoke demo mode");
+
+    let summary = serde_json::json!({
+        "status": "ok",
+        "mode": "smoke_demo",
+        "app_name": APP_NAME,
+        "app_version": info.version,
+        "data_dir": info.data_dir,
+        "db_path": info.db_path,
+        "is_portable": info.is_portable,
+        "feasibility": {
+            "school_year_id": sy.id,
+            "school_year_name": sy.name,
+            "is_feasible": feas.report.is_feasible(),
+            "errors": feas.report.errors.len(),
+            "warnings": feas.report.warnings.len(),
+            "quotas_count": feas.quotas.len(),
+        }
+    });
+
+    println!("{}", serde_json::to_string_pretty(&summary).unwrap());
+    std::process::exit(0);
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let args: Vec<String> = std::env::args().collect();
     if args.iter().any(|arg| arg == "--smoke-test") {
         run_smoke_test();
+        return;
+    }
+    if args.iter().any(|arg| arg == "--smoke-demo") {
+        run_smoke_demo_test();
         return;
     }
 

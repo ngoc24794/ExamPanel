@@ -55,6 +55,9 @@ Before marking any task as complete:
 ### Reporting Integrity Rule
 Every number, table or plan in a final report must be printed by a tool from an actual run and pasted verbatim. Never hand-write or reconstruct result tables. Every plan shown must be accompanied by its validator output.
 
+### Reporting Artifacts Protocol (Mandatory from Phase 7 onward)
+All command outputs cited in the final report must be written to files by shell redirection (e.g. `cmd > docs/reports/phase-7/smoke.json 2>&1`) and committed under `docs/reports/phase-X/`. The report links to these files and may quote them, but never retypes them.
+
 ---
 
 ## 5. Git Commit Protocol

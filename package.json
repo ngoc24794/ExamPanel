@@ -4,17 +4,17 @@
   "private": true,
   "scripts": {
     "dev-ui": "pnpm -C ui dev",
-    "test:rust": "cargo test",
+    "test:rust": "cargo +stable-x86_64-pc-windows-msvc test",
     "test:ui": "pnpm -C ui test",
-    "test": "cargo test && pnpm -C ui test",
-    "lint:rust": "cargo clippy -- -D warnings",
+    "test": "cargo +stable-x86_64-pc-windows-msvc test && pnpm -C ui test",
+    "lint:rust": "cargo +stable-x86_64-pc-windows-msvc clippy -- -D warnings",
     "lint:ui": "pnpm -C ui lint",
-    "lint": "cargo clippy -- -D warnings && pnpm -C ui lint",
-    "fmt:rust": "cargo fmt -- --check",
+    "lint": "cargo +stable-x86_64-pc-windows-msvc clippy -- -D warnings && pnpm -C ui lint",
+    "fmt:rust": "cargo +stable-x86_64-pc-windows-msvc fmt -- --check",
     "fmt:ui": "pnpm -C ui format:check",
-    "fmt": "cargo fmt -- --check && pnpm -C ui format:check",
-    "fmt:fix": "cargo fmt && pnpm -C ui format",
-    "check-all": "cargo fmt -- --check && cargo clippy -- -D warnings && cargo test && pnpm -C ui lint && pnpm -C ui typecheck && pnpm -C ui test && pnpm -C ui build"
+    "fmt": "cargo +stable-x86_64-pc-windows-msvc fmt -- --check && pnpm -C ui format:check",
+    "fmt:fix": "cargo +stable-x86_64-pc-windows-msvc fmt && pnpm -C ui format",
+    "check-all": "cargo +stable-x86_64-pc-windows-msvc fmt -- --check && cargo +stable-x86_64-pc-windows-msvc clippy -- -D warnings && cargo +stable-x86_64-pc-windows-msvc test && pnpm -C ui lint && pnpm -C ui typecheck && pnpm -C ui test && pnpm -C ui build"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.12.1"

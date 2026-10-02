@@ -1,0 +1,34 @@
+warning: output filename collision at C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\target\debug\deps\exam_panel_app.pdb
+  |
+  = note: the bin target `exam-panel-app` in package `exam-panel-app v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\src-tauri)` has the same output filename as the lib target `exam_panel_app` in package `exam-panel-app v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\src-tauri)`
+  = note: if this looks unexpected, it may be a bug in Cargo. Please file a bug report at https://github.com/rust-lang/cargo/issues/ with as much information as you can provide.
+  = note: cargo 1.99.0 (5f94df478 2026-08-27) running on `x86_64-pc-windows-msvc` target `x86_64-pc-windows-msvc`
+  = note: first unit: Unit { pkg: Package { id: PackageId { name: "exam-panel-app", version: "0.1.0", source: "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\src-tauri" }, ..: ".." }, target: TargetInner { name: "exam-panel-app", doc: true, ..: with_path("C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\src-tauri\\src\\main.rs", Edition2021) }, profile: Profile { ..: default_dev() }, kind: Host, mode: Build, features: ["default", "dev-tools"], rustflags: [], rustdocflags: [], links_overrides: {}, artifact: false, artifact_target_for_features: None, is_std: false, dep_hash: 10726541026253009414 }
+  = note: second unit: Unit { pkg: Package { id: PackageId { name: "exam-panel-app", version: "0.1.0", source: "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\src-tauri" }, ..: ".." }, target: TargetInner { ..: lib_target("exam_panel_app", ["staticlib", "cdylib", "rlib"], "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\src-tauri\\src\\lib.rs", Edition2021) }, profile: Profile { ..: default_dev() }, kind: Host, mode: Build, features: ["default", "dev-tools"], rustflags: [], rustdocflags: [], links_overrides: {}, artifact: false, artifact_target_for_features: None, is_std: false, dep_hash: 17351005875385522584 }
+warning: output filename collision at C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\target\debug\exam_panel_app.pdb
+  |
+  = note: the bin target `exam-panel-app` in package `exam-panel-app v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\src-tauri)` has the same output filename as the lib target `exam_panel_app` in package `exam-panel-app v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\src-tauri)`
+  = note: if this looks unexpected, it may be a bug in Cargo. Please file a bug report at https://github.com/rust-lang/cargo/issues/ with as much information as you can provide.
+  = note: cargo 1.99.0 (5f94df478 2026-08-27) running on `x86_64-pc-windows-msvc` target `x86_64-pc-windows-msvc`
+  = note: first unit: Unit { pkg: Package { id: PackageId { name: "exam-panel-app", version: "0.1.0", source: "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\src-tauri" }, ..: ".." }, target: TargetInner { name: "exam-panel-app", doc: true, ..: with_path("C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\src-tauri\\src\\main.rs", Edition2021) }, profile: Profile { ..: default_dev() }, kind: Host, mode: Build, features: ["default", "dev-tools"], rustflags: [], rustdocflags: [], links_overrides: {}, artifact: false, artifact_target_for_features: None, is_std: false, dep_hash: 10726541026253009414 }
+  = note: second unit: Unit { pkg: Package { id: PackageId { name: "exam-panel-app", version: "0.1.0", source: "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\src-tauri" }, ..: ".." }, target: TargetInner { ..: lib_target("exam_panel_app", ["staticlib", "cdylib", "rlib"], "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\src-tauri\\src\\lib.rs", Edition2021) }, profile: Profile { ..: default_dev() }, kind: Host, mode: Build, features: ["default", "dev-tools"], rustflags: [], rustdocflags: [], links_overrides: {}, artifact: false, artifact_target_for_features: None, is_std: false, dep_hash: 17351005875385522584 }
+   Compiling exam-panel-app v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.58s
+     Running `target\debug\exam-panel-app.exe --smoke-demo`
+{
+  "app_name": "ExamPanel",
+  "app_version": "0.1.0",
+  "data_dir": "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\target\\debug\\data",
+  "db_path": "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\target\\debug\\data\\exam-panel.db",
+  "feasibility": {
+    "errors": 0,
+    "is_feasible": true,
+    "quotas_count": 11,
+    "school_year_id": 1,
+    "school_year_name": "Smoke Test Year",
+    "warnings": 0
+  },
+  "is_portable": true,
+  "mode": "smoke_demo",
+  "status": "ok"
+}

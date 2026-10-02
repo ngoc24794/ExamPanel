@@ -707,4 +707,33 @@ mod tests {
             "Expected at least 200 feasible tiny instances tested, got {valid_tested_instances}"
         );
     }
+
+    #[test]
+    fn test_s6_exact_per_teacher_minimum_function() {
+        // E = 4 exams
+        let num_exams = 4usize;
+        let adj_cost = |s: usize| -> usize {
+            let max_non_adjacent = num_exams.div_ceil(2);
+            if s > max_non_adjacent && 2 * s > num_exams + 1 {
+                2 * s - num_exams - 1
+            } else {
+                0
+            }
+        };
+
+        // For E = 4:
+        // s = 0: 0
+        // s = 1: 0
+        // s = 2: 0 (e.g. exams 1 and 3)
+        // s = 3: >= 1 adjacent pair (e.g. {1,2,4} -> (1,2) is adjacent)
+        // s = 4: exactly 3 adjacent pairs ((1,2), (2,3), (3,4))
+        assert_eq!(adj_cost(0), 0);
+        assert_eq!(adj_cost(1), 0);
+        assert_eq!(adj_cost(2), 0);
+        assert_eq!(adj_cost(3), 1);
+        assert_eq!(adj_cost(4), 3);
+
+        // Verify difference with naive max(0, s - 2) which would give 2 for s = 4
+        assert_ne!(adj_cost(4), 4 - 2);
+    }
 }

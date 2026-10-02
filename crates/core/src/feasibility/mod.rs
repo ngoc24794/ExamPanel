@@ -243,6 +243,51 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
     let quota_map: HashMap<TeacherId, &TeacherQuota> =
         quotas.iter().map(|q| (q.teacher_id, q)).collect();
 
+    // -------------------------------------------------------------------------
+    // Degenerate / Empty Database Check (Part A3)
+    // -------------------------------------------------------------------------
+    let mut degenerate = false;
+    if problem.campuses.is_empty() {
+        errors.push(Diagnostic::new("no_campuses"));
+        degenerate = true;
+    }
+
+    let active_teachers: Vec<&crate::domain::Teacher> = problem
+        .teachers
+        .iter()
+        .filter(|t| t.active && t.load_weight > 0.0)
+        .collect();
+
+    if active_teachers.is_empty() {
+        errors.push(Diagnostic::new("no_active_teachers"));
+        degenerate = true;
+    } else if !problem.campuses.is_empty() {
+        let active_campuses: HashSet<CampusId> =
+            active_teachers.iter().map(|t| t.campus_id).collect();
+        if active_campuses.len() < 2 {
+            errors.push(Diagnostic::new("single_campus"));
+            degenerate = true;
+        }
+    }
+
+    if problem.grades.is_empty() {
+        errors.push(Diagnostic::new("no_grades"));
+        degenerate = true;
+    }
+
+    if problem.exams.is_empty() {
+        errors.push(Diagnostic::new("no_exams"));
+        degenerate = true;
+    }
+
+    if degenerate {
+        return FeasibilityReport {
+            errors,
+            warnings,
+            quotas,
+        };
+    }
+
     // Organize locks
     let mut forbid_any: HashSet<(ExamId, GradeId, TeacherId)> = HashSet::new();
     let mut forbid_role: HashMap<(ExamId, GradeId, TeacherId), HashSet<Role>> = HashMap::new();
@@ -771,11 +816,35 @@ mod tests {
     #[test]
     fn test_diagnostic_insufficient_panel_teachers_and_campuses() {
         let mut problem = make_valid_problem();
-        // Remove teacher 3 (leaves only 2 teachers, all from CS1)
+        // Add a second grade and teacher 4 at Campus 2 who only teaches Grade 11.
+        // This ensures the problem as a whole has 2 campuses with active teachers (non-degenerate),
+        // but panel (GK1, Grade 10) only has 2 teachers (Teacher 1, 2) both from Campus 1.
+        let g11 = Grade {
+            id: GradeId(11),
+            code: 11,
+            name: "Khối 11".to_string(),
+            sort_order: 2,
+        };
+        problem.grades.push(g11);
         problem.teachers.retain(|t| t.id != TeacherId(3));
         problem
             .teacher_grades
             .retain(|tg| tg.teacher_id != TeacherId(3));
+
+        let t4 = Teacher {
+            id: TeacherId(4),
+            full_name: "Teacher 4".to_string(),
+            campus_id: CampusId(2),
+            load_weight: 1.0,
+            active: true,
+            note: None,
+        };
+        problem.teachers.push(t4);
+        problem.teacher_grades.push(TeacherGrade {
+            teacher_id: TeacherId(4),
+            school_year_id: problem.school_year.id,
+            grade_id: GradeId(11),
+        });
 
         let report = check_feasibility(&problem);
         assert!(!report.is_feasible());
@@ -1082,10 +1151,27 @@ mod tests {
     #[test]
     fn test_diagnostic_capacity_and_warnings() {
         let mut problem = make_valid_problem();
-        // In valid problem (3 teachers, 1 panel, 3 slots), each teacher has lo=0, hi=1 (sum hi = 3 = D)
-        // Set all load_weight to 0 -> sum hi = 0 < 3 (insufficient_total_capacity)
-        for t in &mut problem.teachers {
-            t.load_weight = 0.0;
+        // In valid problem (3 teachers, 1 panel, 3 slots), each teacher has lo=0, hi=1 (sum hi = 3 = D).
+        // Add a second exam to increase total_slots to 6, while sum_hi remains 3 < 6.
+        problem.exams.push(Exam {
+            id: ExamId(2),
+            school_year_id: problem.school_year.id,
+            code: "CK1".to_string(),
+            name: "Cuối kỳ 1".to_string(),
+            sort_order: 2,
+        });
+        problem.grades.push(Grade {
+            id: GradeId(11),
+            code: 11,
+            name: "Khối 11".to_string(),
+            sort_order: 2,
+        });
+        for tid in [TeacherId(1), TeacherId(2), TeacherId(3)] {
+            problem.teacher_grades.push(TeacherGrade {
+                teacher_id: tid,
+                school_year_id: problem.school_year.id,
+                grade_id: GradeId(11),
+            });
         }
 
         let report = check_feasibility(&problem);
@@ -1101,6 +1187,71 @@ mod tests {
             .warnings
             .iter()
             .any(|w| w.code == "tight_panel_roster"));
+    }
+
+    #[test]
+    fn test_degenerate_database_diagnostics() {
+        // 1. Completely empty problem
+        let empty_sy = SchoolYear {
+            id: SchoolYearId(1),
+            name: "2026-2027".to_string(),
+            is_current: true,
+        };
+        let p_empty = Problem {
+            school_year: empty_sy,
+            campuses: vec![],
+            grades: vec![],
+            teachers: vec![],
+            teacher_grades: vec![],
+            exams: vec![],
+            unavailabilities: vec![],
+            locks: vec![],
+            rule_settings: vec![],
+        };
+        let rep_empty = check_feasibility(&p_empty);
+        assert!(!rep_empty.is_feasible());
+        assert!(rep_empty.errors.iter().any(|d| d.code == "no_campuses"));
+        assert!(rep_empty
+            .errors
+            .iter()
+            .any(|d| d.code == "no_active_teachers"));
+        assert!(rep_empty.errors.iter().any(|d| d.code == "no_grades"));
+        assert!(rep_empty.errors.iter().any(|d| d.code == "no_exams"));
+        // Suppresses per-panel cascade
+        assert_eq!(rep_empty.errors.len(), 4);
+
+        // 2. Single campus with active teachers
+        let mut p_single = make_valid_problem();
+        p_single.teachers.retain(|t| t.campus_id == CampusId(1));
+        p_single
+            .teacher_grades
+            .retain(|tg| tg.teacher_id != TeacherId(3));
+        let rep_single = check_feasibility(&p_single);
+        assert!(!rep_single.is_feasible());
+        assert!(rep_single.errors.iter().any(|d| d.code == "single_campus"));
+        // Ensure per-panel cascade was suppressed (no insufficient_campuses per panel)
+        assert!(!rep_single
+            .errors
+            .iter()
+            .any(|d| d.code == "insufficient_campuses"));
+        assert_eq!(rep_single.errors.len(), 1);
+
+        // 3. No active teachers (teachers exist but all active=false or load_weight=0)
+        let mut p_inactive = make_valid_problem();
+        for t in &mut p_inactive.teachers {
+            t.active = false;
+        }
+        let rep_inactive = check_feasibility(&p_inactive);
+        assert!(!rep_inactive.is_feasible());
+        assert!(rep_inactive
+            .errors
+            .iter()
+            .any(|d| d.code == "no_active_teachers"));
+        assert!(!rep_inactive
+            .errors
+            .iter()
+            .any(|d| d.code == "insufficient_setters"));
+        assert_eq!(rep_inactive.errors.len(), 1);
     }
 
     #[test]
