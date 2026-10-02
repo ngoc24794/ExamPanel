@@ -74,7 +74,8 @@ jobs:
           $zipName = "ExamPanel-$ver-windows-x64-portable.zip"
           $distFolder = "target/portable"
           New-Item -ItemType Directory -Force -Path $distFolder
-          Copy-Item "target/release/ExamPanel.exe" -Destination "$distFolder/ExamPanel.exe"
+          $srcExe = if (Test-Path "target/release/ExamPanel.exe") { "target/release/ExamPanel.exe" } else { "target/release/exam-panel-app.exe" }
+          Copy-Item $srcExe -Destination "$distFolder/ExamPanel.exe"
           New-Item -ItemType File -Force -Path "$distFolder/ExamPanel.portable"
           Copy-Item "DOC-TOI.txt" -Destination "$distFolder/DOC-TOI.txt"
           Copy-Item "THIRD_PARTY_NOTICES" -Destination "$distFolder/THIRD_PARTY_NOTICES.txt"
