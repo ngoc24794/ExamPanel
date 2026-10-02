@@ -184,6 +184,10 @@ mod tests {
             seed: 42,
             score: Some(15.0),
             is_final: false,
+            rank: Some(1),
+            score_report_json: None,
+            run_params_json: None,
+            source: "optimizer".to_string(),
         };
         let plan2 = Plan {
             id: PlanId(2),
@@ -193,6 +197,10 @@ mod tests {
             seed: 43,
             score: Some(10.0),
             is_final: false,
+            rank: Some(2),
+            score_report_json: None,
+            run_params_json: None,
+            source: "optimizer".to_string(),
         };
         store.save_plan(&plan1, &[]).expect("save plan 1");
         store.save_plan(&plan2, &[]).expect("save plan 2");
@@ -294,6 +302,10 @@ mod tests {
             seed: 12345,
             score: Some(8.5),
             is_final: false,
+            rank: Some(1),
+            score_report_json: None,
+            run_params_json: None,
+            source: "optimizer".to_string(),
         };
 
         let assignments = vec![Assignment {
@@ -378,6 +390,10 @@ mod tests {
             seed: 42,
             score: Some(5.0),
             is_final: false,
+            rank: None,
+            score_report_json: None,
+            run_params_json: None,
+            source: "optimizer".to_string(),
         };
         let assignments = vec![Assignment {
             plan_id: PlanId(0),
@@ -468,5 +484,98 @@ mod tests {
             matches!(del_again, Err(StorageError::NotFound(_))),
             "deleting non-existent lock should return NotFound"
         );
+    }
+
+    #[test]
+    fn test_plan_batch_operations_and_methods() {
+        let store = Store::open_in_memory().expect("open store");
+        let sy = store.create_school_year("2026-2027", None).unwrap();
+        let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
+        let teacher = store
+            .create_teacher("Teacher 1", campus.id, 1.0, true, None)
+            .unwrap();
+        let exams = store.get_exams(sy.id).unwrap();
+        let grades = store.get_grades().unwrap();
+
+        // 1. Deactivate teacher and teachers_with_grades
+        store
+            .set_teacher_grades(teacher.id, sy.id, &[grades[0].id])
+            .unwrap();
+        let twg = store.teachers_with_grades(sy.id).unwrap();
+        assert_eq!(twg.len(), 1);
+        assert_eq!(twg[0].grade_ids, vec![grades[0].id]);
+
+        store.deactivate_teacher(teacher.id).unwrap();
+        let updated_t = store.get_teacher(teacher.id).unwrap().unwrap();
+        assert!(!updated_t.active);
+
+        // 2. Batch save plans
+        let plan1 = Plan {
+            id: PlanId(0),
+            school_year_id: sy.id,
+            name: "Plan A".to_string(),
+            created_at: "2026-10-01T10:00:00Z".to_string(),
+            seed: 100,
+            score: Some(20.0),
+            is_final: false,
+            rank: Some(1),
+            score_report_json: None,
+            run_params_json: None,
+            source: "optimizer".to_string(),
+        };
+        let plan2 = Plan {
+            id: PlanId(0),
+            school_year_id: sy.id,
+            name: "Plan B".to_string(),
+            created_at: "2026-10-01T10:00:00Z".to_string(),
+            seed: 101,
+            score: Some(25.0),
+            is_final: false,
+            rank: Some(2),
+            score_report_json: None,
+            run_params_json: None,
+            source: "optimizer".to_string(),
+        };
+
+        let asg1 = vec![Assignment {
+            plan_id: PlanId(0),
+            exam_id: exams[0].id,
+            grade_id: grades[0].id,
+            teacher_id: teacher.id,
+            role: Role::Setter,
+        }];
+
+        let ids = store
+            .save_plans_batch(&[(plan1, asg1), (plan2, vec![])])
+            .expect("save batch");
+        assert_eq!(ids.len(), 2);
+
+        // 3. List plans
+        let list = store.list_plans(sy.id).unwrap();
+        assert_eq!(list.len(), 2);
+        assert_eq!(list[0].id, ids[0]);
+        assert_eq!(list[0].name, "Plan A");
+
+        // 4. Rename plan
+        store.rename_plan(ids[0], "Renamed Plan A").unwrap();
+        let (p1, asg) = store.load_plan(ids[0]).unwrap();
+        assert_eq!(p1.name, "Renamed Plan A");
+        assert_eq!(asg.len(), 1);
+
+        // 5. Duplicate plan
+        let dup_id = store.duplicate_plan(ids[0], "Copy Plan A").unwrap();
+        let (p_dup, asg_dup) = store.load_plan(dup_id).unwrap();
+        assert_eq!(p_dup.name, "Copy Plan A");
+        assert_eq!(p_dup.source, "duplicate");
+        assert_eq!(asg_dup.len(), 1);
+
+        // 6. Delete plan
+        store.delete_plan(dup_id).unwrap();
+        assert!(store.load_plan(dup_id).is_err());
+
+        // 7. Reset rule settings to defaults
+        store.reset_rule_settings_to_defaults(sy.id).unwrap();
+        let settings = store.get_rule_settings(sy.id).unwrap();
+        assert_eq!(settings.len(), 10);
     }
 }

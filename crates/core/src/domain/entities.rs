@@ -343,6 +343,10 @@ impl RuleSetting {
     }
 }
 
+fn default_plan_source() -> String {
+    "optimizer".to_string()
+}
+
 /// A full generated schedule across all panels for a school year.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Plan {
@@ -353,6 +357,33 @@ pub struct Plan {
     pub seed: u64,
     pub score: Option<f64>,
     pub is_final: bool,
+    #[serde(default)]
+    pub rank: Option<u32>,
+    #[serde(default)]
+    pub score_report_json: Option<String>,
+    #[serde(default)]
+    pub run_params_json: Option<String>,
+    #[serde(default = "default_plan_source")]
+    pub source: String,
+}
+
+/// Summary record for plan listing.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PlanSummary {
+    pub id: PlanId,
+    pub name: String,
+    pub rank: Option<u32>,
+    pub score: Option<f64>,
+    pub created_at: String,
+    pub is_final: bool,
+    pub source: String,
+}
+
+/// A teacher along with their assigned grade qualifications for a specific school year.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TeacherWithGrades {
+    pub teacher: Teacher,
+    pub grade_ids: Vec<GradeId>,
 }
 
 /// An individual assignment record within a Plan.
