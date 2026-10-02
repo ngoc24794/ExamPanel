@@ -57,18 +57,18 @@ describe('MockExamPanelApi Contract Tests', () => {
 
     const created = await api.createCampus({
       code: 'CS_NEW',
-      name: 'Cơ sở Mới',
-      color: '#ffffff',
+      name: 'Phân hiệu Mới',
+      color: 'blue',
     })
     expect(created.code).toBe('CS_NEW')
 
     await api.updateCampus({
       ...created,
-      name: 'Cơ sở Đã Đổi Tên',
+      name: 'Phân hiệu Đã Đổi Tên',
     })
     const afterUpdate = await api.listCampuses()
     expect(afterUpdate.find((c) => c.id === created.id)?.name).toBe(
-      'Cơ sở Đã Đổi Tên'
+      'Phân hiệu Đã Đổi Tên'
     )
 
     await api.deleteCampus(created.id)

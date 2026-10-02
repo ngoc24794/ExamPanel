@@ -88,4 +88,9 @@ describe('i18n locales parity', () => {
       expect(viKeys).toContain(key);
     }
   });
+
+  it('vi.json does not contain the forbidden term "cơ sở" (case-insensitive)', () => {
+    const rawVi = JSON.stringify(vi).toLowerCase();
+    expect(rawVi.includes('cơ sở')).toBe(false);
+  });
 });

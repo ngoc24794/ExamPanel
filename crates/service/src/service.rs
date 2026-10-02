@@ -687,6 +687,11 @@ impl AppService {
         Ok(())
     }
 
+    #[cfg(feature = "dev-tools")]
+    pub fn load_problem(&self, school_year_id: SchoolYearId) -> Result<Problem, AppError> {
+        self.load_problem_snapshot(school_year_id)
+    }
+
     // -------------------------------------------------------------------------
     // Internal Helpers
     // -------------------------------------------------------------------------

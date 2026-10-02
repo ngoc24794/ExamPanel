@@ -5,8 +5,8 @@
 ### 1.1 Backend & Desktop Shell (Rust / Tauri 2)
 | Component | Actual Version | Notes |
 |-----------|----------------|-------|
-| **Rust Toolchain** | `rustc 1.99.0` / `cargo 1.98.0+` | `stable-x86_64-pc-windows-gnu` / `stable` |
-| **C Compiler / Linker** | GCC `16.2.0` | Portable MinGW-w64 toolchain |
+| **Rust Toolchain** | `rustc 1.99.0` / `cargo 1.98.0+` | `stable-x86_64-pc-windows-msvc` (standard) |
+| **C Compiler / Linker** | MSVC (`cl.exe`, `link.exe`, Windows SDK `rc.exe`) | Visual Studio Build Tools (C++ Desktop) |
 | **Tauri Core** | `tauri 2.12.1` | Thin desktop wrapper shell |
 | **Tauri Build** | `tauri-build 2.7.1` | Build script generator |
 | **Tauri API Client** | `@tauri-apps/api 2.12.0` | Frontend IPC client |
@@ -114,21 +114,12 @@ sudo apt-get install -y \
 *Note:* The Cargo workspace isolates `src-tauri` from `default-members`. Therefore, running backend tests and core solver development in headless environments requires **none** of the GUI packages above.
 
 ### 3.2 Local Setup – Windows
-- **Recommended Setup (MSVC):** Install "Visual Studio Build Tools" with the "Desktop development with C++" workload (provides `link.exe` and MSVC CRT). This matches the official CI and release build environment.
-- **Alternative Fallback Setup (GNU + portable MinGW/w64devkit):**
-  - If Visual Studio C++ Build Tools cannot be installed, developers can use the `stable-x86_64-pc-windows-gnu` Rust toolchain paired with a portable MinGW-w64 distribution (such as [w64devkit](https://github.com/skeeto/w64devkit)).
-  - Configure the linker and C compiler in your **user-level** `~/.cargo/config.toml` (located at `%USERPROFILE%\.cargo\config.toml`), **never** in repository configuration files:
-    ```toml
-    [target.x86_64-pc-windows-gnu]
-    linker = "C:\\path\\to\\w64devkit\\bin\\gcc.exe"
-    ar = "C:\\path\\to\\w64devkit\\bin\\ar.exe"
-
-    [env]
-    CC = "C:\\path\\to\\w64devkit\\bin\\gcc.exe"
-    AR = "C:\\path\\to\\w64devkit\\bin\\ar.exe"
-    ```
-  - *Note on `libgcc_eh.a`:* In some MinGW toolchain distributions when compiling C dependencies (like bundled SQLite), static unwinding requires ensuring `libgcc_eh.a` is accessible in the library path.
-  - Set the toolchain per directory using: `rustup override set stable-x86_64-pc-windows-gnu`. This is the **only recommended fallback mechanism** on Windows when MSVC is unavailable. Do **not** set a global `RUSTUP_TOOLCHAIN` user/system environment variable or modify global machine defaults (`rustup default`), as these alter machine state outside the repository.
+- **Standard Toolchain (MSVC - Required):**
+  - Install "Visual Studio Build Tools" (or Visual Studio Community) with the **"Desktop development with C++"** workload.
+  - Specifically, this provides:
+    1. MSVC Build Tools for x64/x86 (`cl.exe`, `link.exe`, C Runtime).
+    2. Windows 10/11 SDK (headers, `rc.exe` resource compiler for Windows icon and manifest embedding).
+  - Set active toolchain: `rustup default stable-x86_64-pc-windows-msvc`.
 
 ---
 
@@ -138,4 +129,18 @@ sudo apt-get install -y \
   pnpm tauri icon <path/to/1024x1024-source.png>
   ```
   This will create compliant `.ico`, `.icns`, and multi-resolution PNG asset bundles across Windows, macOS, and Linux. The fake placeholder `icon.icns` was removed in Phase 2 to prevent bundle validation errors.
+
+---
+
+## Appendix A: Legacy GNU Toolchain (NOT SUPPORTED)
+
+> [!WARNING]
+> The GNU / MinGW (`x86_64-pc-windows-gnu`) toolchain on Windows is **NOT supported** for ExamPanel development or releases.
+
+During early experimentation, a fallback setup using `stable-x86_64-pc-windows-gnu` and `w64devkit` was attempted. However, the GNU toolchain on Windows introduces severe limitations and blockers:
+1. `tauri-build` cannot reliably compile and embed Windows PE resources (`.rc`, manifest, icon) without complex workarounds and stubs.
+2. Crates relying on Windows system APIs or terminal colors (`ts-rs`, `termcolor`, `winapi-util`, `windows-sys`) require MinGW SDK import libraries and dlltools that often fail or produce linker symbol collisions.
+3. Global overrides in `~/.cargo/config.toml` (`[env] CC = ...`) pollute other projects and cause C-runtime mismatches in `libsqlite3-sys`.
+
+Therefore, MSVC is the sole supported and verified toolchain on Windows.
 

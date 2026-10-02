@@ -2,25 +2,25 @@
   {
     "id": 1,
     "code": "CS1",
-    "name": "Cơ sở 1 - Ba Đình",
-    "color": "#3b82f6"
+    "name": "Phân hiệu 1 - Ba Đình",
+    "color": "blue"
   },
   {
     "id": 2,
     "code": "CS2",
-    "name": "Cơ sở 2 - Cầu Giấy",
-    "color": "#10b981"
+    "name": "Phân hiệu 2 - Cầu Giấy",
+    "color": "emerald"
   },
   {
     "id": 3,
     "code": "CS3",
-    "name": "Cơ sở 3 - Hà Đông",
-    "color": "#f59e0b"
+    "name": "Phân hiệu 3 - Hà Đông",
+    "color": "amber"
   },
   {
     "id": 4,
     "code": "CS4",
-    "name": "Cơ sở 4 - Hoàn Kiếm",
-    "color": "#8b5cf6"
+    "name": "Phân hiệu 4 - Hoàn Kiếm",
+    "color": "purple"
   }
 ]

@@ -52,6 +52,9 @@ Before marking any task as complete:
    - `pnpm -C ui build` succeeds.
 3. Update [docs/DECISIONS.md](docs/DECISIONS.md) if any architectural or technical decision was made during the phase.
 
+### Reporting Integrity Rule
+Every number, table or plan in a final report must be printed by a tool from an actual run and pasted verbatim. Never hand-write or reconstruct result tables. Every plan shown must be accompanied by its validator output.
+
 ---
 
 ## 5. Git Commit Protocol

@@ -323,3 +323,388 @@ fn optimal_s8_allocation(
 
     (s8_units, counts)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::*;
+    use rand::{Rng, SeedableRng};
+    use rand_chacha::ChaCha8Rng;
+
+    #[test]
+    fn test_lower_bounds_validity_exhaustive_tiny_instances() {
+        let mut rng = ChaCha8Rng::seed_from_u64(20261002);
+        let mut valid_tested_instances = 0;
+        let mut attempt = 0;
+
+        while valid_tested_instances < 200 && attempt < 2000 {
+            attempt += 1;
+            let num_exams = rng.gen_range(2..=3);
+            let num_grades = 1; // 1 grade keeps panels small (2..3 panels, 6..9 slots) for fast exhaustive search
+            let num_teachers = rng.gen_range(4..=6);
+
+            let sy = SchoolYear {
+                id: SchoolYearId(1),
+                name: "2026-2027".to_string(),
+                is_current: true,
+            };
+
+            let campuses = vec![
+                Campus {
+                    id: CampusId(1),
+                    code: "C1".to_string(),
+                    name: "Campus 1".to_string(),
+                    color: "blue".to_string(),
+                },
+                Campus {
+                    id: CampusId(2),
+                    code: "C2".to_string(),
+                    name: "Campus 2".to_string(),
+                    color: "emerald".to_string(),
+                },
+            ];
+
+            let grades: Vec<Grade> = (1..=num_grades)
+                .map(|g| Grade {
+                    id: GradeId(g as i64),
+                    code: 10 + g as i32,
+                    name: format!("Grade {g}"),
+                    sort_order: g as i32,
+                })
+                .collect();
+
+            let exams: Vec<Exam> = (1..=num_exams)
+                .map(|e| Exam {
+                    id: ExamId(e as i64),
+                    school_year_id: sy.id,
+                    code: format!("EX{e}"),
+                    name: format!("Exam {e}"),
+                    sort_order: e as i32,
+                })
+                .collect();
+
+            let mut teachers = Vec::with_capacity(num_teachers);
+            let mut teacher_grades = Vec::new();
+
+            for tid in 1..=num_teachers {
+                let camp = if tid <= num_teachers / 2 {
+                    CampusId(1)
+                } else {
+                    CampusId(2)
+                };
+                let lw = if rng.gen_bool(0.2) { 0.5 } else { 1.0 };
+                teachers.push(Teacher {
+                    id: TeacherId(tid as i64),
+                    full_name: format!("Teacher {tid}"),
+                    campus_id: camp,
+                    load_weight: lw,
+                    active: true,
+                    note: None,
+                });
+
+                // Qualified for all grades in this tiny instance
+                for g in &grades {
+                    teacher_grades.push(TeacherGrade {
+                        teacher_id: TeacherId(tid as i64),
+                        school_year_id: sy.id,
+                        grade_id: g.id,
+                    });
+                }
+            }
+
+            // Occasional unavailability
+            let mut unavailabilities = Vec::new();
+            if rng.gen_bool(0.3) {
+                let t_idx = rng.gen_range(1..=num_teachers);
+                let e_idx = rng.gen_range(1..=num_exams);
+                unavailabilities.push(Unavailability {
+                    teacher_id: TeacherId(t_idx as i64),
+                    exam_id: ExamId(e_idx as i64),
+                    reason: Some("Absent".to_string()),
+                });
+            }
+
+            let problem = Problem {
+                school_year: sy,
+                campuses,
+                grades,
+                exams,
+                teachers,
+                teacher_grades,
+                unavailabilities,
+                locks: vec![],
+                rule_settings: RuleSetting::default_settings(),
+            };
+
+            // Exhaustive search over all feasible assignments
+            let panels: Vec<PanelKey> = problem
+                .exams
+                .iter()
+                .flat_map(|e| {
+                    problem
+                        .grades
+                        .iter()
+                        .map(move |g| PanelKey::new(e.id, g.id))
+                })
+                .collect();
+
+            let quotas = calculate_quotas(&problem);
+            let unavail_set: HashSet<(TeacherId, ExamId)> = problem
+                .unavailabilities
+                .iter()
+                .map(|u| (u.teacher_id, u.exam_id))
+                .collect();
+
+            // Precompute valid triples per panel
+            let mut panel_triples: Vec<Vec<(usize, usize, usize)>> = Vec::new();
+            for p in &panels {
+                let eligible: Vec<usize> = problem
+                    .teachers
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, t)| t.active && t.load_weight > 0.0)
+                    .filter(|(_, t)| !unavail_set.contains(&(t.id, p.exam_id)))
+                    .map(|(i, _)| i)
+                    .collect();
+
+                let mut triples = Vec::new();
+                let n = eligible.len();
+                for i in 0..n {
+                    for j in (i + 1)..n {
+                        for k in 0..n {
+                            if k == i || k == j {
+                                continue;
+                            }
+                            let u1 = eligible[i];
+                            let u2 = eligible[j];
+                            let ur = eligible[k];
+
+                            // H3: at least 2 campuses
+                            let mut c_set = HashSet::new();
+                            c_set.insert(problem.teachers[u1].campus_id);
+                            c_set.insert(problem.teachers[u2].campus_id);
+                            c_set.insert(problem.teachers[ur].campus_id);
+                            if c_set.len() >= 2 {
+                                triples.push((u1, u2, ur));
+                            }
+                        }
+                    }
+                }
+                panel_triples.push(triples);
+            }
+
+            let mut all_solutions: Vec<Vec<Assignment>> = Vec::new();
+            let mut current = Vec::new();
+            let mut used_counts = vec![0usize; problem.teachers.len()];
+            let hi_limits: Vec<usize> = (0..problem.teachers.len())
+                .map(|i| {
+                    let tid = problem.teachers[i].id;
+                    quotas
+                        .iter()
+                        .find(|q| q.teacher_id == tid)
+                        .map_or(0, |q| q.hi)
+                })
+                .collect();
+            let lo_limits: Vec<usize> = (0..problem.teachers.len())
+                .map(|i| {
+                    let tid = problem.teachers[i].id;
+                    quotas
+                        .iter()
+                        .find(|q| q.teacher_id == tid)
+                        .map_or(0, |q| q.lo)
+                })
+                .collect();
+
+            fn search_fast(
+                p_idx: usize,
+                panels: &[PanelKey],
+                panel_triples: &[Vec<(usize, usize, usize)>],
+                problem: &Problem,
+                hi_limits: &[usize],
+                lo_limits: &[usize],
+                used_counts: &mut [usize],
+                current: &mut Vec<Assignment>,
+                solutions: &mut Vec<Vec<Assignment>>,
+            ) {
+                if p_idx == panels.len() {
+                    for i in 0..used_counts.len() {
+                        if used_counts[i] < lo_limits[i] {
+                            return;
+                        }
+                    }
+                    solutions.push(current.clone());
+                    return;
+                }
+
+                let panel = panels[p_idx];
+                for &(u1, u2, ur) in &panel_triples[p_idx] {
+                    if used_counts[u1] >= hi_limits[u1]
+                        || used_counts[u2] >= hi_limits[u2]
+                        || used_counts[ur] >= hi_limits[ur]
+                    {
+                        continue;
+                    }
+
+                    // H4 check across same exam
+                    let t1_id = problem.teachers[u1].id;
+                    let t2_id = problem.teachers[u2].id;
+                    let tr_id = problem.teachers[ur].id;
+
+                    let mut conflict = false;
+                    for a in current.iter() {
+                        if a.exam_id == panel.exam_id
+                            && (a.teacher_id == t1_id
+                                || a.teacher_id == t2_id
+                                || a.teacher_id == tr_id)
+                        {
+                            conflict = true;
+                            break;
+                        }
+                    }
+                    if conflict {
+                        continue;
+                    }
+
+                    used_counts[u1] += 1;
+                    used_counts[u2] += 1;
+                    used_counts[ur] += 1;
+
+                    current.push(Assignment::new(
+                        panel.exam_id,
+                        panel.grade_id,
+                        t1_id,
+                        Role::Setter,
+                    ));
+                    current.push(Assignment::new(
+                        panel.exam_id,
+                        panel.grade_id,
+                        t2_id,
+                        Role::Setter,
+                    ));
+                    current.push(Assignment::new(
+                        panel.exam_id,
+                        panel.grade_id,
+                        tr_id,
+                        Role::Reviewer,
+                    ));
+
+                    search_fast(
+                        p_idx + 1,
+                        panels,
+                        panel_triples,
+                        problem,
+                        hi_limits,
+                        lo_limits,
+                        used_counts,
+                        current,
+                        solutions,
+                    );
+
+                    current.pop();
+                    current.pop();
+                    current.pop();
+
+                    used_counts[u1] -= 1;
+                    used_counts[u2] -= 1;
+                    used_counts[ur] -= 1;
+                }
+            }
+
+            search_fast(
+                0,
+                &panels,
+                &panel_triples,
+                &problem,
+                &hi_limits,
+                &lo_limits,
+                &mut used_counts,
+                &mut current,
+                &mut all_solutions,
+            );
+
+            if all_solutions.is_empty() {
+                continue; // Skip instances with no feasible solution
+            }
+
+            // Compute exact minimum S6 and S8 across all valid solutions
+            let mut min_s6 = usize::MAX;
+            let mut min_s8 = f64::INFINITY;
+
+            let exam_order: HashMap<ExamId, usize> = problem
+                .exams
+                .iter()
+                .enumerate()
+                .map(|(idx, e)| (e.id, idx))
+                .collect();
+
+            for sol in &all_solutions {
+                // S6: Consecutive setter exams
+                let mut teacher_setter_exams: HashMap<TeacherId, Vec<usize>> = HashMap::new();
+                for a in sol {
+                    if a.role == Role::Setter {
+                        let e_idx = exam_order[&a.exam_id];
+                        teacher_setter_exams
+                            .entry(a.teacher_id)
+                            .or_default()
+                            .push(e_idx);
+                    }
+                }
+
+                let mut s6_units = 0;
+                for (_, mut exams) in teacher_setter_exams {
+                    exams.sort_unstable();
+                    for w in exams.windows(2) {
+                        if w[1] == w[0] + 1 {
+                            s6_units += 1;
+                        }
+                    }
+                }
+                min_s6 = min_s6.min(s6_units);
+
+                // S8: sum (count_t - q_t)^2
+                let mut counts = HashMap::new();
+                for a in sol {
+                    *counts.entry(a.teacher_id).or_insert(0usize) += 1;
+                }
+                let s8_units: f64 = quotas
+                    .iter()
+                    .map(|q| {
+                        let c = counts.get(&q.teacher_id).copied().unwrap_or(0) as f64;
+                        (c - q.quota).powi(2)
+                    })
+                    .sum();
+                if s8_units < min_s8 {
+                    min_s8 = s8_units;
+                }
+            }
+
+            let bounds = lower_bounds(&problem);
+            let s6_bound = bounds
+                .iter()
+                .find(|b| b.rule == RuleKey::S6)
+                .unwrap()
+                .units_lower_bound;
+            let s8_bound = bounds
+                .iter()
+                .find(|b| b.rule == RuleKey::S8)
+                .unwrap()
+                .units_lower_bound;
+
+            assert!(
+                min_s6 as f64 >= s6_bound - 1e-6,
+                "Instance {attempt}: Exhaustive min S6 ({min_s6}) is LESS than computed bound ({s6_bound})! S6 bound is invalid."
+            );
+            assert!(
+                min_s8 >= s8_bound - 1e-6,
+                "Instance {attempt}: Exhaustive min S8 ({min_s8}) is LESS than computed bound ({s8_bound})! S8 bound is invalid."
+            );
+
+            valid_tested_instances += 1;
+        }
+
+        assert!(
+            valid_tested_instances >= 200,
+            "Expected at least 200 feasible tiny instances tested, got {valid_tested_instances}"
+        );
+    }
+}

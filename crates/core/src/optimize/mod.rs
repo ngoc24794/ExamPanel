@@ -636,6 +636,86 @@ mod tests {
         }
     }
 
+    proptest::proptest! {
+        #![proptest_config(proptest::test_runner::Config::with_cases(20))]
+
+        #[test]
+        fn test_proptest_d1_incremental_state_consistency(seed in 1u64..100_000u64, num_moves in 200usize..1000usize) {
+            let problem = make_seed_demo_problem();
+            let sol = solve_hard(
+                &problem,
+                &SolveOptions {
+                    seed: 42,
+                    time_limit_ms: 2000,
+                    max_nodes: 500_000,
+                },
+            )
+            .expect("solve hard demo");
+
+            let mut state = IncrementalState::new(&problem, &sol.assignments);
+            let mut rng = ChaCha8Rng::seed_from_u64(seed);
+
+            let mut accepted_moves = 0;
+            while accepted_moves < num_moves {
+                if let Some(m) = state.sample_candidate_move(&mut rng) {
+                    let delta = state.try_apply_move(m);
+                    let accept = rng.next_u32() % 2 == 0;
+                    if accept {
+                        accepted_moves += 1;
+                    } else {
+                        state.revert_move(m, delta);
+                    }
+                }
+            }
+
+            let full_eval = state.full_evaluate(&problem);
+            let diff = (state.current_penalty - full_eval.total).abs();
+            proptest::prop_assert!(
+                diff < 1e-9,
+                "Proptest incremental penalty {} != full eval total {} (diff: {})",
+                state.current_penalty,
+                full_eval.total,
+                diff
+            );
+        }
+
+        #[test]
+        fn test_proptest_d2_random_walk_hard_invariants(seed in 1u64..100_000u64, num_moves in 100usize..500usize) {
+            let problem = make_seed_demo_problem();
+            let sol = solve_hard(
+                &problem,
+                &SolveOptions {
+                    seed: 42,
+                    time_limit_ms: 2000,
+                    max_nodes: 500_000,
+                },
+            )
+            .expect("solve hard");
+
+            let mut state = IncrementalState::new(&problem, &sol.assignments);
+            let mut rng = ChaCha8Rng::seed_from_u64(seed);
+
+            for _ in 0..num_moves {
+                if let Some(m) = state.sample_candidate_move(&mut rng) {
+                    let _ = state.try_apply_move(m);
+                    let assigns = state.to_assignments(crate::domain::PlanId(0));
+                    let violations = validate_assignments(
+                        &problem,
+                        &assigns,
+                        &ValidateOptions {
+                            require_complete: true,
+                        },
+                    );
+                    proptest::prop_assert!(
+                        violations.is_empty(),
+                        "Proptest hard constraint violated during random walk: {:?}",
+                        violations
+                    );
+                }
+            }
+        }
+    }
+
     #[test]
     fn test_improvement_over_solve_hard_demo_seed() {
         let problem = make_seed_demo_problem();

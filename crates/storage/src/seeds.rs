@@ -41,13 +41,13 @@ pub fn seed_demo(conn: &Connection) -> Result<(), StorageError> {
         .unchecked_transaction()
         .map_err(StorageError::from_sqlite)?;
 
-    // 1. Four Campuses with distinct theme-friendly colors
+    // 1. Four Campuses with distinct theme-friendly palette tokens
     tx.execute(
         "INSERT OR IGNORE INTO campuses (id, code, name, color) VALUES
-         (1, 'CS1', 'Cơ sở 1 - Ba Đình', '#3b82f6'),
-         (2, 'CS2', 'Cơ sở 2 - Cầu Giấy', '#10b981'),
-         (3, 'CS3', 'Cơ sở 3 - Hà Đông', '#f59e0b'),
-         (4, 'CS4', 'Cơ sở 4 - Hoàn Kiếm', '#8b5cf6');",
+         (1, 'CS1', 'Phân hiệu 1 - Ba Đình', 'blue'),
+         (2, 'CS2', 'Phân hiệu 2 - Cầu Giấy', 'emerald'),
+         (3, 'CS3', 'Phân hiệu 3 - Hà Đông', 'amber'),
+         (4, 'CS4', 'Phân hiệu 4 - Hoàn Kiếm', 'purple');",
         [],
     )
     .map_err(StorageError::from_sqlite)?;

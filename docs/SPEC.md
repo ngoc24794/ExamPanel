@@ -131,7 +131,9 @@ All counts are evaluated over a complete school year plan. "Unit" = one incident
 ### 3.3 Provable Lower Bounds
 To inform human coordinators when schedule quality cannot be improved further, provable mathematical lower bounds are computed per rule:
 - **S1 (Reviewer Capacity Pigeonhole):** Total reviewer slots $P = \text{exams} \times \text{grades}$. If eligible reviewers $N_{rev} > P$, at least $N_{rev} - P$ teachers cannot receive a review assignment (`reviewer_never`). If $P > 2 N_{rev}$, at least $P - 2 N_{rev}$ assignments exceed the maximum threshold of 2 (`reviewer_too_many`). Bound: $\max(0, N_{rev} - P) + \max(0, P - 2 N_{rev})$.
-- **S6 (Setter Consecutive Pigeonhole):** With $E$ exams, a teacher can set at most $\lceil E/2 \rceil$ times without being assigned in adjacent exams. For $s_t$ setter assignments, the minimum unavoidable adjacent pairs is $\max(0, 2 s_t - E - 1)$. The aggregate lower bound is determined by greedily allocating total setter slots $S_{total} = 2 \times \text{panels}$ across teachers up to their setter capacities $cap_t = \min(hi_t, \text{eligible setter exams})$ minimizing $\sum_t \max(0, 2 s_t - E - 1)$. On the 11-teacher, 4-exam benchmark, this lower bound is provably 2.0 (correcting earlier informal claims that 5 was unavoidable).
+- **S6 (Setter Consecutive Pigeonhole):** With $E$ exams, a teacher can set at most $\lceil E/2 \rceil$ times without being assigned in adjacent exams. For $s_t$ setter assignments, the minimum unavoidable adjacent pairs is $\max(0, 2 s_t - E - 1)$.
+  *Proof:* Any subset of $s_t$ exams out of $E$ decomposes into $k$ contiguous runs of setters. The number of adjacent pairs is $\sum_j (r_j - 1) = s_t - k$. Since there must be at least one non-setting exam between every pair of runs, the number of non-setting exams $E - s_t \ge k - 1 \implies k \le E - s_t + 1$. Also $k \le s_t$. Hence $k_{max} = \min(s_t, E - s_t + 1)$. Minimizing adjacent pairs yields $A_{min}(s_t, E) = s_t - k_{max} = \max(0, 2 s_t - E - 1)$.
+  The aggregate lower bound is determined by greedily allocating total setter slots $S_{total} = 2 \times \text{panels}$ across teachers up to their setter capacities $cap_t = \min(hi_t, \text{eligible setter exams})$ minimizing $\sum_t \max(0, 2 s_t - E - 1)$. On the 11-teacher, 4-exam benchmark ($S_{total} = 24$), 11 teachers take 2 slots with 0 adjacent pairs ($11 \times 2 = 22$), forcing at least 2 teachers to take 3 slots ($2 \times 3 - 4 - 1 = 1$ pair each). Thus, this lower bound is provably 2.0 (while additional coupling constraints in practice may result in 3 teachers having 3 tasks, giving optimum $\ge 3$).
 - **S8 (Discrete Optimal Load Balance):** The exact global minimum of $\sum_t (c_t - q_t)^2$ subject to $\sum c_t = D$ and $lo_t \le c_t \le hi_t$ is computed via greedy marginal-cost allocation over separable convex objectives. On the demo benchmark, this global discrete minimum is exactly $\approx 2.60$.
 - **S2, S3, S4, S5, S7:** 0.0 unless proved otherwise by counting arguments.
 
@@ -278,3 +280,27 @@ Standard institutional benchmark scenario:
 - **Total Panels:** 4 exams × 3 grades = 12 panels.
 - **Total Assignments:** 12 panels × 3 teachers = 36 assignments (24 setters, 12 reviewers).
 - **Target Solve Time:** < 500 ms for feasibility check and Stage 1; < 3 seconds for Stage 2 optimization.
+
+---
+
+## 8. Glossary & Vietnamese Terminology Standards
+
+To maintain consistency across user interface strings, documentation, and error reports, the following standardized terminology must be strictly used:
+
+| English Term | Vietnamese Term | Context / Definition |
+|---|---|---|
+| campus | phân hiệu | Đơn vị phân hiệu / chi nhánh đào tạo (tuyệt đối không dùng "cơ sở" trong UI vi.json). |
+| grade | khối | Khối lớp học sinh (ví dụ: Khối 10, Khối 11, Khối 12). |
+| exam | kỳ thi | Đợt thi / kỳ thi trong năm học (ví dụ: GK1, CK1, GK2, CK2). |
+| panel | ban đề | Ban ra đề thi cho 1 kỳ thi × 1 khối (gồm 2 người ra đề + 1 người phản biện). |
+| setter | người ra đề | Giáo viên giữ vai trò biên soạn đề thi. |
+| reviewer | người phản biện | Giáo viên giữ vai trò thẩm định, phản biện đề thi. |
+| plan | phương án | Một lịch phân công hoàn chỉnh cho toàn bộ các ban đề trong năm học. |
+| pin | ghim | Khóa cố định một phân công bắt buộc (LockKind::Pin). |
+| forbid | cấm | Khóa ngăn cấm một phân công (LockKind::Forbid). |
+| unavailability | vắng | Khoảng thời gian / kỳ thi giáo viên báo bận, không thể tham gia. |
+| load weight | hệ số tải | Hệ số định mức công việc của giáo viên (0.0 đến 1.0). |
+| school year | năm học | Năm học (ví dụ: 2026-2027). |
+| feasibility | tính khả thi | Khả năng toán học thỏa mãn toàn bộ các điều kiện bắt buộc. |
+| soft rule | tiêu chí ưu tiên | Quy tắc mềm hướng đến chất lượng và tính công bằng (S1–S8). |
+| hard rule | điều kiện bắt buộc | Ràng buộc cứng bất di bất dịch (H1–H7). |

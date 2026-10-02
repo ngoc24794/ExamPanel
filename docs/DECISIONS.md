@@ -137,11 +137,22 @@
 - **Decision:** Introduce migration file `crates/storage/migrations/0002_plans_extension.sql` adding `rank`, `score_report_json`, `run_params_json`, and `source` (`CHECK (source IN ('optimizer', 'manual', 'duplicate'))`). Write migration data preservation tests asserting existing records are upgraded without loss.
 - **Consequences:** Complete transactional persistence of all candidate plans, full historical audit trail, and zero data loss on database upgrades.
 
-## ADR-0023: Automated Freshness Testing for TypeScript Interface Generation
+## ADR-0023: TypeScript Interface Generation via ts-rs and Automated Freshness Testing
+- **Status:** Accepted (Updated with MSVC toolchain restoration)
+- **Context:** Ensuring type safety between Rust DTOs and the React frontend requires synchronized TypeScript interfaces. Under the previous temporary GNU toolchain, `ts-rs` pulled in platform terminal crates requiring SDK headers that caused linking issues. With the standard MSVC Desktop C++ toolchain active, `ts-rs` compiles natively without workarounds.
+- **Decision:** Use `ts-rs` (v12 with `serde-compat`) in `crates/service` under the `dev-tools` feature to generate TypeScript definitions directly from Rust types. Retain the automated freshness test `crates/service/tests/generate_types.rs` which verifies that the committed `ui/src/lib/api/generated/types.ts` is in exact sync with Rust type declarations. CI and `pnpm check-all` will fail if Rust DTOs change without regenerating the TypeScript declarations.
+- **Consequences:** End-to-end compile-time type safety across the IPC boundary, automated synchronization, and zero manual transcription errors.
+
+## ADR-0024: UI Foundation Architecture, State Management, and Color Tokens
 - **Status:** Accepted
-- **Context:** Ensuring type safety between Rust DTOs and the React frontend requires synchronized TypeScript interfaces. External crates like `ts-rs` pull in heavy platform-dependent terminal dependencies (`termcolor -> winapi-util -> windows-sys`) which break compilation on minimal GNU toolchain environments lacking MinGW SDK libraries.
-- **Decision:** Maintain TypeScript interfaces under `ui/src/lib/api/generated/types.ts` and implement an automated freshness integration test `crates/service/tests/generate_types.rs` that validates exact type parity between Rust DTO declarations and the committed TypeScript definitions. If any DTO changes without updating the TypeScript definitions, `cargo test` and `pnpm check-all` fail.
-- **Consequences:** Zero risk of outdated frontend types, zero intrusive build-time transitive dependencies, and guaranteed type safety across the IPC boundary.
+- **Context:** Phase 6 establishes the interactive UI foundation for Campuses and Teachers screens. A robust client-side architecture is required to manage server synchronization, local form state, hash-based desktop routing, optimistic mutations with rollback, and accessible theming.
+- **Decision:**
+  1. **Server State:** TanStack Query (`@tanstack/react-query` v5) for asynchronous query caching, deduplication, mutation invalidation, and optimistic cache updates.
+  2. **Routing:** `react-router-dom` v7 configured with hash routing (`HashRouter` / `createHashRouter`) to ensure full compatibility with Tauri's custom asset protocol (`tauri://localhost` or `http://tauri.localhost`).
+  3. **Forms & Validation:** `react-hook-form` paired with `@hookform/resolvers` and `zod` for type-safe schema validation, binding validation errors to localized i18n messages.
+  4. **Notifications:** `sonner` for accessible toast notifications mapped to `errors.<code>` localization keys.
+  5. **Campus Color Tokens:** Fixed palette of semantic color tokens (`blue`, `emerald`, `amber`, `purple`, `rose`, `indigo`, `teal`, `orange`) with light and dark mode CSS variables guaranteeing WCAG AA text contrast ratio $\ge 4.5:1$. Database and DTOs persist token keys rather than raw hex values.
+- **Consequences:** Responsive UI with immediate feedback, zero routing breaks on desktop reloads, full i18n compliance, and WCAG AA contrast accessibility.
 
 
 
