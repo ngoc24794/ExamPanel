@@ -1,0 +1,10 @@
+$ playwright test "e2e/phase-9.spec.ts"
+[WebServer] $ vite
+
+Running 3 tests using 1 worker
+
+  ok 1 [chromium] › e2e\phase-9.spec.ts:26:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › full phase 9 workflow: import wizard preview & apply, export/print menu, backup & restore in settings (3.1s)
+  ok 2 [chromium] › e2e\phase-9.spec.ts:99:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › generate sample print PDFs: plan-print.pdf and notices.pdf (2.4s)
+  ok 3 [chromium] › e2e\phase-9.spec.ts:141:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › capture light/dark x vi/en visual verification screenshots for Phase 9 (11.7s)
+
+  3 passed (20.2s)
