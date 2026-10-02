@@ -260,7 +260,7 @@ mod tests {
         assert_eq!(exams1[3].code, "CK2");
 
         let rules1 = store.get_rule_settings(sy1.id).expect("get rules");
-        assert_eq!(rules1.len(), 10);
+        assert_eq!(rules1.len(), 13);
         assert!(rules1
             .iter()
             .any(|r| r.key == exam_panel_core::domain::RuleKey::S8));
@@ -309,6 +309,7 @@ mod tests {
             .unwrap();
         let exams = store.get_exams(sy.id).unwrap();
         let grades = store.get_grades().unwrap();
+        let subjects = store.get_subjects(sy.id).unwrap();
 
         let plan = Plan {
             id: PlanId(0), // Will be autoincremented
@@ -330,8 +331,10 @@ mod tests {
             plan_id: PlanId(0),
             exam_id: exams[0].id,
             grade_id: grades[0].id,
+            subject_id: subjects[0].id,
             teacher_id: teacher.id,
             role: Role::Setter,
+            position: 0,
         }];
 
         let saved_id = store.save_plan(&plan, &assignments).expect("save plan");
@@ -349,8 +352,10 @@ mod tests {
         assert_eq!(loaded_assignments[0].plan_id, saved_id);
         assert_eq!(loaded_assignments[0].exam_id, exams[0].id);
         assert_eq!(loaded_assignments[0].grade_id, grades[0].id);
+        assert_eq!(loaded_assignments[0].subject_id, subjects[0].id);
         assert_eq!(loaded_assignments[0].teacher_id, teacher.id);
         assert_eq!(loaded_assignments[0].role, Role::Setter);
+        assert_eq!(loaded_assignments[0].position, 0);
     }
 
     #[test]
@@ -399,6 +404,7 @@ mod tests {
             .unwrap();
         let exams = store.get_exams(sy.id).unwrap();
         let grades = store.get_grades().unwrap();
+        let subjects = store.get_subjects(sy.id).unwrap();
 
         let plan = Plan {
             id: PlanId(0),
@@ -419,8 +425,10 @@ mod tests {
             plan_id: PlanId(0),
             exam_id: exams[0].id,
             grade_id: grades[0].id,
+            subject_id: subjects[0].id,
             teacher_id: teacher.id,
             role: Role::Setter,
+            position: 0,
         }];
         store.save_plan(&plan, &assignments).expect("save plan");
 
@@ -444,6 +452,13 @@ mod tests {
             matches!(del_g, Err(StorageError::Constraint(ref msg)) if msg == "grade_in_use"),
             "expected StorageError::Constraint(\"grade_in_use\"), got: {del_g:?}"
         );
+
+        // Attempt to delete subject in use -> StorageError::Constraint("subject_in_use")
+        let del_s = store.delete_subject(subjects[0].id);
+        assert!(
+            matches!(del_s, Err(StorageError::Constraint(ref msg)) if msg == "subject_in_use"),
+            "expected StorageError::Constraint(\"subject_in_use\"), got: {del_s:?}"
+        );
     }
 
     #[test]
@@ -458,15 +473,30 @@ mod tests {
             .unwrap();
         let exams = store.get_exams(sy.id).unwrap();
         let grades = store.get_grades().unwrap();
+        let subjects = store.get_subjects(sy.id).unwrap();
 
         // 1. Create a lock and verify it has LockId
         let lock1 = store
-            .create_lock(exams[0].id, grades[0].id, teacher.id, None, LockKind::Pin)
+            .create_lock(
+                exams[0].id,
+                grades[0].id,
+                subjects[0].id,
+                teacher.id,
+                None,
+                LockKind::Pin,
+            )
             .expect("create lock 1");
         assert!(lock1.id.value() > 0);
 
         // 2. Duplicate lock with role=None must fail because COALESCE(role, 'any') will collide
-        let dup1 = store.create_lock(exams[0].id, grades[0].id, teacher.id, None, LockKind::Pin);
+        let dup1 = store.create_lock(
+            exams[0].id,
+            grades[0].id,
+            subjects[0].id,
+            teacher.id,
+            None,
+            LockKind::Pin,
+        );
         assert!(
             matches!(dup1, Err(StorageError::Constraint(_))),
             "duplicate lock with role=None should violate unique index, got: {dup1:?}"
@@ -477,6 +507,7 @@ mod tests {
             .create_lock(
                 exams[0].id,
                 grades[0].id,
+                subjects[0].id,
                 teacher.id,
                 Some(Role::Setter),
                 LockKind::Pin,
@@ -488,6 +519,7 @@ mod tests {
         let dup2 = store.create_lock(
             exams[0].id,
             grades[0].id,
+            subjects[0].id,
             teacher.id,
             Some(Role::Setter),
             LockKind::Pin,
@@ -561,12 +593,16 @@ mod tests {
             rules_hash: None,
         };
 
+        let subjects = store.get_subjects(sy.id).unwrap();
+
         let asg1 = vec![Assignment {
             plan_id: PlanId(0),
             exam_id: exams[0].id,
             grade_id: grades[0].id,
+            subject_id: subjects[0].id,
             teacher_id: teacher.id,
             role: Role::Setter,
+            position: 0,
         }];
 
         let ids = store
@@ -600,6 +636,118 @@ mod tests {
         // 7. Reset rule settings to defaults
         store.reset_rule_settings_to_defaults(sy.id).unwrap();
         let settings = store.get_rule_settings(sy.id).unwrap();
-        assert_eq!(settings.len(), 10);
+        assert_eq!(settings.len(), 13);
+    }
+
+    #[test]
+    fn test_subjects_and_competencies_crud() {
+        use exam_panel_core::domain::{Competency, GradeScope, Role};
+
+        let store = Store::open_in_memory().expect("open store");
+        let sy = store.create_school_year("2026-2027", None).unwrap();
+        let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
+
+        // 1. Teacher with display_name and overrides
+        let teacher = store
+            .create_teacher_full(
+                "Nguyen Van Nghia",
+                campus.id,
+                1.0,
+                true,
+                None,
+                Some("GV001"),
+                Some("T Nghĩa"),
+                Some(12),
+                Some(3),
+            )
+            .expect("create teacher full");
+        assert_eq!(teacher.display_name.as_deref(), Some("T Nghĩa"));
+        assert_eq!(teacher.quota_override, Some(12));
+        assert_eq!(teacher.max_tasks_per_exam_override, Some(3));
+
+        // Update teacher overrides
+        let mut teacher_mod = teacher.clone();
+        teacher_mod.display_name = Some("Thầy Nghĩa".to_string());
+        teacher_mod.quota_override = Some(14);
+        store.update_teacher(&teacher_mod).unwrap();
+        let loaded_teacher = store.get_teacher(teacher.id).unwrap().unwrap();
+        assert_eq!(loaded_teacher.display_name.as_deref(), Some("Thầy Nghĩa"));
+        assert_eq!(loaded_teacher.quota_override, Some(14));
+
+        let initial_subjects = store.get_subjects(sy.id).unwrap();
+        assert_eq!(initial_subjects.len(), 1); // CHUNG
+
+        // 2. Create Subjects: VL and CN
+        let vl = store
+            .create_subject(sy.id, "VL", "Vật lí", "blue", 2, 2, 1, 2)
+            .expect("create VL");
+        let cn = store
+            .create_subject(sy.id, "CN", "Công nghệ", "green", 3, 1, 1, 2)
+            .expect("create CN");
+
+        assert_eq!(vl.setters, 2);
+        assert_eq!(vl.reviewers, 1);
+        assert_eq!(cn.setters, 1);
+        assert_eq!(cn.reviewers, 1);
+
+        // Reorder subjects: CN, VL, CHUNG
+        store
+            .reorder_subjects(sy.id, &[cn.id, vl.id, initial_subjects[0].id])
+            .expect("reorder");
+        let subjects = store.get_subjects(sy.id).unwrap();
+        assert_eq!(subjects.len(), 3);
+        assert_eq!(subjects[0].code, "CN");
+        assert_eq!(subjects[1].code, "VL");
+        assert_eq!(subjects[2].code, "CHUNG");
+
+        // 3. Competencies
+        store
+            .set_competency(teacher.id, cn.id, Role::Setter, GradeScope::Any)
+            .expect("set setter competency");
+        store
+            .set_competency(teacher.id, cn.id, Role::Reviewer, GradeScope::Taught)
+            .expect("set reviewer competency");
+
+        let comps = store.get_teacher_competencies(teacher.id, sy.id).unwrap();
+        assert_eq!(comps.len(), 2);
+        assert!(comps
+            .iter()
+            .any(|c| c.role == Role::Setter && c.grade_scope == GradeScope::Any));
+        assert!(comps
+            .iter()
+            .any(|c| c.role == Role::Reviewer && c.grade_scope == GradeScope::Taught));
+
+        // Delete one competency
+        store
+            .delete_competency(teacher.id, cn.id, Role::Reviewer)
+            .expect("delete competency");
+        let comps_after = store.get_teacher_competencies(teacher.id, sy.id).unwrap();
+        assert_eq!(comps_after.len(), 1);
+
+        // Replace teacher competencies
+        let new_comps = vec![
+            Competency {
+                teacher_id: teacher.id,
+                subject_id: vl.id,
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            },
+            Competency {
+                teacher_id: teacher.id,
+                subject_id: cn.id,
+                role: Role::Setter,
+                grade_scope: GradeScope::Any,
+            },
+        ];
+        store
+            .replace_teacher_competencies(teacher.id, sy.id, &new_comps)
+            .expect("replace competencies");
+        let comps_replaced = store.get_teacher_competencies(teacher.id, sy.id).unwrap();
+        assert_eq!(comps_replaced.len(), 2);
+
+        // Delete subject
+        store.delete_subject(vl.id).expect("delete VL");
+        let subjects_final = store.get_subjects(sy.id).unwrap();
+        assert_eq!(subjects_final.len(), 2); // CHUNG + CN
     }
 }

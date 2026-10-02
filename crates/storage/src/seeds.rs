@@ -90,6 +90,25 @@ pub fn seed_demo(conn: &Connection) -> Result<(), StorageError> {
     )
     .map_err(StorageError::from_sqlite)?;
 
+    // 4b. Subject CHUNG for school year 1
+    tx.execute(
+        "INSERT OR IGNORE INTO subjects (id, school_year_id, code, name, color, sort_order, setters, reviewers, min_campuses) VALUES
+         (1, 1, 'CHUNG', 'Chung', 'palette-1', 1, 2, 1, 2);",
+        [],
+    )
+    .map_err(StorageError::from_sqlite)?;
+
+    // 4c. Competencies for teachers 1..11
+    for t_id in 1..=11 {
+        tx.execute(
+            "INSERT OR IGNORE INTO teacher_competencies (teacher_id, subject_id, role, grade_scope) VALUES
+             (?1, 1, 'setter', 'taught'),
+             (?1, 1, 'reviewer', 'taught');",
+            rusqlite::params![t_id],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
+
     // Resolve grade IDs
     let g10_id: i64 = tx
         .query_row("SELECT id FROM grades WHERE code = 10", [], |r| r.get(0))

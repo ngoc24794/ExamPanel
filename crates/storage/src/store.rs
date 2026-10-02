@@ -4,9 +4,10 @@ use crate::migrations::run_migrations;
 use crate::seeds::seed_defaults;
 use crate::StorageError;
 use exam_panel_core::domain::{
-    Assignment, Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockId, LockKind, Plan,
-    PlanId, PlanSummary, Problem, Role, RuleKey, RuleSetting, SchoolYear, SchoolYearId, Teacher,
-    TeacherGrade, TeacherId, TeacherWithGrades, Unavailability,
+    Assignment, Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, GradeScope, Lock,
+    LockId, LockKind, Plan, PlanId, PlanSummary, Problem, Role, RuleKey, RuleSetting, SchoolYear,
+    SchoolYearId, Subject, SubjectId, Teacher, TeacherGrade, TeacherId, TeacherWithGrades,
+    Unavailability,
 };
 use rusqlite::{params, Connection};
 use std::path::{Path, PathBuf};
@@ -359,11 +360,13 @@ impl Store {
     pub fn get_teachers(&self) -> Result<Vec<Teacher>, StorageError> {
         let mut stmt = self
             .conn
-            .prepare("SELECT id, full_name, campus_id, load_weight, active, note, code FROM teachers ORDER BY id ASC")
+            .prepare("SELECT id, full_name, campus_id, load_weight, active, note, code, display_name, quota_override, max_tasks_per_exam_override FROM teachers ORDER BY id ASC")
             .map_err(StorageError::from_sqlite)?;
         let rows = stmt
             .query_map([], |row| {
                 let active_int: i32 = row.get(4)?;
+                let quota_i64: Option<i64> = row.get(8)?;
+                let max_tasks_i64: Option<i64> = row.get(9)?;
                 Ok(Teacher {
                     id: TeacherId(row.get(0)?),
                     full_name: row.get(1)?,
@@ -372,6 +375,9 @@ impl Store {
                     active: active_int == 1,
                     note: row.get(5)?,
                     code: row.get(6)?,
+                    display_name: row.get(7)?,
+                    quota_override: quota_i64.map(|v| v as u32),
+                    max_tasks_per_exam_override: max_tasks_i64.map(|v| v as u32),
                 })
             })
             .map_err(StorageError::from_sqlite)?;
@@ -386,11 +392,13 @@ impl Store {
     pub fn get_teacher(&self, id: TeacherId) -> Result<Option<Teacher>, StorageError> {
         let mut stmt = self
             .conn
-            .prepare("SELECT id, full_name, campus_id, load_weight, active, note, code FROM teachers WHERE id = ?1")
+            .prepare("SELECT id, full_name, campus_id, load_weight, active, note, code, display_name, quota_override, max_tasks_per_exam_override FROM teachers WHERE id = ?1")
             .map_err(StorageError::from_sqlite)?;
         let mut rows = stmt
             .query_map(params![id.value()], |row| {
                 let active_int: i32 = row.get(4)?;
+                let quota_i64: Option<i64> = row.get(8)?;
+                let max_tasks_i64: Option<i64> = row.get(9)?;
                 Ok(Teacher {
                     id: TeacherId(row.get(0)?),
                     full_name: row.get(1)?,
@@ -399,6 +407,9 @@ impl Store {
                     active: active_int == 1,
                     note: row.get(5)?,
                     code: row.get(6)?,
+                    display_name: row.get(7)?,
+                    quota_override: quota_i64.map(|v| v as u32),
+                    max_tasks_per_exam_override: max_tasks_i64.map(|v| v as u32),
                 })
             })
             .map_err(StorageError::from_sqlite)?;
@@ -418,10 +429,37 @@ impl Store {
         note: Option<&str>,
         code: Option<&str>,
     ) -> Result<Teacher, StorageError> {
+        self.create_teacher_full(
+            full_name,
+            campus_id,
+            load_weight,
+            active,
+            note,
+            code,
+            None,
+            None,
+            None,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn create_teacher_full(
+        &self,
+        full_name: &str,
+        campus_id: CampusId,
+        load_weight: f64,
+        active: bool,
+        note: Option<&str>,
+        code: Option<&str>,
+        display_name: Option<&str>,
+        quota_override: Option<u32>,
+        max_tasks_per_exam_override: Option<u32>,
+    ) -> Result<Teacher, StorageError> {
         let norm_code = code.map(str::trim).filter(|c| !c.is_empty());
         self.conn
             .execute(
-                "INSERT INTO teachers (full_name, campus_id, load_weight, active, note, code) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                "INSERT INTO teachers (full_name, campus_id, load_weight, active, note, code, display_name, quota_override, max_tasks_per_exam_override)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
                 params![
                     full_name,
                     campus_id.value(),
@@ -429,6 +467,9 @@ impl Store {
                     if active { 1 } else { 0 },
                     note,
                     norm_code,
+                    display_name,
+                    quota_override.map(|v| v as i64),
+                    max_tasks_per_exam_override.map(|v| v as i64),
                 ],
             )
             .map_err(|e| match e {
@@ -448,6 +489,9 @@ impl Store {
             active,
             note: note.map(ToString::to_string),
             code: norm_code.map(ToString::to_string),
+            display_name: display_name.map(ToString::to_string),
+            quota_override,
+            max_tasks_per_exam_override,
         })
     }
 
@@ -460,7 +504,7 @@ impl Store {
         let rows = self
             .conn
             .execute(
-                "UPDATE teachers SET full_name = ?1, campus_id = ?2, load_weight = ?3, active = ?4, note = ?5, code = ?6, updated_at = datetime('now') WHERE id = ?7",
+                "UPDATE teachers SET full_name = ?1, campus_id = ?2, load_weight = ?3, active = ?4, note = ?5, code = ?6, display_name = ?7, quota_override = ?8, max_tasks_per_exam_override = ?9, updated_at = datetime('now') WHERE id = ?10",
                 params![
                     teacher.full_name,
                     teacher.campus_id.value(),
@@ -468,6 +512,9 @@ impl Store {
                     if teacher.active { 1 } else { 0 },
                     teacher.note,
                     norm_code,
+                    teacher.display_name,
+                    teacher.quota_override.map(|v| v as i64),
+                    teacher.max_tasks_per_exam_override.map(|v| v as i64),
                     teacher.id.value(),
                 ],
             )
@@ -676,6 +723,105 @@ impl Store {
                 "INSERT INTO teacher_grades (teacher_id, school_year_id, grade_id)
                  SELECT teacher_id, ?1, grade_id FROM teacher_grades WHERE school_year_id = ?2",
                 params![sy_id, from_year.value()],
+            )
+            .map_err(StorageError::from_sqlite)?;
+
+            // Copy subjects and map old IDs to new IDs
+            let mut sub_map = std::collections::HashMap::new();
+            {
+                let mut stmt = tx
+                    .prepare(
+                        "SELECT id, code, name, color, sort_order, setters, reviewers, min_campuses FROM subjects WHERE school_year_id = ?1 ORDER BY sort_order ASC, id ASC",
+                    )
+                    .map_err(StorageError::from_sqlite)?;
+                let rows = stmt
+                    .query_map(params![from_year.value()], |row| {
+                        Ok((
+                            row.get::<_, i64>(0)?,
+                            row.get::<_, String>(1)?,
+                            row.get::<_, String>(2)?,
+                            row.get::<_, String>(3)?,
+                            row.get::<_, i32>(4)?,
+                            row.get::<_, u8>(5)?,
+                            row.get::<_, u8>(6)?,
+                            row.get::<_, u8>(7)?,
+                        ))
+                    })
+                    .map_err(StorageError::from_sqlite)?;
+                let mut subs = Vec::new();
+                for r in rows {
+                    subs.push(r.map_err(StorageError::from_sqlite)?);
+                }
+                drop(stmt);
+
+                for (old_id, code, name, color, sort_order, setters, reviewers, min_campuses) in
+                    subs
+                {
+                    tx.execute(
+                        "INSERT INTO subjects (school_year_id, code, name, color, sort_order, setters, reviewers, min_campuses)
+                         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                        params![sy_id, code, name, color, sort_order, setters, reviewers, min_campuses],
+                    )
+                    .map_err(StorageError::from_sqlite)?;
+                    let new_id = tx.last_insert_rowid();
+                    sub_map.insert(old_id, new_id);
+                }
+            }
+
+            // Copy competencies using new subject IDs
+            {
+                let mut stmt = tx
+                    .prepare(
+                        "SELECT tc.teacher_id, tc.subject_id, tc.role, tc.grade_scope
+                         FROM teacher_competencies tc
+                         JOIN subjects s ON tc.subject_id = s.id
+                         WHERE s.school_year_id = ?1",
+                    )
+                    .map_err(StorageError::from_sqlite)?;
+                let rows = stmt
+                    .query_map(params![from_year.value()], |row| {
+                        Ok((
+                            row.get::<_, i64>(0)?,
+                            row.get::<_, i64>(1)?,
+                            row.get::<_, String>(2)?,
+                            row.get::<_, String>(3)?,
+                        ))
+                    })
+                    .map_err(StorageError::from_sqlite)?;
+                let mut comps = Vec::new();
+                for r in rows {
+                    comps.push(r.map_err(StorageError::from_sqlite)?);
+                }
+                drop(stmt);
+
+                for (teacher_id, old_sub_id, role, grade_scope) in comps {
+                    if let Some(&new_sub_id) = sub_map.get(&old_sub_id) {
+                        tx.execute(
+                            "INSERT INTO teacher_competencies (teacher_id, subject_id, role, grade_scope)
+                             VALUES (?1, ?2, ?3, ?4)",
+                            params![teacher_id, new_sub_id, role, grade_scope],
+                        )
+                        .map_err(StorageError::from_sqlite)?;
+                    }
+                }
+            }
+        } else {
+            // Fresh school year: insert default subject CHUNG
+            tx.execute(
+                "INSERT INTO subjects (school_year_id, code, name, color, sort_order, setters, reviewers, min_campuses)
+                 VALUES (?1, 'CHUNG', 'Môn chung', 'primary', 1, 2, 1, 2)",
+                params![sy_id],
+            )
+            .map_err(StorageError::from_sqlite)?;
+            let chung_id = tx.last_insert_rowid();
+
+            // Active teachers get setter and reviewer competencies for CHUNG
+            tx.execute(
+                "INSERT INTO teacher_competencies (teacher_id, subject_id, role, grade_scope)
+                 SELECT id, ?1, 'setter', 'taught' FROM teachers WHERE active = 1
+                 UNION ALL
+                 SELECT id, ?1, 'reviewer', 'taught' FROM teachers WHERE active = 1",
+                params![chung_id],
             )
             .map_err(StorageError::from_sqlite)?;
         }
@@ -922,7 +1068,7 @@ impl Store {
         let mut stmt = self
             .conn
             .prepare(
-                "SELECT l.id, l.exam_id, l.grade_id, l.teacher_id, l.role, l.kind
+                "SELECT l.id, l.exam_id, l.grade_id, l.subject_id, l.teacher_id, l.role, l.kind
                  FROM locks l
                  JOIN exams e ON l.exam_id = e.id
                  WHERE e.school_year_id = ?1
@@ -931,8 +1077,8 @@ impl Store {
             .map_err(StorageError::from_sqlite)?;
         let rows = stmt
             .query_map(params![school_year_id.value()], |row| {
-                let role_str: Option<String> = row.get(4)?;
-                let kind_str: String = row.get(5)?;
+                let role_str: Option<String> = row.get(5)?;
+                let kind_str: String = row.get(6)?;
 
                 let role = role_str.as_deref().and_then(|s| s.parse::<Role>().ok());
                 let kind = kind_str.parse::<LockKind>().unwrap_or(LockKind::Pin);
@@ -941,7 +1087,8 @@ impl Store {
                     id: LockId(row.get(0)?),
                     exam_id: ExamId(row.get(1)?),
                     grade_id: GradeId(row.get(2)?),
-                    teacher_id: TeacherId(row.get(3)?),
+                    subject_id: SubjectId(row.get(3)?),
+                    teacher_id: TeacherId(row.get(4)?),
                     role,
                     kind,
                 })
@@ -959,16 +1106,18 @@ impl Store {
         &self,
         exam_id: ExamId,
         grade_id: GradeId,
+        subject_id: SubjectId,
         teacher_id: TeacherId,
         role: Option<Role>,
         kind: LockKind,
     ) -> Result<Lock, StorageError> {
         self.conn
             .execute(
-                "INSERT INTO locks (exam_id, grade_id, teacher_id, role, kind) VALUES (?1, ?2, ?3, ?4, ?5)",
+                "INSERT INTO locks (exam_id, grade_id, subject_id, teacher_id, role, kind) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
                 params![
                     exam_id.value(),
                     grade_id.value(),
+                    subject_id.value(),
                     teacher_id.value(),
                     role.map(|r| r.as_str()),
                     kind.as_str(),
@@ -980,6 +1129,7 @@ impl Store {
             id: LockId(id),
             exam_id,
             grade_id,
+            subject_id,
             teacher_id,
             role,
             kind,
@@ -1249,14 +1399,16 @@ impl Store {
 
         for a in assignments {
             tx.execute(
-                "INSERT INTO assignments (plan_id, exam_id, grade_id, teacher_id, role)
-                 VALUES (?1, ?2, ?3, ?4, ?5)",
+                "INSERT INTO assignments (plan_id, exam_id, grade_id, subject_id, teacher_id, role, position)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
                 params![
                     plan_id_val,
                     a.exam_id.value(),
                     a.grade_id.value(),
+                    a.subject_id.value(),
                     a.teacher_id.value(),
                     a.role.as_str(),
+                    a.position as i64,
                 ],
             )
             .map_err(StorageError::from_sqlite)?;
@@ -1304,18 +1456,21 @@ impl Store {
 
         let mut a_stmt = self
             .conn
-            .prepare("SELECT plan_id, exam_id, grade_id, teacher_id, role FROM assignments WHERE plan_id = ?1")
+            .prepare("SELECT plan_id, exam_id, grade_id, subject_id, teacher_id, role, position FROM assignments WHERE plan_id = ?1")
             .map_err(StorageError::from_sqlite)?;
         let a_rows = a_stmt
             .query_map(params![plan_id.value()], |row| {
-                let role_str: String = row.get(4)?;
+                let role_str: String = row.get(5)?;
                 let role = role_str.parse::<Role>().unwrap_or(Role::Setter);
+                let pos_i64: i64 = row.get(6)?;
                 Ok(Assignment {
                     plan_id: PlanId(row.get(0)?),
                     exam_id: ExamId(row.get(1)?),
                     grade_id: GradeId(row.get(2)?),
-                    teacher_id: TeacherId(row.get(3)?),
+                    subject_id: SubjectId(row.get(3)?),
+                    teacher_id: TeacherId(row.get(4)?),
                     role,
+                    position: pos_i64 as usize,
                 })
             })
             .map_err(StorageError::from_sqlite)?;
@@ -1492,14 +1647,16 @@ impl Store {
 
             for a in assignments {
                 tx.execute(
-                    "INSERT INTO assignments (plan_id, exam_id, grade_id, teacher_id, role)
-                     VALUES (?1, ?2, ?3, ?4, ?5)",
+                    "INSERT INTO assignments (plan_id, exam_id, grade_id, subject_id, teacher_id, role, position)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
                     params![
                         plan_id_val,
                         a.exam_id.value(),
                         a.grade_id.value(),
+                        a.subject_id.value(),
                         a.teacher_id.value(),
                         a.role.as_str(),
+                        a.position as i64,
                     ],
                 )
                 .map_err(StorageError::from_sqlite)?;
@@ -1632,11 +1789,361 @@ impl Store {
     // Problem Snapshot Loader
     // -------------------------------------------------------------------------
 
+    // -------------------------------------------------------------------------
+    // Subjects
+    // -------------------------------------------------------------------------
+
+    pub fn get_subjects(&self, school_year_id: SchoolYearId) -> Result<Vec<Subject>, StorageError> {
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT id, code, name, color, sort_order, setters, reviewers, min_campuses
+                 FROM subjects
+                 WHERE school_year_id = ?1
+                 ORDER BY sort_order ASC, id ASC",
+            )
+            .map_err(StorageError::from_sqlite)?;
+        let rows = stmt
+            .query_map(params![school_year_id.value()], |row| {
+                let sort_order_i64: i64 = row.get(4)?;
+                Ok(Subject {
+                    id: SubjectId(row.get(0)?),
+                    code: row.get(1)?,
+                    name: row.get(2)?,
+                    color: row.get(3)?,
+                    sort_order: sort_order_i64 as u32,
+                    setters: row.get(5)?,
+                    reviewers: row.get(6)?,
+                    min_campuses: row.get(7)?,
+                })
+            })
+            .map_err(StorageError::from_sqlite)?;
+
+        let mut list = Vec::new();
+        for r in rows {
+            list.push(r.map_err(StorageError::from_sqlite)?);
+        }
+        Ok(list)
+    }
+
+    pub fn get_subject(&self, id: SubjectId) -> Result<Option<Subject>, StorageError> {
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT id, code, name, color, sort_order, setters, reviewers, min_campuses
+                 FROM subjects
+                 WHERE id = ?1",
+            )
+            .map_err(StorageError::from_sqlite)?;
+        let mut rows = stmt
+            .query_map(params![id.value()], |row| {
+                let sort_order_i64: i64 = row.get(4)?;
+                Ok(Subject {
+                    id: SubjectId(row.get(0)?),
+                    code: row.get(1)?,
+                    name: row.get(2)?,
+                    color: row.get(3)?,
+                    sort_order: sort_order_i64 as u32,
+                    setters: row.get(5)?,
+                    reviewers: row.get(6)?,
+                    min_campuses: row.get(7)?,
+                })
+            })
+            .map_err(StorageError::from_sqlite)?;
+
+        match rows.next() {
+            Some(res) => Ok(Some(res.map_err(StorageError::from_sqlite)?)),
+            None => Ok(None),
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn create_subject(
+        &self,
+        school_year_id: SchoolYearId,
+        code: &str,
+        name: &str,
+        color: &str,
+        sort_order: u32,
+        setters: u8,
+        reviewers: u8,
+        min_campuses: u8,
+    ) -> Result<Subject, StorageError> {
+        self.conn
+            .execute(
+                "INSERT INTO subjects (school_year_id, code, name, color, sort_order, setters, reviewers, min_campuses)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                params![
+                    school_year_id.value(),
+                    code,
+                    name,
+                    color,
+                    sort_order as i64,
+                    setters,
+                    reviewers,
+                    min_campuses,
+                ],
+            )
+            .map_err(StorageError::from_sqlite)?;
+        let id = self.conn.last_insert_rowid();
+        Ok(Subject {
+            id: SubjectId(id),
+            code: code.to_string(),
+            name: name.to_string(),
+            color: color.to_string(),
+            sort_order,
+            setters,
+            reviewers,
+            min_campuses,
+        })
+    }
+
+    pub fn update_subject(&self, subject: &Subject) -> Result<(), StorageError> {
+        let rows = self
+            .conn
+            .execute(
+                "UPDATE subjects
+                 SET code = ?1, name = ?2, color = ?3, sort_order = ?4, setters = ?5, reviewers = ?6, min_campuses = ?7
+                 WHERE id = ?8",
+                params![
+                    subject.code,
+                    subject.name,
+                    subject.color,
+                    subject.sort_order,
+                    subject.setters,
+                    subject.reviewers,
+                    subject.min_campuses,
+                    subject.id.value(),
+                ],
+            )
+            .map_err(StorageError::from_sqlite)?;
+        if rows == 0 {
+            return Err(StorageError::NotFound(format!(
+                "subject with ID {} not found",
+                subject.id
+            )));
+        }
+        Ok(())
+    }
+
+    pub fn delete_subject(&self, id: SubjectId) -> Result<(), StorageError> {
+        let rows = self
+            .conn
+            .execute("DELETE FROM subjects WHERE id = ?1", params![id.value()])
+            .map_err(|e| match e {
+                rusqlite::Error::SqliteFailure(ref f, _)
+                    if f.code == rusqlite::ErrorCode::ConstraintViolation =>
+                {
+                    StorageError::Constraint("subject_in_use".to_string())
+                }
+                other => StorageError::from_sqlite(other),
+            })?;
+        if rows == 0 {
+            return Err(StorageError::NotFound(format!(
+                "subject with ID {id} not found"
+            )));
+        }
+        Ok(())
+    }
+
+    pub fn reorder_subjects(
+        &self,
+        school_year_id: SchoolYearId,
+        ordered_ids: &[SubjectId],
+    ) -> Result<(), StorageError> {
+        let tx = self
+            .conn
+            .unchecked_transaction()
+            .map_err(StorageError::from_sqlite)?;
+        for (idx, sid) in ordered_ids.iter().enumerate() {
+            tx.execute(
+                "UPDATE subjects SET sort_order = ?1 WHERE id = ?2 AND school_year_id = ?3",
+                params![(idx + 1) as i32, sid.value(), school_year_id.value()],
+            )
+            .map_err(StorageError::from_sqlite)?;
+        }
+        tx.commit().map_err(StorageError::from_sqlite)?;
+        Ok(())
+    }
+
+    // -------------------------------------------------------------------------
+    // Teacher Competencies
+    // -------------------------------------------------------------------------
+
+    pub fn get_competencies(
+        &self,
+        school_year_id: SchoolYearId,
+    ) -> Result<Vec<Competency>, StorageError> {
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT tc.teacher_id, tc.subject_id, tc.role, tc.grade_scope
+                 FROM teacher_competencies tc
+                 JOIN subjects s ON tc.subject_id = s.id
+                 WHERE s.school_year_id = ?1
+                 ORDER BY tc.teacher_id ASC, tc.subject_id ASC, tc.role ASC",
+            )
+            .map_err(StorageError::from_sqlite)?;
+        let rows = stmt
+            .query_map(params![school_year_id.value()], |row| {
+                let role_str: String = row.get(2)?;
+                let scope_str: String = row.get(3)?;
+                let role = role_str.parse::<Role>().unwrap_or(Role::Setter);
+                let grade_scope = match scope_str.as_str() {
+                    "any" => GradeScope::Any,
+                    _ => GradeScope::Taught,
+                };
+                Ok(Competency {
+                    teacher_id: TeacherId(row.get(0)?),
+                    subject_id: SubjectId(row.get(1)?),
+                    role,
+                    grade_scope,
+                })
+            })
+            .map_err(StorageError::from_sqlite)?;
+
+        let mut list = Vec::new();
+        for r in rows {
+            list.push(r.map_err(StorageError::from_sqlite)?);
+        }
+        Ok(list)
+    }
+
+    pub fn get_teacher_competencies(
+        &self,
+        teacher_id: TeacherId,
+        school_year_id: SchoolYearId,
+    ) -> Result<Vec<Competency>, StorageError> {
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT tc.teacher_id, tc.subject_id, tc.role, tc.grade_scope
+                 FROM teacher_competencies tc
+                 JOIN subjects s ON tc.subject_id = s.id
+                 WHERE tc.teacher_id = ?1 AND s.school_year_id = ?2
+                 ORDER BY tc.subject_id ASC, tc.role ASC",
+            )
+            .map_err(StorageError::from_sqlite)?;
+        let rows = stmt
+            .query_map(params![teacher_id.value(), school_year_id.value()], |row| {
+                let role_str: String = row.get(2)?;
+                let scope_str: String = row.get(3)?;
+                let role = role_str.parse::<Role>().unwrap_or(Role::Setter);
+                let grade_scope = match scope_str.as_str() {
+                    "any" => GradeScope::Any,
+                    _ => GradeScope::Taught,
+                };
+                Ok(Competency {
+                    teacher_id: TeacherId(row.get(0)?),
+                    subject_id: SubjectId(row.get(1)?),
+                    role,
+                    grade_scope,
+                })
+            })
+            .map_err(StorageError::from_sqlite)?;
+
+        let mut list = Vec::new();
+        for r in rows {
+            list.push(r.map_err(StorageError::from_sqlite)?);
+        }
+        Ok(list)
+    }
+
+    pub fn set_competency(
+        &self,
+        teacher_id: TeacherId,
+        subject_id: SubjectId,
+        role: Role,
+        grade_scope: GradeScope,
+    ) -> Result<(), StorageError> {
+        let scope_str = match grade_scope {
+            GradeScope::Taught => "taught",
+            GradeScope::Any => "any",
+        };
+        self.conn
+            .execute(
+                "INSERT INTO teacher_competencies (teacher_id, subject_id, role, grade_scope)
+                 VALUES (?1, ?2, ?3, ?4)
+                 ON CONFLICT(teacher_id, subject_id, role) DO UPDATE SET
+                   grade_scope = excluded.grade_scope",
+                params![
+                    teacher_id.value(),
+                    subject_id.value(),
+                    role.as_str(),
+                    scope_str,
+                ],
+            )
+            .map_err(StorageError::from_sqlite)?;
+        Ok(())
+    }
+
+    pub fn delete_competency(
+        &self,
+        teacher_id: TeacherId,
+        subject_id: SubjectId,
+        role: Role,
+    ) -> Result<(), StorageError> {
+        self.conn
+            .execute(
+                "DELETE FROM teacher_competencies
+                 WHERE teacher_id = ?1 AND subject_id = ?2 AND role = ?3",
+                params![teacher_id.value(), subject_id.value(), role.as_str(),],
+            )
+            .map_err(StorageError::from_sqlite)?;
+        Ok(())
+    }
+
+    pub fn replace_teacher_competencies(
+        &self,
+        teacher_id: TeacherId,
+        school_year_id: SchoolYearId,
+        competencies: &[Competency],
+    ) -> Result<(), StorageError> {
+        let tx = self
+            .conn
+            .unchecked_transaction()
+            .map_err(StorageError::from_sqlite)?;
+
+        tx.execute(
+            "DELETE FROM teacher_competencies
+             WHERE teacher_id = ?1 AND subject_id IN (SELECT id FROM subjects WHERE school_year_id = ?2)",
+            params![teacher_id.value(), school_year_id.value()],
+        )
+        .map_err(StorageError::from_sqlite)?;
+
+        for c in competencies {
+            let scope_str = match c.grade_scope {
+                GradeScope::Taught => "taught",
+                GradeScope::Any => "any",
+            };
+            tx.execute(
+                "INSERT INTO teacher_competencies (teacher_id, subject_id, role, grade_scope)
+                 VALUES (?1, ?2, ?3, ?4)",
+                params![
+                    teacher_id.value(),
+                    c.subject_id.value(),
+                    c.role.as_str(),
+                    scope_str,
+                ],
+            )
+            .map_err(StorageError::from_sqlite)?;
+        }
+
+        tx.commit().map_err(StorageError::from_sqlite)?;
+        Ok(())
+    }
+
+    // -------------------------------------------------------------------------
+    // Problem Snapshot
+    // -------------------------------------------------------------------------
+
     /// Loads the complete problem snapshot for a single school year:
     /// - School year details
     /// - All campuses
     /// - All grades
+    /// - All subjects for the year
     /// - Active teachers and their grade qualifications for the year
+    /// - Active teacher competencies for the year
     /// - Exams for the year
     /// - Unavailability entries for the year
     /// - Panel locks for the year
@@ -1648,6 +2155,7 @@ impl Store {
 
         let campuses = self.get_campuses()?;
         let grades = self.get_grades()?;
+        let subjects = self.get_subjects(school_year_id)?;
 
         // Active teachers only
         let all_teachers = self.get_teachers()?;
@@ -1660,6 +2168,13 @@ impl Store {
             .get_all_teacher_grades(school_year_id)?
             .into_iter()
             .filter(|tg| active_ids.contains(&tg.teacher_id))
+            .collect();
+
+        // Competencies filtered to active teachers and this school year
+        let competencies: Vec<Competency> = self
+            .get_competencies(school_year_id)?
+            .into_iter()
+            .filter(|c| active_ids.contains(&c.teacher_id))
             .collect();
 
         let exams = self.get_exams(school_year_id)?;
@@ -1681,8 +2196,10 @@ impl Store {
             school_year,
             campuses,
             grades,
+            subjects,
             teachers: active_teachers,
             teacher_grades,
+            competencies,
             exams,
             unavailabilities,
             locks,
