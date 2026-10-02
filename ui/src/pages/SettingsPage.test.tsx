@@ -90,6 +90,7 @@ describe('SettingsPage', () => {
       expect(screen.getByTestId('about-version')).toHaveTextContent('v0.1.0')
       expect(screen.getByTestId('about-commit')).toHaveTextContent('0c24c8e')
       expect(screen.getByTestId('about-build-date')).toHaveTextContent('2026-10-02')
+      expect(screen.getByTestId('licenses-dialog-trigger')).toBeInTheDocument()
     })
   })
 

@@ -21,6 +21,14 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { BackupSection } from './settings/BackupSection'
 import {
   Tooltip,
@@ -502,6 +510,39 @@ export const SettingsPage: React.FC = () => {
               <span className="font-mono text-[11px] text-foreground break-all bg-muted/50 p-2 rounded border border-border">
                 {appInfo?.data_dir || '/data'}
               </span>
+            </div>
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <span className="text-muted-foreground">{t('settings.thirdPartyLicenses')}</span>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0 text-xs text-primary"
+                    data-testid="licenses-dialog-trigger"
+                  >
+                    {t('settings.viewLicenses')}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-xl max-h-[75vh] flex flex-col">
+                  <DialogHeader>
+                    <DialogTitle>{t('settings.thirdPartyLicenses')}</DialogTitle>
+                    <DialogDescription>
+                      {t('settings.licensesDescription')}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex-1 overflow-y-auto p-3 bg-muted/40 rounded-md border border-border text-xs space-y-2">
+                    <p className="font-semibold text-foreground">Rust & JavaScript Components</p>
+                    <p className="text-muted-foreground">
+                      ExamPanel v0.1.0 builds upon open-source software libraries licensed under permissive terms:
+                      MIT, Apache-2.0, BSD-3-Clause, Unicode-3.0, Zlib, and ISC.
+                    </p>
+                    <p className="text-muted-foreground">
+                      The complete notices and copyright statements are preserved in the bundled <code className="font-mono bg-muted px-1 rounded">THIRD_PARTY_NOTICES</code> document included with every installation and release package.
+                    </p>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
             <p className="text-muted-foreground pt-1">{t('settings.releaseNotes')}</p>
           </CardContent>

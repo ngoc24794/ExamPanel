@@ -278,6 +278,8 @@
     "openDataDir": "Open Data Folder",
     "openLogDir": "Open Logs Folder",
     "thirdPartyLicenses": "Third-Party Open Source Licenses",
+    "viewLicenses": "View details",
+    "licensesDescription": "Third-party open-source components used in ExamPanel v0.1.0.",
     "releaseNotes": "Automated panel assignment and reviewer allocation for high school exams."
   },
   "diagnostics": {

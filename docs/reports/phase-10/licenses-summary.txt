@@ -1,0 +1,36 @@
+EXAMPANEL THIRD-PARTY LICENSES SUMMARY
+Generated on: 2026-10-02T09:47:11.136Z
+
+Total Rust dependencies: 474
+Total JS dependencies:   47
+
+LICENSE DISTRIBUTION:
+  - MIT OR Apache-2.0: 207
+  - MIT: 156
+  - Apache-2.0 OR MIT: 52
+  - MIT/Apache-2.0: 18
+  - Unicode-3.0: 18
+  - Zlib OR Apache-2.0 OR MIT: 17
+  - Unlicense OR MIT: 10
+  - Apache-2.0: 6
+  - MPL-2.0: 5
+  - Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT: 5
+  - Apache-2.0/MIT: 3
+  - BSD-3-Clause: 2
+  - Zlib: 2
+  - ISC: 2
+  - BSD-3-Clause OR MIT OR Apache-2.0: 2
+  - Unlicense/MIT: 2
+  - BSD-2-Clause OR Apache-2.0 OR MIT: 2
+  - 0BSD OR MIT OR Apache-2.0: 1
+  - BSD-3-Clause AND MIT: 1
+  - BSD-3-Clause/MIT: 1
+  - Apache-2.0 AND MIT: 1
+  - CC0-1.0 OR MIT-0 OR Apache-2.0: 1
+  - (Apache-2.0 OR MIT) AND BSD-3-Clause: 1
+  - Apache-2.0 / MIT: 1
+  - MIT OR Zlib OR Apache-2.0: 1
+  - MIT OR Apache-2.0 OR LGPL-2.1-or-later: 1
+  - MIT OR Apache-2.0 OR Zlib: 1
+  - Apache-2.0 WITH LLVM-exception: 1
+  - (MIT OR Apache-2.0) AND Unicode-3.0: 1

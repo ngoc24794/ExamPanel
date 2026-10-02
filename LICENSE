@@ -1,0 +1,11 @@
+# ExamPanel License Placeholder
+
+TODO for User:
+Choose and specify the official project license for ExamPanel.
+Options include:
+- Proprietary / School-internal license (restricted use within high schools)
+- Permissive Open Source (MIT, Apache-2.0, BSD-3-Clause)
+- Copyleft Open Source (GPLv3, AGPLv3)
+
+Please replace this file with the chosen license text prior to public distribution.
+All third-party dependency licenses are documented in THIRD_PARTY_NOTICES.

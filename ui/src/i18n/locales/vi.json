@@ -278,6 +278,8 @@
     "openDataDir": "Mở thư mục dữ liệu",
     "openLogDir": "Mở thư mục nhật ký",
     "thirdPartyLicenses": "Giấy phép phần mềm bên thứ ba",
+    "viewLicenses": "Xem chi tiết",
+    "licensesDescription": "Các thành phần mã nguồn mở bên thứ ba được sử dụng trong ExamPanel v0.1.0.",
     "releaseNotes": "Phần mềm phân công ra đề & phản biện thi THPT."
   },
   "diagnostics": {
