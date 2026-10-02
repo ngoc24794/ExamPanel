@@ -282,7 +282,7 @@ impl Store {
     pub fn get_teachers(&self) -> Result<Vec<Teacher>, StorageError> {
         let mut stmt = self
             .conn
-            .prepare("SELECT id, full_name, campus_id, load_weight, active, note FROM teachers ORDER BY id ASC")
+            .prepare("SELECT id, full_name, campus_id, load_weight, active, note, code FROM teachers ORDER BY id ASC")
             .map_err(StorageError::from_sqlite)?;
         let rows = stmt
             .query_map([], |row| {
@@ -294,6 +294,7 @@ impl Store {
                     load_weight: row.get(3)?,
                     active: active_int == 1,
                     note: row.get(5)?,
+                    code: row.get(6)?,
                 })
             })
             .map_err(StorageError::from_sqlite)?;
@@ -308,7 +309,7 @@ impl Store {
     pub fn get_teacher(&self, id: TeacherId) -> Result<Option<Teacher>, StorageError> {
         let mut stmt = self
             .conn
-            .prepare("SELECT id, full_name, campus_id, load_weight, active, note FROM teachers WHERE id = ?1")
+            .prepare("SELECT id, full_name, campus_id, load_weight, active, note, code FROM teachers WHERE id = ?1")
             .map_err(StorageError::from_sqlite)?;
         let mut rows = stmt
             .query_map(params![id.value()], |row| {
@@ -320,6 +321,7 @@ impl Store {
                     load_weight: row.get(3)?,
                     active: active_int == 1,
                     note: row.get(5)?,
+                    code: row.get(6)?,
                 })
             })
             .map_err(StorageError::from_sqlite)?;
@@ -337,19 +339,29 @@ impl Store {
         load_weight: f64,
         active: bool,
         note: Option<&str>,
+        code: Option<&str>,
     ) -> Result<Teacher, StorageError> {
+        let norm_code = code.map(str::trim).filter(|c| !c.is_empty());
         self.conn
             .execute(
-                "INSERT INTO teachers (full_name, campus_id, load_weight, active, note) VALUES (?1, ?2, ?3, ?4, ?5)",
+                "INSERT INTO teachers (full_name, campus_id, load_weight, active, note, code) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
                 params![
                     full_name,
                     campus_id.value(),
                     load_weight,
                     if active { 1 } else { 0 },
                     note,
+                    norm_code,
                 ],
             )
-            .map_err(StorageError::from_sqlite)?;
+            .map_err(|e| match e {
+                rusqlite::Error::SqliteFailure(ref f, _)
+                    if f.code == rusqlite::ErrorCode::ConstraintViolation =>
+                {
+                    StorageError::Constraint("teacher_code_duplicate".to_string())
+                }
+                other => StorageError::from_sqlite(other),
+            })?;
         let id = self.conn.last_insert_rowid();
         Ok(Teacher {
             id: TeacherId(id),
@@ -358,24 +370,38 @@ impl Store {
             load_weight,
             active,
             note: note.map(ToString::to_string),
+            code: norm_code.map(ToString::to_string),
         })
     }
 
     pub fn update_teacher(&self, teacher: &Teacher) -> Result<(), StorageError> {
+        let norm_code = teacher
+            .code
+            .as_deref()
+            .map(str::trim)
+            .filter(|c| !c.is_empty());
         let rows = self
             .conn
             .execute(
-                "UPDATE teachers SET full_name = ?1, campus_id = ?2, load_weight = ?3, active = ?4, note = ?5, updated_at = datetime('now') WHERE id = ?6",
+                "UPDATE teachers SET full_name = ?1, campus_id = ?2, load_weight = ?3, active = ?4, note = ?5, code = ?6, updated_at = datetime('now') WHERE id = ?7",
                 params![
                     teacher.full_name,
                     teacher.campus_id.value(),
                     teacher.load_weight,
                     if teacher.active { 1 } else { 0 },
                     teacher.note,
+                    norm_code,
                     teacher.id.value(),
                 ],
             )
-            .map_err(StorageError::from_sqlite)?;
+            .map_err(|e| match e {
+                rusqlite::Error::SqliteFailure(ref f, _)
+                    if f.code == rusqlite::ErrorCode::ConstraintViolation =>
+                {
+                    StorageError::Constraint("teacher_code_duplicate".to_string())
+                }
+                other => StorageError::from_sqlite(other),
+            })?;
         if rows == 0 {
             return Err(StorageError::NotFound(format!(
                 "teacher with ID {} not found",
@@ -1082,8 +1108,8 @@ impl Store {
 
         let plan_id_val = if plan.id.value() > 0 {
             tx.execute(
-                "INSERT INTO plans (id, school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, problem_hash)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+                "INSERT INTO plans (id, school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, data_hash, rules_hash)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
                  ON CONFLICT(id) DO UPDATE SET
                    name = excluded.name,
                    created_at = excluded.created_at,
@@ -1094,7 +1120,8 @@ impl Store {
                    score_report_json = excluded.score_report_json,
                    run_params_json = excluded.run_params_json,
                    source = excluded.source,
-                   problem_hash = excluded.problem_hash",
+                   data_hash = excluded.data_hash,
+                   rules_hash = excluded.rules_hash",
                 params![
                     plan.id.value(),
                     plan.school_year_id.value(),
@@ -1107,15 +1134,16 @@ impl Store {
                     plan.score_report_json,
                     plan.run_params_json,
                     plan.source,
-                    plan.problem_hash,
+                    plan.data_hash,
+                    plan.rules_hash,
                 ],
             )
             .map_err(StorageError::from_sqlite)?;
             plan.id.value()
         } else {
             tx.execute(
-                "INSERT INTO plans (school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, problem_hash)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
+                "INSERT INTO plans (school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, data_hash, rules_hash)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
                 params![
                     plan.school_year_id.value(),
                     plan.name,
@@ -1127,7 +1155,8 @@ impl Store {
                     plan.score_report_json,
                     plan.run_params_json,
                     plan.source,
-                    plan.problem_hash,
+                    plan.data_hash,
+                    plan.rules_hash,
                 ],
             )
             .map_err(StorageError::from_sqlite)?;
@@ -1163,7 +1192,7 @@ impl Store {
     pub fn load_plan(&self, plan_id: PlanId) -> Result<(Plan, Vec<Assignment>), StorageError> {
         let mut plan_stmt = self
             .conn
-            .prepare("SELECT id, school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, problem_hash FROM plans WHERE id = ?1")
+            .prepare("SELECT id, school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, data_hash, rules_hash FROM plans WHERE id = ?1")
             .map_err(StorageError::from_sqlite)?;
         let mut plan_rows = plan_stmt
             .query_map(params![plan_id.value()], |row| {
@@ -1181,7 +1210,8 @@ impl Store {
                     score_report_json: row.get(8)?,
                     run_params_json: row.get(9)?,
                     source: row.get(10)?,
-                    problem_hash: row.get(11)?,
+                    data_hash: row.get(11)?,
+                    rules_hash: row.get(12)?,
                 })
             })
             .map_err(StorageError::from_sqlite)?;
@@ -1228,7 +1258,7 @@ impl Store {
         let mut stmt = self
             .conn
             .prepare(
-                "SELECT id, name, rank, score, created_at, is_final, source, problem_hash
+                "SELECT id, name, rank, score, created_at, is_final, source, data_hash, rules_hash
                  FROM plans
                  WHERE school_year_id = ?1
                  ORDER BY is_final DESC, rank ASC NULLS LAST, id DESC",
@@ -1245,7 +1275,8 @@ impl Store {
                     created_at: row.get(4)?,
                     is_final: final_int == 1,
                     source: row.get(6)?,
-                    problem_hash: row.get(7)?,
+                    data_hash: row.get(7)?,
+                    rules_hash: row.get(8)?,
                     is_stale: false,
                 })
             })
@@ -1301,7 +1332,8 @@ impl Store {
             score_report_json: original_plan.score_report_json,
             run_params_json: original_plan.run_params_json,
             source: "duplicate".to_string(),
-            problem_hash: original_plan.problem_hash,
+            data_hash: original_plan.data_hash,
+            rules_hash: original_plan.rules_hash,
         };
         self.save_plan(&new_plan, &assignments)
     }
@@ -1319,8 +1351,8 @@ impl Store {
         for (plan, assignments) in plans {
             let plan_id_val = if plan.id.value() > 0 {
                 tx.execute(
-                    "INSERT INTO plans (id, school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, problem_hash)
-                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+                    "INSERT INTO plans (id, school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, data_hash, rules_hash)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
                      ON CONFLICT(id) DO UPDATE SET
                        name = excluded.name,
                        created_at = excluded.created_at,
@@ -1331,7 +1363,8 @@ impl Store {
                        score_report_json = excluded.score_report_json,
                        run_params_json = excluded.run_params_json,
                        source = excluded.source,
-                       problem_hash = excluded.problem_hash",
+                       data_hash = excluded.data_hash,
+                       rules_hash = excluded.rules_hash",
                     params![
                         plan.id.value(),
                         plan.school_year_id.value(),
@@ -1344,15 +1377,16 @@ impl Store {
                         plan.score_report_json,
                         plan.run_params_json,
                         plan.source,
-                        plan.problem_hash,
+                        plan.data_hash,
+                        plan.rules_hash,
                     ],
                 )
                 .map_err(StorageError::from_sqlite)?;
                 plan.id.value()
             } else {
                 tx.execute(
-                    "INSERT INTO plans (school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, problem_hash)
-                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
+                    "INSERT INTO plans (school_year_id, name, created_at, seed, score, is_final, rank, score_report_json, run_params_json, source, data_hash, rules_hash)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
                     params![
                         plan.school_year_id.value(),
                         plan.name,
@@ -1364,13 +1398,15 @@ impl Store {
                         plan.score_report_json,
                         plan.run_params_json,
                         plan.source,
-                        plan.problem_hash,
+                        plan.data_hash,
+                        plan.rules_hash,
                     ],
-                )
+                    )
                 .map_err(StorageError::from_sqlite)?;
                 tx.last_insert_rowid()
             };
 
+            // Clear and insert assignments
             tx.execute(
                 "DELETE FROM assignments WHERE plan_id = ?1",
                 params![plan_id_val],
@@ -1391,6 +1427,7 @@ impl Store {
                 )
                 .map_err(StorageError::from_sqlite)?;
             }
+
             ids.push(PlanId(plan_id_val));
         }
 

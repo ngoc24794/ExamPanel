@@ -15,6 +15,7 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import {
@@ -73,6 +74,7 @@ const teacherFormSchema = z.object({
   loadWeight: z.number().min(0).max(1),
   active: z.boolean(),
   note: z.string().optional(),
+  code: z.string().optional(),
 })
 
 type TeacherFormValues = z.infer<typeof teacherFormSchema>
@@ -148,6 +150,7 @@ export const TeachersPage: React.FC = () => {
       loadWeight: 1.0,
       active: true,
       note: '',
+      code: '',
     })
     setDialogOpen(true)
   }
@@ -161,6 +164,7 @@ export const TeachersPage: React.FC = () => {
       loadWeight: tg.teacher.load_weight,
       active: tg.teacher.active,
       note: tg.teacher.note || '',
+      code: tg.teacher.code || '',
     })
     setDialogOpen(true)
   }
@@ -175,6 +179,7 @@ export const TeachersPage: React.FC = () => {
           load_weight: values.loadWeight,
           active: values.active,
           note: values.note?.trim() || null,
+          code: values.code?.trim() || null,
         },
         gradeIds: selectedGradeIds,
       })
@@ -186,6 +191,7 @@ export const TeachersPage: React.FC = () => {
           load_weight: values.loadWeight,
           active: values.active,
           note: values.note?.trim() || null,
+          code: values.code?.trim() || undefined,
         },
         gradeIds: selectedGradeIds,
       })
@@ -416,8 +422,9 @@ export const TeachersPage: React.FC = () => {
           <Table>
             <TableHeader className="bg-muted/40">
               <TableRow>
+                <TableHead className="w-[100px]">{t('teachers.code')}</TableHead>
                 <TableHead
-                  className="cursor-pointer hover:text-foreground w-[220px]"
+                  className="cursor-pointer hover:text-foreground w-[200px]"
                   onClick={() => toggleSort('name')}
                 >
                   <div className="flex items-center gap-1.5">
@@ -469,6 +476,15 @@ export const TeachersPage: React.FC = () => {
                       !tg.teacher.active ? 'opacity-60 bg-muted/20' : ''
                     }`}
                   >
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      {tg.teacher.code ? (
+                        <Badge variant="outline" className="font-mono text-xs">
+                          {tg.teacher.code}
+                        </Badge>
+                      ) : (
+                        '—'
+                      )}
+                    </TableCell>
                     <TableCell className="font-semibold text-foreground">
                       {tg.teacher.full_name}
                     </TableCell>
@@ -587,18 +603,32 @@ export const TeachersPage: React.FC = () => {
             </DialogHeader>
 
             <div className="space-y-4 py-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-foreground">
-                  {t('teachers.fullName')}
-                </label>
-                <Input
-                  {...register('fullName')}
-                  placeholder={t('teachers.fullNamePlaceholder')}
-                  autoFocus
-                />
-                {errors.fullName && (
-                  <p className="text-xs text-destructive">{errors.fullName.message}</p>
-                )}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-1 space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">
+                    {t('teachers.code')}
+                  </label>
+                  <Input
+                    {...register('code')}
+                    placeholder={t('teachers.codePlaceholder')}
+                    className="font-mono text-xs"
+                    data-testid="teacher-code-input"
+                  />
+                </div>
+                <div className="sm:col-span-2 space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">
+                    {t('teachers.fullName')}
+                  </label>
+                  <Input
+                    {...register('fullName')}
+                    placeholder={t('teachers.fullNamePlaceholder')}
+                    autoFocus
+                    data-testid="teacher-name-input"
+                  />
+                  {errors.fullName && (
+                    <p className="text-xs text-destructive">{errors.fullName.message}</p>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-1.5">

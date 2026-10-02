@@ -55,4 +55,30 @@ describe('SettingsPage', () => {
     // Click English language button
     await user.click(screen.getByTestId('lang-en-btn'))
   })
+
+  it('renders organization section and saves organization info', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<SettingsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('org-info-card')).toBeInTheDocument()
+      expect(screen.getByTestId('org-school-name-input')).toBeInTheDocument()
+      expect(screen.getByTestId('save-org-info-btn')).toBeInTheDocument()
+    })
+
+    const schoolInput = screen.getByTestId('org-school-name-input')
+    await user.clear(schoolInput)
+    await user.type(schoolInput, 'THPT Chuyên Hà Nội')
+
+    const deptInput = screen.getByTestId('org-department-name-input')
+    await user.clear(deptInput)
+    await user.type(deptInput, 'Tổ Toán')
+
+    await user.click(screen.getByTestId('save-org-info-btn'))
+
+    await waitFor(() => {
+      expect(schoolInput).toHaveValue('THPT Chuyên Hà Nội')
+      expect(deptInput).toHaveValue('Tổ Toán')
+    })
+  })
 })

@@ -129,9 +129,11 @@ fn test_teachers_and_grades() {
             load_weight: 1.0,
             active: true,
             note: Some("Trưởng bộ môn".to_string()),
+            code: Some("GV001".to_string()),
         })
         .expect("create teacher");
     assert_eq!(teacher.full_name, "Nguyễn Văn A");
+    assert_eq!(teacher.code.as_deref(), Some("GV001"));
 
     // Update teacher
     let mut updated_teacher = teacher.clone();

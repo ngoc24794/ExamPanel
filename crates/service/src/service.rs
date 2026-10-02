@@ -91,11 +91,21 @@ impl AppService {
             .get_setting("language")?
             .unwrap_or_else(|| "vi".to_string());
         let current_sy = store.get_current_school_year()?.map(|sy| sy.id);
+        let school_name = store.get_setting("school_name")?;
+        let department_name = store.get_setting("department_name")?;
+        let signer_title = store.get_setting("signer_title")?;
+        let signer_name = store.get_setting("signer_name")?;
+        let place_name = store.get_setting("place_name")?;
 
         Ok(AppSettings {
             theme,
             language,
             current_school_year_id: current_sy,
+            school_name,
+            department_name,
+            signer_title,
+            signer_name,
+            place_name,
         })
     }
 
@@ -212,6 +222,7 @@ impl AppService {
             input.load_weight,
             input.active,
             input.note.as_deref(),
+            input.code.as_deref(),
         )?;
         Ok(teacher)
     }
@@ -681,7 +692,9 @@ impl AppService {
         school_year_id: SchoolYearId,
         outcome: OptimizeOutcome,
     ) -> Result<Vec<PlanId>, AppError> {
-        let problem_hash = self.load_problem_snapshot(school_year_id)?.canonical_hash();
+        let snapshot = self.load_problem_snapshot(school_year_id)?;
+        let data_hash = snapshot.data_hash();
+        let rules_hash = snapshot.rules_hash();
         let mut batch = Vec::with_capacity(outcome.plans.len());
 
         for rp in outcome.plans {
@@ -698,7 +711,8 @@ impl AppService {
                 score_report_json: Some(score_json),
                 run_params_json: Some(outcome.run_params_json.clone()),
                 source: "optimizer".to_string(),
-                problem_hash: Some(problem_hash.clone()),
+                data_hash: Some(data_hash.clone()),
+                rules_hash: Some(rules_hash.clone()),
             };
             batch.push((plan, rp.assignments));
         }
@@ -712,14 +726,14 @@ impl AppService {
     }
 
     pub fn list_plans(&self, school_year_id: SchoolYearId) -> Result<Vec<PlanSummary>, AppError> {
-        let current_hash = self.load_problem_snapshot(school_year_id)?.canonical_hash();
+        let current_data_hash = self.load_problem_snapshot(school_year_id)?.data_hash();
         let store = self
             .store
             .lock()
             .map_err(|_| AppError::new("lock_poisoned"))?;
         let mut plans = store.list_plans(school_year_id)?;
         for p in &mut plans {
-            p.is_stale = p.problem_hash.as_deref() != Some(&current_hash);
+            p.is_stale = p.data_hash.as_deref() != Some(&current_data_hash);
         }
         Ok(plans)
     }
@@ -779,8 +793,10 @@ impl AppService {
         let current_problem = store.load_problem(plan.school_year_id)?;
         drop(store);
 
-        let current_hash = current_problem.canonical_hash();
-        let problem_changed = plan.problem_hash.as_deref() != Some(&current_hash);
+        let current_data_hash = current_problem.data_hash();
+        let current_rules_hash = current_problem.rules_hash();
+        let data_changed = plan.data_hash.as_deref() != Some(&current_data_hash);
+        let rules_changed = plan.rules_hash.as_deref() != Some(&current_rules_hash);
         let total_slots = current_problem.exams.len() * current_problem.grades.len() * 3;
         let hard_violations_now = validate_assignments(
             &current_problem,
@@ -791,7 +807,8 @@ impl AppService {
         );
         let score_now = evaluate(&current_problem, &assignments);
         Ok(PlanStatus {
-            problem_changed,
+            data_changed,
+            rules_changed,
             hard_violations_now,
             score_now,
         })
@@ -829,6 +846,8 @@ impl AppService {
         let score_report = evaluate(&problem, &assignments);
         plan.score = Some(score_report.total);
         plan.score_report_json = Some(serde_json::to_string(&score_report)?);
+        plan.data_hash = Some(problem.data_hash());
+        plan.rules_hash = Some(problem.rules_hash());
         store.save_plan(&plan, &assignments)?;
         Ok(EvaluationOutcome {
             hard_violations,
@@ -838,7 +857,7 @@ impl AppService {
 
     pub fn mark_final(&self, id: PlanId) -> Result<(), AppError> {
         let status = self.plan_status(id)?;
-        if status.problem_changed {
+        if status.data_changed {
             return Err(AppError::new("plan_stale"));
         }
         if !status.hard_violations_now.is_empty() {
@@ -978,10 +997,9 @@ impl AppService {
     }
 
     // -------------------------------------------------------------------------
-    // Dev Tools
+    // Dev Tools & Helpers
     // -------------------------------------------------------------------------
 
-    #[cfg(feature = "dev-tools")]
     pub fn seed_demo(&self) -> Result<(), AppError> {
         let store = self
             .store
@@ -991,7 +1009,6 @@ impl AppService {
         Ok(())
     }
 
-    #[cfg(feature = "dev-tools")]
     pub fn load_problem(&self, school_year_id: SchoolYearId) -> Result<Problem, AppError> {
         self.load_problem_snapshot(school_year_id)
     }

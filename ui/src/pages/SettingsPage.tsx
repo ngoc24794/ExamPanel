@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  Building2,
   Check,
   Copy,
   FolderOpen,
@@ -10,10 +11,12 @@ import {
   Laptop,
   Moon,
   Palette,
+  Save,
   Sun,
 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
@@ -22,7 +25,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useTheme } from '@/lib/theme'
-import { useAppInfo } from '@/lib/query/hooks'
+import { useAppInfo, useSettings } from '@/lib/query/hooks'
 import { api } from '@/lib/api'
 import { toast } from 'sonner'
 import { getErrorMessage } from '@/lib/query/query-client'
@@ -31,8 +34,43 @@ export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation()
   const { theme, setTheme } = useTheme()
   const { data: appInfo } = useAppInfo()
+  const { data: settings, refetch: refetchSettings } = useSettings()
 
   const [copied, setCopied] = React.useState(false)
+  const [schoolName, setSchoolName] = React.useState('')
+  const [departmentName, setDepartmentName] = React.useState('')
+  const [signerTitle, setSignerTitle] = React.useState('')
+  const [signerName, setSignerName] = React.useState('')
+  const [placeName, setPlaceName] = React.useState('')
+  const [savingOrg, setSavingOrg] = React.useState(false)
+
+  React.useEffect(() => {
+    if (settings) {
+      setSchoolName(settings.school_name || '')
+      setDepartmentName(settings.department_name || '')
+      setSignerTitle(settings.signer_title || '')
+      setSignerName(settings.signer_name || '')
+      setPlaceName(settings.place_name || '')
+    }
+  }, [settings])
+
+  const handleSaveOrgInfo = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSavingOrg(true)
+    try {
+      await api.setSetting('school_name', schoolName.trim())
+      await api.setSetting('department_name', departmentName.trim())
+      await api.setSetting('signer_title', signerTitle.trim())
+      await api.setSetting('signer_name', signerName.trim())
+      await api.setSetting('place_name', placeName.trim())
+      await refetchSettings()
+      toast.success(t('settings.saveOrgInfoSuccess'))
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    } finally {
+      setSavingOrg(false)
+    }
+  }
 
   const handleCopyPath = () => {
     if (!appInfo?.data_dir) return
@@ -152,7 +190,94 @@ export const SettingsPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Section 2: Data Storage */}
+        {/* Section 2: Organization Info */}
+        <Card className="bg-card border-border" data-testid="org-info-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-primary" />
+              <span>{t('settings.organizationSection')}</span>
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {t('settings.organizationDesc')}
+            </p>
+          </CardHeader>
+          <CardContent className="pt-2">
+            <form onSubmit={handleSaveOrgInfo} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-semibold text-foreground">
+                    {t('settings.schoolName')}
+                  </label>
+                  <Input
+                    value={schoolName}
+                    onChange={(e) => setSchoolName(e.target.value)}
+                    placeholder={t('settings.schoolNamePlaceholder')}
+                    data-testid="org-school-name-input"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">
+                    {t('settings.departmentName')}
+                  </label>
+                  <Input
+                    value={departmentName}
+                    onChange={(e) => setDepartmentName(e.target.value)}
+                    placeholder={t('settings.departmentNamePlaceholder')}
+                    data-testid="org-department-name-input"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">
+                    {t('settings.placeName')}
+                  </label>
+                  <Input
+                    value={placeName}
+                    onChange={(e) => setPlaceName(e.target.value)}
+                    placeholder={t('settings.placeNamePlaceholder')}
+                    data-testid="org-place-name-input"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">
+                    {t('settings.signerTitle')}
+                  </label>
+                  <Input
+                    value={signerTitle}
+                    onChange={(e) => setSignerTitle(e.target.value)}
+                    placeholder={t('settings.signerTitlePlaceholder')}
+                    data-testid="org-signer-title-input"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">
+                    {t('settings.signerName')}
+                  </label>
+                  <Input
+                    value={signerName}
+                    onChange={(e) => setSignerName(e.target.value)}
+                    placeholder={t('settings.signerNamePlaceholder')}
+                    data-testid="org-signer-name-input"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={savingOrg}
+                  className="gap-1.5 text-xs"
+                  data-testid="save-org-info-btn"
+                >
+                  <Save className="h-3.5 w-3.5" />
+                  <span>{savingOrg ? '...' : t('settings.saveOrgInfo')}</span>
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Section 3: Data Storage */}
         <Card className="bg-card border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">

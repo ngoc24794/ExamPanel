@@ -119,7 +119,7 @@ mod tests {
             .create_campus("CS1", "Campus 1", "#ffffff")
             .expect("create campus");
         let _teacher = store
-            .create_teacher("Teacher A", campus.id, 1.0, true, None)
+            .create_teacher("Teacher A", campus.id, 1.0, true, None, None)
             .expect("create teacher");
 
         // 2. Deleting campus that still has teachers must fail with Constraint error (ON DELETE RESTRICT)
@@ -130,7 +130,8 @@ mod tests {
         );
 
         // 3. Teacher load_weight CHECK constraint (> 1.0)
-        let invalid_weight_res = store.create_teacher("Teacher B", campus.id, 1.5, true, None);
+        let invalid_weight_res =
+            store.create_teacher("Teacher B", campus.id, 1.5, true, None, None);
         assert!(
             matches!(invalid_weight_res, Err(StorageError::Constraint(_))),
             "expected Constraint violation for load_weight = 1.5, got: {invalid_weight_res:?}"
@@ -188,7 +189,8 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
-            problem_hash: None,
+            data_hash: None,
+            rules_hash: None,
         };
         let plan2 = Plan {
             id: PlanId(2),
@@ -202,7 +204,8 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
-            problem_hash: None,
+            data_hash: None,
+            rules_hash: None,
         };
         store.save_plan(&plan1, &[]).expect("save plan 1");
         store.save_plan(&plan2, &[]).expect("save plan 2");
@@ -254,7 +257,7 @@ mod tests {
         // Add campus, teacher, and grade assignment in sy1
         let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
         let teacher = store
-            .create_teacher("Nguyen Van A", campus.id, 1.0, true, None)
+            .create_teacher("Nguyen Van A", campus.id, 1.0, true, None, None)
             .unwrap();
         let grades = store.get_grades().unwrap();
         store
@@ -291,7 +294,7 @@ mod tests {
         let sy = store.create_school_year("2026-2027", None).unwrap();
         let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
         let teacher = store
-            .create_teacher("Teacher 1", campus.id, 1.0, true, None)
+            .create_teacher("Teacher 1", campus.id, 1.0, true, None, None)
             .unwrap();
         let exams = store.get_exams(sy.id).unwrap();
         let grades = store.get_grades().unwrap();
@@ -308,7 +311,8 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
-            problem_hash: None,
+            data_hash: None,
+            rules_hash: None,
         };
 
         let assignments = vec![Assignment {
@@ -380,7 +384,7 @@ mod tests {
         let sy = store.create_school_year("2026-2027", None).unwrap();
         let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
         let teacher = store
-            .create_teacher("Teacher 1", campus.id, 1.0, true, None)
+            .create_teacher("Teacher 1", campus.id, 1.0, true, None, None)
             .unwrap();
         let exams = store.get_exams(sy.id).unwrap();
         let grades = store.get_grades().unwrap();
@@ -397,7 +401,8 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
-            problem_hash: None,
+            data_hash: None,
+            rules_hash: None,
         };
         let assignments = vec![Assignment {
             plan_id: PlanId(0),
@@ -438,7 +443,7 @@ mod tests {
         let sy = store.create_school_year("2026-2027", None).unwrap();
         let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
         let teacher = store
-            .create_teacher("Teacher 1", campus.id, 1.0, true, None)
+            .create_teacher("Teacher 1", campus.id, 1.0, true, None, None)
             .unwrap();
         let exams = store.get_exams(sy.id).unwrap();
         let grades = store.get_grades().unwrap();
@@ -496,7 +501,7 @@ mod tests {
         let sy = store.create_school_year("2026-2027", None).unwrap();
         let campus = store.create_campus("CS1", "Campus 1", "#fff").unwrap();
         let teacher = store
-            .create_teacher("Teacher 1", campus.id, 1.0, true, None)
+            .create_teacher("Teacher 1", campus.id, 1.0, true, None, None)
             .unwrap();
         let exams = store.get_exams(sy.id).unwrap();
         let grades = store.get_grades().unwrap();
@@ -526,7 +531,8 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
-            problem_hash: None,
+            data_hash: None,
+            rules_hash: None,
         };
         let plan2 = Plan {
             id: PlanId(0),
@@ -540,7 +546,8 @@ mod tests {
             score_report_json: None,
             run_params_json: None,
             source: "optimizer".to_string(),
-            problem_hash: None,
+            data_hash: None,
+            rules_hash: None,
         };
 
         let asg1 = vec![Assignment {

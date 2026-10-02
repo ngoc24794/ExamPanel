@@ -114,6 +114,16 @@ export class MockExamPanelApi implements ExamPanelApi {
       this.savedTheme = value as ThemeMode
     } else if (key === 'language') {
       this.settings.language = value
+    } else if (key === 'school_name') {
+      this.settings.school_name = value
+    } else if (key === 'department_name') {
+      this.settings.department_name = value
+    } else if (key === 'signer_title') {
+      this.settings.signer_title = value
+    } else if (key === 'signer_name') {
+      this.settings.signer_name = value
+    } else if (key === 'place_name') {
+      this.settings.place_name = value
     }
   }
 
@@ -246,6 +256,7 @@ export class MockExamPanelApi implements ExamPanelApi {
       load_weight: input.load_weight ?? 1.0,
       active: input.active ?? true,
       note: input.note ?? null,
+      code: input.code ?? null,
     }
     this.teachers.push(newTeacher)
     return { ...newTeacher }
@@ -931,7 +942,8 @@ export class MockExamPanelApi implements ExamPanelApi {
         is_final: false,
         source: 'optimizer',
         is_stale: false,
-        problem_hash: undefined,
+        data_hash: undefined,
+        rules_hash: undefined,
       }
       this.plans.push(summary)
       this.planDetailsMap.set(nextId, {
@@ -941,6 +953,8 @@ export class MockExamPanelApi implements ExamPanelApi {
           seed: p.seed,
           score_report_json: JSON.stringify(p.report),
           run_params_json: outcome.run_params_json,
+          data_hash: undefined,
+          rules_hash: undefined,
         },
         assignments: p.assignments,
         score_report: p.report,
@@ -1092,7 +1106,8 @@ export class MockExamPanelApi implements ExamPanelApi {
       per_teacher: [],
     }
     return {
-      problem_changed: isStale,
+      data_changed: isStale,
+      rules_changed: false,
       hard_violations_now: hardViolations,
       score_now: scoreReport,
     }
@@ -1113,7 +1128,8 @@ export class MockExamPanelApi implements ExamPanelApi {
       is_final: false,
       source: 'duplicate',
       is_stale: false,
-      problem_hash: orig.plan.problem_hash ?? undefined,
+      data_hash: orig.plan.data_hash ?? undefined,
+      rules_hash: orig.plan.rules_hash ?? undefined,
     }
     this.plans.push(summary)
     this.planDetailsMap.set(nextId, {
