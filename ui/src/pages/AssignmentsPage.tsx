@@ -4,7 +4,10 @@ import {
   type Assignment,
   type PlanDetails,
   type SlotRef,
+  api,
+  isTauriEnvironment,
 } from '@/lib/api'
+import { useNavigate } from 'react-router-dom'
 import {
   useSchoolYears,
   usePlans,
@@ -23,6 +26,18 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import {
   Play,
   History,
   GitCompare,
@@ -32,6 +47,8 @@ import {
   Copy,
   Star,
   AlertTriangle,
+  FileSpreadsheet,
+  Printer,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { RunOptimizeDialog } from './assignments/RunOptimizeDialog'
@@ -44,6 +61,8 @@ import { FeasibilitySheet } from '@/components/FeasibilitySheet'
 
 export function AssignmentsPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  const isTauri = isTauriEnvironment()
   const { data: schoolYears = [] } = useSchoolYears()
   const currentYear = schoolYears.find((y) => y.is_current) || schoolYears[0]
   const schoolYearId = currentYear?.id ?? 1
@@ -219,6 +238,30 @@ export function AssignmentsPage() {
     toast.success(
       kind === 'pin' ? t('assignments.pinTeacherSlot') : t('assignments.forbidTeacherSlot'),
     )
+  }
+
+  const handleExportExcel = async () => {
+    if (!activePlan) return
+    if (!isTauri) {
+      toast.info(t('export.exportMockDisabled'))
+      return
+    }
+    try {
+      const sanitizedYear = currentYear?.name.replace(/[^a-zA-Z0-9_-]/g, '_') || 'nam-hoc'
+      const sanitizedPlan = activePlan.name.replace(/[^a-zA-Z0-9_-]/g, '_') || 'phuong-an'
+      const defaultName = `phan-cong-${sanitizedYear}-${sanitizedPlan}.xlsx`
+      const { save } = await import('@tauri-apps/plugin-dialog')
+      const chosenPath = await save({
+        defaultPath: defaultName,
+        filters: [{ name: 'Excel Files', extensions: ['xlsx'] }],
+      })
+      if (!chosenPath) return
+      await api.exportPlanExcel(activePlan.id, chosenPath)
+      toast.success(t('export.exportSuccess'))
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      toast.error(`Lỗi xuất Excel: ${msg}`)
+    }
   }
 
   const activePlanDetails: PlanDetails | null = loadedPlanDetails
@@ -411,6 +454,65 @@ export function AssignmentsPage() {
                       )}
                     </>
                   )}
+
+                  {/* Export Excel Button */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleExportExcel}
+                            disabled={!isTauri}
+                            className="gap-1.5 text-xs"
+                            data-testid="export-excel-button"
+                          >
+                            <FileSpreadsheet className="h-3.5 w-3.5" />
+                            {t('export.exportExcel')}
+                          </Button>
+                        </span>
+                      </TooltipTrigger>
+                      {!isTauri && (
+                        <TooltipContent>
+                          <p className="text-xs">{t('export.exportMockDisabled')}</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  {/* Print Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1.5 text-xs"
+                        data-testid="print-menu-button"
+                      >
+                        <Printer className="h-3.5 w-3.5" />
+                        {t('print.printBtn')}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        data-testid="print-plan-item"
+                        onClick={() => navigate(`/print/plan/${activePlan.id}`)}
+                        className="gap-2 cursor-pointer text-xs"
+                      >
+                        <Printer className="h-3.5 w-3.5" />
+                        {t('print.printPlan')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        data-testid="print-notices-item"
+                        onClick={() => navigate(`/print/notices/${activePlan.id}`)}
+                        className="gap-2 cursor-pointer text-xs"
+                      >
+                        <Printer className="h-3.5 w-3.5" />
+                        {t('print.printNotices')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             )}
