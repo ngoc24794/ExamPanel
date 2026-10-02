@@ -401,4 +401,40 @@ mod tests {
         let err = summary.error.unwrap();
         assert!(err.contains("Missing required table"));
     }
+
+    #[test]
+    fn test_restore_reopens_connection_on_file_store() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db_file = temp_dir.path().join("active.db");
+        let backup_file = temp_dir.path().join("backup.db");
+
+        // Create initial db and backup
+        let mut store = Store::open_at(&db_file).unwrap();
+        assert_eq!(store.path(), Some(db_file.as_path()));
+        let campus = store.create_campus("CS1", "Campus CS1", "#fff").unwrap();
+        store
+            .create_teacher("Teacher In Backup", campus.id, 1.0, true, None, None)
+            .unwrap();
+        store.backup_to(&backup_file).unwrap();
+
+        // Mutate store with new teacher
+        store
+            .create_teacher("Teacher After Backup", campus.id, 1.0, true, None, None)
+            .unwrap();
+        assert_eq!(store.get_teachers().unwrap().len(), 2);
+
+        // Restore: this reopens the connection
+        store.restore_from(&backup_file).unwrap();
+
+        // Check restored state
+        let teachers = store.get_teachers().unwrap();
+        assert_eq!(teachers.len(), 1);
+        assert_eq!(teachers[0].full_name, "Teacher In Backup");
+
+        // Verify we can still write to the reopened connection
+        store
+            .create_teacher("New Post Restore Teacher", campus.id, 1.0, true, None, None)
+            .unwrap();
+        assert_eq!(store.get_teachers().unwrap().len(), 2);
+    }
 }

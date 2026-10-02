@@ -79,13 +79,44 @@ export function AssignmentsPage() {
   const { data: plans = [], refetch: refetchPlans } = usePlans(schoolYearId)
   const [selectedPlanId, setSelectedPlanId] = React.useState<number | null>(null)
 
-  // Default to final plan or first plan
+  // Default to final plan or first plan, and sync if plans list changes or plan is deleted
   React.useEffect(() => {
-    if (plans.length > 0 && selectedPlanId === null) {
-      const finalPlan = plans.find((p) => p.is_final)
-      setSelectedPlanId(finalPlan ? finalPlan.id : plans[0].id)
+    if (plans.length > 0) {
+      if (selectedPlanId === null || !plans.some((p) => p.id === selectedPlanId)) {
+        const finalPlan = plans.find((p) => p.is_final)
+        setSelectedPlanId(finalPlan ? finalPlan.id : plans[0].id)
+      }
+    } else {
+      setSelectedPlanId(null)
     }
   }, [plans, selectedPlanId])
+
+  // Clear undo/redo/dirty state when selected plan changes
+  React.useEffect(() => {
+    setUndoStack([])
+    setRedoStack([])
+    setIsDirty(false)
+    setKeptSlots([])
+    setFocusedTeacherId(null)
+  }, [selectedPlanId])
+
+  // Listen to application-wide restore event to reset in-memory state
+  React.useEffect(() => {
+    const handleRestoreReset = () => {
+      setSelectedPlanId(null)
+      setCurrentAssignments([])
+      setUndoStack([])
+      setRedoStack([])
+      setIsDirty(false)
+      setKeptSlots([])
+      setFocusedTeacherId(null)
+    }
+
+    window.addEventListener('exampanel:restore', handleRestoreReset)
+    return () => {
+      window.removeEventListener('exampanel:restore', handleRestoreReset)
+    }
+  }, [])
 
   const { data: loadedPlanDetails } = usePlanDetails(selectedPlanId)
   const { data: planStatus } = usePlanStatus(selectedPlanId)

@@ -56,11 +56,15 @@ describe('BackupSection Component Tests', () => {
     expect(screen.getByText('Năm học:')).toBeInTheDocument()
 
     // Confirm restore
+    const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
     const confirmBtn = screen.getByTestId('confirm-restore-btn')
     fireEvent.click(confirmBtn)
 
     await waitFor(() => {
       expect(restoreSpy).toHaveBeenCalled()
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'exampanel:restore' }),
+      )
     })
   })
 })

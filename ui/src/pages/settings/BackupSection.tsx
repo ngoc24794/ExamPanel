@@ -148,7 +148,9 @@ export const BackupSection: React.FC = () => {
       await api.restoreDatabase(selectedBackupPath)
       toast.success(t('backup.restoreSuccess'))
       setRestoreDialogOpen(false)
-      // Invalidate queries to refresh app state
+      // Invalidate queries and reset in-memory caches across the application
+      queryClient.clear()
+      window.dispatchEvent(new CustomEvent('exampanel:restore'))
       await queryClient.invalidateQueries()
       void loadBackups()
     } catch (err: unknown) {

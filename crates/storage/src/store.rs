@@ -9,18 +9,46 @@ use exam_panel_core::domain::{
     TeacherGrade, TeacherId, TeacherWithGrades, Unavailability,
 };
 use rusqlite::{params, Connection};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Strongly typed storage interface for ExamPanel.
 pub struct Store {
     conn: Connection,
+    path: Option<PathBuf>,
 }
 
 impl Store {
     /// Creates a store from an established SQLite connection.
     #[must_use]
     pub fn new(conn: Connection) -> Self {
-        Self { conn }
+        Self { conn, path: None }
+    }
+
+    /// Creates a store from an established connection and known file path.
+    #[must_use]
+    pub fn new_with_path(conn: Connection, path: PathBuf) -> Self {
+        Self {
+            conn,
+            path: Some(path),
+        }
+    }
+
+    /// Access the underlying file path if this store is backed by a disk file.
+    #[must_use]
+    pub fn path(&self) -> Option<&Path> {
+        self.path.as_deref()
+    }
+
+    /// Reopens the SQLite connection from disk if a database path is registered.
+    pub fn reopen(&mut self) -> Result<(), StorageError> {
+        if let Some(ref path) = self.path {
+            let mut conn = Connection::open(path).map_err(StorageError::from_sqlite)?;
+            conn.execute_batch("PRAGMA foreign_keys = ON; PRAGMA journal_mode = DELETE;")
+                .map_err(StorageError::from_sqlite)?;
+            run_migrations(&mut conn)?;
+            self.conn = conn;
+        }
+        Ok(())
     }
 
     /// Access the underlying SQLite connection.
@@ -41,18 +69,22 @@ impl Store {
             .map_err(StorageError::from_sqlite)?;
         run_migrations(&mut conn)?;
         seed_defaults(&conn)?;
-        Ok(Self { conn })
+        Ok(Self { conn, path: None })
     }
 
     /// Opens or creates a database at the specified path with foreign keys and rollback journal,
     /// runs migrations, and applies default seeds.
     pub fn open_at<P: AsRef<Path>>(path: P) -> Result<Self, StorageError> {
-        let mut conn = Connection::open(path).map_err(StorageError::from_sqlite)?;
+        let p = path.as_ref().to_path_buf();
+        let mut conn = Connection::open(&p).map_err(StorageError::from_sqlite)?;
         conn.execute_batch("PRAGMA foreign_keys = ON; PRAGMA journal_mode = DELETE;")
             .map_err(StorageError::from_sqlite)?;
         run_migrations(&mut conn)?;
         seed_defaults(&conn)?;
-        Ok(Self { conn })
+        Ok(Self {
+            conn,
+            path: Some(p),
+        })
     }
 
     /// Opens the database at the resolved portable/installed location.
@@ -75,7 +107,9 @@ impl Store {
     }
 
     pub fn restore_from(&mut self, path: &Path) -> Result<(), StorageError> {
-        crate::backup::restore_database(&mut self.conn, path)
+        crate::backup::restore_database(&mut self.conn, path)?;
+        self.reopen()?;
+        Ok(())
     }
 
     pub fn auto_backup(&self, reason: &str) -> Result<std::path::PathBuf, StorageError> {

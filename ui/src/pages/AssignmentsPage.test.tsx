@@ -156,5 +156,13 @@ describe('AssignmentsPage Component Tests', () => {
       expect(screen.getByTitle(i18n.t('assignments.undo'))).toBeInTheDocument()
     })
     expect(screen.getByTitle(i18n.t('assignments.redo'))).toBeInTheDocument()
+
+    // Dispatch restore event: in-memory editing state, undo stacks and selection must reset
+    window.dispatchEvent(new CustomEvent('exampanel:restore'))
+
+    await waitFor(() => {
+      // Editable draft undo/redo buttons are no longer present
+      expect(screen.queryByTitle(i18n.t('assignments.undo'))).not.toBeInTheDocument()
+    })
   })
 })
