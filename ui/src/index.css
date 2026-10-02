@@ -33,6 +33,39 @@
     --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;
+
+    /* Campus semantic palette tokens - Light mode (WCAG AA contrast >= 4.5:1) */
+    --campus-blue-bg: 214 95% 93%;
+    --campus-blue-fg: 224 76% 36%;
+    --campus-blue-border: 217 91% 80%;
+
+    --campus-emerald-bg: 152 76% 90%;
+    --campus-emerald-fg: 160 84% 25%;
+    --campus-emerald-border: 152 76% 75%;
+
+    --campus-amber-bg: 48 96% 89%;
+    --campus-amber-fg: 32 95% 32%;
+    --campus-amber-border: 48 96% 70%;
+
+    --campus-purple-bg: 271 91% 95%;
+    --campus-purple-fg: 273 67% 39%;
+    --campus-purple-border: 271 91% 82%;
+
+    --campus-rose-bg: 351 95% 95%;
+    --campus-rose-fg: 347 87% 38%;
+    --campus-rose-border: 351 95% 82%;
+
+    --campus-indigo-bg: 226 100% 94%;
+    --campus-indigo-fg: 243 54% 41%;
+    --campus-indigo-border: 226 100% 82%;
+
+    --campus-teal-bg: 168 84% 89%;
+    --campus-teal-fg: 175 77% 26%;
+    --campus-teal-border: 168 84% 75%;
+
+    --campus-orange-bg: 34 100% 92%;
+    --campus-orange-fg: 18 90% 36%;
+    --campus-orange-border: 34 100% 75%;
   }
 
   .dark {
@@ -63,6 +96,39 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
+
+    /* Campus semantic palette tokens - Dark mode (WCAG AA contrast >= 4.5:1) */
+    --campus-blue-bg: 224 64% 20%;
+    --campus-blue-fg: 214 95% 90%;
+    --campus-blue-border: 217 91% 35%;
+
+    --campus-emerald-bg: 164 86% 16%;
+    --campus-emerald-fg: 152 76% 85%;
+    --campus-emerald-border: 160 84% 30%;
+
+    --campus-amber-bg: 26 78% 18%;
+    --campus-amber-fg: 48 96% 85%;
+    --campus-amber-border: 32 95% 30%;
+
+    --campus-purple-bg: 274 66% 22%;
+    --campus-purple-fg: 271 91% 92%;
+    --campus-purple-border: 273 67% 35%;
+
+    --campus-rose-bg: 343 75% 20%;
+    --campus-rose-fg: 351 95% 90%;
+    --campus-rose-border: 347 87% 35%;
+
+    --campus-indigo-bg: 244 47% 24%;
+    --campus-indigo-fg: 226 100% 92%;
+    --campus-indigo-border: 243 54% 38%;
+
+    --campus-teal-bg: 176 61% 18%;
+    --campus-teal-fg: 168 84% 88%;
+    --campus-teal-border: 175 77% 30%;
+
+    --campus-orange-bg: 15 75% 20%;
+    --campus-orange-fg: 34 100% 90%;
+    --campus-orange-border: 18 90% 35%;
   }
 }
 

@@ -133,7 +133,7 @@ export function DevPage() {
         },
         (p: Progress) => {
           setProgress(p)
-        }
+        },
       )
 
       cancelRef.current = handle.cancel
@@ -168,9 +168,7 @@ export function DevPage() {
       {/* Header */}
       <div>
         <h3 className="text-2xl font-bold tracking-tight">{t('dev.title')}</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          {t('dev.subtitle')}
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">{t('dev.subtitle')}</p>
       </div>
 
       {/* Status Notifications */}
@@ -196,7 +194,8 @@ export function DevPage() {
             <span>Developer Actions</span>
           </CardTitle>
           <CardDescription>
-            Control solver execution, test feasibility verification, and seed demo records.
+            Control solver execution, test feasibility verification, and seed demo
+            records.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -226,11 +225,7 @@ export function DevPage() {
             </Button>
 
             {!optimizing ? (
-              <Button
-                variant="default"
-                onClick={handleStartOptimize}
-                className="gap-2"
-              >
+              <Button variant="default" onClick={handleStartOptimize} className="gap-2">
                 <Play className="h-4 w-4" />
                 <span>{t('dev.startOptimize')}</span>
               </Button>
@@ -253,9 +248,7 @@ export function DevPage() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">
-                {t('dev.checkFeasibility')}
-              </CardTitle>
+              <CardTitle className="text-base">{t('dev.checkFeasibility')}</CardTitle>
               {feasibility.report.is_feasible ? (
                 <Badge
                   variant="outline"
@@ -332,9 +325,7 @@ export function DevPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
                 {optimizing && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
-                <span>
-                  {optimizing ? t('dev.optimizing') : 'Optimization Completed'}
-                </span>
+                <span>{optimizing ? t('dev.optimizing') : 'Optimization Completed'}</span>
               </CardTitle>
               {progress && (
                 <div className="flex items-center gap-2 font-mono text-xs">
@@ -358,7 +349,7 @@ export function DevPage() {
                 style={{
                   width: `${Math.min(
                     100,
-                    Math.max(5, ((progress?.iteration ?? 0) / 50000) * 100)
+                    Math.max(5, ((progress?.iteration ?? 0) / 50000) * 100),
                   )}%`,
                 }}
               />
@@ -410,9 +401,7 @@ export function DevPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base">
-                  {t('dev.planTableTitle')}
-                </CardTitle>
+                <CardTitle className="text-base">{t('dev.planTableTitle')}</CardTitle>
                 <CardDescription>
                   Seed: {bestPlan.seed} • Rank: #{bestPlan.rank} • Total Penalty:{' '}
                   <span className="font-mono font-bold text-foreground">
@@ -448,14 +437,11 @@ export function DevPage() {
                       </td>
                       {grades.map((grade) => {
                         const cellAssignments = bestPlan.assignments.filter(
-                          (a) =>
-                            a.exam_id === exam.id && a.grade_id === grade.id
+                          (a) => a.exam_id === exam.id && a.grade_id === grade.id,
                         )
-                        const setters = cellAssignments.filter(
-                          (a) => a.role === 'setter'
-                        )
+                        const setters = cellAssignments.filter((a) => a.role === 'setter')
                         const reviewer = cellAssignments.find(
-                          (a) => a.role === 'reviewer'
+                          (a) => a.role === 'reviewer',
                         )
 
                         return (
@@ -486,8 +472,7 @@ export function DevPage() {
                                   {t('dev.reviewer')}
                                 </div>
                                 <div className="font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded text-[11px]">
-                                  {teachers.get(reviewer.teacher_id)
-                                    ?.full_name ??
+                                  {teachers.get(reviewer.teacher_id)?.full_name ??
                                     `Teacher #${reviewer.teacher_id}`}
                                 </div>
                               </div>
@@ -514,9 +499,7 @@ export function DevPage() {
       {bestPlan && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">
-              {t('dev.scoreBreakdownTitle')}
-            </CardTitle>
+            <CardTitle className="text-base">{t('dev.scoreBreakdownTitle')}</CardTitle>
             <CardDescription>
               Objective penalty breakdown alongside mathematically provable lower bounds.
             </CardDescription>
@@ -548,8 +531,7 @@ export function DevPage() {
                 </thead>
                 <tbody className="divide-y">
                   {bestPlan.report.by_rule.map((r) => {
-                    const isOptimal =
-                      Math.abs(r.units - r.lower_bound) <= 1e-4
+                    const isOptimal = Math.abs(r.units - r.lower_bound) <= 1e-4
 
                     return (
                       <tr key={r.rule} className="hover:bg-muted/20">

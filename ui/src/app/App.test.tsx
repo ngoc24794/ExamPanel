@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor, act } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { App } from './App'
 import { ThemeProvider } from '@/lib/theme'
 import '@/i18n'
@@ -27,7 +28,7 @@ describe('App', () => {
     )
 
     // Check brand
-    expect(screen.getByText('ExamPanel')).toBeInTheDocument()
+    expect(screen.getAllByText('ExamPanel')[0]).toBeInTheDocument()
 
     // Check ping response from mock API
     await waitFor(() => {
@@ -42,13 +43,53 @@ describe('App', () => {
       </ThemeProvider>,
     )
 
-    // Click on Teachers nav item
-    const teachersButtons = screen.getAllByText(/Giáo viên|Teachers/i)
+    // Click on Campuses nav item
+    const campusesNav = screen.getByRole('link', { name: /Phân hiệu|Campuses/i })
     await act(async () => {
-      teachersButtons[0].click()
+      campusesNav.click()
     })
 
-    // Should display placeholder notice
-    expect(screen.getAllByText(/Phase 1 Skeleton/i)[0]).toBeInTheDocument()
+    // Should display Campuses screen heading
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: /Quản lý Phân hiệu|Campus Management/i }),
+      ).toBeInTheDocument()
+    })
+
+    // Click on Exams nav item (placeholder screen)
+    const examsNav = screen.getByRole('link', { name: /Kỳ thi|Exams/i })
+    await act(async () => {
+      examsNav.click()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText(/Phase 1 Skeleton/i)).toBeInTheDocument()
+    })
+  })
+
+  it('switches school year through selector and refetches data', async () => {
+    const user = userEvent.setup()
+    const { api } = await import('@/lib/api')
+    await api.seedDemo()
+
+    render(
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>,
+    )
+
+    // Current school year button should be rendered
+    await waitFor(() => {
+      expect(screen.getByText('2026-2027')).toBeInTheDocument()
+    })
+
+    // Click year selector button
+    const yearButton = screen.getByText('2026-2027')
+    await user.click(yearButton)
+
+    // Dropdown menu should display options
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toBeInTheDocument()
+    })
   })
 })

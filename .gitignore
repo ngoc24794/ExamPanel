@@ -17,6 +17,8 @@ dist-ssr/
 *.tsbuildinfo
 *.local
 .pnpm-debug.log*
+test-results/
+playwright-report/
 
 # Tauri
 src-tauri/target/

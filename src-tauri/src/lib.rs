@@ -23,12 +23,19 @@ pub fn run_smoke_test() {
         .expect("failed to get app info in smoke mode");
 
     let sy = service
-        .create_school_year(CreateSchoolYearInput {
-            name: "Smoke Test Year".to_string(),
-            is_current: false,
-            copy_grades_from: None,
-        })
-        .expect("failed to create smoke test school year");
+        .list_school_years()
+        .unwrap_or_default()
+        .into_iter()
+        .find(|y| y.name == "Smoke Test Year")
+        .unwrap_or_else(|| {
+            service
+                .create_school_year(CreateSchoolYearInput {
+                    name: "Smoke Test Year".to_string(),
+                    is_current: false,
+                    copy_grades_from: None,
+                })
+                .expect("failed to create smoke test school year")
+        });
 
     let feas = service
         .check_feasibility(sy.id)
