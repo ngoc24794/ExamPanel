@@ -45,10 +45,16 @@ if [ "$SKIP_BUILD" = false ]; then
   fi
 
   # Tự động cài đặt dependencies nếu chưa có
-  if [ ! -d "node_modules" ] || [ ! -d "ui/node_modules" ] || [ ! -f "ui/node_modules/.bin/tsc" ]; then
+  if [ ! -d "node_modules" ]; then
     echo ""
-    echo "[0/4] Chưa tìm thấy dependencies frontend/Tauri, đang tự động chạy pnpm install..."
+    echo "[0/4] Chưa tìm thấy root dependencies, đang chạy pnpm install..."
     pnpm install
+  fi
+
+  if [ ! -d "ui/node_modules" ] || [ ! -f "ui/node_modules/.bin/tsc" ]; then
+    echo ""
+    echo "[0/4] Chưa tìm thấy frontend UI dependencies, đang chạy pnpm -C ui install..."
+    pnpm -C ui install
   fi
 
   echo ""

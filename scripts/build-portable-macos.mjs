@@ -38,10 +38,15 @@ if (!skipBuild) {
     process.exit(1);
   }
 
-  // Tự động cài đặt dependencies nếu chưa cài đặt (tránh lỗi thiếu tsc, vite, v.v.)
-  if (!fs.existsSync('node_modules') || !fs.existsSync('ui/node_modules') || !fs.existsSync('ui/node_modules/.bin/tsc')) {
-    console.log('\n[0/4] Chưa tìm thấy dependencies frontend/Tauri, đang tự động chạy pnpm install...');
+  // Tự động cài đặt dependencies nếu chưa cài đặt (cả root và ui)
+  if (!fs.existsSync('node_modules')) {
+    console.log('\n[0/4] Chưa tìm thấy root dependencies, đang chạy pnpm install...');
     execSync('pnpm install', { stdio: 'inherit' });
+  }
+
+  if (!fs.existsSync('ui/node_modules') || !fs.existsSync('ui/node_modules/.bin/tsc')) {
+    console.log('\n[0/4] Chưa tìm thấy frontend UI dependencies, đang chạy pnpm -C ui install...');
+    execSync('pnpm -C ui install', { stdio: 'inherit' });
   }
 
   console.log('\n[1/4] Đang biên dịch frontend và ứng dụng Tauri (Release cho macOS)...');
