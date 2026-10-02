@@ -42,6 +42,8 @@ import { SettingsPage } from '@/pages/SettingsPage'
 import { DevPage } from '@/pages/DevPage'
 import { AssignmentsPage } from '@/pages/AssignmentsPage'
 import { StatisticsPage } from '@/pages/StatisticsPage'
+import { PrintPlanPage } from '@/pages/print/PrintPlanPage'
+import { PrintNoticesPage } from '@/pages/print/PrintNoticesPage'
 
 interface NavEntry {
   path: string
@@ -117,6 +119,20 @@ function AppLayout() {
         ? location.pathname === '/'
         : location.pathname.startsWith(item.path),
     ) || NAV_ENTRIES[0]
+
+  const isPrintRoute = location.pathname.startsWith('/print/')
+
+  if (isPrintRoute) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Routes>
+          <Route path="/print/plan/:id" element={<PrintPlanPage />} />
+          <Route path="/print/notices/:id" element={<PrintNoticesPage />} />
+          <Route path="*" element={<Navigate to="/assignments" replace />} />
+        </Routes>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground min-w-[1024px] min-h-[700px]">
