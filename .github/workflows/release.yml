@@ -81,3 +81,11 @@ jobs:
           Copy-Item "THIRD_PARTY_NOTICES" -Destination "$distFolder/THIRD_PARTY_NOTICES.txt"
           Compress-Archive -Path "$distFolder/*" -DestinationPath "target/$zipName" -Force
           Get-FileHash -Algorithm SHA256 "target/$zipName" | Out-File -Encoding utf8 "target/SHA256SUMS-windows.txt"
+
+      - name: Create macOS Portable Artifact
+        if: matrix.platform == 'macos'
+        run: |
+          chmod +x scripts/build-portable-macos.sh
+          ./scripts/build-portable-macos.sh --skip-build
+          shasum -a 256 target/ExamPanel-*-macos-*.tar.gz > target/SHA256SUMS-macos.txt || true
+

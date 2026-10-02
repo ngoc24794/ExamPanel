@@ -215,3 +215,10 @@
   - rules_hash: covers soft constraint enabled flags and penalty weights (S1–S8).
   plan_status returns { data_changed, rules_changed, hard_violations_now, score_now }. Only data_changed = true blocks mark_final. When only rules_changed = true, the UI displays an informational notice and permits finalization. Saving an edited plan copy recomputes and synchronizes both hashes with live data.
 - **Consequences:** Administrators can adjust evaluation criteria and tune soft weights without invalidating existing feasible plans, while preventing obsolete plans from being finalized against altered master rosters.
+
+## ADR-0034: macOS Portable Packaging and Bundle-Aware Marker Resolution
+- **Status:** Accepted
+- **Context:** On macOS, application executables are encapsulated within `.app` application bundles (`<Bundle>.app/Contents/MacOS/<Executable>`). When distributing a portable version on macOS (e.g., on a flash drive or standalone directory), the portable marker `ExamPanel.portable` is placed alongside `ExamPanel.app` in the distribution root, or inside `Contents/MacOS`.
+- **Decision:** Enhance `crates/storage/src/paths.rs` with `inspect_data_location_for_exe` to recognize macOS `.app` bundle hierarchies: if the executable path resides within an `.app` directory and `ExamPanel.portable` is present in the parent directory containing the `.app` bundle, the portable data path resolves to `./data` beside `ExamPanel.app`. Support read-only fallback (`PortableReadOnly`) if running on read-only mounted disk images. Add platform-specific `src-tauri/tauri.macos.conf.json` for `app` and `dmg` targets, automated packaging scripts (`scripts/build-portable-macos.sh`, `scripts/build-portable-macos.mjs`), and CI release pipeline steps.
+- **Consequences:** Consistent, zero-configuration portable execution across macOS and Windows, honoring USB drive isolation and macOS bundle conventions.
+

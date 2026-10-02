@@ -106,6 +106,52 @@ pub fn inspect_data_location_for_exe_dir(exe_dir: &Path) -> DataLocationStatus {
     }
 }
 
+/// Inspects the active data location mode based on a given executable path.
+#[must_use]
+pub fn inspect_data_location_for_exe(exe_path: &Path) -> DataLocationStatus {
+    if let Some(exe_dir) = exe_path.parent() {
+        let status = inspect_data_location_for_exe_dir(exe_dir);
+        if matches!(status, DataLocationStatus::Portable(_)) {
+            return status;
+        }
+
+        // On macOS (and .app bundles in general), the executable resides in:
+        //   <AppBundle>.app/Contents/MacOS/<Executable>
+        // When distributed as a portable folder, the marker file ExamPanel.portable
+        // is typically placed in the root directory beside <AppBundle>.app:
+        //   ExamPanel-macOS-portable/
+        //     ├── ExamPanel.app/
+        //     ├── ExamPanel.portable
+        //     └── data/
+        // If the marker is found in the folder containing .app, use that folder.
+        if let Some(app_bundle_dir) = exe_dir
+            .parent()
+            .and_then(|p| p.parent())
+            .filter(|p| p.extension().is_some_and(|ext| ext == "app"))
+        {
+            if let Some(bundle_parent) = app_bundle_dir.parent() {
+                let bundle_status = inspect_data_location_for_exe_dir(bundle_parent);
+                if matches!(
+                    bundle_status,
+                    DataLocationStatus::Portable(_) | DataLocationStatus::PortableReadOnly { .. }
+                ) {
+                    return bundle_status;
+                }
+            }
+        }
+
+        // In unit tests/dev, exe_dir is target/debug/deps where marker is absent.
+        // If marker is in current working directory, respect it:
+        if matches!(status, DataLocationStatus::Installed(_)) && Path::new(PORTABLE_MARKER).exists()
+        {
+            return inspect_data_location_for_exe_dir(Path::new("."));
+        }
+        return status;
+    }
+
+    DataLocationStatus::Installed(fallback_app_data_dir())
+}
+
 /// Inspects the active data location mode based on environment and executable location.
 #[must_use]
 pub fn inspect_data_location() -> DataLocationStatus {
@@ -114,17 +160,7 @@ pub fn inspect_data_location() -> DataLocationStatus {
     }
 
     if let Ok(exe_path) = std::env::current_exe() {
-        if let Some(exe_dir) = exe_path.parent() {
-            let status = inspect_data_location_for_exe_dir(exe_dir);
-            // In unit tests/dev, exe_dir is target/debug/deps where marker is absent.
-            // If marker is in current working directory, respect it:
-            if matches!(status, DataLocationStatus::Installed(_))
-                && Path::new(PORTABLE_MARKER).exists()
-            {
-                return inspect_data_location_for_exe_dir(Path::new("."));
-            }
-            return status;
-        }
+        return inspect_data_location_for_exe(&exe_path);
     }
 
     if Path::new(PORTABLE_MARKER).exists() {
@@ -232,6 +268,88 @@ mod tests {
         assert!(!is_dir_writable(&fake_data));
 
         let status = inspect_data_location_for_exe_dir(temp.path());
+        match status {
+            DataLocationStatus::PortableReadOnly {
+                requested,
+                fallback,
+            } => {
+                assert_eq!(requested, fake_data);
+                assert_eq!(fallback, fallback_app_data_dir());
+            }
+            other => panic!("expected PortableReadOnly, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn test_portable_marker_macos_app_bundle_adjacent() {
+        let temp = tempfile::tempdir().expect("failed to create temp dir");
+        let app_dir = temp
+            .path()
+            .join("ExamPanel.app")
+            .join("Contents")
+            .join("MacOS");
+        fs::create_dir_all(&app_dir).expect("create app dir");
+        let fake_exe = app_dir.join("ExamPanel");
+        fs::write(&fake_exe, b"").expect("write fake exe");
+
+        // Place portable marker beside the ExamPanel.app bundle
+        let marker = temp.path().join(PORTABLE_MARKER);
+        fs::write(&marker, b"").expect("write marker");
+
+        let status = inspect_data_location_for_exe(&fake_exe);
+        match status {
+            DataLocationStatus::Portable(dir) => {
+                assert_eq!(dir, temp.path().join("data"));
+            }
+            other => panic!("expected Portable beside .app, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn test_portable_marker_macos_app_bundle_inside() {
+        let temp = tempfile::tempdir().expect("failed to create temp dir");
+        let app_dir = temp
+            .path()
+            .join("ExamPanel.app")
+            .join("Contents")
+            .join("MacOS");
+        fs::create_dir_all(&app_dir).expect("create app dir");
+        let fake_exe = app_dir.join("ExamPanel");
+        fs::write(&fake_exe, b"").expect("write fake exe");
+
+        // Place portable marker inside the MacOS dir
+        let marker = app_dir.join(PORTABLE_MARKER);
+        fs::write(&marker, b"").expect("write marker");
+
+        let status = inspect_data_location_for_exe(&fake_exe);
+        match status {
+            DataLocationStatus::Portable(dir) => {
+                assert_eq!(dir, app_dir.join("data"));
+            }
+            other => panic!("expected Portable inside .app, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn test_portable_marker_macos_app_bundle_readonly() {
+        let temp = tempfile::tempdir().expect("failed to create temp dir");
+        let app_dir = temp
+            .path()
+            .join("ExamPanel.app")
+            .join("Contents")
+            .join("MacOS");
+        fs::create_dir_all(&app_dir).expect("create app dir");
+        let fake_exe = app_dir.join("ExamPanel");
+        fs::write(&fake_exe, b"").expect("write fake exe");
+
+        let marker = temp.path().join(PORTABLE_MARKER);
+        fs::write(&marker, b"").expect("write marker");
+
+        // Block data directory to simulate read-only / uncreatable directory
+        let fake_data = temp.path().join("data");
+        fs::write(&fake_data, b"blocking file").expect("write blocking file");
+
+        let status = inspect_data_location_for_exe(&fake_exe);
         match status {
             DataLocationStatus::PortableReadOnly {
                 requested,

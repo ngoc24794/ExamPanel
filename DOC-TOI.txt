@@ -1,6 +1,6 @@
 ======================================================================
            HƯỚNG DẪN KHỞI CHẠY EXAMPANEL (BẢN DI ĐỘNG - PORTABLE)
-                      Phiên bản: 0.1.0 (64-bit Windows)
+                      Phiên bản: 0.1.0 (Windows & macOS)
 ======================================================================
 
 1. GIỚI THIỆU
@@ -8,28 +8,28 @@
    phản biện đề kiểm tra định kỳ tại các trường trung học phổ thông.
 
 2. CÁCH SỬ DỤNG BẢN DI ĐỘNG (PORTABLE)
-   - Giải nén toàn bộ thư mục ZIP này vào ổ USB hoặc bất kỳ thư mục nào
-     trên máy tính của bạn (ví dụ: D:\ExamPanel\).
-   - Tệp đánh dấu 'ExamPanel.portable' được đặt cùng thư mục với
-     'ExamPanel.exe' nhằm chỉ định phần mềm lưu trữ toàn bộ dữ liệu tại
-     thư mục './data/' nằm ngay cạnh tệp chạy.
-   - Nhấp đúp vào 'ExamPanel.exe' để khởi động ứng dụng.
+   - Trên Windows:
+     + Giải nén tệp ZIP vào ổ USB hoặc bất kỳ thư mục nào trên máy (ví dụ: D:\ExamPanel\).
+     + Nhấp đúp vào 'ExamPanel.exe' để mở ứng dụng.
+     + Toàn bộ dữ liệu làm việc được lưu trong thư mục './data/' bên cạnh tệp thực thi.
+   - Trên macOS:
+     + Giải nén tệp TAR.GZ hoặc ZIP vào bất kỳ thư mục nào hoặc USB.
+     + Thư mục chứa tệp 'ExamPanel.app' và marker 'ExamPanel.portable'.
+     + Nhấp đúp vào 'ExamPanel.app' để chạy (dữ liệu lưu tự động vào thư mục './data/' bên cạnh).
 
-3. LƯU Ý KHI GẶP CẢNH BÁO WINDOWS DEFENDER SMARTSCREEN
-   Vì đây là phần mềm nội bộ chuyên môn và chưa mua chứng chỉ số thương
-   mại tốn phí từ Microsoft, màn hình xanh Windows SmartScreen có thể xuất
-   hiện lần đầu khởi chạy với thông báo "Windows protected your PC":
-   -> Nhấp vào dòng chữ "More info" (Thông tin thêm).
-   -> Nhấp vào nút "Run anyway" (Vẫn chạy).
-   Phần mềm hoàn toàn an toàn, mã nguồn mở, không chứa mã độc và không gửi
-   bất kỳ dữ liệu cá nhân nào ra bên ngoài mạng Internet.
+3. LƯU Ý KHI GẶP CẢNH BÁO BẢO MẬT HỆ ĐIỀU HÀNH
+   - Trên Windows (SmartScreen):
+     + Nhấp vào "More info" (Thông tin thêm) -> chọn "Run anyway" (Vẫn chạy).
+   - Trên macOS (Gatekeeper / Chưa đăng ký Apple Developer ID):
+     + Nếu macOS thông báo ứng dụng chưa được xác minh hoặc không thể mở:
+       Vào System Settings -> Privacy & Security -> cuộn xuống tìm ExamPanel và nhấn "Open Anyway".
+     + Hoặc mở Terminal tại thư mục chứa ứng dụng và gõ lệnh:
+       xattr -cr ExamPanel.app
 
 4. YÊU CẦU HỆ THỐNG
-   - Hệ điều hành: Windows 10 hoặc Windows 11 (64-bit).
-   - Microsoft Edge WebView2 Runtime: Mặc định đã được cài sẵn trên hầu hết
-     các máy Windows 10/11 hiện nay. Nếu máy tính của bạn thông báo thiếu
-     WebView2, vui lòng tải và cài đặt miễn phí từ trang chủ Microsoft:
-     https://go.microsoft.com/fwlink/p/?LinkId=2124703
+   - Windows: Windows 10/11 64-bit (yêu cầu Microsoft Edge WebView2 có sẵn trên hệ điều hành).
+   - macOS: macOS 10.15 (Catalina) trở lên (hỗ trợ cả Apple Silicon M1/M2/M3/M4 và Intel x86_64).
+
 
 5. SAO LƯU DỮ LIỆU
    - Toàn bộ dữ liệu của bạn nằm trong thư mục 'data/' (gồm tệp cơ sở dữ

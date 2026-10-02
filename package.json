@@ -17,6 +17,7 @@
     "typegen": "cargo run -p exam-panel-service --features typegen --bin generate_types",
     "check-version": "node scripts/check-version.mjs",
     "build:portable": "powershell -ExecutionPolicy Bypass -File scripts/build-portable.ps1",
+    "build:portable:macos": "node scripts/build-portable-macos.mjs",
     "check-all": "pnpm check-version && cargo fmt -- --check && cargo clippy -- -D warnings && cargo test && cargo test -p exam-panel-service --features typegen --test generate_types && pnpm -C ui lint && pnpm -C ui typecheck && pnpm -C ui test && pnpm -C ui build"
   },
   "devDependencies": {
