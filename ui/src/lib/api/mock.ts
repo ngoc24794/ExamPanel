@@ -66,6 +66,8 @@ export class MockExamPanelApi implements ExamPanelApi {
   private plans: PlanSummary[] = JSON.parse(JSON.stringify(demoPlans))
   private planDetailsMap: Map<number, PlanDetails> = new Map([
     [1, JSON.parse(JSON.stringify(demoPlanDetails))],
+    [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Kế hoạch #2', rank: 2 } }))],
+    [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Kế hoạch #3', rank: 3 } }))],
   ])
   private teacherGradesMap: Map<number, number[]> = new Map([
     [1, [1, 2]],
@@ -1306,6 +1308,11 @@ export class MockExamPanelApi implements ExamPanelApi {
     this.exams = JSON.parse(JSON.stringify(demoExams))
     this.ruleSettings = JSON.parse(JSON.stringify(demoRules))
     this.plans = JSON.parse(JSON.stringify(demoPlans))
+    this.planDetailsMap = new Map([
+      [1, JSON.parse(JSON.stringify(demoPlanDetails))],
+      [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Kế hoạch #2', rank: 2 } }))],
+      [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Kế hoạch #3', rank: 3 } }))],
+    ])
   }
 }
 

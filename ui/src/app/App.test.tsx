@@ -73,7 +73,7 @@ describe('App', () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByText(/Phase 1 Skeleton/i)).toBeInTheDocument()
+      expect(screen.getByTestId('assignments-page')).toBeInTheDocument()
     })
   })
 
@@ -90,11 +90,11 @@ describe('App', () => {
 
     // Current school year button should be rendered
     await waitFor(() => {
-      expect(screen.getByText('2026-2027')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /2026-2027/i })).toBeInTheDocument()
     })
 
     // Click year selector button
-    const yearButton = screen.getByText('2026-2027')
+    const yearButton = screen.getByRole('button', { name: /2026-2027/i })
     await user.click(yearButton)
 
     // Dropdown menu should display options

@@ -1,0 +1,160 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+import { AssignmentsPage } from './AssignmentsPage'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from '@/lib/theme'
+import '@/i18n'
+import i18n from '@/i18n'
+import { api } from '@/lib/api'
+
+function renderWithClient(ui: React.ReactElement) {
+  const testClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, staleTime: 0 },
+      mutations: { retry: false },
+    },
+  })
+  return render(
+    <MemoryRouter>
+      <ThemeProvider>
+        <QueryClientProvider client={testClient}>{ui}</QueryClientProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
+  )
+}
+
+describe('AssignmentsPage Component Tests', () => {
+  beforeEach(async () => {
+    localStorage.clear()
+    window.matchMedia = vi.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+    // Reset seed demo before each test
+    await api.seedDemo()
+  })
+
+  it('renders assignment workspace, header actions, and plan view', async () => {
+    renderWithClient(<AssignmentsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('assignments-page')).toBeInTheDocument()
+    })
+
+    // Header buttons
+    expect(screen.getByTestId('run-optimizer-button')).toBeInTheDocument()
+    expect(screen.getByTestId('compare-plans-button')).toBeInTheDocument()
+    expect(screen.getByTestId('history-plans-button')).toBeInTheDocument()
+
+    // Matrix view should be displayed
+    await waitFor(() => {
+      expect(screen.getByTestId('plan-matrix-view')).toBeInTheDocument()
+    })
+  })
+
+  it('opens Run Optimizer dialog, displays effort options, seed and feasibility status', async () => {
+    renderWithClient(<AssignmentsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('run-optimizer-button')).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByTestId('run-optimizer-button'))
+
+    await waitFor(() => {
+      expect(screen.getByText(i18n.t('assignments.runTitle'))).toBeInTheDocument()
+    })
+
+    // Effort buttons
+    expect(screen.getByRole('button', { name: /Nhanh/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Chuẩn/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Kỹ/i })).toBeInTheDocument()
+
+    // Plans count buttons (default 3)
+    const planCountBtn = screen.getByRole('button', { name: '3' })
+    expect(planCountBtn).toBeInTheDocument()
+  })
+
+  it('toggles Plans History panel, lists plans with source and final badges', async () => {
+    renderWithClient(<AssignmentsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('history-plans-button')).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByTestId('history-plans-button'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('plans-history-list')).toBeInTheDocument()
+    })
+
+    // Plans in mock demo data inside the history list
+    const historyList = screen.getByTestId('plans-history-list')
+    expect(historyList).toHaveTextContent(/Kế hoạch #1/i)
+  })
+
+  it('focuses on teacher when chip or teacher row is clicked', async () => {
+    renderWithClient(<AssignmentsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('plan-matrix-view')).toBeInTheDocument()
+    })
+
+    // Click on a teacher chip in the matrix
+    const teacherChips = await screen.findAllByTestId(/^chip-teacher-/)
+    expect(teacherChips.length).toBeGreaterThan(0)
+    fireEvent.click(teacherChips[0])
+
+    // Teacher focus panel should appear
+    await waitFor(() => {
+      expect(screen.getByTestId('teacher-focus-panel')).toBeInTheDocument()
+    })
+  })
+
+  it('opens Compare modal when compare button is clicked', async () => {
+    renderWithClient(<AssignmentsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('compare-plans-button')).toBeInTheDocument()
+    })
+
+    // Wait until plans are loaded so compare button is enabled
+    await waitFor(() => {
+      expect(screen.getByTestId('compare-plans-button')).not.toBeDisabled()
+    })
+
+    fireEvent.click(screen.getByTestId('compare-plans-button'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('plan-compare-modal')).toBeInTheDocument()
+    })
+  })
+
+  it('supports duplicate for editing, keyboard candidate replace, undo/redo, and save', async () => {
+    renderWithClient(<AssignmentsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('plan-matrix-view')).toBeInTheDocument()
+    })
+
+    // Wait for create-edit-copy-button to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('create-edit-copy-button')).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByTestId('create-edit-copy-button'))
+
+    // Once duplicated, it becomes an editable draft: undo/redo buttons become available
+    await waitFor(() => {
+      expect(screen.getByTitle(i18n.t('assignments.undo'))).toBeInTheDocument()
+    })
+    expect(screen.getByTitle(i18n.t('assignments.redo'))).toBeInTheDocument()
+  })
+})

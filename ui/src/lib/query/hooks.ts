@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   api,
+  type Assignment,
   type Campus,
   type CreateCampusInput,
   type CreateExamInput,
@@ -10,6 +11,9 @@ import {
   type CreateTeacherInput,
   type Exam,
   type Grade,
+  type PlanDetails,
+  type PlanStatus,
+  type PlanSummary,
   type RuleSetting,
   type Teacher,
   type TeacherWithGrades,
@@ -32,6 +36,9 @@ export const queryKeys = {
   ruleSettings: (schoolYearId: number) => ['ruleSettings', schoolYearId] as const,
   rulePresets: ['rulePresets'] as const,
   feasibility: (schoolYearId: number) => ['feasibility', schoolYearId] as const,
+  plans: (schoolYearId: number) => ['plans', schoolYearId] as const,
+  planDetails: (planId: number) => ['planDetails', planId] as const,
+  planStatus: (planId: number) => ['planStatus', planId] as const,
 }
 
 // Queries
@@ -505,6 +512,114 @@ export function useResetRuleSettings(schoolYearId: number) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.ruleSettings(schoolYearId) })
       qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+  })
+}
+
+// -----------------------------------------------------------------------------
+// Plans
+// -----------------------------------------------------------------------------
+
+export function usePlans(schoolYearId: number | undefined) {
+  return useQuery<PlanSummary[]>({
+    queryKey: queryKeys.plans(schoolYearId ?? 0),
+    queryFn: () => (schoolYearId ? api.listPlans(schoolYearId) : Promise.resolve([])),
+    enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+export function usePlanDetails(planId: number | null | undefined) {
+  return useQuery<PlanDetails | null>({
+    queryKey: queryKeys.planDetails(planId ?? 0),
+    queryFn: () => (planId ? api.getPlan(planId) : Promise.resolve(null)),
+    enabled: typeof planId === 'number' && planId > 0,
+  })
+}
+
+export function usePlanStatus(planId: number | null | undefined) {
+  return useQuery<PlanStatus | null>({
+    queryKey: queryKeys.planStatus(planId ?? 0),
+    queryFn: () => (planId ? api.planStatus(planId) : Promise.resolve(null)),
+    enabled: typeof planId === 'number' && planId > 0,
+  })
+}
+
+export function useRenamePlan(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, newName }: { id: number; newName: string }) =>
+      api.renamePlan(id, newName),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+export function useDeletePlan(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => api.deletePlan(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+export function useMarkFinal(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => api.markFinal(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
+      toast.success(
+        i18n.t('assignments.markFinalSuccess', {
+          defaultValue: 'Đã đánh dấu phương án chính thức thành công',
+        }),
+      )
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+export function useCreateManualCopy(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, name }: { id: number; name: string }) =>
+      api.createManualCopy(id, name),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+export function useUpdatePlanAssignments(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, assignments }: { id: number; assignments: Assignment[] }) =>
+      api.updatePlanAssignments(id, assignments),
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.planDetails(vars.id) })
+      qc.invalidateQueries({ queryKey: queryKeys.planStatus(vars.id) })
+      toast.success(
+        i18n.t('assignments.saveAssignmentsSuccess', {
+          defaultValue: 'Đã lưu phương án phân công',
+        }),
+      )
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
     },
   })
 }

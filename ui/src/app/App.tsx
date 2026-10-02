@@ -40,7 +40,8 @@ import { UnavailabilityPage } from '@/pages/UnavailabilityPage'
 import { RulesPage } from '@/pages/RulesPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { DevPage } from '@/pages/DevPage'
-import { PlaceholderPage } from '@/pages/PlaceholderPage'
+import { AssignmentsPage } from '@/pages/AssignmentsPage'
+import { StatisticsPage } from '@/pages/StatisticsPage'
 
 interface NavEntry {
   path: string
@@ -86,7 +87,7 @@ const NAV_ENTRIES: NavEntry[] = [
     icon: <ClipboardCheck className="h-4 w-4" />,
   },
   {
-    path: '/stats',
+    path: '/statistics',
     labelKey: 'nav.stats',
     icon: <BarChart3 className="h-4 w-4" />,
   },
@@ -231,21 +232,9 @@ function AppLayout() {
               <Route path="/exams" element={<ExamsPage />} />
               <Route path="/unavailability" element={<UnavailabilityPage />} />
               <Route path="/rules" element={<RulesPage />} />
-              <Route
-                path="/assignments"
-                element={
-                  <PlaceholderPage
-                    titleKey="assignments.title"
-                    descKey="assignments.description"
-                  />
-                }
-              />
-              <Route
-                path="/stats"
-                element={
-                  <PlaceholderPage titleKey="stats.title" descKey="stats.description" />
-                }
-              />
+              <Route path="/assignments" element={<AssignmentsPage />} />
+              <Route path="/statistics" element={<StatisticsPage />} />
+              <Route path="/stats" element={<Navigate to="/statistics" replace />} />
               <Route path="/settings" element={<SettingsPage />} />
               {import.meta.env.DEV && <Route path="/dev" element={<DevPage />} />}
               <Route path="*" element={<Navigate to="/" replace />} />
