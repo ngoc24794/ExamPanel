@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import type { FeasibilityReport, Violation } from '@/lib/api'
+import type { Diagnostic, FeasibilityReport, Violation } from '@/lib/api'
 
 interface FeasibilitySheetProps {
   open: boolean
@@ -51,7 +51,7 @@ function categorizeDiagnostic(code: string): CategoryKey {
   return 'panels'
 }
 
-function getFixTarget(violation: Violation): { path: string; labelKey: string } {
+function getFixTarget(violation: Diagnostic | Violation): { path: string; labelKey: string } {
   const code = violation.code
   if (
     code === 'no_campuses' ||

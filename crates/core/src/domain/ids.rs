@@ -22,6 +22,23 @@ macro_rules! define_id {
         #[serde(transparent)]
         pub struct $name(pub i64);
 
+        impl ts_rs::TS for $name {
+            type WithoutGenerics = Self;
+            type OptionInnerType = Self;
+            fn name(_: &ts_rs::Config) -> String {
+                "number".to_string()
+            }
+            fn decl(_: &ts_rs::Config) -> String {
+                String::new()
+            }
+            fn inline(_: &ts_rs::Config) -> String {
+                "number".to_string()
+            }
+            fn dependencies(_: &ts_rs::Config) -> Vec<ts_rs::Dependency> {
+                vec![]
+            }
+        }
+
         impl $name {
             #[inline]
             #[must_use]

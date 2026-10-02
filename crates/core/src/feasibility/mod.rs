@@ -17,11 +17,19 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 /// A structured diagnostic report item identifying an infeasibility or warning condition.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Diagnostic {
+    #[serde(default)]
+    #[ts(optional)]
+    pub rule: Option<RuleKey>,
     pub code: &'static str,
+    #[serde(default)]
+    #[ts(optional)]
     pub panel: Option<PanelKey>,
+    #[serde(default)]
+    #[ts(optional)]
     pub teacher: Option<TeacherId>,
+    #[ts(type = "Record<string, unknown>")]
     pub params: BTreeMap<String, serde_json::Value>,
 }
 
@@ -32,14 +40,20 @@ impl<'de> Deserialize<'de> for Diagnostic {
     {
         #[derive(Deserialize)]
         struct DiagnosticHelper {
+            #[serde(default)]
+            rule: Option<RuleKey>,
             code: String,
+            #[serde(default)]
             panel: Option<PanelKey>,
+            #[serde(default)]
             teacher: Option<TeacherId>,
+            #[serde(default)]
             params: BTreeMap<String, serde_json::Value>,
         }
 
         let helper = DiagnosticHelper::deserialize(deserializer)?;
         Ok(Self {
+            rule: helper.rule,
             code: Box::leak(helper.code.into_boxed_str()),
             panel: helper.panel,
             teacher: helper.teacher,
@@ -52,11 +66,18 @@ impl Diagnostic {
     #[must_use]
     pub fn new(code: &'static str) -> Self {
         Self {
+            rule: None,
             code,
             panel: None,
             teacher: None,
             params: BTreeMap::new(),
         }
+    }
+
+    #[must_use]
+    pub fn with_rule(mut self, rule: RuleKey) -> Self {
+        self.rule = Some(rule);
+        self
     }
 
     #[must_use]
@@ -175,8 +196,10 @@ impl From<ValidationError> for Diagnostic {
 }
 
 /// The outcome of the pre-solve feasibility verification.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct FeasibilityReport {
+    /// True if there are zero blocking errors.
+    pub is_feasible: bool,
     /// Blocking errors that make finding a valid schedule mathematically impossible.
     pub errors: Vec<Diagnostic>,
     /// Non-blocking warnings indicating tight bottlenecks or potential quality issues.
@@ -189,7 +212,7 @@ impl FeasibilityReport {
     /// Returns true if there are zero blocking errors.
     #[must_use]
     pub fn is_feasible(&self) -> bool {
-        self.errors.is_empty()
+        self.is_feasible
     }
 }
 
@@ -282,6 +305,7 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
 
     if degenerate {
         return FeasibilityReport {
+            is_feasible: false,
             errors,
             warnings,
             quotas,
@@ -696,7 +720,9 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
         );
     }
 
+    let is_feasible = errors.is_empty();
     FeasibilityReport {
+        is_feasible,
         errors,
         warnings,
         quotas,

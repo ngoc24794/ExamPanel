@@ -1,0 +1,4 @@
+   Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.66s
+     Running `target\debug\generate_types.exe`
+Successfully generated TypeScript types to "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\crates\\service\\../../ui/src/lib/api/generated/types.ts"

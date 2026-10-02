@@ -26,12 +26,17 @@ impl Default for ValidateOptions {
 }
 
 /// A specific hard constraint violation found in an assignment set.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Violation {
     pub rule: RuleKey,
     pub code: String,
+    #[serde(default)]
+    #[ts(optional)]
     pub panel: Option<PanelKey>,
+    #[serde(default)]
+    #[ts(optional)]
     pub teacher: Option<TeacherId>,
+    #[ts(type = "Record<string, unknown>")]
     pub params: BTreeMap<String, serde_json::Value>,
 }
 

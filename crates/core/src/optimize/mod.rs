@@ -8,12 +8,37 @@
 //! - Max-min diversity plan selection
 
 pub mod anneal;
+pub mod eval_edit;
 pub mod moves;
 pub mod state;
 
 pub use anneal::{Budget, Progress};
+pub use eval_edit::{evaluate_candidates, evaluate_swap, CandidateEval, SlotRef};
 pub use moves::LocalMove;
 pub use state::IncrementalState;
+
+/// Pre-defined search effort presets balancing runtime vs solution depth.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+#[serde(rename_all = "snake_case")]
+pub enum OptimizationEffort {
+    /// Fast: 4 independent runs x 25,000 iterations (Nhanh)
+    Fast,
+    /// Standard: 8 independent runs x 50,000 iterations (Chuẩn)
+    Standard,
+    /// Thorough: 16 independent runs x 100,000 iterations (Kỹ)
+    Thorough,
+}
+
+impl OptimizationEffort {
+    #[must_use]
+    pub const fn runs_and_iterations(&self) -> (usize, u64) {
+        match self {
+            Self::Fast => (4, 25_000),
+            Self::Standard => (8, 50_000),
+            Self::Thorough => (16, 100_000),
+        }
+    }
+}
 
 use crate::domain::{Assignment, Problem};
 use crate::score::{evaluate, ScoreReport};
@@ -62,19 +87,22 @@ impl Default for OptimizeOptions {
 }
 
 /// A ranked solution plan returned from multi-start optimization.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct RankedPlan {
     pub rank: usize,
+    #[ts(type = "number")]
     pub seed: u64,
     pub assignments: Vec<Assignment>,
     pub report: ScoreReport,
 }
 
 /// Overall execution statistics from the multi-plan optimization run.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct OptimizeStats {
     pub total_runs: usize,
+    #[ts(type = "number")]
     pub total_iterations: u64,
+    #[ts(type = "number")]
     pub elapsed_ms: u64,
 }
 
@@ -256,7 +284,7 @@ mod tests {
     use rand_chacha::ChaCha8Rng;
     use rand_core::{RngCore, SeedableRng};
 
-    fn make_seed_demo_problem() -> Problem {
+    pub(crate) fn make_seed_demo_problem() -> Problem {
         use crate::domain::*;
         let sy = SchoolYear {
             id: SchoolYearId(1),

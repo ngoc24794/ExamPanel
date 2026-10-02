@@ -6,7 +6,7 @@ use std::fmt;
 use std::str::FromStr;
 
 /// A physical school branch or campus location.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Campus {
     pub id: CampusId,
     pub code: String,
@@ -15,7 +15,7 @@ pub struct Campus {
 }
 
 /// A student cohort grade level (e.g. 10, 11, 12).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Grade {
     pub id: GradeId,
     pub code: i32,
@@ -24,7 +24,7 @@ pub struct Grade {
 }
 
 /// A teaching staff member eligible for assignment.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Teacher {
     pub id: TeacherId,
     pub full_name: String,
@@ -35,7 +35,7 @@ pub struct Teacher {
 }
 
 /// An academic year under management (e.g., "2026-2027").
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct SchoolYear {
     pub id: SchoolYearId,
     pub name: String,
@@ -43,7 +43,7 @@ pub struct SchoolYear {
 }
 
 /// An exam term during a school year (e.g., GK1, CK1, GK2, CK2).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Exam {
     pub id: ExamId,
     pub school_year_id: SchoolYearId,
@@ -62,7 +62,7 @@ pub struct TeacherGrade {
 }
 
 /// An exam term for which a teacher is unavailable.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
 pub struct Unavailability {
     pub teacher_id: TeacherId,
     pub exam_id: ExamId,
@@ -70,7 +70,7 @@ pub struct Unavailability {
 }
 
 /// Role on an exam panel: Setter (Ra đề) or Reviewer (Phản biện).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum Role {
     Setter,
@@ -106,7 +106,7 @@ impl FromStr for Role {
 }
 
 /// Lock override kind: mandatory PIN or prohibited FORBID.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum LockKind {
     Pin,
@@ -142,7 +142,7 @@ impl FromStr for LockKind {
 }
 
 /// A manual lock override on an exam panel.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Lock {
     pub id: LockId,
     pub exam_id: ExamId,
@@ -190,6 +190,23 @@ pub enum RuleKey {
         alias = "s8_workload_balance"
     )]
     S8,
+}
+
+impl ts_rs::TS for RuleKey {
+    type WithoutGenerics = Self;
+    type OptionInnerType = Self;
+    fn name(_: &ts_rs::Config) -> String {
+        "RuleKey".to_string()
+    }
+    fn decl(_: &ts_rs::Config) -> String {
+        "type RuleKey = \"h1\" | \"h2\" | \"h3\" | \"h4\" | \"h5\" | \"h6\" | \"h7\" | \"s1\" | \"s2\" | \"s3\" | \"s4\" | \"s5\" | \"s6\" | \"s7\" | \"s8\";".to_string()
+    }
+    fn inline(_: &ts_rs::Config) -> String {
+        "RuleKey".to_string()
+    }
+    fn dependencies(_: &ts_rs::Config) -> Vec<ts_rs::Dependency> {
+        vec![]
+    }
 }
 
 impl RuleKey {
@@ -266,11 +283,12 @@ impl FromStr for RuleKey {
 }
 
 /// Configuration settings for a specific constraint rule.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct RuleSetting {
     pub key: RuleKey,
     pub enabled: bool,
     pub weight: f64,
+    #[ts(type = "Record<string, unknown>")]
     pub params: serde_json::Value,
 }
 
@@ -407,46 +425,61 @@ fn default_plan_source() -> String {
 }
 
 /// A full generated schedule across all panels for a school year.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Plan {
     pub id: PlanId,
     pub school_year_id: SchoolYearId,
     pub name: String,
     pub created_at: String,
+    #[ts(type = "number")]
     pub seed: u64,
+    #[ts(optional)]
     pub score: Option<f64>,
     pub is_final: bool,
     #[serde(default)]
+    #[ts(optional)]
     pub rank: Option<u32>,
     #[serde(default)]
+    #[ts(optional)]
     pub score_report_json: Option<String>,
     #[serde(default)]
+    #[ts(optional)]
     pub run_params_json: Option<String>,
     #[serde(default = "default_plan_source")]
     pub source: String,
+    #[serde(default)]
+    #[ts(optional)]
+    pub problem_hash: Option<String>,
 }
 
 /// Summary record for plan listing.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct PlanSummary {
     pub id: PlanId,
     pub name: String,
+    #[ts(optional)]
     pub rank: Option<u32>,
+    #[ts(optional)]
     pub score: Option<f64>,
     pub created_at: String,
     pub is_final: bool,
     pub source: String,
+    #[serde(default)]
+    #[ts(optional)]
+    pub problem_hash: Option<String>,
+    #[serde(default)]
+    pub is_stale: bool,
 }
 
 /// A teacher along with their assigned grade qualifications for a specific school year.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct TeacherWithGrades {
     pub teacher: Teacher,
     pub grade_ids: Vec<GradeId>,
 }
 
 /// An individual assignment record within a Plan.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
 pub struct Assignment {
     #[serde(default)]
     pub plan_id: PlanId,
@@ -475,7 +508,9 @@ impl Assignment {
 }
 
 /// Identifying coordinate for an Exam Panel (Exam × Grade).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, ts_rs::TS,
+)]
 pub struct PanelKey {
     pub exam_id: ExamId,
     pub grade_id: GradeId,

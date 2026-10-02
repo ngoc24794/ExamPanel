@@ -56,7 +56,7 @@ describe('FeasibilityIndicator & FeasibilitySheet', () => {
           },
         ],
         warnings: [],
-        capacity: { target_slots: 36, active_teachers: 10, total_weight: 10 },
+        quotas: [],
       },
       quotas: [],
     })

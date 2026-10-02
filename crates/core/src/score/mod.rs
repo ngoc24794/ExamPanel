@@ -20,7 +20,7 @@ pub mod bounds;
 pub use bounds::{lower_bounds, optimal_s8_counts, RuleBound};
 
 /// Summary score report for a complete plan evaluation.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct ScoreReport {
     /// Total penalty across all enabled soft constraint rules.
     pub total: f64,
@@ -33,7 +33,7 @@ pub struct ScoreReport {
 }
 
 /// Score breakdown for a specific soft constraint rule.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct RuleScore {
     pub rule: RuleKey,
     pub enabled: bool,
@@ -44,7 +44,7 @@ pub struct RuleScore {
 }
 
 /// A specific soft constraint violation instance with explanatory metadata.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct SoftViolation {
     pub rule: RuleKey,
     pub code: String,
@@ -54,7 +54,7 @@ pub struct SoftViolation {
 }
 
 /// Annual assignment statistics for an individual teacher.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct TeacherStats {
     pub teacher_id: TeacherId,
     pub count: usize,

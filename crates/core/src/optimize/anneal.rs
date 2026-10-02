@@ -22,12 +22,14 @@ pub enum Budget {
 use serde::{Deserialize, Serialize};
 
 /// Progress snapshot sent to callers during optimization.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Progress {
     pub run: usize,
+    #[ts(type = "number")]
     pub iteration: u64,
     pub best_score: f64,
     pub current_score: f64,
+    #[ts(type = "number")]
     pub elapsed_ms: u64,
 }
 

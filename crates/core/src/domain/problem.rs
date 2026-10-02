@@ -219,6 +219,189 @@ impl Problem {
 
         errors
     }
+
+    /// Computes a stable, deterministic canonical SHA-256 hash representing this problem snapshot.
+    ///
+    /// Canonicalization algorithm:
+    /// 1. Extract each entity type and sort by primary identity:
+    ///    - campuses sorted by (code, id)
+    ///    - grades sorted by (code, sort_order, id)
+    ///    - teachers sorted by (id, full_name, campus_id, normalized load_weight)
+    ///    - teacher_grades sorted by (teacher_id, grade_id)
+    ///    - exams sorted by (sort_order, code, id)
+    ///    - unavailabilities sorted by (teacher_id, exam_id)
+    ///    - locks sorted by (exam_id, grade_id, teacher_id, role, kind)
+    ///    - rule_settings sorted by rule key string
+    /// 2. Build a stable JSON structure where numbers and floats are formatted deterministically.
+    /// 3. Hash the resulting UTF-8 bytes with SHA-256 and encode as a 64-char lowercase hexadecimal string.
+    #[must_use]
+    pub fn canonical_hash(&self) -> String {
+        use sha2::{Digest, Sha256};
+
+        let mut campuses: Vec<_> = self
+            .campuses
+            .iter()
+            .map(|c| {
+                serde_json::json!({
+                    "id": c.id.0,
+                    "code": &c.code,
+                    "name": &c.name,
+                    "color": &c.color,
+                })
+            })
+            .collect();
+        campuses.sort_by(|a, b| {
+            a["code"]
+                .as_str()
+                .cmp(&b["code"].as_str())
+                .then(a["id"].as_i64().cmp(&b["id"].as_i64()))
+        });
+
+        let mut grades: Vec<_> = self
+            .grades
+            .iter()
+            .map(|g| {
+                serde_json::json!({
+                    "id": g.id.0,
+                    "code": g.code,
+                    "name": &g.name,
+                    "sort_order": g.sort_order,
+                })
+            })
+            .collect();
+        grades.sort_by(|a, b| {
+            a["code"]
+                .as_i64()
+                .cmp(&b["code"].as_i64())
+                .then(a["id"].as_i64().cmp(&b["id"].as_i64()))
+        });
+
+        let mut teachers: Vec<_> = self
+            .teachers
+            .iter()
+            .map(|t| {
+                serde_json::json!({
+                    "id": t.id.0,
+                    "full_name": &t.full_name,
+                    "campus_id": t.campus_id.0,
+                    "load_weight": format!("{:.4}", t.load_weight),
+                    "active": t.active,
+                    "note": &t.note,
+                })
+            })
+            .collect();
+        teachers.sort_by(|a, b| a["id"].as_i64().cmp(&b["id"].as_i64()));
+
+        let mut teacher_grades: Vec<_> = self
+            .teacher_grades
+            .iter()
+            .map(|tg| {
+                serde_json::json!({
+                    "teacher_id": tg.teacher_id.0,
+                    "grade_id": tg.grade_id.0,
+                })
+            })
+            .collect();
+        teacher_grades.sort_by(|a, b| {
+            a["teacher_id"]
+                .as_i64()
+                .cmp(&b["teacher_id"].as_i64())
+                .then(a["grade_id"].as_i64().cmp(&b["grade_id"].as_i64()))
+        });
+
+        let mut exams: Vec<_> = self
+            .exams
+            .iter()
+            .map(|e| {
+                serde_json::json!({
+                    "id": e.id.0,
+                    "code": &e.code,
+                    "name": &e.name,
+                    "sort_order": e.sort_order,
+                })
+            })
+            .collect();
+        exams.sort_by(|a, b| {
+            a["sort_order"]
+                .as_i64()
+                .cmp(&b["sort_order"].as_i64())
+                .then(a["code"].as_str().cmp(&b["code"].as_str()))
+                .then(a["id"].as_i64().cmp(&b["id"].as_i64()))
+        });
+
+        let mut unavailabilities: Vec<_> = self
+            .unavailabilities
+            .iter()
+            .map(|u| {
+                serde_json::json!({
+                    "teacher_id": u.teacher_id.0,
+                    "exam_id": u.exam_id.0,
+                    "reason": &u.reason,
+                })
+            })
+            .collect();
+        unavailabilities.sort_by(|a, b| {
+            a["teacher_id"]
+                .as_i64()
+                .cmp(&b["teacher_id"].as_i64())
+                .then(a["exam_id"].as_i64().cmp(&b["exam_id"].as_i64()))
+        });
+
+        let mut locks: Vec<_> = self
+            .locks
+            .iter()
+            .map(|l| {
+                serde_json::json!({
+                    "exam_id": l.exam_id.0,
+                    "grade_id": l.grade_id.0,
+                    "teacher_id": l.teacher_id.0,
+                    "role": l.role.as_ref().map(|r| r.as_str()),
+                    "kind": l.kind.as_str(),
+                })
+            })
+            .collect();
+        locks.sort_by(|a, b| {
+            a["exam_id"]
+                .as_i64()
+                .cmp(&b["exam_id"].as_i64())
+                .then(a["grade_id"].as_i64().cmp(&b["grade_id"].as_i64()))
+                .then(a["teacher_id"].as_i64().cmp(&b["teacher_id"].as_i64()))
+                .then(a["kind"].as_str().cmp(&b["kind"].as_str()))
+        });
+
+        let mut rule_settings: Vec<_> = self
+            .rule_settings
+            .iter()
+            .map(|rs| {
+                serde_json::json!({
+                    "key": rs.key.to_string(),
+                    "enabled": rs.enabled,
+                    "weight": format!("{:.4}", rs.weight),
+                    "params": &rs.params,
+                })
+            })
+            .collect();
+        rule_settings.sort_by(|a, b| a["key"].as_str().cmp(&b["key"].as_str()));
+
+        let canonical_doc = serde_json::json!({
+            "school_year": {
+                "id": self.school_year.id.0,
+                "name": &self.school_year.name,
+            },
+            "campuses": campuses,
+            "grades": grades,
+            "teachers": teachers,
+            "teacher_grades": teacher_grades,
+            "exams": exams,
+            "unavailabilities": unavailabilities,
+            "locks": locks,
+            "rule_settings": rule_settings,
+        });
+
+        let serialized = serde_json::to_string(&canonical_doc).unwrap_or_default();
+        let hash = Sha256::digest(serialized.as_bytes());
+        format!("{hash:x}")
+    }
 }
 
 #[cfg(test)]
@@ -354,5 +537,62 @@ mod tests {
         let json = serde_json::to_string(&problem).unwrap();
         let deserialized: Problem = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized, problem);
+    }
+
+    #[test]
+    fn test_canonical_hash_stability_under_reordering() {
+        let mut p1 = make_valid_problem();
+        let mut p2 = make_valid_problem();
+
+        // Add extra items in different order
+        let t2 = Teacher {
+            id: TeacherId(2),
+            full_name: "Tran Thi B".to_string(),
+            campus_id: CampusId(1),
+            load_weight: 0.8,
+            active: true,
+            note: None,
+        };
+        p1.teachers.push(t2.clone());
+        p2.teachers.insert(0, t2);
+
+        // Reverse exams
+        let e2 = Exam {
+            id: ExamId(2),
+            school_year_id: SchoolYearId(1),
+            code: "CK1".to_string(),
+            name: "Cuoi Ki 1".to_string(),
+            sort_order: 2,
+        };
+        p1.exams.push(e2.clone());
+        p2.exams.insert(0, e2);
+
+        assert_eq!(p1.canonical_hash(), p2.canonical_hash());
+    }
+
+    #[test]
+    fn test_canonical_hash_changes_on_modification() {
+        let p1 = make_valid_problem();
+        let h1 = p1.canonical_hash();
+
+        let mut p2 = make_valid_problem();
+        p2.teachers[0].load_weight = 0.5;
+        assert_ne!(h1, p2.canonical_hash());
+
+        let mut p3 = make_valid_problem();
+        p3.rule_settings[0].weight = 50.0;
+        assert_ne!(h1, p3.canonical_hash());
+
+        let mut p4 = make_valid_problem();
+        p4.campuses[0].name = "Renamed Campus".to_string();
+        assert_ne!(h1, p4.canonical_hash());
+
+        let mut p5 = make_valid_problem();
+        p5.unavailabilities.push(Unavailability {
+            teacher_id: TeacherId(1),
+            exam_id: ExamId(1),
+            reason: Some("Off".to_string()),
+        });
+        assert_ne!(h1, p5.canonical_hash());
     }
 }

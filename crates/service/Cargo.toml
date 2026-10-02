@@ -6,8 +6,8 @@ authors.workspace = true
 license.workspace = true
 
 [features]
-default = []
-dev-tools = ["dep:ts-rs"]
+default = ["dev-tools"]
+dev-tools = []
 
 [dependencies]
 exam-panel-core = { workspace = true }
@@ -15,9 +15,8 @@ exam-panel-storage = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
-ts-rs = { version = "12", optional = true, features = ["serde-compat"] }
+ts-rs = { version = "12", features = ["serde-compat"] }
 
 [dev-dependencies]
-exam-panel-service = { path = ".", features = ["dev-tools"] }
 tempfile = "3.17"
-ts-rs = { version = "12", features = ["serde-compat"] }
+
