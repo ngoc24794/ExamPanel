@@ -67,6 +67,33 @@ impl Store {
     }
 
     // -------------------------------------------------------------------------
+    // Backup & Restore
+    // -------------------------------------------------------------------------
+
+    pub fn backup_to(&self, path: &Path) -> Result<(), StorageError> {
+        crate::backup::backup_database(&self.conn, path)
+    }
+
+    pub fn restore_from(&mut self, path: &Path) -> Result<(), StorageError> {
+        crate::backup::restore_database(&mut self.conn, path)
+    }
+
+    pub fn auto_backup(&self, reason: &str) -> Result<std::path::PathBuf, StorageError> {
+        crate::backup::create_automatic_backup(&self.conn, reason)
+    }
+
+    pub fn list_backups(&self) -> Result<Vec<crate::backup::BackupFileInfo>, StorageError> {
+        crate::backup::list_automatic_backups()
+    }
+
+    pub fn validate_backup(
+        &self,
+        path: &Path,
+    ) -> Result<crate::backup::BackupValidationSummary, StorageError> {
+        crate::backup::validate_backup_file(path)
+    }
+
+    // -------------------------------------------------------------------------
     // Campuses
     // -------------------------------------------------------------------------
 

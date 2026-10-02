@@ -2,6 +2,7 @@
 //!
 //! SQLite database connection, schema migrations, and repository access.
 
+pub mod backup;
 pub mod migrations;
 pub mod paths;
 pub mod seeds;
@@ -11,6 +12,10 @@ use rusqlite::Connection;
 use std::path::Path;
 use thiserror::Error;
 
+pub use backup::{
+    backup_database, create_automatic_backup, list_automatic_backups, restore_database,
+    validate_backup_file, BackupFileInfo, BackupValidationSummary, MAX_AUTO_BACKUPS,
+};
 pub use migrations::{get_current_version, latest_version, run_migrations};
 pub use seeds::{seed_defaults, seed_demo};
 pub use store::Store;

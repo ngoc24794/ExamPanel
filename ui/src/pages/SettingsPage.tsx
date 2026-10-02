@@ -18,6 +18,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { BackupSection } from './settings/BackupSection'
 import {
   Tooltip,
   TooltipContent,
@@ -355,6 +356,9 @@ export const SettingsPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Section: Backup & Restore */}
+        <BackupSection />
 
         {/* Section 3: About ExamPanel */}
         <Card className="bg-card border-border">

@@ -1014,6 +1014,135 @@ impl AppService {
     }
 
     // -------------------------------------------------------------------------
+    // Excel Import & Export
+    // -------------------------------------------------------------------------
+
+    pub fn generate_import_template(&self, target_path: &Path) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let campuses = store.get_campuses()?;
+        crate::excel::template::generate_import_template(target_path, &campuses)
+            .map_err(|e| AppError::internal(format!("Lỗi tạo biểu mẫu Excel: {e}")))?;
+        Ok(())
+    }
+
+    pub fn preview_import(
+        &self,
+        school_year_id: SchoolYearId,
+        file_path: &Path,
+        mode: &str,
+    ) -> Result<crate::dto::ImportPreviewResult, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        crate::excel::import::preview_import(&store, school_year_id, file_path, mode)
+    }
+
+    pub fn apply_import(
+        &self,
+        school_year_id: SchoolYearId,
+        preview: &crate::dto::ImportPreviewResult,
+    ) -> Result<crate::dto::ImportApplyResult, AppError> {
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        crate::excel::import::apply_import(&mut store, school_year_id, preview)
+    }
+
+    pub fn export_plan_excel(&self, plan_id: PlanId, target_path: &Path) -> Result<(), AppError> {
+        let plan_details = self.get_plan(plan_id)?;
+        let school_year_id = plan_details.plan.school_year_id;
+
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let school_year = store
+            .get_school_years()?
+            .into_iter()
+            .find(|sy| sy.id == school_year_id)
+            .ok_or_else(|| AppError::not_found("Không tìm thấy năm học"))?;
+        let campuses = store.get_campuses()?;
+        let grades = store.get_grades()?;
+        let exams = store.get_exams(school_year_id)?;
+        let teachers = store.get_teachers()?;
+        let rule_settings = store.get_rule_settings(school_year_id)?;
+        drop(store);
+
+        let settings = self.get_settings()?;
+
+        crate::excel::export::export_plan_workbook(
+            target_path,
+            &plan_details,
+            &school_year,
+            &campuses,
+            &grades,
+            &exams,
+            &teachers,
+            &settings,
+            &rule_settings,
+        )
+        .map_err(|e| AppError::internal(format!("Lỗi xuất kế hoạch Excel: {e}")))?;
+
+        Ok(())
+    }
+
+    // -------------------------------------------------------------------------
+    // Backup & Restore
+    // -------------------------------------------------------------------------
+
+    pub fn backup_database(&self, target_path: &Path) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        store
+            .backup_to(target_path)
+            .map_err(|e| AppError::internal(format!("Lỗi sao lưu cơ sở dữ liệu: {e}")))?;
+        Ok(())
+    }
+
+    pub fn restore_database(&self, source_path: &Path) -> Result<(), AppError> {
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        store
+            .restore_from(source_path)
+            .map_err(|e| AppError::internal(format!("Lỗi khôi phục cơ sở dữ liệu: {e}")))?;
+        Ok(())
+    }
+
+    pub fn validate_backup(
+        &self,
+        path: &Path,
+    ) -> Result<crate::dto::BackupValidationSummary, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let summary = store
+            .validate_backup(path)
+            .map_err(|e| AppError::internal(format!("Lỗi kiểm tra tệp sao lưu: {e}")))?;
+        Ok(summary.into())
+    }
+
+    pub fn list_backups(&self) -> Result<Vec<crate::dto::BackupFileInfo>, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let list = store
+            .list_backups()
+            .map_err(|e| AppError::internal(format!("Lỗi lấy danh sách sao lưu: {e}")))?;
+        Ok(list.into_iter().map(Into::into).collect())
+    }
+
+    // -------------------------------------------------------------------------
     // Internal Helpers
     // -------------------------------------------------------------------------
 

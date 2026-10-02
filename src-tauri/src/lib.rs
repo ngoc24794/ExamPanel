@@ -139,6 +139,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .manage(service)
         .invoke_handler(tauri::generate_handler![
             commands::ping,
@@ -197,6 +198,14 @@ pub fn run() {
             commands::evaluate_swap,
             commands::reoptimize_from,
             commands::seed_demo,
+            commands::generate_import_template,
+            commands::preview_import,
+            commands::apply_import,
+            commands::export_plan_excel,
+            commands::backup_database,
+            commands::restore_database,
+            commands::validate_backup,
+            commands::list_backups,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

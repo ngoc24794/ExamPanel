@@ -8,8 +8,9 @@ use exam_panel_core::domain::{
 };
 use exam_panel_core::optimize::{CandidateEval, Progress, SlotRef};
 use exam_panel_service::dto::{
-    AppInfo, AppSettings, CreateCampusInput, CreateExamInput, CreateGradeInput, CreateLockInput,
-    CreateSchoolYearInput, CreateTeacherInput, EvaluationOutcome, FeasibilityReportWithQuotas,
+    AppInfo, AppSettings, BackupFileInfo, BackupValidationSummary, CreateCampusInput,
+    CreateExamInput, CreateGradeInput, CreateLockInput, CreateSchoolYearInput, CreateTeacherInput,
+    EvaluationOutcome, FeasibilityReportWithQuotas, ImportApplyResult, ImportPreviewResult,
     OptimizeOutcome, OptimizeRequest, PlanDetails, PlanStatus, PreviewQuotasInput,
     QuotaPreviewItem, ReoptimizeRequest, RulePresetItem,
 };
@@ -500,4 +501,77 @@ pub fn seed_demo(service: State<'_, Arc<AppService>>) -> Result<(), AppError> {
     {
         Err(AppError::new("not_supported").with_param("detail", "dev-tools feature not enabled"))
     }
+}
+
+// -----------------------------------------------------------------------------
+// Excel Import & Export
+// -----------------------------------------------------------------------------
+
+#[tauri::command]
+pub fn generate_import_template(
+    service: State<'_, Arc<AppService>>,
+    target_path: String,
+) -> Result<(), AppError> {
+    service.generate_import_template(std::path::Path::new(&target_path))
+}
+
+#[tauri::command]
+pub fn preview_import(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: SchoolYearId,
+    file_path: String,
+    mode: String,
+) -> Result<ImportPreviewResult, AppError> {
+    service.preview_import(school_year_id, std::path::Path::new(&file_path), &mode)
+}
+
+#[tauri::command]
+pub fn apply_import(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: SchoolYearId,
+    preview: ImportPreviewResult,
+) -> Result<ImportApplyResult, AppError> {
+    service.apply_import(school_year_id, &preview)
+}
+
+#[tauri::command]
+pub fn export_plan_excel(
+    service: State<'_, Arc<AppService>>,
+    plan_id: PlanId,
+    target_path: String,
+) -> Result<(), AppError> {
+    service.export_plan_excel(plan_id, std::path::Path::new(&target_path))
+}
+
+// -----------------------------------------------------------------------------
+// Backup & Restore
+// -----------------------------------------------------------------------------
+
+#[tauri::command]
+pub fn backup_database(
+    service: State<'_, Arc<AppService>>,
+    target_path: String,
+) -> Result<(), AppError> {
+    service.backup_database(std::path::Path::new(&target_path))
+}
+
+#[tauri::command]
+pub fn restore_database(
+    service: State<'_, Arc<AppService>>,
+    source_path: String,
+) -> Result<(), AppError> {
+    service.restore_database(std::path::Path::new(&source_path))
+}
+
+#[tauri::command]
+pub fn validate_backup(
+    service: State<'_, Arc<AppService>>,
+    path: String,
+) -> Result<BackupValidationSummary, AppError> {
+    service.validate_backup(std::path::Path::new(&path))
+}
+
+#[tauri::command]
+pub fn list_backups(service: State<'_, Arc<AppService>>) -> Result<Vec<BackupFileInfo>, AppError> {
+    service.list_backups()
 }
