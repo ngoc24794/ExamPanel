@@ -48,7 +48,7 @@ All convenience scripts can be run from the repository root:
 
 Direct Cargo commands:
 ```bash
-# Test core domain and storage crates
+# Test all default workspace crates (core, storage, service)
 cargo test
 
 # Check clippy warnings
@@ -57,19 +57,38 @@ cargo clippy -- -D warnings
 # Check formatting
 cargo fmt --check
 
-# Check Tauri crate
+# Check Tauri desktop shell crate
 cargo check -p exam-panel-app
+cargo clippy -p exam-panel-app -- -D warnings
+
+# Run headless smoke test (verifies DB init, migrations, and service operations)
+cargo run -p exam-panel-app -- --smoke-test
+
+# Regenerate mock fixtures from Rust service layer
+cargo run -p exam-panel-service --example generate_fixtures
+
+# Verify TypeScript type definition freshness
+cargo test -p exam-panel-service --test generate_types
 ```
 
 Direct UI commands:
 ```bash
 cd ui
-pnpm dev         # Dev server
+pnpm dev         # Browser Dev server (uses Mock API with realistic fixtures)
 pnpm build       # Typecheck + Vite production bundle
-pnpm test        # Vitest
-pnpm lint        # ESLint
-pnpm typecheck   # tsc --noEmit
-pnpm format      # Prettier format
+pnpm test        # Vitest contract test suite
+pnpm lint        # ESLint with zero-warning enforcement
+pnpm typecheck   # Strict TypeScript checking (tsc --noEmit)
+pnpm format      # Prettier formatting
+```
+
+Running the Full Desktop Application:
+```bash
+# Launch Tauri desktop app in dev mode (requires platform C++ build tools / linker)
+pnpm tauri dev
+
+# Build unbundled debug binary
+pnpm tauri build --debug --no-bundle
 ```
 
 ---

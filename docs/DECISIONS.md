@@ -113,6 +113,37 @@
      - S1: Reviewer capacity pigeonhole bounds.
 - **Consequences:** Eliminates artificial fractional role imbalance penalties, allows fair target allocation (e.g. Vũ Hải Hà receiving 1 task on demo seed and S8 reaching its lower bound 2.60), and empowers the UI to display "cannot be improved further" indicators.
 
+## ADR-0019: Dedicated Headless Application Service Layer (crates/service)
+- **Status:** Accepted
+- **Context:** Application workflows (CRUD orchestration, feasibility verification, optimization execution, plan persistence) require coordinating between domain algorithms in `crates/core` and database access in `crates/storage`. Embedding this logic directly inside Tauri command handlers ties application business logic to Tauri's IPC framework, preventing headless integration testing and complicating testability.
+- **Decision:** Create `crates/service` in workspace `default-members`. `AppService` encapsulates all application use-cases behind an API returning serializable DTOs and standardized `AppError`. `src-tauri` becomes a thin forwarding wrapper.
+- **Consequences:** 100% headless integration testing on temp-file SQLite databases with zero Tauri or GUI dependencies; fast CI feedback loop and strong architectural decoupling.
+
+## ADR-0020: Channel-Based Streaming IPC for Optimization Progress
+- **Status:** Accepted
+- **Context:** Simulated annealing local search runs across multiple iterations and parallel runs. The frontend needs throttled real-time progress events (`iteration`, `best_score`, `current_score`, `elapsed_ms`) to update progress bars and metrics. Using Tauri's global event system (`app.emit`) broadcasts events across the entire window system, coupling command invocations to global listeners and risking event collisions between concurrent sessions or tests.
+- **Decision:** Utilize Tauri 2's `tauri::ipc::Channel<Progress>` parameter directly in the `start_optimize` command. Progress events are sent directly to the caller's channel closure.
+- **Consequences:** Clean request-scoped streaming, zero global event pollution, and natural cancellation alignment.
+
+## ADR-0021: Non-Blocking Snapshot Locking Model for Solver Concurrency
+- **Status:** Accepted
+- **Context:** `rusqlite::Connection` is not `Sync`, requiring a `Mutex<Store>` in multi-threaded application contexts. Holding the mutex lock while running multi-second optimization runs would block all concurrent read requests (e.g., browsing teacher lists, fetching app info, checking status) across the entire application.
+- **Decision:** Strict snapshot-and-release pattern: Acquire `Store` lock, load immutable `Problem` snapshot, immediately drop lock, execute CPU-bound optimization asynchronously via Rayon/blocking worker, and re-acquire lock only to persist generated plans transactionally. Guard against multiple concurrent solver executions using a dedicated `Mutex<Option<Arc<AtomicBool>>>`.
+- **Consequences:** Zero GUI freezing or query stalls during heavy optimization runs. Immediate rejection (`optimize_busy`) of concurrent optimization requests.
+
+## ADR-0022: Database Migration 0002 for Extended Plan Persistence
+- **Status:** Accepted
+- **Context:** Multi-plan optimization outputs $K = 3$ ranked plans along with soft-constraint score breakdowns, provable lower bounds, per-teacher load statistics, and audit parameters. Migration 0001 only stored a single plan table with minimal metadata.
+- **Decision:** Introduce migration file `crates/storage/migrations/0002_plans_extension.sql` adding `rank`, `score_report_json`, `run_params_json`, and `source` (`CHECK (source IN ('optimizer', 'manual', 'duplicate'))`). Write migration data preservation tests asserting existing records are upgraded without loss.
+- **Consequences:** Complete transactional persistence of all candidate plans, full historical audit trail, and zero data loss on database upgrades.
+
+## ADR-0023: Automated Freshness Testing for TypeScript Interface Generation
+- **Status:** Accepted
+- **Context:** Ensuring type safety between Rust DTOs and the React frontend requires synchronized TypeScript interfaces. External crates like `ts-rs` pull in heavy platform-dependent terminal dependencies (`termcolor -> winapi-util -> windows-sys`) which break compilation on minimal GNU toolchain environments lacking MinGW SDK libraries.
+- **Decision:** Maintain TypeScript interfaces under `ui/src/lib/api/generated/types.ts` and implement an automated freshness integration test `crates/service/tests/generate_types.rs` that validates exact type parity between Rust DTO declarations and the committed TypeScript definitions. If any DTO changes without updating the TypeScript definitions, `cargo test` and `pnpm check-all` fail.
+- **Consequences:** Zero risk of outdated frontend types, zero intrusive build-time transitive dependencies, and guaranteed type safety across the IPC boundary.
+
+
 
 
 

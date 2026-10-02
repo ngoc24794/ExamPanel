@@ -261,6 +261,11 @@ The solver runs in pure Rust (`crates/core`) with zero UI or database coupling:
   - If writable: Database is stored at `<exe_dir>/data/exam-panel.db`.
   - If not writable (e.g., system Program Files or read-only volume): Falls back to user application data directory (`%APPDATA%/ExamPanel/data` on Windows, `~/.local/share/ExamPanel/data` on Linux, `~/Library/Application Support/ExamPanel/data` on macOS).
 - **Engine:** SQLite with standard rollback journal mode (`PRAGMA journal_mode = DELETE;`) and enforced foreign keys (`PRAGMA foreign_keys = ON;`), ensuring the entire database remains a single self-contained file suitable for USB and portable execution.
+- **Plan Persistence (Migration 0002):**
+  - `rank INTEGER`: Rank order among optimizer outputs (1 for global best).
+  - `score_report_json TEXT`: Serialized `ScoreReport` containing complete penalty breakdown, per-teacher load statistics, and provable lower bounds.
+  - `run_params_json TEXT`: Serialized audit metadata snapshot recording execution parameters (`base_seed`, `runs`, `budget`, `k`, `diversity_threshold`, and `app_version`).
+  - `source TEXT NOT NULL DEFAULT 'optimizer'`: Provenance tag with database check constraint `CHECK (source IN ('optimizer', 'manual', 'duplicate'))`.
 
 ---
 

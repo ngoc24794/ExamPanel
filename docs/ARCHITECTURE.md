@@ -22,18 +22,23 @@ flowchart TD
 
     subgraph Shell["Desktop Shell (Tauri 2)"]
         TAURI_SHELL[src-tauri Shell]
-        IPC_HANDLERS[Tauri Command Handlers]
+        IPC_HANDLERS[Thin Tauri Command Handlers]
+        CHANNEL[tauri::ipc::Channel Progress Stream]
 
         TAURI_CLIENT -.->|IPC Invoke| IPC_HANDLERS
         IPC_HANDLERS --> TAURI_SHELL
+        TAURI_SHELL -.->|Streaming Events| CHANNEL
+        CHANNEL -.->|Throttled Progress| TAURI_CLIENT
     end
 
     subgraph Backend["Rust Workspace Backend"]
+        SERVICE[crates/service\nHeadless Application Service\nMutex&lt;Store&gt;, Job Concurrency, DTOs]
         CORE[crates/core\nDomain + Feasibility + Solver\nPure Rust, No Tauri/DB]
         STORAGE[crates/storage\nSQLite + Migrations + Paths\nPortable Path Resolution]
 
-        TAURI_SHELL --> CORE
-        TAURI_SHELL --> STORAGE
+        TAURI_SHELL --> SERVICE
+        SERVICE --> CORE
+        SERVICE --> STORAGE
         STORAGE -.->|References Domain Types| CORE
     end
 
@@ -89,18 +94,28 @@ flowchart TD
   - `store`: Strongly-typed CRUD operations mapping between SQLite tables and `core` domain structs, with structured error handling (`StorageError` distinguishing `NotFound`, `Constraint`, `Sqlite`, `Io`, and `Serialization`).
   - `seeds`: Idempotent default seeding (`seed_defaults` for grades and UI settings) and complete test/development fixture datasets (`seed_demo`).
 
-### 2.3 `src-tauri` (Desktop Application Shell)
+### 2.3 `crates/service` (Headless Application Service Layer)
+- **Decoupled Business Logic:** Houses all orchestration logic behind desktop commands, completely testable headless without Tauri or GUI dependencies. Included in workspace `default-members`.
+- **State Management & Concurrency:**
+  - Manages `Store` wrapped in a `std::sync::Mutex` (since SQLite connections are `!Sync`).
+  - **Non-Blocking Rule:** The database lock is acquired only to load a pure `Problem` snapshot or commit results. The lock is immediately dropped before compute-heavy solving or optimization begins, allowing concurrent read queries while background optimization runs.
+  - **Job Concurrency Guard:** Tracks the active optimization run in `Mutex<Option<Arc<AtomicBool>>>`. If an optimization is already running, subsequent optimization requests are rejected with `AppError` `optimize_busy`.
+- **Error Contract:** Standardized serializable `AppError { code: String, params: BTreeMap<String, Value> }`. Maps all underlying storage, validation, feasibility, and concurrency errors into stable, user-translatable error codes.
+
+### 2.4 `src-tauri` (Desktop Application Shell)
 - **Tauri 2 Framework:** Thin platform integration wrapper.
 - **Isolation:** Excluded from the default Cargo workspace members (`default-members`) to guarantee that headless CI environments and pure backend development can compile and test without desktop system GUI libraries.
-- **Identifier:** `vn.exampanel.app` (configurable in `tauri.conf.json` and `lib.rs`).
-- **Commands:** Thin routing layer deserializing IPC arguments, calling `core`/`storage`, and returning JSON payloads.
+- **Commands:** Thin routing layer deserializing IPC arguments, managing `AppService` as state, and delegating execution.
+- **Streaming IPC:** Uses Tauri 2 `tauri::ipc::Channel<Progress>` to stream throttled optimization progress events directly to the UI caller without polluting global event channels.
+- **Smoke Mode:** Implements `--smoke-test` cli flag for fast headless verification of database initialization, migrations, and service operations without opening a desktop window.
 
-### 2.4 `ui` (Presentation Layer)
+### 2.5 `ui` (Presentation Layer)
 - **Stack:** React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui.
 - **Dual Runtime Support:**
   - `ExamPanelApi` interface decouples the UI from Tauri IPC.
-  - When running in browser (`pnpm dev`), automatically activates `mock.ts`.
+  - When running in browser (`pnpm dev`), automatically activates `mock.ts` with realistic test fixtures.
   - When running inside Tauri, automatically activates `tauri.ts` (`@tauri-apps/api/core`).
+- **Type Bridge:** Strongly typed TypeScript definitions in `src/lib/api/generated/` mirroring Rust DTOs, validated for freshness by CI integration tests.
 - **Internationalization (i18n):** `i18next` with default Vietnamese (`vi`) and secondary English (`en`). Zero hard-coded UI strings.
 - **Theme Engine:** `light`, `dark`, and `system` modes using semantic CSS tokens (`hsl(var(--...))`).
 
@@ -203,12 +218,55 @@ flowchart TD
     Diversity --> Result["OptimizeResult { plans: Vec<RankedPlan>, initial_report, stats }"]
 ```
 
+### 3.5 Threading, Locking & Concurrency Model
+- `AppService` encapsulates `Store` inside a `std::sync::Mutex<Store>`. Because `rusqlite::Connection` does not implement `Sync`, exclusive access is required when accessing the SQLite file.
+- **Locking Rule (Never Hold DB Lock While Computing):**
+  1. Acquire lock: `let store = self.store.lock()...`
+  2. Snapshot input domain: `let problem = store.load_problem(school_year_id)...`
+  3. Release lock: `drop(store);`
+  4. Perform CPU-heavy optimization: `run_parallel_optimization(...)` executes without holding the database lock.
+  5. Other threads can perform reads (e.g. `list_teachers`, `get_app_info`) concurrently while optimization runs.
+  6. On completion, reacquire the lock to persist plans transactionally: `store.save_optimize_result(...)`.
+
+### 3.6 IPC Streaming via Tauri Channels
+- Rather than relying on global window-wide events, long-running optimization tasks use Tauri 2's `tauri::ipc::Channel<Progress>`.
+- The channel is created per invoke request and passed from `tauri.ts` to `start_optimize`.
+- The worker thread streams throttled `Progress` payloads (`run`, `iteration`, `best_score`, `current_score`, `elapsed_ms`) at $\le 10\text{ Hz}$.
+- A shared `Arc<AtomicBool>` cancel flag is registered in `AppService::active_job`. When `cancel_optimize()` is called, the atomic flag is set to `true`, prompting the Rayon workers to terminate promptly.
+
+### 3.7 Standardized Error Contract (`AppError`)
+All backend failures across storage, domain validation, solver execution, and concurrency control are unified under:
+```rust
+pub struct AppError {
+    pub code: String,
+    pub params: BTreeMap<String, serde_json::Value>,
+}
+```
+Mapped error codes include:
+- `not_found`: Entity does not exist.
+- `duplicate_entry`: Unique constraint violation.
+- `teacher_in_use`: Foreign key protection preventing teacher deletion.
+- `campus_in_use`: Campus has assigned teachers.
+- `foreign_key_violation`, `storage_constraint`, `database_error`: SQLite storage errors.
+- `problem_infeasible`: Feasibility check blocked solving.
+- `optimize_busy`: An optimization task is already active.
+- `cancelled`: User requested cancellation.
+
+Each code corresponds to a localized entry `errors.<code>` in `vi.json` and `en.json`.
+
+### 3.8 TypeScript Type Generation & Contract Verification
+- Types are exported to `ui/src/lib/api/generated/types.ts`.
+- Freshness is safeguarded by an automated integration test (`crates/service/tests/generate_types.rs`) that asserts the committed TypeScript declarations match the canonical Rust structs. Any discrepancy causes `cargo test` and `pnpm check-all` to fail.
+
 ---
 
 ## 4. Architectural Invariants
-1. **Purity of Core:** Any modification to `crates/core` must not introduce file I/O, network I/O, or SQLite dependencies.
+1. **Purity of Core:** Any modification to `crates/core` must not introduce file I/O, network I/O, or SQLite dependencies. Pure domain algorithms only.
 2. **Deterministic Feasibility Checks:** Feasibility check failures must always explain *why* the configuration is invalid and name the exact exam, grade, or teacher group causing the conflict.
 3. **Data Portability:** Storage location resolution must always prioritize adjacent `./data/` directories when write permissions exist, enabling USB/folder portability without installer lock-in.
 4. **Zero String Hardcoding:** Every UI text label, notification, table header, or error message must resolve through `t('path.key')`.
 5. **Deterministic Optimization:** Given the same `base_seed` and `Budget::Iterations`, parallel multi-run optimization yields identical results across all CPU thread configurations.
+6. **Decoupled Service Layer:** `crates/service` must not depend on `tauri`. Tauri commands are thin forwarding wrappers over `AppService`.
+7. **Non-Blocking Compute:** The database lock must never be held during feasibility analysis or optimization.
+
 
