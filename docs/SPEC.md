@@ -85,6 +85,14 @@ Teacher `t` is eligible for panel `p = (exam e, grade g)` in role `r` if:
 ### Unavailability
 - Per-exam unavailability flag or reason. Indicates that a teacher cannot be scheduled for any panel in a designated exam period (e.g., medical leave, official duty).
 
+### Semester Grouping by Exam Order
+Exams within a school year are ordered by `sort_order` ASC.
+The exams are partitioned into two semesters:
+- **Semester 1 (Học kỳ 1):** The first $\lfloor N / 2 \rfloor$ exams (or for standard $N = 4$, exams 1 and 2: GK1 and CK1).
+- **Semester 2 (Học kỳ 2):** The remaining exams (for $N = 4$, exams 3 and 4: GK2 and CK2).
+If $N$ is odd (e.g. $N = 3$), Semester 1 contains $\lceil N / 2 \rceil$ exams, and Semester 2 contains the remaining $\lfloor N / 2 \rfloor$ exams.
+Bulk unavailability actions ("Vắng cả học kỳ 1", "Vắng cả học kỳ 2", "Có mặt tất cả") apply this partition.
+
 ---
 
 ## 3. Constraint Specifications
@@ -141,6 +149,21 @@ To inform human coordinators when schedule quality cannot be improved further, p
   The aggregate lower bound is determined by greedily allocating total setter slots $S_{total} = 2 \times \text{panels}$ across teachers up to their setter capacities $cap_t = \min(hi_t, \text{eligible setter exams})$ minimizing $\sum_t \max(0, 2 s_t - E - 1)$. On the 11-teacher, 4-exam benchmark ($S_{total} = 24$), 11 teachers take 2 slots with 0 adjacent pairs ($11 \times 2 = 22$), forcing at least 2 teachers to take 3 slots ($2 \times 3 - 4 - 1 = 1$ pair each). Thus, this lower bound is provably 2.0 (while additional coupling constraints in practice may result in 3 teachers having 3 tasks, giving optimum $\ge 3$).
 - **S8 (Discrete Optimal Load Balance):** The exact global minimum of $\sum_t (c_t - q_t)^2$ subject to $\sum c_t = D$ and $lo_t \le c_t \le hi_t$ is computed via greedy marginal-cost allocation over separable convex objectives. On the demo benchmark, this global discrete minimum is exactly $\approx 2.60$.
 - **S2, S3, S4, S5, S7:** 0.0 unless proved otherwise by counting arguments.
+
+### 3.4 Rule Presets
+ExamPanel defines three canonical rule weight presets in `crates/core` as the single source of truth:
+1. **Cân bằng (mặc định) / Balanced (Default):**
+   Standard production balance between workload equality, team variety, and role health.
+   - S1: `10.0`, S2: `3.0`, S3: `4.0`, S4: `6.0`, S5: `6.0`, S6: `2.0`, S7: `1.0`, S8: `8.0`.
+   - H4 enabled (`100.0`), H7 tolerance = `1` (`100.0`).
+2. **Ưu tiên công bằng khối lượng / Prioritize Workload Fairness:**
+   Raises S8 and S1 weights to emphasize exact quota adherence and strict reviewer task bounds.
+   - S1: `14.0`, S2: `3.0`, S3: `2.0`, S4: `3.0`, S5: `3.0`, S6: `2.0`, S7: `1.0`, S8: `16.0`.
+   - H4 enabled (`100.0`), H7 tolerance = `1` (`100.0`).
+3. **Ưu tiên đa dạng ê-kíp / Prioritize Team Diversity:**
+   Raises S4, S5, and S3 weights to eliminate repeated authoring pairings and repeated oversight relations.
+   - S1: `6.0`, S2: `3.0`, S3: `8.0`, S4: `12.0`, S5: `12.0`, S6: `2.0`, S7: `1.0`, S8: `4.0`.
+   - H4 enabled (`100.0`), H7 tolerance = `1` (`100.0`).
 
 ---
 

@@ -1,0 +1,39 @@
+$ vitest run
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui[39m
+
+ [32m✓[39m src/lib/theme/theme.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m src/i18n/i18n.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/pages/OverviewPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 278[2mms[22m[39m
+ [32m✓[39m src/pages/SettingsPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 563[2mms[22m[39m
+   [33m[2m✓[22m[39m SettingsPage[2m > [22mrenders settings page, data path, and copies path to clipboard [33m 372[2mms[22m[39m
+ [32m✓[39m src/components/FeasibilityIndicator.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 499[2mms[22m[39m
+   [33m[2m✓[22m[39m FeasibilityIndicator & FeasibilitySheet[2m > [22mopens sheet on click, lists diagnostics, and handles "Go to fix" navigation [33m 389[2mms[22m[39m
+ [32m✓[39m src/pages/CampusesPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 811[2mms[22m[39m
+   [33m[2m✓[22m[39m CampusesPage[2m > [22mopens create dialog, validates inputs, and creates a new campus [33m 447[2mms[22m[39m
+ [32m✓[39m src/pages/RulesPage.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1113[2mms[22m[39m
+   [33m[2m✓[22m[39m RulesPage[2m > [22mrenders hard rules section with always-on badges and H4 toggle [33m 311[2mms[22m[39m
+   [33m[2m✓[22m[39m RulesPage[2m > [22mnavigates to soft rules tab and applies presets [33m 422[2mms[22m[39m
+ [32m✓[39m src/app/App.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 752[2mms[22m[39m
+   [33m[2m✓[22m[39m App[2m > [22mswitches navigation tab when sidebar item is clicked [33m 381[2mms[22m[39m
+ [32m✓[39m src/pages/ExamsPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1620[2mms[22m[39m
+   [33m[2m✓[22m[39m ExamsPage[2m > [22mcreates, reorders, and deletes an exam [33m 1034[2mms[22m[39m
+   [33m[2m✓[22m[39m ExamsPage[2m > [22mcreates and edits a grade [33m 330[2mms[22m[39m
+ [32m✓[39m src/pages/UnavailabilityPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1917[2mms[22m[39m
+   [33m[2m✓[22m[39m UnavailabilityPage[2m > [22mrenders unavailability grid and teacher rows [33m 472[2mms[22m[39m
+   [33m[2m✓[22m[39m UnavailabilityPage[2m > [22mtoggles absence on click and allows adding reason [33m 1058[2mms[22m[39m
+   [33m[2m✓[22m[39m UnavailabilityPage[2m > [22mperforms bulk actions: vắng cả học kỳ 1 and có mặt tất cả [33m 384[2mms[22m[39m
+ [32m✓[39m src/lib/api/api.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 4447[2mms[22m[39m
+   [33m[2m✓[22m[39m MockExamPanelApi Contract Tests[2m > [22mstreams optimization progress to completion [33m 2121[2mms[22m[39m
+   [33m[2m✓[22m[39m MockExamPanelApi Contract Tests[2m > [22msaves, retrieves, duplicates, renames, marks final, and deletes plans [33m 2051[2mms[22m[39m
+ [32m✓[39m src/pages/TeachersPage.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 2559[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22mrenders teacher roster and coverage panel matrix [33m 664[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22moptimistically updates grades taught on toggle [33m 355[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22moffers "Deactivate instead" flow when deleting a teacher in use [33m 468[2mms[22m[39m
+   [33m[2m✓[22m[39m TeachersPage[2m > [22mvalidates inputs and creates a new teacher with assigned grades [33m 408[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[32m47 passed[39m[22m[90m (47)[39m
+[2m   Start at [22m 12:15:38
+[2m   Duration [22m 7.31s[2m (transform 1.56s, setup 4.00s, collect 24.82s, tests 14.62s, environment 10.73s, prepare 4.18s)[22m
+

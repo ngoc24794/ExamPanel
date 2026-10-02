@@ -1,0 +1,159 @@
+   Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.58s
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_core-2f9eaf9f6c8d622c.exe)
+
+running 73 tests
+test domain::entities::tests::test_panel_composition_constants ... ok
+test domain::ids::tests::test_id_serde_roundtrip ... ok
+test domain::entities::tests::test_role_string_and_serde ... ok
+test domain::entities::tests::test_rule_presets ... ok
+test domain::ids::tests::test_id_display_and_conversion ... ok
+test domain::problem::tests::test_duplicate_exam_code_error ... ok
+test domain::problem::tests::test_problem_serde_roundtrip ... ok
+test domain::problem::tests::test_unavailability_unknown_exam ... ok
+test domain::entities::tests::test_lock_kind_string_and_serde ... ok
+test domain::problem::tests::test_unknown_campus_error ... ok
+test domain::problem::tests::test_valid_problem_passes ... ok
+test feasibility::tests::test_diagnostic_exam_capacity_bottleneck_under_h4 ... ok
+test feasibility::tests::test_degenerate_database_diagnostics ... ok
+test feasibility::tests::test_diagnostic_excess_pinned_setters_and_reviewers_and_pins ... ok
+test feasibility::tests::test_diagnostic_capacity_and_warnings ... ok
+test feasibility::tests::test_diagnostic_lock_conflict_and_excess_pins ... ok
+test feasibility::tests::test_diagnostic_pinned_campus_monopoly ... ok
+test feasibility::tests::test_diagnostic_pinned_quota_exceeded ... ok
+test optimize::tests::bench_demo_200k_iterations ... ignored
+test optimize::tests::bench_synthetic_40_200k_iterations ... ignored
+test optimize::tests::print_report_demo_data ... ignored
+test feasibility::tests::test_diagnostic_pinned_teacher_ineligible_due_to_unavailability ... ok
+test feasibility::tests::test_valid_problem_feasibility ... ok
+test domain::entities::tests::test_rule_key_strings_and_serde ... ok
+test domain::problem::tests::test_invalid_load_weight_error ... ok
+test domain::problem::tests::test_lock_unknown_teacher ... ok
+test optimize::tests::test_cancellation_stops_promptly ... ok
+test feasibility::maxflow::tests::test_dinic_basic_flow ... ok
+test feasibility::maxflow::tests::test_h4_exam_bottleneck_scenario ... ok
+test feasibility::tests::test_diagnostic_insufficient_panel_teachers_and_campuses ... ok
+test feasibility::tests::test_diagnostic_insufficient_setters_and_reviewers ... ok
+test feasibility::tests::test_diagnostic_structural_error ... ok
+test feasibility::tests::test_diagnostic_pinned_teacher_multiple_panels ... ok
+test optimize::tests::test_d1_incremental_state_consistency_demo_10k_moves ... ok
+test optimize::tests::test_d1_incremental_state_consistency_synthetic_40_10k_moves ... ok
+test optimize::tests::test_proptest_d1_incremental_state_consistency ... ok
+test optimize::tests::test_d2_random_walk_hard_invariants_preserved ... ok
+test score::bounds::tests::test_s6_exact_per_teacher_minimum_function ... ok
+test score::tests::test_lower_bounds_calculation ... ok
+test score::tests::test_s1_reviewer_count_violations ... ok
+test score::tests::test_s2_role_balance ... ok
+test score::tests::test_s3_independent_reviewer ... ok
+test score::tests::test_s4_setter_pair_repeated ... ok
+test score::tests::test_s5_review_relation_repeated ... ok
+test score::tests::test_s6_setter_consecutive ... ok
+test score::tests::test_s7_grade_rotation ... ok
+test score::tests::test_s8_load_deviation ... ok
+test solver::tests::test_performance_synthetic_40_teacher_instance ... ok
+test solver::tests::test_performance_timing_demo_seed ... ok
+test solver::tests::test_solver_determinism_and_multi_seed_variation ... ok
+test solver::tests::test_solver_stops_early_on_infeasible_problem ... ok
+test solver::tests::test_solve_demo_seed_returns_valid_solution ... ok
+test tests::test_core_version_returns_package_version ... ok
+test validate::tests::test_h1_duplicate_teacher_in_panel ... ok
+test validate::tests::test_h2_inactive_and_zero_weight ... ok
+test validate::tests::test_h3_single_campus_panel ... ok
+test validate::tests::test_h4_multiple_panels_in_same_exam ... ok
+test validate::tests::test_h2_unqualified_grade ... ok
+test validate::tests::test_h5_teacher_unavailable ... ok
+test validate::tests::test_h6_forbid_and_pin_locks ... ok
+test validate::tests::test_h7_quota_exceeded_and_unmet ... ok
+test validate::tests::test_partial_mode_permits_incomplete_panel ... ok
+test validate::tests::test_valid_complete_assignment ... ok
+test optimize::tests::test_pinned_slots_never_move ... ok
+test optimize::tests::test_improvement_over_solve_hard_demo_seed ... ok
+test optimize::tests::test_proptest_d2_random_walk_hard_invariants ... ok
+test optimize::tests::test_performance_timing_demo_default_run ... ok
+test optimize::tests::test_lower_bound_awareness_demo_seed ... ok
+test optimize::tests::test_diversity_threshold_respected ... ok
+test optimize::tests::test_determinism_across_runs ... ok
+test optimize::tests::test_fairness_regression_demo_seed ... ok
+test solver::tests::test_exhaustive_cross_check_tiny_instances ... ok
+test score::bounds::tests::test_lower_bounds_validity_exhaustive_tiny_instances has been running for over 60 seconds
+test score::bounds::tests::test_lower_bounds_validity_exhaustive_tiny_instances ... ok
+
+test result: ok. 70 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 62.44s
+
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_service-91405ffa6edb88dc.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\generate_types.rs (target\debug\deps\generate_types-fe1c6a5cdaf2057e.exe)
+
+running 1 test
+test test_typescript_types_freshness ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\pipeline_report_test.rs (target\debug\deps\pipeline_report_test-bcf69a5be605eda7.exe)
+
+running 1 test
+test test_pipeline_report_zero_hard_violations_and_bounds_respected ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.55s
+
+     Running tests\service_tests.rs (target\debug\deps\service_tests-eaaf24dc95237cd2.exe)
+
+running 12 tests
+test test_busy_job_rejection ... ok
+test test_app_info_and_settings ... ok
+test test_error_mapping ... ok
+test test_feasibility_and_evaluation ... ok
+test test_rule_presets_and_quota_preview ... ok
+test test_lock_not_held_during_optimize_and_cancellation ... ok
+test test_school_years_and_exams ... ok
+test test_campuses_and_grades_crud ... ok
+test test_exam_crud_and_reorder ... ok
+test test_unavailabilities_locks_and_rule_settings ... ok
+test test_teachers_and_grades ... ok
+test test_optimization_persistence_and_plan_crud ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_storage-126170342425c528.exe)
+
+running 15 tests
+test paths::tests::test_resolve_database_path_ends_with_db_filename ... ok
+test tests::test_open_in_memory_connection_succeeds ... ok
+test paths::tests::test_is_dir_writable_in_temp_dir ... ok
+test tests::test_partial_unique_indexes ... ok
+test migrations::tests::test_migrations_fresh_db_reaches_latest_version ... ok
+test tests::test_fk_and_check_constraints ... ok
+test tests::test_create_school_year_and_copy_teacher_grades ... ok
+test tests::test_plan_batch_operations_and_methods ... ok
+test tests::test_protect_historical_plans_on_delete_restrict ... ok
+test tests::test_locks_lock_id_delete_and_unique_expression_index ... ok
+test migrations::tests::test_migrations_idempotent ... ok
+test migrations::tests::test_upgrade_from_v1_to_v2_preserves_data ... ok
+test tests::test_migrations_and_idempotency ... ok
+test tests::test_save_and_load_plan_roundtrip ... ok
+test tests::test_seed_demo_and_load_problem_validation ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+   Doc-tests exam_panel_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests exam_panel_service
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests exam_panel_storage
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

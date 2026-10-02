@@ -154,6 +154,31 @@
   5. **Campus Color Tokens:** Fixed palette of semantic color tokens (`blue`, `emerald`, `amber`, `purple`, `rose`, `indigo`, `teal`, `orange`) with light and dark mode CSS variables guaranteeing WCAG AA text contrast ratio $\ge 4.5:1$. Database and DTOs persist token keys rather than raw hex values.
 - **Consequences:** Responsive UI with immediate feedback, zero routing breaks on desktop reloads, full i18n compliance, and WCAG AA contrast accessibility.
 
+## ADR-0025: Aggregated Diagnostics for Degenerate Feasibility Configurations
+- **Status:** Accepted
+- **Context:** When initializing an empty database or deleting campuses/teachers, checking feasibility previously triggered a cascading flood of 60+ individual panel errors (e.g., F1 panel missing teachers, F2 missing campuses across all exams and grades). This created confusing error sheets and masked root-cause issues.
+- **Decision:** Check for degenerate baseline conditions before running panel-level and flow checks. If any of: `no_campuses`, `no_active_teachers`, `single_campus`, `no_grades`, or `no_exams` are met, emit an aggregated structural diagnostic with category `Data` and suppress downstream panel cascading diagnostics.
+- **Consequences:** Clean diagnostic reporting for empty or freshly initialized databases (reducing 65 errors to 2), with clear actionable advice for the user.
+
+## ADR-0026: Canonical Rule Presets Defined in crates/core Domain Layer
+- **Status:** Accepted
+- **Context:** The application provides preset rule weights: Balanced (default), Workload Fairness (amplified S8 and S1), and Team Diversity (amplified S4, S5, S3). Defining these presets in the frontend creates duplicate logic and risks inconsistency with solver benchmarking.
+- **Decision:** Define `RulePreset` enum and weights canonically in `crates/core::domain::entities::RulePreset`. Expose preset values via `AppService::get_rule_presets` to the frontend and mock APIs.
+- **Consequences:** Single source of truth across backend solver algorithms, headless tests, and client user interfaces.
+
+## ADR-0027: Stateless Quota Preview Service Operation
+- **Status:** Accepted
+- **Context:** Users tuning hard rule H7 tolerance and load parameters in the Rules & Quotas screen need real-time visualization of per-teacher quotas ($q_t$ and $[lo_t, hi_t]$) before committing changes to the database.
+- **Decision:** Implement `AppService::preview_quotas(PreviewQuotasInput)` which accepts unsaved tolerance and teacher weight overrides, loads teacher exam availability in-memory, computes mathematical quota distributions, and returns `Vec<QuotaPreviewItem>` without persisting any state or requiring transaction rollbacks.
+- **Consequences:** Instant interactive UI feedback with zero database write side-effects.
+
+## ADR-0028: Semester Grouping by Exam Sequence Split
+- **Status:** Accepted
+- **Context:** Academic years often divide into Semester 1 (Midterm 1 + Final 1) and Semester 2 (Midterm 2 + Final 2). The Unavailability grid requires bulk actions ("Vắng cả học kỳ 1", "Vắng cả học kỳ 2") for teacher leaves.
+- **Decision:** Group exams by index: first half ($\lfloor N / 2 \rfloor$ exams) belongs to Semester 1, remaining exams belong to Semester 2. Document this convention in SPEC section 2.5 and expose bulk toggle actions accordingly.
+- **Consequences:** Clean, deterministic semester mapping that works for standard 4-exam configurations (GK1, CK1 | GK2, CK2) as well as arbitrary user-defined exam sequences.
+
+
 
 
 

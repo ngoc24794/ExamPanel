@@ -1,0 +1,12 @@
+$ playwright test
+[WebServer] $ vite
+
+Running 5 tests using 1 worker
+
+  ok 1 [chromium] › e2e\phase-6.spec.ts:15:3 › Phase 6 E2E & Visual Verification › navigates all screens and verifies placeholders & features (4.3s)
+  ok 2 [chromium] › e2e\phase-6.spec.ts:50:3 › Phase 6 E2E & Visual Verification › performs campus CRUD, teacher CRUD, and optimistic grade toggle (1.6s)
+  ok 3 [chromium] › e2e\phase-6.spec.ts:94:3 › Phase 6 E2E & Visual Verification › captures screenshots in light/dark × vi/en for Campuses and Teachers screens (6.4s)
+  ok 4 [chromium] › e2e\phase-7.spec.ts:21:3 › Phase 7 E2E Full Workflow & Visual Verification › full phase 7 workflow: unavailability, indicator, feasibility sheet, go to fix, locks, and presets (2.6s)
+  ok 5 [chromium] › e2e\phase-7.spec.ts:93:3 › Phase 7 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 7 screens and feasibility sheet (13.0s)
+
+  5 passed (31.9s)
