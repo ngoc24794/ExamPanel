@@ -686,6 +686,7 @@ mod tests {
             budget: Budget::Iterations(50_000),
             num_runs: 8,
             max_plans: 3,
+            // Explicit 0.15 threshold for test sensitivity; default is 0.20
             diversity_threshold: 0.15,
             cancel: None,
             progress: None,
@@ -757,6 +758,7 @@ mod tests {
             budget: Budget::Iterations(10_000),
             num_runs: 8,
             max_plans: 3,
+            // Explicit 0.15 threshold for test verification; default is 0.20
             diversity_threshold: 0.15,
             cancel: None,
             progress: None,
@@ -825,6 +827,7 @@ mod tests {
             budget: Budget::Iterations(10_000),
             num_runs: 4,
             max_plans: 3,
+            // Explicit 0.15 threshold for test sensitivity; default is 0.20
             diversity_threshold: 0.15,
             cancel: None,
             progress: None,
@@ -866,6 +869,77 @@ mod tests {
             elapsed, res.stats.total_iterations
         );
         assert!(!res.plans.is_empty());
+    }
+
+    #[test]
+    fn test_fairness_regression_demo_seed() {
+        use crate::domain::{RuleKey, TeacherId};
+        use crate::score::bounds::{lower_bounds, optimal_s8_counts};
+        let problem = make_seed_demo_problem();
+        let opts = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(200_000), // R=8, 200k each = 1.6M iterations
+            num_runs: 8,
+            max_plans: 3,
+            diversity_threshold: 0.20,
+            cancel: None,
+            progress: None,
+            initial_assignments: None,
+        };
+
+        let res = optimize(&problem, &opts).expect("optimize demo fairness");
+        assert!(!res.plans.is_empty());
+        let best_plan = &res.plans[0];
+
+        // Bounds check
+        let bounds = lower_bounds(&problem);
+        let s8_bound = bounds
+            .iter()
+            .find(|b| b.rule == RuleKey::S8)
+            .expect("S8 lower bound")
+            .units_lower_bound;
+
+        let s8_score = best_plan
+            .report
+            .by_rule
+            .iter()
+            .find(|r| r.rule == RuleKey::S8)
+            .expect("S8 score");
+
+        // Vũ Hải Hà (weight 0.5, unavailable for GK2) receives 1 task
+        let vu_hai_ha_stats = best_plan
+            .report
+            .per_teacher
+            .iter()
+            .find(|t| t.teacher_id == TeacherId(6))
+            .expect("Vũ Hải Hà stats");
+        assert_eq!(
+            vu_hai_ha_stats.count, 1,
+            "Expected Vũ Hải Hà (ID 6) to receive exactly 1 task, got {}",
+            vu_hai_ha_stats.count
+        );
+
+        // S8 units <= lower bound + 1e-6
+        assert!(
+            s8_score.units <= s8_bound + 1e-6,
+            "Expected S8 units ({}) <= lower bound ({}) + 1e-6",
+            s8_score.units,
+            s8_bound
+        );
+
+        // No teacher's count_t exceeds their S8-optimal count by more than 1
+        let opt_counts = optimal_s8_counts(&problem);
+        for ts in &best_plan.report.per_teacher {
+            let opt_c = opt_counts.get(&ts.teacher_id).copied().unwrap_or(0);
+            let diff = (ts.count as isize - opt_c as isize).abs();
+            assert!(
+                diff <= 1,
+                "Teacher {:?} count {} differs from optimal count {} by more than 1",
+                ts.teacher_id,
+                ts.count,
+                opt_c
+            );
+        }
     }
 
     #[test]
@@ -937,10 +1011,10 @@ mod tests {
 
         let opts = OptimizeOptions {
             base_seed: 42,
-            budget: Budget::Iterations(50_000),
+            budget: Budget::Iterations(200_000),
             num_runs: 8,
             max_plans: 3,
-            diversity_threshold: 0.15,
+            diversity_threshold: 0.20,
             cancel: None,
             progress: None,
             initial_assignments: Some(hard_sol.assignments),
@@ -951,9 +1025,9 @@ mod tests {
 
         println!("\n=== TABLE 1: BEFORE / AFTER SCORE PER RULE ===");
         println!(
-            "| Rule | Name | Weight | Hard Solve Units | Hard Penalty | Opt Units | Opt Penalty |"
+            "| Rule | Name | Weight | Hard Solve Units | Hard Penalty | Opt Units | Opt Penalty | Lower Bound |"
         );
-        println!("|---|---|---|---|---|---|---|");
+        println!("|---|---|---|---|---|---|---|---|");
         let rule_names = [
             ("S1", "Reviewer count"),
             ("S2", "Role balance"),
@@ -968,14 +1042,15 @@ mod tests {
             let hr = &hard_report.by_rule[i];
             let or = &best_plan.report.by_rule[i];
             println!(
-                "| {} | {} | {:.1} | {:.2} | {:.2} | {:.2} | {:.2} |",
+                "| {} | {} | {:.1} | {:.2} | {:.2} | {:.2} | {:.2} | {:.2} |",
                 rule_names[i].0,
                 rule_names[i].1,
                 hr.weight,
                 hr.units,
                 hr.penalty,
                 or.units,
-                or.penalty
+                or.penalty,
+                or.lower_bound
             );
         }
         println!(

@@ -102,5 +102,17 @@
 - **Decision:** Select up to $K = 3$ plans using greedy max-min diversity distance with a minimum diversity threshold $\tau = 0.20$ (at least 20% of panel assignment slots must differ). The global best-scoring plan is always selected as Rank 1. Successive plans are selected from the remaining candidate pool to maximize the minimum distance to already-selected plans, subject to $d(P, P_j) \ge \tau$. If fewer than $K$ plans satisfy the threshold, return only the qualifying plans.
 - **Consequences:** Users receive genuinely distinct scheduling alternatives representing different operational trade-offs rather than cosmetic variations.
 
+## ADR-0018: Redefinition of S2 Role Balance and Provable Lower Bounds
+- **Status:** Accepted (Supersedes original S2 definition)
+- **Context:** The original S2 definition penalized $|reviews_t - count_t / 3.0|$ continuously for $count_t \ge 2$. Because task counts and review assignments are discrete integers, teachers with $count_t = 4$ or $5$ were guaranteed an unavoidable penalty ($|1 - 4/3| = 0.333 \implies 1.0$ penalty units), distorting multi-objective trade-offs and artificially penalizing fair integer workload distributions. Furthermore, coordinators had no way to know whether a soft-constraint score could theoretically be improved.
+- **Decision:**
+  1. Redefine S2: For each teacher with $count_t \ge 2$, let $lo = \lfloor count_t / 3 \rfloor$ and $hi = \lceil count_t / 3 \rceil$. S2 units equal the distance from $reviews_t$ to the integer interval $[lo, hi]$ (0 when inside).
+  2. Implement provable lower bounds in `crates/core/src/score/bounds.rs`:
+     - S6: Pigeonhole on setter slots with $E$ exams: a teacher can set at most $\lceil E/2 \rceil$ times without adjacency; adjacent incident cost $\max(0, 2 s_t - E - 1)$; greedy allocation over teacher setter capacities yields the provable lower bound (e.g., 2.0 on 11-teacher, 4-exam benchmark).
+     - S8: Global discrete minimum of $\sum_t (c_t - q_t)^2$ subject to $\sum c_t = D$ and $lo_t \le c_t \le hi_t$ via greedy marginal-cost allocation (2.60 on demo benchmark).
+     - S1: Reviewer capacity pigeonhole bounds.
+- **Consequences:** Eliminates artificial fractional role imbalance penalties, allows fair target allocation (e.g. Vũ Hải Hà receiving 1 task on demo seed and S8 reaching its lower bound 2.60), and empowers the UI to display "cannot be improved further" indicators.
+
+
 
 

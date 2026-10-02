@@ -61,14 +61,21 @@ impl IncrementalState {
         }
     }
 
-    /// Evaluates S2 cost for a single teacher.
+    /// Evaluates S2 cost for a single teacher (distance to [floor(c/3), ceil(c/3)]).
     #[inline]
     pub fn eval_teacher_s2(&self, t: usize) -> f64 {
         let count = self.teacher_count[t];
         if count >= 2 {
-            let r = self.teacher_reviewers[t] as f64;
-            let ideal = count as f64 / 3.0;
-            (r - ideal).abs()
+            let r = self.teacher_reviewers[t];
+            let lo = count / 3;
+            let hi = count.div_ceil(3);
+            if r < lo {
+                (lo - r) as f64
+            } else if r > hi {
+                (r - hi) as f64
+            } else {
+                0.0
+            }
         } else {
             0.0
         }

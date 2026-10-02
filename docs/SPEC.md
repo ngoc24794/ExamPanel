@@ -120,7 +120,7 @@ All counts are evaluated over a complete school year plan. "Unit" = one incident
 | Code | Constraint Name | Description | Default Weight | Violation Codes | Formal Unit Metric |
 |------|-----------------|-------------|----------------|-----------------|---------------------|
 | **S1** | Reviewer Count | Reviewer assignments for eligible teachers with quota $q_t \ge 1$. | `10.0` | `reviewer_never`, `reviewer_too_many` | For each teacher with $q_t \ge 1$ eligible as reviewer: $(1 \text{ if reviews } = 0) + \max(0, \text{reviews} - 2)$. Params: $\min = 1, \max = 2$. |
-| **S2** | Role Balance | Ratio of reviewer tasks to total tasks ($1/3$). | `3.0` | `role_imbalance` | For each teacher with $count_t \ge 2$: $\|reviews_t - count_t / 3.0\|$. |
+| **S2** | Role Balance | Ratio of reviewer tasks to total tasks ($1/3$). | `3.0` | `role_imbalance` | For each teacher with $count_t \ge 2$, let $lo = \lfloor count_t / 3 \rfloor, hi = \lceil count_t / 3 \rceil$: distance from $reviews_t$ to $[lo, hi]$ (0 when inside). |
 | **S3** | Independent Reviewer | Reviewer should not share campus with panel setters. | `4.0` | `reviewer_same_campus` | Per panel: number of setters sharing the reviewer's campus ($0 \dots 2$). |
 | **S4** | Repeated Setter Pair | Distinctness of setter co-author pairs. | `6.0` | `setter_pair_repeated` | Per unordered setter pair $\{A, B\}$: $\max(0, \text{times\_together} - 1)$. |
 | **S5** | Repeated Review Relation | Diversity of directed reviewer-to-author oversight. | `6.0` | `review_relation_repeated` | Per ordered pair $(\text{reviewer } A, \text{setter } B)$: $\max(0, \text{times} - 1)$. |
@@ -128,6 +128,12 @@ All counts are evaluated over a complete school year plan. "Unit" = one incident
 | **S7** | Grade Rotation | Grade variety for multi-grade instructors. | `1.0` | `grade_not_rotated` | For teachers teaching $\ge 2$ grades in the year: $\max(0, \min(count_t, \|\text{grades}_t\|) - \text{distinct\_grades\_assigned}_t)$. |
 | **S8** | Load Balance | Deviation from ideal availability-scaled quota $q_t$. | `8.0` | `load_deviation` | Per teacher: $(count_t - q_t)^2$. Pulls toward fair target even under H7 tolerance $k \ge 1$. |
 
+### 3.3 Provable Lower Bounds
+To inform human coordinators when schedule quality cannot be improved further, provable mathematical lower bounds are computed per rule:
+- **S1 (Reviewer Capacity Pigeonhole):** Total reviewer slots $P = \text{exams} \times \text{grades}$. If eligible reviewers $N_{rev} > P$, at least $N_{rev} - P$ teachers cannot receive a review assignment (`reviewer_never`). If $P > 2 N_{rev}$, at least $P - 2 N_{rev}$ assignments exceed the maximum threshold of 2 (`reviewer_too_many`). Bound: $\max(0, N_{rev} - P) + \max(0, P - 2 N_{rev})$.
+- **S6 (Setter Consecutive Pigeonhole):** With $E$ exams, a teacher can set at most $\lceil E/2 \rceil$ times without being assigned in adjacent exams. For $s_t$ setter assignments, the minimum unavoidable adjacent pairs is $\max(0, 2 s_t - E - 1)$. The aggregate lower bound is determined by greedily allocating total setter slots $S_{total} = 2 \times \text{panels}$ across teachers up to their setter capacities $cap_t = \min(hi_t, \text{eligible setter exams})$ minimizing $\sum_t \max(0, 2 s_t - E - 1)$. On the 11-teacher, 4-exam benchmark, this lower bound is provably 2.0 (correcting earlier informal claims that 5 was unavoidable).
+- **S8 (Discrete Optimal Load Balance):** The exact global minimum of $\sum_t (c_t - q_t)^2$ subject to $\sum c_t = D$ and $lo_t \le c_t \le hi_t$ is computed via greedy marginal-cost allocation over separable convex objectives. On the demo benchmark, this global discrete minimum is exactly $\approx 2.60$.
+- **S2, S3, S4, S5, S7:** 0.0 unless proved otherwise by counting arguments.
 
 ---
 

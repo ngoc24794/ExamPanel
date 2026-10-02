@@ -16,6 +16,9 @@ use crate::domain::{
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
+pub mod bounds;
+pub use bounds::{lower_bounds, optimal_s8_counts, RuleBound};
+
 /// Summary score report for a complete plan evaluation.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ScoreReport {
@@ -37,6 +40,7 @@ pub struct RuleScore {
     pub weight: f64,
     pub units: f64,
     pub penalty: f64,
+    pub lower_bound: f64,
 }
 
 /// A specific soft constraint violation instance with explanatory metadata.
@@ -226,16 +230,25 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
         let count_t = count_map.get(&t.id).copied().unwrap_or(0);
         if count_t >= 2 {
             let reviews = reviewer_map.get(&t.id).copied().unwrap_or(0);
-            let ideal = count_t as f64 / 3.0;
-            let diff = (reviews as f64 - ideal).abs();
+            let lo = count_t / 3;
+            let hi = count_t.div_ceil(3);
+            let diff = if reviews < lo {
+                (lo - reviews) as f64
+            } else if reviews > hi {
+                (reviews - hi) as f64
+            } else {
+                0.0
+            };
             if diff > 1e-9 {
                 s2_units += diff;
                 let mut params = BTreeMap::new();
                 params.insert("teacher".to_string(), t.full_name.clone());
                 params.insert("reviews".to_string(), reviews.to_string());
                 params.insert("count".to_string(), count_t.to_string());
-                params.insert("ideal".to_string(), format!("{ideal:.2}"));
-                params.insert("diff".to_string(), format!("{diff:.2}"));
+                params.insert("lo".to_string(), lo.to_string());
+                params.insert("hi".to_string(), hi.to_string());
+                params.insert("ideal".to_string(), format!("[{lo}, {hi}]"));
+                params.insert("diff".to_string(), format!("{diff:.0}"));
                 violations.push(SoftViolation {
                     rule: RuleKey::S2,
                     code: "role_imbalance".to_string(),
@@ -470,7 +483,15 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
         }
     }
 
-    // Compile by_rule scores
+    // Compile lower bounds and by_rule scores
+    let bounds = bounds::lower_bounds(problem);
+    let get_lower_bound = |key: RuleKey| -> f64 {
+        bounds
+            .iter()
+            .find(|b| b.rule == key)
+            .map_or(0.0, |b| b.units_lower_bound)
+    };
+
     let rule_scores = vec![
         RuleScore {
             rule: RuleKey::S1,
@@ -482,6 +503,7 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
             } else {
                 0.0
             },
+            lower_bound: get_lower_bound(RuleKey::S1),
         },
         RuleScore {
             rule: RuleKey::S2,
@@ -493,6 +515,7 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
             } else {
                 0.0
             },
+            lower_bound: get_lower_bound(RuleKey::S2),
         },
         RuleScore {
             rule: RuleKey::S3,
@@ -504,6 +527,7 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
             } else {
                 0.0
             },
+            lower_bound: get_lower_bound(RuleKey::S3),
         },
         RuleScore {
             rule: RuleKey::S4,
@@ -515,6 +539,7 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
             } else {
                 0.0
             },
+            lower_bound: get_lower_bound(RuleKey::S4),
         },
         RuleScore {
             rule: RuleKey::S5,
@@ -526,6 +551,7 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
             } else {
                 0.0
             },
+            lower_bound: get_lower_bound(RuleKey::S5),
         },
         RuleScore {
             rule: RuleKey::S6,
@@ -537,6 +563,7 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
             } else {
                 0.0
             },
+            lower_bound: get_lower_bound(RuleKey::S6),
         },
         RuleScore {
             rule: RuleKey::S7,
@@ -548,6 +575,7 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
             } else {
                 0.0
             },
+            lower_bound: get_lower_bound(RuleKey::S7),
         },
         RuleScore {
             rule: RuleKey::S8,
@@ -559,6 +587,7 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
             } else {
                 0.0
             },
+            lower_bound: get_lower_bound(RuleKey::S8),
         },
     ];
 
@@ -737,7 +766,8 @@ mod tests {
     #[test]
     fn test_s2_role_balance() {
         let problem = make_test_problem();
-        // T1 has count = 3, reviewer = 0 -> |0 - 1.0| = 1.0
+        // T1 has count = 3, reviewer = 0 -> lo = 1, hi = 1 -> dist = 1.0
+        // T2 has count = 2, reviewer = 0 -> lo = 0, hi = 1 -> dist = 0.0 (inside interval [0, 1])
         let assignments = vec![
             Assignment::new(ExamId(1), GradeId(1), TeacherId(1), Role::Setter),
             Assignment::new(ExamId(1), GradeId(1), TeacherId(2), Role::Setter),
@@ -758,6 +788,35 @@ mod tests {
             .violations
             .iter()
             .any(|v| v.code == "role_imbalance" && v.teachers == vec![TeacherId(1)]));
+        // Under new definition, T2 (count 2, reviewer 0) is inside [0, 1], so no violation
+        assert!(!rep
+            .violations
+            .iter()
+            .any(|v| v.code == "role_imbalance" && v.teachers == vec![TeacherId(2)]));
+
+        assert!(rep
+            .violations
+            .iter()
+            .any(|v| v.code == "role_imbalance" && v.teachers == vec![TeacherId(4)]));
+        assert!(rep
+            .violations
+            .iter()
+            .any(|v| v.code == "role_imbalance" && v.teachers == vec![TeacherId(6)]));
+
+        let s2 = rep.by_rule.iter().find(|r| r.rule == RuleKey::S2).unwrap();
+        assert_eq!(s2.units, 3.0);
+    }
+
+    #[test]
+    fn test_lower_bounds_calculation() {
+        let problem = make_test_problem();
+        let bounds = lower_bounds(&problem);
+        assert_eq!(bounds.len(), 8);
+        for b in &bounds {
+            assert!(b.units_lower_bound >= 0.0);
+        }
+        let s8_bound = bounds.iter().find(|b| b.rule == RuleKey::S8).unwrap();
+        assert!(s8_bound.units_lower_bound >= 0.0);
     }
 
     #[test]

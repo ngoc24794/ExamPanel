@@ -444,12 +444,7 @@ impl IncrementalState {
 
         // S2: Role balance
         for t in 0..num_teachers {
-            let count = self.teacher_count[t];
-            if count >= 2 {
-                let r = self.teacher_reviewers[t] as f64;
-                let ideal = count as f64 / 3.0;
-                self.current_units[1] += (r - ideal).abs();
-            }
+            self.current_units[1] += self.eval_teacher_s2(t);
         }
 
         // S3: Independent reviewer
