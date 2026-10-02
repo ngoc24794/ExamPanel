@@ -251,6 +251,167 @@ pub struct ReoptimizeRequest {
     pub request: OptimizeRequest,
 }
 
+// -----------------------------------------------------------------------------
+// Backup & Restore DTOs
+// -----------------------------------------------------------------------------
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct BackupValidationSummary {
+    pub valid: bool,
+    pub user_version: i32,
+    pub school_years_count: usize,
+    pub teachers_count: usize,
+    pub plans_count: usize,
+    pub error: Option<String>,
+}
+
+impl From<exam_panel_storage::BackupValidationSummary> for BackupValidationSummary {
+    fn from(s: exam_panel_storage::BackupValidationSummary) -> Self {
+        Self {
+            valid: s.valid,
+            user_version: s.user_version,
+            school_years_count: s.school_years_count,
+            teachers_count: s.teachers_count,
+            plans_count: s.plans_count,
+            error: s.error,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct BackupFileInfo {
+    pub filename: String,
+    pub path: String,
+    pub size_bytes: u64,
+    pub modified_at: String,
+}
+
+impl From<exam_panel_storage::BackupFileInfo> for BackupFileInfo {
+    fn from(s: exam_panel_storage::BackupFileInfo) -> Self {
+        Self {
+            filename: s.filename,
+            path: s.path,
+            size_bytes: s.size_bytes,
+            modified_at: s.modified_at,
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Excel Import DTOs
+// -----------------------------------------------------------------------------
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub enum ImportRowStatus {
+    #[serde(rename = "new")]
+    New,
+    #[serde(rename = "update")]
+    Update,
+    #[serde(rename = "unchanged")]
+    Unchanged,
+    #[serde(rename = "error")]
+    Error,
+    #[serde(rename = "skipped")]
+    Skipped,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct ImportCellError {
+    pub sheet: String,
+    pub row: usize,
+    pub column: String,
+    pub code: String,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct CampusImportRow {
+    pub row_index: usize,
+    pub status: ImportRowStatus,
+    pub code: String,
+    pub name: String,
+    pub errors: Vec<ImportCellError>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct TeacherImportRow {
+    pub row_index: usize,
+    pub status: ImportRowStatus,
+    pub code: Option<String>,
+    pub full_name: String,
+    pub campus_code: String,
+    pub grades_str: String,
+    pub grade_codes: Vec<i32>,
+    pub load_weight: f64,
+    pub active: bool,
+    pub note: Option<String>,
+    pub matched_teacher_id: Option<i64>,
+    pub errors: Vec<ImportCellError>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct UnavailabilityImportRow {
+    pub row_index: usize,
+    pub status: ImportRowStatus,
+    pub teacher_ref: String,
+    pub exam_code: String,
+    pub reason: Option<String>,
+    pub matched_teacher_id: Option<i64>,
+    pub errors: Vec<ImportCellError>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct ImportSummaryCounts {
+    pub new_count: usize,
+    pub update_count: usize,
+    pub unchanged_count: usize,
+    pub error_count: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct DeactivatedTeacherPreview {
+    pub id: i64,
+    pub code: Option<String>,
+    pub full_name: String,
+    pub campus_name: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct ImportPreviewResult {
+    pub mode: String,
+    pub can_apply: bool,
+    pub campuses: Vec<CampusImportRow>,
+    pub teachers: Vec<TeacherImportRow>,
+    pub unavailabilities: Vec<UnavailabilityImportRow>,
+    pub campuses_summary: ImportSummaryCounts,
+    pub teachers_summary: ImportSummaryCounts,
+    pub unavailabilities_summary: ImportSummaryCounts,
+    pub deactivated_teachers: Vec<DeactivatedTeacherPreview>,
+    pub feasibility_report: Option<FeasibilityReportWithQuotas>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct ImportApplyResult {
+    pub backup_path: String,
+    pub campuses_created: usize,
+    pub campuses_updated: usize,
+    pub teachers_created: usize,
+    pub teachers_updated: usize,
+    pub teachers_deactivated: usize,
+    pub unavailabilities_created: usize,
+}
+
 /// Generates the complete TypeScript declaration file contents from Rust types.
 #[cfg(feature = "typegen")]
 #[must_use]
@@ -337,6 +498,21 @@ pub fn generate_typescript_declarations() -> String {
     export_type!(exam_panel_core::optimize::SlotRef);
     export_type!(exam_panel_core::optimize::CandidateEval);
     export_type!(ReoptimizeRequest);
+
+    // Backup & Restore
+    export_type!(BackupValidationSummary);
+    export_type!(BackupFileInfo);
+
+    // Excel Import
+    export_type!(ImportRowStatus);
+    export_type!(ImportCellError);
+    export_type!(CampusImportRow);
+    export_type!(TeacherImportRow);
+    export_type!(UnavailabilityImportRow);
+    export_type!(ImportSummaryCounts);
+    export_type!(DeactivatedTeacherPreview);
+    export_type!(ImportPreviewResult);
+    export_type!(ImportApplyResult);
 
     out.replace("\r\n", "\n")
 }

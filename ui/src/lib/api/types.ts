@@ -4,6 +4,8 @@ import type {
   AppInfo,
   AppSettings,
   Assignment,
+  BackupFileInfo,
+  BackupValidationSummary,
   Campus,
   CandidateEval,
   CreateCampusInput,
@@ -16,6 +18,8 @@ import type {
   Exam,
   FeasibilityReportWithQuotas,
   Grade,
+  ImportApplyResult,
+  ImportPreviewResult,
   Lock,
   OptimizeOutcome,
   OptimizeRequest,
@@ -149,6 +153,25 @@ export interface ExamPanelApi {
     req: ReoptimizeRequest,
     onProgress?: (progress: Progress) => void,
   ): OptimizeHandle
+
+  // Excel Import & Export
+  generateImportTemplate(targetPath: string): Promise<void>
+  previewImport(
+    schoolYearId: number,
+    filePath: string,
+    mode: string,
+  ): Promise<ImportPreviewResult>
+  applyImport(
+    schoolYearId: number,
+    preview: ImportPreviewResult,
+  ): Promise<ImportApplyResult>
+  exportPlanExcel(planId: number, targetPath: string): Promise<void>
+
+  // Backup & Restore
+  backupDatabase(targetPath: string): Promise<void>
+  restoreDatabase(sourcePath: string): Promise<void>
+  validateBackup(path: string): Promise<BackupValidationSummary>
+  listBackups(): Promise<BackupFileInfo[]>
 
   // Dev Tools
   seedDemo(): Promise<void>

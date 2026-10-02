@@ -33,6 +33,21 @@ impl AppError {
         self.params.insert(key.into(), value.into());
         self
     }
+
+    #[must_use]
+    pub fn not_found(msg: impl Into<String>) -> Self {
+        Self::new("not_found").with_param("message", msg.into())
+    }
+
+    #[must_use]
+    pub fn validation(msg: impl Into<String>) -> Self {
+        Self::new("validation_error").with_param("message", msg.into())
+    }
+
+    #[must_use]
+    pub fn internal(msg: impl Into<String>) -> Self {
+        Self::new("internal_error").with_param("message", msg.into())
+    }
 }
 
 impl From<exam_panel_storage::StorageError> for AppError {

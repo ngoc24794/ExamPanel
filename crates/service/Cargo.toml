@@ -15,6 +15,11 @@ name = "generate_types"
 path = "src/bin/generate_types.rs"
 required-features = ["typegen"]
 
+[[bin]]
+name = "generate_sample_excels"
+path = "src/bin/generate_sample_excels.rs"
+required-features = ["dev-tools"]
+
 [[test]]
 name = "generate_types"
 path = "tests/generate_types.rs"
@@ -27,6 +32,10 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 ts-rs = { version = "12", features = ["serde-compat"], optional = true }
+rusqlite = { workspace = true }
+calamine = { workspace = true }
+rust_xlsxwriter = { workspace = true }
+unicode-normalization = { workspace = true }
 
 [dev-dependencies]
 tempfile = "3.17"

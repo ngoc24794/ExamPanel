@@ -4,6 +4,8 @@ import type {
   AppInfo,
   AppSettings,
   Assignment,
+  BackupFileInfo,
+  BackupValidationSummary,
   Campus,
   CandidateEval,
   CreateCampusInput,
@@ -17,6 +19,8 @@ import type {
   ExamPanelApi,
   FeasibilityReportWithQuotas,
   Grade,
+  ImportApplyResult,
+  ImportPreviewResult,
   Lock,
   OptimizeHandle,
   OptimizeOutcome,
@@ -398,6 +402,54 @@ export class TauriExamPanelApi implements ExamPanelApi {
         void this.cancelOptimize()
       },
     }
+  }
+
+  // Excel Import & Export
+  async generateImportTemplate(targetPath: string): Promise<void> {
+    await invoke<void>('generate_import_template', { targetPath })
+  }
+
+  async previewImport(
+    schoolYearId: number,
+    filePath: string,
+    mode: string,
+  ): Promise<ImportPreviewResult> {
+    return await invoke<ImportPreviewResult>('preview_import', {
+      schoolYearId,
+      filePath,
+      mode,
+    })
+  }
+
+  async applyImport(
+    schoolYearId: number,
+    preview: ImportPreviewResult,
+  ): Promise<ImportApplyResult> {
+    return await invoke<ImportApplyResult>('apply_import', {
+      schoolYearId,
+      preview,
+    })
+  }
+
+  async exportPlanExcel(planId: number, targetPath: string): Promise<void> {
+    await invoke<void>('export_plan_excel', { planId, targetPath })
+  }
+
+  // Backup & Restore
+  async backupDatabase(targetPath: string): Promise<void> {
+    await invoke<void>('backup_database', { targetPath })
+  }
+
+  async restoreDatabase(sourcePath: string): Promise<void> {
+    await invoke<void>('restore_database', { sourcePath })
+  }
+
+  async validateBackup(path: string): Promise<BackupValidationSummary> {
+    return await invoke<BackupValidationSummary>('validate_backup', { path })
+  }
+
+  async listBackups(): Promise<BackupFileInfo[]> {
+    return await invoke<BackupFileInfo[]>('list_backups')
   }
 
   // Dev Tools

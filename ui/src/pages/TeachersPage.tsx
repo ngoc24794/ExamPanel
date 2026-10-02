@@ -13,7 +13,13 @@ import {
   ArrowUpDown,
   AlertCircle,
   CheckCircle,
+  Download,
+  FileSpreadsheet,
 } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { api, type TeacherWithGrades, type Teacher } from '@/lib/api'
+import { ImportWizardModal } from './teachers/ImportWizardModal'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -66,7 +72,6 @@ import {
   useDeactivateTeacher,
   useToggleTeacherGrade,
 } from '@/lib/query/hooks'
-import { type TeacherWithGrades, type Teacher } from '@/lib/api'
 
 const teacherFormSchema = z.object({
   fullName: z.string().min(1, 'Họ tên không được để trống'),
@@ -111,9 +116,33 @@ export const TeachersPage: React.FC = () => {
   const [sortAsc, setSortAsc] = React.useState(true)
 
   // Dialog State
+  const queryClient = useQueryClient()
+  const [importWizardOpen, setImportWizardOpen] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [editingTeacher, setEditingTeacher] = React.useState<Teacher | null>(null)
   const [selectedGradeIds, setSelectedGradeIds] = React.useState<number[]>([])
+
+  const handleDownloadTemplate = async () => {
+    try {
+      let targetPath = 'mau-nhap-du-lieu.xlsx'
+      try {
+        const { save } = await import('@tauri-apps/plugin-dialog')
+        const chosen = await save({
+          defaultPath: 'mau-nhap-du-lieu.xlsx',
+          filters: [{ name: 'Excel Files', extensions: ['xlsx'] }],
+        })
+        if (!chosen) return
+        targetPath = chosen
+      } catch {
+        // Fallback for tests/browser
+      }
+      await api.generateImportTemplate(targetPath)
+      toast.success(t('import.downloadTemplate') + ' thành công!')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      toast.error(`Lỗi tạo tệp mẫu: ${msg}`)
+    }
+  }
 
   // Delete State
   const [deleteTeacherId, setDeleteTeacherId] = React.useState<number | null>(null)
@@ -332,10 +361,37 @@ export const TeachersPage: React.FC = () => {
             {t('teachers.description')}
           </p>
         </div>
-        <Button onClick={openCreateDialog} size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
-          {t('teachers.createTeacher')}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            data-testid="download-template-btn"
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadTemplate}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            {t('import.downloadTemplate')}
+          </Button>
+          <Button
+            data-testid="import-excel-btn"
+            variant="outline"
+            size="sm"
+            onClick={() => setImportWizardOpen(true)}
+            className="gap-2"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            {t('import.importExcel')}
+          </Button>
+          <Button
+            data-testid="create-teacher-btn"
+            onClick={openCreateDialog}
+            size="sm"
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {t('teachers.createTeacher')}
+          </Button>
+        </div>
       </div>
 
       {/* Coverage Panel Above Table */}
@@ -815,6 +871,18 @@ export const TeachersPage: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ImportWizardModal
+        open={importWizardOpen}
+        onOpenChange={setImportWizardOpen}
+        schoolYearId={schoolYearId ?? 0}
+        onSuccess={() => {
+          void queryClient.invalidateQueries({ queryKey: ['teachers'] })
+          void queryClient.invalidateQueries({ queryKey: ['campuses'] })
+          void queryClient.invalidateQueries({ queryKey: ['feasibility'] })
+          void queryClient.invalidateQueries({ queryKey: ['unavailability'] })
+        }}
+      />
     </div>
   )
 }

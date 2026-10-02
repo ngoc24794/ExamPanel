@@ -10,6 +10,8 @@ import type {
   AppInfo,
   AppSettings,
   Assignment,
+  BackupFileInfo,
+  BackupValidationSummary,
   Campus,
   CandidateEval,
   CreateCampusInput,
@@ -23,6 +25,8 @@ import type {
   ExamPanelApi,
   FeasibilityReportWithQuotas,
   Grade,
+  ImportApplyResult,
+  ImportPreviewResult,
   Lock,
   OptimizeHandle,
   OptimizeOutcome,
@@ -1316,6 +1320,193 @@ export class MockExamPanelApi implements ExamPanelApi {
     }
   }
 
+  // Excel Import & Export
+  async generateImportTemplate(_targetPath: string): Promise<void> {
+    // In mock/browser mode, simulate template generation
+  }
+
+  async previewImport(
+    _schoolYearId: number,
+    _filePath: string,
+    mode: string,
+  ): Promise<ImportPreviewResult> {
+    const isSync = mode === 'sync'
+    return {
+      mode,
+      can_apply: true,
+      campuses: [
+        {
+          row_index: 2,
+          status: 'unchanged',
+          code: 'CS1',
+          name: 'Cơ sở 1',
+          errors: [],
+        },
+        {
+          row_index: 3,
+          status: 'new',
+          code: 'CS3',
+          name: 'Cơ sở 3',
+          errors: [],
+        },
+      ],
+      teachers: [
+        {
+          row_index: 2,
+          status: 'update',
+          code: 'GV001',
+          full_name: 'Nguyễn Văn A',
+          campus_code: 'CS1',
+          grades_str: '10, 11',
+          grade_codes: [10, 11],
+          load_weight: 1.0,
+          active: true,
+          note: null,
+          matched_teacher_id: BigInt(1),
+          errors: [],
+        },
+        {
+          row_index: 3,
+          status: 'new',
+          code: 'GV020',
+          full_name: 'Trần Thị Mới',
+          campus_code: 'CS2',
+          grades_str: '12',
+          grade_codes: [12],
+          load_weight: 0.5,
+          active: true,
+          note: 'Giáo viên thỉnh giảng',
+          matched_teacher_id: null,
+          errors: [],
+        },
+      ],
+      unavailabilities: [
+        {
+          row_index: 2,
+          status: 'new',
+          teacher_ref: 'GV001',
+          exam_code: 'GK1',
+          reason: 'Bận công tác',
+          matched_teacher_id: BigInt(1),
+          errors: [],
+        },
+      ],
+      campuses_summary: {
+        new_count: 1,
+        update_count: 0,
+        unchanged_count: 1,
+        error_count: 0,
+      },
+      teachers_summary: {
+        new_count: 1,
+        update_count: 1,
+        unchanged_count: 0,
+        error_count: 0,
+      },
+      unavailabilities_summary: {
+        new_count: 1,
+        update_count: 0,
+        unchanged_count: 0,
+        error_count: 0,
+      },
+      deactivated_teachers: isSync
+        ? [
+            {
+              id: BigInt(99),
+              code: 'GV099',
+              full_name: 'Lê Văn Cũ',
+              campus_name: 'Cơ sở 1',
+            },
+          ]
+        : [],
+      feasibility_report: {
+        report: {
+          is_feasible: true,
+          errors: [],
+          warnings: [],
+          quotas: [],
+        },
+        quotas: [],
+      },
+    }
+  }
+
+  async applyImport(
+    _schoolYearId: number,
+    preview: ImportPreviewResult,
+  ): Promise<ImportApplyResult> {
+    return {
+      backup_path: 'data/backups/exampanel-backup-auto-import-preview.db',
+      campuses_created: preview.campuses_summary.new_count,
+      campuses_updated: preview.campuses_summary.update_count,
+      teachers_created: preview.teachers_summary.new_count,
+      teachers_updated: preview.teachers_summary.update_count,
+      teachers_deactivated: preview.deactivated_teachers.length,
+      unavailabilities_created: preview.unavailabilities_summary.new_count,
+    }
+  }
+
+  async exportPlanExcel(_planId: number, _targetPath: string): Promise<void> {
+    // In mock mode, simulate export
+  }
+
+  // Backup & Restore
+  private mockBackups: BackupFileInfo[] = [
+    {
+      filename: 'exampanel-backup-20261001-1400.db',
+      path: 'data/backups/exampanel-backup-20261001-1400.db',
+      size_bytes: BigInt(262144),
+      modified_at: '2026-10-01 14:00:00',
+    },
+    {
+      filename: 'exampanel-backup-20260928-0915.db',
+      path: 'data/backups/exampanel-backup-20260928-0915.db',
+      size_bytes: BigInt(245760),
+      modified_at: '2026-09-28 09:15:00',
+    },
+  ]
+
+  async backupDatabase(targetPath: string): Promise<void> {
+    const filename = targetPath.split(/[\\/]/).pop() || 'backup.db'
+    this.mockBackups.unshift({
+      filename,
+      path: targetPath,
+      size_bytes: BigInt(250000),
+      modified_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+    })
+  }
+
+  async restoreDatabase(_sourcePath: string): Promise<void> {
+    // In mock mode, simulate restore
+  }
+
+  async validateBackup(path: string): Promise<BackupValidationSummary> {
+    const filename = path.split(/[\\/]/).pop() || 'backup.db'
+    if (filename.includes('corrupted') || filename.includes('invalid')) {
+      return {
+        valid: false,
+        user_version: 0,
+        school_years_count: 0,
+        teachers_count: 0,
+        plans_count: 0,
+        error: 'Tệp sao lưu không hợp lệ hoặc bị hỏng (PRAGMA integrity_check failed)',
+      }
+    }
+    return {
+      valid: true,
+      user_version: 4,
+      school_years_count: 2,
+      teachers_count: 18,
+      plans_count: 3,
+      error: null,
+    }
+  }
+
+  async listBackups(): Promise<BackupFileInfo[]> {
+    return [...this.mockBackups]
+  }
+
+  // Dev Tools
   async seedDemo(): Promise<void> {
     // Re-initialize from demo fixtures
     this.campuses = JSON.parse(JSON.stringify(demoCampuses))

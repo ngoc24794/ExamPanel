@@ -4,6 +4,8 @@
   "description": "Default permissions for ExamPanel",
   "windows": ["main"],
   "permissions": [
-    "core:default"
+    "core:default",
+    "opener:default",
+    "dialog:default"
   ]
 }

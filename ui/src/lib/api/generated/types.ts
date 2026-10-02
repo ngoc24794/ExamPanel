@@ -135,3 +135,25 @@ export type CandidateEval = { teacher_id: number, hard_violations: Array<Violati
 
 export type ReoptimizeRequest = { plan_id: number, keep: Array<SlotRef>, request: OptimizeRequest, };
 
+export type BackupValidationSummary = { valid: boolean, user_version: number, school_years_count: number, teachers_count: number, plans_count: number, error: string | null, };
+
+export type BackupFileInfo = { filename: string, path: string, size_bytes: bigint, modified_at: string, };
+
+export type ImportRowStatus = "new" | "update" | "unchanged" | "error" | "skipped";
+
+export type ImportCellError = { sheet: string, row: number, column: string, code: string, message: string, };
+
+export type CampusImportRow = { row_index: number, status: ImportRowStatus, code: string, name: string, errors: Array<ImportCellError>, };
+
+export type TeacherImportRow = { row_index: number, status: ImportRowStatus, code: string | null, full_name: string, campus_code: string, grades_str: string, grade_codes: Array<number>, load_weight: number, active: boolean, note: string | null, matched_teacher_id: bigint | null, errors: Array<ImportCellError>, };
+
+export type UnavailabilityImportRow = { row_index: number, status: ImportRowStatus, teacher_ref: string, exam_code: string, reason: string | null, matched_teacher_id: bigint | null, errors: Array<ImportCellError>, };
+
+export type ImportSummaryCounts = { new_count: number, update_count: number, unchanged_count: number, error_count: number, };
+
+export type DeactivatedTeacherPreview = { id: bigint, code: string | null, full_name: string, campus_name: string, };
+
+export type ImportPreviewResult = { mode: string, can_apply: boolean, campuses: Array<CampusImportRow>, teachers: Array<TeacherImportRow>, unavailabilities: Array<UnavailabilityImportRow>, campuses_summary: ImportSummaryCounts, teachers_summary: ImportSummaryCounts, unavailabilities_summary: ImportSummaryCounts, deactivated_teachers: Array<DeactivatedTeacherPreview>, feasibility_report: FeasibilityReportWithQuotas | null, };
+
+export type ImportApplyResult = { backup_path: string, campuses_created: number, campuses_updated: number, teachers_created: number, teachers_updated: number, teachers_deactivated: number, unavailabilities_created: number, };
+
