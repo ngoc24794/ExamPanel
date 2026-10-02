@@ -1,0 +1,16 @@
+{
+  "app_name": "ExamPanel",
+  "app_version": "0.1.0",
+  "data_dir": "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\target\\test_portable\\data",
+  "db_path": "C:\\Users\\ngocnv.HUONGVIETGROUP\\source\\repos\\ExamPanel\\target\\test_portable\\data\\exam-panel.db",
+  "feasibility": {
+    "errors": 2,
+    "is_feasible": false,
+    "quotas_count": 0,
+    "school_year_id": 1,
+    "warnings": 0
+  },
+  "is_portable": true,
+  "mode": "smoke_test",
+  "status": "ok"
+}

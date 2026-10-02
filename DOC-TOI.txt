@@ -1,0 +1,41 @@
+======================================================================
+           HƯỚNG DẪN KHỞI CHẠY EXAMPANEL (BẢN DI ĐỘNG - PORTABLE)
+                      Phiên bản: 0.1.0 (64-bit Windows)
+======================================================================
+
+1. GIỚI THIỆU
+   ExamPanel là phần mềm hỗ trợ tự động hóa phân công cán bộ ra đề và
+   phản biện đề kiểm tra định kỳ tại các trường trung học phổ thông.
+
+2. CÁCH SỬ DỤNG BẢN DI ĐỘNG (PORTABLE)
+   - Giải nén toàn bộ thư mục ZIP này vào ổ USB hoặc bất kỳ thư mục nào
+     trên máy tính của bạn (ví dụ: D:\ExamPanel\).
+   - Tệp đánh dấu 'ExamPanel.portable' được đặt cùng thư mục với
+     'ExamPanel.exe' nhằm chỉ định phần mềm lưu trữ toàn bộ dữ liệu tại
+     thư mục './data/' nằm ngay cạnh tệp chạy.
+   - Nhấp đúp vào 'ExamPanel.exe' để khởi động ứng dụng.
+
+3. LƯU Ý KHI GẶP CẢNH BÁO WINDOWS DEFENDER SMARTSCREEN
+   Vì đây là phần mềm nội bộ chuyên môn và chưa mua chứng chỉ số thương
+   mại tốn phí từ Microsoft, màn hình xanh Windows SmartScreen có thể xuất
+   hiện lần đầu khởi chạy với thông báo "Windows protected your PC":
+   -> Nhấp vào dòng chữ "More info" (Thông tin thêm).
+   -> Nhấp vào nút "Run anyway" (Vẫn chạy).
+   Phần mềm hoàn toàn an toàn, mã nguồn mở, không chứa mã độc và không gửi
+   bất kỳ dữ liệu cá nhân nào ra bên ngoài mạng Internet.
+
+4. YÊU CẦU HỆ THỐNG
+   - Hệ điều hành: Windows 10 hoặc Windows 11 (64-bit).
+   - Microsoft Edge WebView2 Runtime: Mặc định đã được cài sẵn trên hầu hết
+     các máy Windows 10/11 hiện nay. Nếu máy tính của bạn thông báo thiếu
+     WebView2, vui lòng tải và cài đặt miễn phí từ trang chủ Microsoft:
+     https://go.microsoft.com/fwlink/p/?LinkId=2124703
+
+5. SAO LƯU DỮ LIỆU
+   - Toàn bộ dữ liệu của bạn nằm trong thư mục 'data/' (gồm tệp cơ sở dữ
+     liệu exam-panel.db và các bản sao lưu tự động trong data/backups/).
+   - Khi chuyển sang máy tính khác, bạn chỉ cần sao chép toàn bộ thư mục
+     ExamPanel này là toàn bộ kế hoạch và cấu hình sẽ được giữ nguyên vẹn.
+
+Chúc Thầy/Cô và Nhà trường một năm học thành công và thuận lợi!
+======================================================================

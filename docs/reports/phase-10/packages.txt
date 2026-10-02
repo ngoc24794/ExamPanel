@@ -1,0 +1,8 @@
+=== ExamPanel v0.1.0 Release Packages ===
+Generated: 2026-10-02 16:59:55
+
+File Name                                               | Size (bytes) | SHA256 Checksum                                                 
+--------------------------------------------------------+--------------+-----------------------------------------------------------------
+ExamPanel-0.1.0-windows-x64-portable.zip                |      6332323 | 78ba3af21ba9de77e08aa8f4850c553d59ccc7ffca9836621159b4bf4bc8aed6
+ExamPanel_0.1.0_x64-setup.exe                           |      4348134 | e030b285f7e2b8e595a12cfed8482523d32830969967888c6db0501901d28956
+ExamPanel-HuongDan-0.1.0.pdf                            |       291467 | bbde707a1806119a9d6e12753af1e5b97c1796c147e3ec25d1a5131c8ae2daea

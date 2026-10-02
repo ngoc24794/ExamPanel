@@ -1,0 +1,12 @@
+=== ExamPanel v0.1.0 Performance Benchmarks (Windows x64) ===
+Date: 2026-10-02 16:59:50
+Operating System: Windows 11 / Windows Server
+Machine: x86_64 MSVC Release Build
+
+1. Startup & Execution Times:
+   - Smoke Test Execution Time (--smoke-test): 20 ms (samples: 26, 17, 17 ms)
+   - Cold Start Time to First Window: 113 ms (Window detected: True)
+
+2. Memory Consumption (Idle):
+   - Main Process Working Set: 27.19 MB
+   - Total Working Set (Host + WebView2 Subprocesses): 154.17 MB
