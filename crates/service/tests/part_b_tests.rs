@@ -1,4 +1,4 @@
-use exam_panel_core::domain::{CampusId, ExamId, GradeId, Role, RuleKey, SchoolYearId};
+use exam_panel_core::domain::{CampusId, ExamId, GradeId, Role, RuleKey, SchoolYearId, SubjectId};
 use exam_panel_core::optimize::{OptimizationEffort, SlotRef};
 use exam_panel_service::dto::{OptimizeBudget, OptimizeRequest};
 use exam_panel_service::service::AppService;
@@ -45,6 +45,9 @@ fn test_part_b_plan_status_and_staleness() {
             active: true,
             note: None,
             code: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .expect("create teacher");
 
@@ -134,6 +137,9 @@ fn test_part_a1_staleness_split_data_vs_rules() {
             active: true,
             note: None,
             code: Some("GV_TEST_A1".to_string()),
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .expect("create teacher");
 
@@ -215,6 +221,7 @@ fn test_part_b_manual_editing_and_immutability() {
     let slot = SlotRef {
         exam_id: ExamId(1),
         grade_id: GradeId(1),
+        subject_id: SubjectId(1),
         role: Role::Setter,
         position: 0,
     };
@@ -227,6 +234,7 @@ fn test_part_b_manual_editing_and_immutability() {
     let slot_b = SlotRef {
         exam_id: ExamId(1),
         grade_id: GradeId(1),
+        subject_id: SubjectId(1),
         role: Role::Setter,
         position: 1,
     };
@@ -287,12 +295,14 @@ fn test_part_b_reoptimize_from_plan() {
         SlotRef {
             exam_id: ExamId(1),
             grade_id: GradeId(1),
+            subject_id: SubjectId(1),
             role: Role::Setter,
             position: 0,
         },
         SlotRef {
             exam_id: ExamId(1),
             grade_id: GradeId(1),
+            subject_id: SubjectId(1),
             role: Role::Reviewer,
             position: 0,
         },

@@ -17,6 +17,7 @@ import {
   useCampuses,
   useGrades,
   useExams,
+  useSubjects,
   useTeachers,
   useLocks,
   useFeasibility,
@@ -72,6 +73,7 @@ export function AssignmentsPage() {
   const { data: campuses = [] } = useCampuses()
   const { data: grades = [] } = useGrades()
   const { data: exams = [] } = useExams(schoolYearId)
+  const { data: subjects = [] } = useSubjects(schoolYearId)
   const { data: teachers = [] } = useTeachers(schoolYearId)
   const { data: locks = [] } = useLocks(schoolYearId)
   const { data: feasibilityReport } = useFeasibility(schoolYearId)
@@ -240,6 +242,7 @@ export function AssignmentsPage() {
         (s) =>
           s.exam_id === slot.exam_id &&
           s.grade_id === slot.grade_id &&
+          s.subject_id === slot.subject_id &&
           s.role === slot.role &&
           s.position === slot.position,
       )
@@ -249,6 +252,7 @@ export function AssignmentsPage() {
             !(
               s.exam_id === slot.exam_id &&
               s.grade_id === slot.grade_id &&
+              s.subject_id === slot.subject_id &&
               s.role === slot.role &&
               s.position === slot.position
             ),
@@ -263,6 +267,7 @@ export function AssignmentsPage() {
     await createLockMutation.mutateAsync({
       exam_id: slot.exam_id,
       grade_id: slot.grade_id,
+      subject_id: slot.subject_id,
       teacher_id: teacherId,
       role: slot.role,
       kind,
@@ -556,6 +561,7 @@ export function AssignmentsPage() {
                 planStatus={planStatus ?? null}
                 exams={exams}
                 grades={grades}
+                subjects={subjects}
                 teachers={teachers}
                 campuses={campuses}
                 locks={locks}

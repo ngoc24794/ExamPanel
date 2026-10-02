@@ -79,7 +79,7 @@ pub struct Exam {
 
 /// Grade qualifications taught by a teacher in a specific school year.
 /// Note: Grades taught can change every school year.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
 pub struct TeacherGrade {
     pub teacher_id: TeacherId,
     pub school_year_id: SchoolYearId,

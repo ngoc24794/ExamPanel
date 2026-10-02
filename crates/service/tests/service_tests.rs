@@ -130,6 +130,9 @@ fn test_teachers_and_grades() {
             active: true,
             note: Some("Trưởng bộ môn".to_string()),
             code: Some("GV001".to_string()),
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .expect("create teacher");
     assert_eq!(teacher.full_name, "Nguyễn Văn A");
@@ -227,10 +230,12 @@ fn test_unavailabilities_locks_and_rule_settings() {
         .any(|u| u.teacher_id == tid && u.exam_id == eid));
 
     // Locks
+    let subjects = service.list_subjects(sy_id).expect("list subjects");
     let lock = service
         .create_lock(CreateLockInput {
             exam_id: eid,
             grade_id: gid,
+            subject_id: subjects[0].id,
             teacher_id: tid,
             role: Some(Role::Setter),
             kind: LockKind::Pin,
@@ -240,6 +245,7 @@ fn test_unavailabilities_locks_and_rule_settings() {
     let locks = service.list_locks(sy_id).expect("list locks");
     assert_eq!(locks.len(), 1);
     assert_eq!(locks[0].id, lock.id);
+    assert_eq!(locks[0].subject_id, subjects[0].id);
 
     service.delete_lock(lock.id).expect("delete lock");
     assert!(service.list_locks(sy_id).expect("list locks").is_empty());

@@ -11,8 +11,8 @@ use crate::excel::normalize::{
 };
 use calamine::{open_workbook_auto, Data, Reader, Sheets};
 use exam_panel_core::domain::{
-    quota::calculate_quotas, Campus, CampusId, GradeId, SchoolYearId, Teacher, TeacherGrade,
-    TeacherId,
+    quota::calculate_quotas, Campus, CampusId, Competency, GradeId, GradeScope, Role, SchoolYearId,
+    Teacher, TeacherGrade, TeacherId,
 };
 use exam_panel_storage::Store;
 use std::collections::{HashMap, HashSet};
@@ -713,6 +713,9 @@ pub fn preview_import(
                         load_weight: t_row.load_weight,
                         active: t_row.active,
                         note: t_row.note.clone(),
+                        display_name: None,
+                        quota_override: None,
+                        max_tasks_per_exam_override: None,
                     });
                 }
 
@@ -724,6 +727,32 @@ pub fn preview_import(
                             teacher_id: tid,
                             school_year_id,
                             grade_id: gid,
+                        });
+                    }
+                }
+            }
+
+            // Ensure all teachers in sim_problem have default competencies for each subject
+            for t in &sim_problem.teachers {
+                for s in &sim_problem.subjects {
+                    if !sim_problem.competencies.iter().any(|c| {
+                        c.teacher_id == t.id && c.subject_id == s.id && c.role == Role::Setter
+                    }) {
+                        sim_problem.competencies.push(Competency {
+                            teacher_id: t.id,
+                            subject_id: s.id,
+                            role: Role::Setter,
+                            grade_scope: GradeScope::Taught,
+                        });
+                    }
+                    if !sim_problem.competencies.iter().any(|c| {
+                        c.teacher_id == t.id && c.subject_id == s.id && c.role == Role::Reviewer
+                    }) {
+                        sim_problem.competencies.push(Competency {
+                            teacher_id: t.id,
+                            subject_id: s.id,
+                            role: Role::Reviewer,
+                            grade_scope: GradeScope::Taught,
                         });
                     }
                 }
@@ -898,6 +927,16 @@ pub fn apply_import(
                     .map_err(|e| AppError::internal(format!("Lỗi gán khối dạy: {e}")))?;
                 }
             }
+
+            // Assign default competencies for subjects in this school year
+            tx.execute(
+                "INSERT OR IGNORE INTO teacher_competencies (teacher_id, subject_id, role, grade_scope)
+                 SELECT ?1, id, 'setter', 'taught' FROM subjects WHERE school_year_id = ?2
+                 UNION ALL
+                 SELECT ?1, id, 'reviewer', 'taught' FROM subjects WHERE school_year_id = ?2",
+                rusqlite::params![tid.value(), school_year_id.value()],
+            )
+            .map_err(|e| AppError::internal(format!("Lỗi gán năng lực mặc định: {e}")))?;
         }
     }
 

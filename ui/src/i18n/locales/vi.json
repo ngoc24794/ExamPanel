@@ -18,6 +18,7 @@
     "rules": "Quy tắc",
     "assignments": "Phân công",
     "stats": "Thống kê",
+    "subjects": "Môn thi",
     "settings": "Cài đặt",
     "dev": "Nhà phát triển",
     "unavailability": "Lịch bận"
@@ -232,6 +233,12 @@
     "s8Title": "S8: Cân bằng tải trọng thực tế",
     "s8Desc": "Số nhiệm vụ thực tế của mỗi giáo viên bám sát chỉ tiêu lý thuyết q dựa trên hệ số tải.",
     "s8Example": "Ví dụ: Giáo viên có hệ số tải 1.0 có chỉ tiêu q=3.2 thì nhận đúng 3 hoặc 4 lượt.",
+    "s9Title": "S9: Giảm dồn việc trong kỳ thi",
+    "s9Desc": "Hạn chế việc một giáo viên phải nhận nhiều nhiệm vụ trong cùng một kỳ thi.",
+    "s9Example": "Ví dụ: Giáo viên đã làm đề môn Vật lí thì hạn chế nhận thêm việc ở môn Công nghệ trong cùng kỳ.",
+    "s10Title": "S10: Phủ đủ môn phản biện",
+    "s10Desc": "Khuyến khích giáo viên có chuyên môn phản biện ở nhiều môn được phản biện ít nhất một lần ở mỗi môn.",
+    "s10Example": "Ví dụ: Giáo viên có thể phản biện cả Vật lí và Công nghệ thì nên phản biện mỗi môn ít nhất 1 lần.",
     "weight": "Trọng số"
   },
   "assignments": {
@@ -340,7 +347,9 @@
     "review_relation_repeated": "Mối quan hệ phản biện ({{reviewer}} phản biện {{setter}}) lặp lại {{count}} lần",
     "setter_consecutive": "Giáo viên {{teacher}} liên tiếp ra đề ở 2 kỳ thi liền kề ({{exam1}} và {{exam2}})",
     "grade_not_rotated": "Giáo viên {{teacher}} chỉ được phân công {{assigned}} khối lớp (mục tiêu xoay vòng: {{target}} khối)",
-    "load_deviation": "Giáo viên {{teacher}} được giao {{count}} nhiệm vụ, lệch {{deviation}} so với chỉ tiêu {{quota}}"
+    "load_deviation": "Giáo viên {{teacher}} được giao {{count}} nhiệm vụ, lệch {{deviation}} so với chỉ tiêu {{quota}}",
+    "exam_crowding": "Giáo viên {{teacher}} đảm nhận {{count}} nhiệm vụ trong kỳ thi {{exam}} (vượt quá mức phân bổ đều)",
+    "review_subject_missing": "Giáo viên {{teacher}} có chuyên môn phản biện môn {{subject}} nhưng chưa được phân công phản biện môn này lần nào"
   },
   "errors": {
     "not_found": "Không tìm thấy dữ liệu yêu cầu",
@@ -697,5 +706,50 @@
     "entered_toast": "Đã chuyển sang chế độ dùng thử với dữ liệu mẫu",
     "exited_toast": "Đã quay lại dữ liệu thật",
     "badge": "Chế độ dùng thử"
+  },
+  "subjects": {
+    "title": "Danh mục Môn thi",
+    "description": "Quản lý các môn thi, định mức ban đề (ra đề / phản biện) và yêu cầu đa dạng phân hiệu.",
+    "subject": "Môn học",
+    "createBtn": "Thêm môn thi",
+    "editTitle": "Chỉnh sửa môn thi",
+    "createTitle": "Thêm môn thi mới",
+    "noSubjects": "Chưa có môn thi nào",
+    "noSubjectsHelp": "Tạo môn thi đầu tiên (ví dụ: VL - Vật lí, CN - Công nghệ).",
+    "composition": "Cơ cấu ban đề",
+    "minCampuses": "Đa dạng phân hiệu tối thiểu",
+    "minCampusesValue": "{{count}} phân hiệu",
+    "minCampusesNone": "Không bắt buộc",
+    "codeLabel": "Mã môn thi",
+    "nameLabel": "Tên môn thi",
+    "settersLabel": "Số người ra đề",
+    "reviewersLabel": "Số người phản biện",
+    "minCampusesLabel": "Phân hiệu tối thiểu",
+    "colorLabel": "Màu sắc",
+    "createSuccess": "Tạo môn thi mới thành công",
+    "updateSuccess": "Cập nhật môn thi thành công",
+    "deleteSuccess": "Đã xóa môn thi thành công",
+    "deleteConfirmTitle": "Xác nhận xóa môn thi?",
+    "deleteConfirmDesc": "Hành động này sẽ xóa môn thi khỏi cấu hình. Nếu môn thi đã có dữ liệu phân công, việc xóa sẽ bị từ chối.",
+    "validationCodeRequired": "Mã môn thi không được để trống",
+    "validationNameRequired": "Tên môn thi không được để trống",
+    "validationSettersRange": "Số người ra đề phải từ 1 đến 4",
+    "validationReviewersRange": "Số người phản biện phải từ 0 đến 2",
+    "validationMinCampusesRange": "Số phân hiệu tối thiểu từ 0 đến 3"
+  },
+  "competencies": {
+    "title": "Chuyên môn",
+    "editTitle": "Phân công chuyên môn",
+    "modalTitle": "Phân công chuyên môn",
+    "modalDesc": "Chỉ định các môn học và vai trò (ra đề / phản biện) giáo viên có thẩm quyền đảm nhận.",
+    "bulkAssignTaught": "Gán theo khối đang dạy cho tất cả giáo viên",
+    "bulkAssignSuccess": "Đã gán chuyên môn theo khối đang dạy cho toàn bộ giáo viên",
+    "saveSuccess": "Cập nhật phân công chuyên môn thành công"
+  },
+  "quota": {
+    "previewBtn": "Xem chỉ tiêu",
+    "previewTitle": "Dự toán phân bổ chỉ tiêu nhiệm vụ",
+    "previewDesc": "Chỉ tiêu nhiệm vụ được tính toán tự động theo trọng số tải, tính khả dụng và loại trừ các nhiệm vụ cố định.",
+    "empty": "Chưa có dữ liệu chỉ tiêu."
   }
 }

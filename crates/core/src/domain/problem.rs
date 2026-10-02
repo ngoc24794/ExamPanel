@@ -104,7 +104,7 @@ pub enum ValidationError {
 
 /// A complete problem snapshot for a single school year.
 /// This is the pure domain input supplied to the pre-solve feasibility checker and solver.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Problem {
     pub school_year: SchoolYear,
     pub campuses: Vec<Campus>,

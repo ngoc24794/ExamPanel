@@ -51,7 +51,7 @@ describe('FeasibilityIndicator & FeasibilitySheet', () => {
           {
             rule: 'h2',
             code: 'insufficient_panel_teachers',
-            panel: { exam_id: 1, grade_id: 1 },
+            panel: { exam_id: 1, grade_id: 1, subject_id: 1 },
             params: { exam: 'GK1', grade: '10', count: '2' },
           },
         ],

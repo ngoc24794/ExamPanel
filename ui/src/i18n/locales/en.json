@@ -18,6 +18,7 @@
     "rules": "Rules",
     "assignments": "Assignments",
     "stats": "Statistics",
+    "subjects": "Subjects",
     "settings": "Settings",
     "dev": "Developer",
     "unavailability": "Unavailability"
@@ -232,6 +233,12 @@
     "s8Title": "S8: Workload Balance",
     "s8Desc": "Keep actual assignments close to theoretical quota q based on load weight.",
     "s8Example": "Example: Teacher with weight 1.0 and q=3.2 receives 3 or 4 assignments.",
+    "s9Title": "S9: Exam Crowding Mitigation",
+    "s9Desc": "Reduce concentration of multiple tasks on a single teacher within the same exam.",
+    "s9Example": "Example: If a teacher sets Physics in GK1, avoid giving them Technology in GK1.",
+    "s10Title": "S10: Review Subject Coverage",
+    "s10Desc": "Encourage teachers competent in reviewing multiple subjects to review each subject at least once.",
+    "s10Example": "Example: A teacher competent to review both Physics and Technology should review each at least once.",
     "weight": "Weight"
   },
   "assignments": {
@@ -340,7 +347,9 @@
     "review_relation_repeated": "Reviewer {{reviewer}} reviews setter {{setter}} {{count}} times",
     "setter_consecutive": "Teacher {{teacher}} is setter in consecutive exams ({{exam1}} and {{exam2}})",
     "grade_not_rotated": "Teacher {{teacher}} assigned to only {{assigned}} grade(s) (rotation target: {{target}} grades)",
-    "load_deviation": "Teacher {{teacher}} assigned {{count}} tasks, deviating {{deviation}} from target quota {{quota}}"
+    "load_deviation": "Teacher {{teacher}} assigned {{count}} tasks, deviating {{deviation}} from target quota {{quota}}",
+    "exam_crowding": "Teacher {{teacher}} holds {{count}} tasks in exam {{exam}} (exceeds even distribution)",
+    "review_subject_missing": "Teacher {{teacher}} is competent to review {{subject}} but is not assigned to review it"
   },
   "errors": {
     "not_found": "Requested entity not found",
@@ -697,5 +706,50 @@
     "entered_toast": "Switched to trial mode with sample data",
     "exited_toast": "Returned to real database",
     "badge": "Trial Mode"
+  },
+  "subjects": {
+    "title": "Subjects Directory",
+    "description": "Manage subjects, panel composition (setters / reviewers) and campus diversity requirements.",
+    "subject": "Subject",
+    "createBtn": "Add Subject",
+    "editTitle": "Edit Subject",
+    "createTitle": "Add New Subject",
+    "noSubjects": "No subjects configured",
+    "noSubjectsHelp": "Create your first subject (e.g. VL - Physics, CN - Technology).",
+    "composition": "Panel composition",
+    "minCampuses": "Minimum campus diversity",
+    "minCampusesValue": "{{count}} campuses",
+    "minCampusesNone": "No constraint",
+    "codeLabel": "Subject Code",
+    "nameLabel": "Subject Name",
+    "settersLabel": "Number of setters",
+    "reviewersLabel": "Number of reviewers",
+    "minCampusesLabel": "Minimum campuses",
+    "colorLabel": "Color",
+    "createSuccess": "Created subject successfully",
+    "updateSuccess": "Updated subject successfully",
+    "deleteSuccess": "Deleted subject successfully",
+    "deleteConfirmTitle": "Confirm delete subject?",
+    "deleteConfirmDesc": "This action will remove the subject from configuration. If the subject has assignments, deletion will be rejected.",
+    "validationCodeRequired": "Subject code is required",
+    "validationNameRequired": "Subject name is required",
+    "validationSettersRange": "Number of setters must be between 1 and 4",
+    "validationReviewersRange": "Number of reviewers must be between 0 and 2",
+    "validationMinCampusesRange": "Minimum campuses must be between 0 and 3"
+  },
+  "competencies": {
+    "title": "Competencies",
+    "editTitle": "Subject Competencies",
+    "modalTitle": "Subject Competencies",
+    "modalDesc": "Specify subjects and roles (setter / reviewer) each teacher is qualified to undertake.",
+    "bulkAssignTaught": "Assign taught grades to all teachers",
+    "bulkAssignSuccess": "Assigned competencies matching taught grades to all teachers",
+    "saveSuccess": "Updated teacher competencies successfully"
+  },
+  "quota": {
+    "previewBtn": "View Quotas",
+    "previewTitle": "Task Quota Allocation Preview",
+    "previewDesc": "Task quotas are automatically computed based on load weights, availability, and excluding forced assignments.",
+    "empty": "No quota data available."
   }
 }

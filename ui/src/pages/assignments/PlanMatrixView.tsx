@@ -10,6 +10,7 @@ import {
   type PlanStatus,
   type Role,
   type SlotRef,
+  type Subject,
   type TeacherWithGrades,
 } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
@@ -50,6 +51,7 @@ interface PlanMatrixViewProps {
   planStatus: PlanStatus | null
   exams: Exam[]
   grades: Grade[]
+  subjects?: Subject[]
   teachers: TeacherWithGrades[]
   campuses: Campus[]
   locks: Lock[]
@@ -68,6 +70,7 @@ export function PlanMatrixView({
   planStatus,
   exams,
   grades,
+  subjects = [],
   teachers,
   campuses,
   locks,
@@ -84,6 +87,23 @@ export function PlanMatrixView({
   const assignments = planDetails.assignments
   const scoreReport = planDetails.score_report
 
+  const defaultSubject: Subject = {
+    id: 1,
+    code: 'CHUNG',
+    name: 'Chung',
+    color: 'blue',
+    sort_order: 1,
+    setters: 2,
+    reviewers: 1,
+    min_campuses: 2,
+  }
+  const effectiveSubjects = subjects.length > 0 ? subjects : [defaultSubject]
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = React.useState<number | 'all'>('all')
+  const displayedSubjects =
+    selectedSubjectFilter === 'all'
+      ? effectiveSubjects
+      : effectiveSubjects.filter((s) => s.id === selectedSubjectFilter)
+
   const [selectedSlotForReplace, setSelectedSlotForReplace] = React.useState<{
     slot: SlotRef
     currentTeacherId: number | null
@@ -95,58 +115,77 @@ export function PlanMatrixView({
     teacherId: number
   } | null>(null)
 
-  const isSlotKept = (examId: number, gradeId: number, role: Role, position: number) => {
+  const isSlotKept = (
+    examId: number,
+    gradeId: number,
+    subjectId: number,
+    role: Role,
+    position: number,
+  ) => {
     return keptSlots.some(
       (s) =>
         s.exam_id === examId &&
         s.grade_id === gradeId &&
+        (s.subject_id === subjectId || (!s.subject_id && subjectId === 1)) &&
         s.role === role &&
         s.position === position,
     )
   }
 
-  const isSlotLocked = (examId: number, gradeId: number, teacherId: number) => {
+  const isSlotLocked = (
+    examId: number,
+    gradeId: number,
+    subjectId: number,
+    teacherId: number,
+  ) => {
     return locks.some(
       (l) =>
         l.exam_id === examId &&
         l.grade_id === gradeId &&
+        (l.subject_id === subjectId || (!l.subject_id && subjectId === 1)) &&
         l.teacher_id === teacherId &&
         l.kind === 'pin',
     )
   }
 
-  // Find assignments for a specific panel (exam × grade)
-  const getPanelAssignments = (examId: number, gradeId: number) => {
+  // Find assignments for a specific panel (exam × grade × subject)
+  const getPanelAssignments = (examId: number, gradeId: number, subjectId: number) => {
     const panelAssignments = assignments.filter(
-      (a) => a.exam_id === examId && a.grade_id === gradeId,
+      (a) =>
+        a.exam_id === examId &&
+        a.grade_id === gradeId &&
+        (a.subject_id === subjectId || (!a.subject_id && subjectId === 1)),
     )
     const setters = panelAssignments.filter((a) => a.role === 'setter')
-    const reviewer = panelAssignments.find((a) => a.role === 'reviewer')
-    return { setters, reviewer }
+    const reviewers = panelAssignments.filter((a) => a.role === 'reviewer')
+    return { setters, reviewers }
   }
 
-  // Soft violations relevant to a specific panel (S3, S4, S5)
-  const getPanelViolations = (examId: number, gradeId: number) => {
+  // Soft violations relevant to a specific panel (S3, S4, S5, S9, S10)
+  const getPanelViolations = (examId: number, gradeId: number, subjectId: number) => {
     if (!scoreReport) return []
     return scoreReport.violations.filter(
       (v) =>
         v.panel &&
         v.panel.exam_id === examId &&
         v.panel.grade_id === gradeId &&
-        ['s3', 's4', 's5'].includes(v.rule),
+        v.panel.subject_id === subjectId &&
+        ['s3', 's4', 's5', 's9', 's10'].includes(v.rule),
     )
   }
 
   const handleApplyReplacement = (slot: SlotRef, newTeacherId: number) => {
     let replaced = false
-    let sCount = 0
     const nextAssignments = assignments.map((a) => {
-      if (a.exam_id === slot.exam_id && a.grade_id === slot.grade_id && a.role === slot.role) {
-        if (slot.role === 'reviewer' || sCount === slot.position) {
-          replaced = true
-          return { ...a, teacher_id: newTeacherId }
-        }
-        sCount += 1
+      if (
+        a.exam_id === slot.exam_id &&
+        a.grade_id === slot.grade_id &&
+        a.subject_id === slot.subject_id &&
+        a.role === slot.role &&
+        a.position === slot.position
+      ) {
+        replaced = true
+        return { ...a, teacher_id: newTeacherId }
       }
       return a
     })
@@ -156,8 +195,10 @@ export function PlanMatrixView({
         plan_id: planDetails.plan.id,
         exam_id: slot.exam_id,
         grade_id: slot.grade_id,
+        subject_id: slot.subject_id,
         teacher_id: newTeacherId,
         role: slot.role,
+        position: slot.position,
       })
     }
 
@@ -165,42 +206,48 @@ export function PlanMatrixView({
   }
 
   const handleSwapSlots = (slotA: SlotRef, slotB: SlotRef) => {
-    // Find current teachers in both slots
-    let tA: number | null = null
-    let tB: number | null = null
-    let sCountA = 0
-    let sCountB = 0
+    const aItem = assignments.find(
+      (a) =>
+        a.exam_id === slotA.exam_id &&
+        a.grade_id === slotA.grade_id &&
+        a.subject_id === slotA.subject_id &&
+        a.role === slotA.role &&
+        a.position === slotA.position,
+    )
+    const bItem = assignments.find(
+      (a) =>
+        a.exam_id === slotB.exam_id &&
+        a.grade_id === slotB.grade_id &&
+        a.subject_id === slotB.subject_id &&
+        a.role === slotB.role &&
+        a.position === slotB.position,
+    )
 
-    for (const a of assignments) {
-      if (a.exam_id === slotA.exam_id && a.grade_id === slotA.grade_id && a.role === slotA.role) {
-        if (slotA.role === 'reviewer' || sCountA === slotA.position) {
-          tA = a.teacher_id
-        }
-        sCountA += 1
-      }
-      if (a.exam_id === slotB.exam_id && a.grade_id === slotB.grade_id && a.role === slotB.role) {
-        if (slotB.role === 'reviewer' || sCountB === slotB.position) {
-          tB = a.teacher_id
-        }
-        sCountB += 1
-      }
-    }
+    if (!aItem || !bItem) return
+    const tA = aItem.teacher_id
+    const tB = bItem.teacher_id
 
-    if (tA === null || tB === null) return
-
-    const nextAssignments = assignments.map((a) => ({ ...a }))
-    for (const a of nextAssignments) {
-      if (a.exam_id === slotA.exam_id && a.grade_id === slotA.grade_id && a.role === slotA.role && a.teacher_id === tA) {
-        a.teacher_id = tB
-        break
+    const nextAssignments = assignments.map((a) => {
+      if (
+        a.exam_id === slotA.exam_id &&
+        a.grade_id === slotA.grade_id &&
+        a.subject_id === slotA.subject_id &&
+        a.role === slotA.role &&
+        a.position === slotA.position
+      ) {
+        return { ...a, teacher_id: tB }
       }
-    }
-    for (const a of nextAssignments) {
-      if (a.exam_id === slotB.exam_id && a.grade_id === slotB.grade_id && a.role === slotB.role && a.teacher_id === tB) {
-        a.teacher_id = tA
-        break
+      if (
+        a.exam_id === slotB.exam_id &&
+        a.grade_id === slotB.grade_id &&
+        a.subject_id === slotB.subject_id &&
+        a.role === slotB.role &&
+        a.position === slotB.position
+      ) {
+        return { ...a, teacher_id: tA }
       }
-    }
+      return a
+    })
 
     onUpdateAssignments(nextAssignments)
   }
@@ -314,6 +361,34 @@ export function PlanMatrixView({
         </div>
       )}
 
+      {/* Subject Filter Tabs */}
+      {effectiveSubjects.length > 1 && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-muted-foreground">{t('subjects.subject') || 'Môn học'}:</span>
+          <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-lg border border-border">
+            <Button
+              variant={selectedSubjectFilter === 'all' ? 'default' : 'ghost'}
+              size="sm"
+              className="h-7 text-xs px-2.5"
+              onClick={() => setSelectedSubjectFilter('all')}
+            >
+              {t('common.all') || 'Tất cả'} ({effectiveSubjects.length})
+            </Button>
+            {effectiveSubjects.map((s) => (
+              <Button
+                key={s.id}
+                variant={selectedSubjectFilter === s.id ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 text-xs px-2.5"
+                onClick={() => setSelectedSubjectFilter(s.id)}
+              >
+                {s.code} - {s.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Matrix Table: Exams (rows) × Grades (columns) */}
       <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
         <table className="w-full border-collapse text-sm">
@@ -341,171 +416,192 @@ export function PlanMatrixView({
                 </td>
 
                 {grades.map((grade) => {
-                  const { setters, reviewer } = getPanelAssignments(exam.id, grade.id)
-                  const panelViolations = getPanelViolations(exam.id, grade.id)
-
                   return (
                     <td
                       key={grade.id}
                       className="p-2.5 border-l border-border align-top min-w-[220px]"
                     >
-                      <div className="space-y-1.5">
-                        {/* Soft violation badges for this panel */}
-                        {panelViolations.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-1">
-                            {panelViolations.map((v, i) => (
-                              <TooltipProvider key={i}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Badge
-                                      variant="destructive"
-                                      className="text-[10px] px-1 py-0 h-4 bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 cursor-help"
-                                    >
-                                      {v.rule.toUpperCase()}
-                                    </Badge>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="text-xs bg-popover text-popover-foreground border-border">
-                                    <p className="font-bold">{v.rule.toUpperCase()}: {v.code}</p>
-                                    <p>{Object.entries(v.params).map(([k, val]) => `${k}: ${val}`).join(', ')}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ))}
-                          </div>
-                        )}
+                      <div className="space-y-3">
+                        {displayedSubjects.map((sub) => {
+                          const { setters, reviewers } = getPanelAssignments(exam.id, grade.id, sub.id)
+                          const panelViolations = getPanelViolations(exam.id, grade.id, sub.id)
+                          const numSetters = sub.setters || 2
+                          const numReviewers = sub.reviewers || 1
 
-                        {/* Setters (Slot 0 and Slot 1) */}
-                        <div className="space-y-1">
-                          {[0, 1].map((pos) => {
-                            const setterAssignment = setters[pos]
-                            const teacherId = setterAssignment?.teacher_id ?? null
-                            const teacherRec = teacherId
-                              ? teachers.find((t) => t.teacher.id === teacherId)
-                              : null
-                            const campus = teacherRec
-                              ? campuses.find((c) => c.id === teacherRec.teacher.campus_id)
-                              : null
+                          return (
+                            <div key={sub.id} className="space-y-1.5 p-1.5 rounded bg-muted/20 border border-border/50">
+                              {displayedSubjects.length > 1 && (
+                                <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground pb-0.5 border-b border-border/40">
+                                  <span>{sub.code} ({sub.name})</span>
+                                  <span className="text-[10px] font-normal">{sub.setters}+{sub.reviewers}</span>
+                                </div>
+                              )}
 
-                            const slotRef: SlotRef = {
-                              exam_id: exam.id,
-                              grade_id: grade.id,
-                              role: 'setter',
-                              position: pos,
-                            }
-                            const isKept = isSlotKept(exam.id, grade.id, 'setter', pos)
-                            const isLocked = teacherId
-                              ? isSlotLocked(exam.id, grade.id, teacherId)
-                              : false
-                            const isFocused = teacherId === focusedTeacherId
+                              {/* Soft violation badges for this panel */}
+                              {panelViolations.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mb-1">
+                                  {panelViolations.map((v, i) => (
+                                    <TooltipProvider key={i}>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Badge
+                                            variant="destructive"
+                                            className="text-[10px] px-1 py-0 h-4 bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 cursor-help"
+                                          >
+                                            {v.rule.toUpperCase()}
+                                          </Badge>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="text-xs bg-popover text-popover-foreground border-border">
+                                          <p className="font-bold">{v.rule.toUpperCase()}: {v.code}</p>
+                                          <p>{Object.entries(v.params).map(([k, val]) => `${k}: ${val}`).join(', ')}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  ))}
+                                </div>
+                              )}
 
-                            return (
-                              <SlotChip
-                                key={pos}
-                                slot={slotRef}
-                                teacher={teacherRec?.teacher ?? null}
-                                campus={campus ?? null}
-                                roleLabel={t('assignments.setter')}
-                                isKept={isKept}
-                                isLocked={isLocked}
-                                isFocused={isFocused}
-                                isEditable={isEditable}
-                                onFocus={() =>
-                                  teacherId &&
-                                  onSelectTeacherFocus(
-                                    focusedTeacherId === teacherId ? null : teacherId,
-                                  )
-                                }
-                                onReplace={() =>
-                                  isEditable &&
-                                  setSelectedSlotForReplace({
-                                    slot: slotRef,
-                                    currentTeacherId: teacherId,
-                                  })
-                                }
-                                onToggleKeep={() => onToggleKeepSlot(slotRef)}
-                                onPin={() => teacherId && onCreateLock(slotRef, teacherId, 'pin')}
-                                onForbid={() => teacherId && onCreateLock(slotRef, teacherId, 'forbid')}
-                                onReoptimize={onReoptimizeRemaining}
-                                onDragStart={() =>
-                                  teacherId &&
-                                  setDraggedSlot({ slot: slotRef, teacherId })
-                                }
-                                onDrop={() => {
-                                  if (draggedSlot && isEditable) {
-                                    handleSwapSlots(draggedSlot.slot, slotRef)
-                                    setDraggedSlot(null)
+                              {/* Setters */}
+                              <div className="space-y-1">
+                                {Array.from({ length: numSetters }).map((_, pos) => {
+                                  const setterAssignment = setters[pos]
+                                  const teacherId = setterAssignment?.teacher_id ?? null
+                                  const teacherRec = teacherId
+                                    ? teachers.find((t) => t.teacher.id === teacherId)
+                                    : null
+                                  const campus = teacherRec
+                                    ? campuses.find((c) => c.id === teacherRec.teacher.campus_id)
+                                    : null
+
+                                  const slotRef: SlotRef = {
+                                    exam_id: exam.id,
+                                    grade_id: grade.id,
+                                    subject_id: sub.id,
+                                    role: 'setter',
+                                    position: pos,
                                   }
-                                }}
-                              />
-                            )
-                          })}
-                        </div>
+                                  const isKept = isSlotKept(exam.id, grade.id, sub.id, 'setter', pos)
+                                  const isLocked = teacherId
+                                    ? isSlotLocked(exam.id, grade.id, sub.id, teacherId)
+                                    : false
+                                  const isFocused = teacherId === focusedTeacherId
 
-                        {/* Reviewer Slot */}
-                        <div className="pt-1 border-t border-border/50">
-                          {(() => {
-                            const teacherId = reviewer?.teacher_id ?? null
-                            const teacherRec = teacherId
-                              ? teachers.find((t) => t.teacher.id === teacherId)
-                              : null
-                            const campus = teacherRec
-                              ? campuses.find((c) => c.id === teacherRec.teacher.campus_id)
-                              : null
-
-                            const slotRef: SlotRef = {
-                              exam_id: exam.id,
-                              grade_id: grade.id,
-                              role: 'reviewer',
-                              position: 0,
-                            }
-                            const isKept = isSlotKept(exam.id, grade.id, 'reviewer', 0)
-                            const isLocked = teacherId
-                              ? isSlotLocked(exam.id, grade.id, teacherId)
-                              : false
-                            const isFocused = teacherId === focusedTeacherId
-
-                            return (
-                              <SlotChip
-                                slot={slotRef}
-                                teacher={teacherRec?.teacher ?? null}
-                                campus={campus ?? null}
-                                roleLabel={t('assignments.reviewer')}
-                                isReviewer
-                                isKept={isKept}
-                                isLocked={isLocked}
-                                isFocused={isFocused}
-                                isEditable={isEditable}
-                                onFocus={() =>
-                                  teacherId &&
-                                  onSelectTeacherFocus(
-                                    focusedTeacherId === teacherId ? null : teacherId,
+                                  return (
+                                    <SlotChip
+                                      key={`setter-${pos}`}
+                                      slot={slotRef}
+                                      teacher={teacherRec?.teacher ?? null}
+                                      campus={campus ?? null}
+                                      roleLabel={t('assignments.setter')}
+                                      isKept={isKept}
+                                      isLocked={isLocked}
+                                      isFocused={isFocused}
+                                      isEditable={isEditable}
+                                      onFocus={() =>
+                                        teacherId &&
+                                        onSelectTeacherFocus(
+                                          focusedTeacherId === teacherId ? null : teacherId,
+                                        )
+                                      }
+                                      onReplace={() =>
+                                        isEditable &&
+                                        setSelectedSlotForReplace({
+                                          slot: slotRef,
+                                          currentTeacherId: teacherId,
+                                        })
+                                      }
+                                      onToggleKeep={() => onToggleKeepSlot(slotRef)}
+                                      onPin={() => teacherId && onCreateLock(slotRef, teacherId, 'pin')}
+                                      onForbid={() => teacherId && onCreateLock(slotRef, teacherId, 'forbid')}
+                                      onReoptimize={onReoptimizeRemaining}
+                                      onDragStart={() =>
+                                        teacherId &&
+                                        setDraggedSlot({ slot: slotRef, teacherId })
+                                      }
+                                      onDrop={() => {
+                                        if (draggedSlot && isEditable) {
+                                          handleSwapSlots(draggedSlot.slot, slotRef)
+                                          setDraggedSlot(null)
+                                        }
+                                      }}
+                                    />
                                   )
-                                }
-                                onReplace={() =>
-                                  isEditable &&
-                                  setSelectedSlotForReplace({
-                                    slot: slotRef,
-                                    currentTeacherId: teacherId,
-                                  })
-                                }
-                                onToggleKeep={() => onToggleKeepSlot(slotRef)}
-                                onPin={() => teacherId && onCreateLock(slotRef, teacherId, 'pin')}
-                                onForbid={() => teacherId && onCreateLock(slotRef, teacherId, 'forbid')}
-                                onReoptimize={onReoptimizeRemaining}
-                                onDragStart={() =>
-                                  teacherId &&
-                                  setDraggedSlot({ slot: slotRef, teacherId })
-                                }
-                                onDrop={() => {
-                                  if (draggedSlot && isEditable) {
-                                    handleSwapSlots(draggedSlot.slot, slotRef)
-                                    setDraggedSlot(null)
-                                  }
-                                }}
-                              />
-                            )
-                          })()}
-                        </div>
+                                })}
+                              </div>
+
+                              {/* Reviewers */}
+                              {numReviewers > 0 && (
+                                <div className="pt-1 border-t border-border/50 space-y-1">
+                                  {Array.from({ length: numReviewers }).map((_, pos) => {
+                                    const revAssignment = reviewers[pos]
+                                    const teacherId = revAssignment?.teacher_id ?? null
+                                    const teacherRec = teacherId
+                                      ? teachers.find((t) => t.teacher.id === teacherId)
+                                      : null
+                                    const campus = teacherRec
+                                      ? campuses.find((c) => c.id === teacherRec.teacher.campus_id)
+                                      : null
+
+                                    const slotRef: SlotRef = {
+                                      exam_id: exam.id,
+                                      grade_id: grade.id,
+                                      subject_id: sub.id,
+                                      role: 'reviewer',
+                                      position: pos,
+                                    }
+                                    const isKept = isSlotKept(exam.id, grade.id, sub.id, 'reviewer', pos)
+                                    const isLocked = teacherId
+                                    ? isSlotLocked(exam.id, grade.id, sub.id, teacherId)
+                                    : false
+                                    const isFocused = teacherId === focusedTeacherId
+
+                                    return (
+                                      <SlotChip
+                                        key={`reviewer-${pos}`}
+                                        slot={slotRef}
+                                        teacher={teacherRec?.teacher ?? null}
+                                        campus={campus ?? null}
+                                        roleLabel={t('assignments.reviewer')}
+                                        isReviewer
+                                        isKept={isKept}
+                                        isLocked={isLocked}
+                                        isFocused={isFocused}
+                                        isEditable={isEditable}
+                                        onFocus={() =>
+                                          teacherId &&
+                                          onSelectTeacherFocus(
+                                            focusedTeacherId === teacherId ? null : teacherId,
+                                          )
+                                        }
+                                        onReplace={() =>
+                                          isEditable &&
+                                          setSelectedSlotForReplace({
+                                            slot: slotRef,
+                                            currentTeacherId: teacherId,
+                                          })
+                                        }
+                                        onToggleKeep={() => onToggleKeepSlot(slotRef)}
+                                        onPin={() => teacherId && onCreateLock(slotRef, teacherId, 'pin')}
+                                        onForbid={() => teacherId && onCreateLock(slotRef, teacherId, 'forbid')}
+                                        onReoptimize={onReoptimizeRemaining}
+                                        onDragStart={() =>
+                                          teacherId &&
+                                          setDraggedSlot({ slot: slotRef, teacherId })
+                                        }
+                                        onDrop={() => {
+                                          if (draggedSlot && isEditable) {
+                                            handleSwapSlots(draggedSlot.slot, slotRef)
+                                            setDraggedSlot(null)
+                                          }
+                                        }}
+                                      />
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     </td>
                   )
@@ -626,8 +722,9 @@ function SlotChip({
           className={`font-medium truncate ${
             isReviewer ? 'text-primary font-semibold' : 'text-foreground'
           }`}
+          title={teacher ? (teacher.display_name ? `${teacher.full_name} (${teacher.display_name})` : teacher.full_name) : undefined}
         >
-          {teacher ? teacher.full_name : <span className="text-muted-foreground italic">Trống</span>}
+          {teacher ? (teacher.display_name || teacher.full_name) : <span className="text-muted-foreground italic">Trống</span>}
         </span>
       </div>
 

@@ -15,11 +15,15 @@ import {
   CheckCircle,
   Download,
   FileSpreadsheet,
+  Award,
+  Calculator,
 } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { api, type TeacherWithGrades, type Teacher } from '@/lib/api'
 import { ImportWizardModal } from './teachers/ImportWizardModal'
+import { QuotaPreviewModal } from './teachers/QuotaPreviewModal'
+import { TeacherCompetenciesModal } from './teachers/TeacherCompetenciesModal'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -80,6 +84,9 @@ const teacherFormSchema = z.object({
   active: z.boolean(),
   note: z.string().optional(),
   code: z.string().optional(),
+  displayName: z.string().optional(),
+  quotaOverride: z.number().min(0).optional().nullable(),
+  maxTasksPerExamOverride: z.number().min(0).optional().nullable(),
 })
 
 type TeacherFormValues = z.infer<typeof teacherFormSchema>
@@ -121,6 +128,8 @@ export const TeachersPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [editingTeacher, setEditingTeacher] = React.useState<Teacher | null>(null)
   const [selectedGradeIds, setSelectedGradeIds] = React.useState<number[]>([])
+  const [competenciesTeacher, setCompetenciesTeacher] = React.useState<Teacher | null>(null)
+  const [quotaPreviewOpen, setQuotaPreviewOpen] = React.useState(false)
 
   const handleDownloadTemplate = async () => {
     try {
@@ -180,6 +189,9 @@ export const TeachersPage: React.FC = () => {
       active: true,
       note: '',
       code: '',
+      displayName: '',
+      quotaOverride: undefined,
+      maxTasksPerExamOverride: undefined,
     })
     setDialogOpen(true)
   }
@@ -194,6 +206,9 @@ export const TeachersPage: React.FC = () => {
       active: tg.teacher.active,
       note: tg.teacher.note || '',
       code: tg.teacher.code || '',
+      displayName: tg.teacher.display_name || '',
+      quotaOverride: tg.teacher.quota_override ?? undefined,
+      maxTasksPerExamOverride: tg.teacher.max_tasks_per_exam_override ?? undefined,
     })
     setDialogOpen(true)
   }
@@ -208,7 +223,10 @@ export const TeachersPage: React.FC = () => {
           load_weight: values.loadWeight,
           active: values.active,
           note: values.note?.trim() || null,
-          code: values.code?.trim() || null,
+          code: values.code?.trim() || undefined,
+          display_name: values.displayName?.trim() || undefined,
+          quota_override: values.quotaOverride ?? undefined,
+          max_tasks_per_exam_override: values.maxTasksPerExamOverride ?? undefined,
         },
         gradeIds: selectedGradeIds,
       })
@@ -221,6 +239,9 @@ export const TeachersPage: React.FC = () => {
           active: values.active,
           note: values.note?.trim() || null,
           code: values.code?.trim() || undefined,
+          display_name: values.displayName?.trim() || undefined,
+          quota_override: values.quotaOverride ?? undefined,
+          max_tasks_per_exam_override: values.maxTasksPerExamOverride ?? undefined,
         },
         gradeIds: selectedGradeIds,
       })
@@ -362,6 +383,30 @@ export const TeachersPage: React.FC = () => {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Button
+            data-testid="quota-preview-btn"
+            variant="outline"
+            size="sm"
+            onClick={() => setQuotaPreviewOpen(true)}
+            className="gap-2"
+          >
+            <Calculator className="h-4 w-4 text-primary" />
+            {t('quota.previewBtn') || 'Xem chỉ tiêu'}
+          </Button>
+          <Button
+            data-testid="competencies-btn"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (teachersWithGrades.length > 0) {
+                setCompetenciesTeacher(teachersWithGrades[0].teacher)
+              }
+            }}
+            className="gap-2"
+          >
+            <Award className="h-4 w-4 text-primary" />
+            {t('competencies.title') || 'Chuyên môn'}
+          </Button>
           <Button
             data-testid="download-template-btn"
             variant="outline"
@@ -617,6 +662,16 @@ export const TeachersPage: React.FC = () => {
                     {/* Actions */}
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          onClick={() => setCompetenciesTeacher(tg.teacher)}
+                          title={t('competencies.editTitle') || 'Phân công chuyên môn'}
+                          data-testid={`teacher-competencies-btn-${tg.teacher.id}`}
+                        >
+                          <Award className="h-3.5 w-3.5 text-primary" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -882,6 +937,19 @@ export const TeachersPage: React.FC = () => {
           void queryClient.invalidateQueries({ queryKey: ['feasibility'] })
           void queryClient.invalidateQueries({ queryKey: ['unavailability'] })
         }}
+      />
+
+      <QuotaPreviewModal
+        open={quotaPreviewOpen}
+        onOpenChange={setQuotaPreviewOpen}
+        schoolYearId={schoolYearId ?? 0}
+      />
+
+      <TeacherCompetenciesModal
+        open={competenciesTeacher !== null}
+        onOpenChange={(open) => !open && setCompetenciesTeacher(null)}
+        teacher={competenciesTeacher}
+        schoolYearId={schoolYearId ?? 0}
       />
     </div>
   )

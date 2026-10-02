@@ -14,12 +14,15 @@ import type {
   BackupValidationSummary,
   Campus,
   CandidateEval,
+  Competency,
   CreateCampusInput,
   CreateExamInput,
   CreateGradeInput,
   CreateLockInput,
   CreateSchoolYearInput,
+  CreateSubjectInput,
   CreateTeacherInput,
+  DeleteCompetencyInput,
   EvaluationOutcome,
   Exam,
   ExamPanelApi,
@@ -35,18 +38,24 @@ import type {
   PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
+  ProblemDetails,
   Progress,
   QuotaPreviewItem,
   ReoptimizeRequest,
+  ReplaceTeacherCompetenciesInput,
   RulePresetItem,
   RuleSetting,
   SchoolYear,
+  SetCompetencyInput,
   SlotRef,
+  Subject,
   Teacher,
+  TeacherGrade,
   TeacherQuota,
   TeacherWithGrades,
   ThemeMode,
   Unavailability,
+  UpdateSubjectInput,
   Violation,
 } from './types'
 
@@ -86,6 +95,30 @@ export class MockExamPanelApi implements ExamPanelApi {
     [10, [2, 3]],
     [11, [1, 3]],
   ])
+
+  private subjects: Subject[] = [
+    {
+      id: 1,
+      code: 'VL',
+      name: 'Vật lí',
+      color: 'palette-1',
+      sort_order: 1,
+      setters: 2,
+      reviewers: 1,
+      min_campuses: 2,
+    },
+    {
+      id: 2,
+      code: 'CN',
+      name: 'Công nghệ',
+      color: 'palette-2',
+      sort_order: 2,
+      setters: 1,
+      reviewers: 1,
+      min_campuses: 2,
+    },
+  ]
+  private competencies: Competency[] = []
 
   private isOptimizing = false
   private activeCancelCallback: (() => void) | null = null
@@ -276,7 +309,10 @@ export class MockExamPanelApi implements ExamPanelApi {
       load_weight: input.load_weight ?? 1.0,
       active: input.active ?? true,
       note: input.note ?? null,
-      code: input.code ?? null,
+      code: input.code ?? undefined,
+      display_name: input.display_name ?? undefined,
+      quota_override: input.quota_override ?? undefined,
+      max_tasks_per_exam_override: input.max_tasks_per_exam_override ?? undefined,
     }
     this.teachers.push(newTeacher)
     return { ...newTeacher }
@@ -429,6 +465,140 @@ export class MockExamPanelApi implements ExamPanelApi {
     this.exams.sort((a, b) => a.sort_order - b.sort_order)
   }
 
+  // Subjects
+  async listSubjects(_schoolYearId: number): Promise<Subject[]> {
+    return JSON.parse(JSON.stringify(this.subjects))
+  }
+
+  async createSubject(input: CreateSubjectInput): Promise<Subject> {
+    if (this.subjects.some((s) => s.code === input.code)) {
+      throw {
+        code: 'duplicate_entry',
+        params: { detail: `Subject code ${input.code} already exists` },
+      }
+    }
+    const maxId = this.subjects.reduce((max, s) => Math.max(max, s.id), 0)
+    const newSubject: Subject = {
+      id: maxId + 1,
+      code: input.code,
+      name: input.name,
+      color: input.color,
+      sort_order: input.sort_order,
+      setters: input.setters,
+      reviewers: input.reviewers,
+      min_campuses: input.min_campuses,
+    }
+    this.subjects.push(newSubject)
+    return { ...newSubject }
+  }
+
+  async updateSubject(input: UpdateSubjectInput): Promise<void> {
+    const idx = this.subjects.findIndex((s) => s.id === input.id)
+    if (idx === -1) {
+      throw { code: 'not_found', params: { message: 'Subject not found' } }
+    }
+    this.subjects[idx] = { ...this.subjects[idx], ...input }
+  }
+
+  async deleteSubject(id: number): Promise<void> {
+    const idx = this.subjects.findIndex((s) => s.id === id)
+    if (idx === -1) {
+      throw { code: 'not_found', params: { message: 'Subject not found' } }
+    }
+    this.subjects.splice(idx, 1)
+  }
+
+  async reorderSubjects(_schoolYearId: number, subjectIds: number[]): Promise<void> {
+    subjectIds.forEach((id, idx) => {
+      const sub = this.subjects.find((s) => s.id === id)
+      if (sub) {
+        sub.sort_order = idx + 1
+      }
+    })
+  }
+
+  // Competencies
+  private ensureCompetencies() {
+    if (this.competencies.length === 0) {
+      for (const t of this.teachers) {
+        for (const s of this.subjects) {
+          this.competencies.push({
+            teacher_id: t.id,
+            subject_id: s.id,
+            role: 'setter',
+            grade_scope: 'taught',
+          })
+          this.competencies.push({
+            teacher_id: t.id,
+            subject_id: s.id,
+            role: 'reviewer',
+            grade_scope: 'taught',
+          })
+        }
+      }
+    }
+  }
+
+  async listCompetencies(_schoolYearId: number): Promise<Competency[]> {
+    this.ensureCompetencies()
+    return JSON.parse(JSON.stringify(this.competencies))
+  }
+
+  async getTeacherCompetencies(
+    teacherId: number,
+    _schoolYearId: number,
+  ): Promise<Competency[]> {
+    this.ensureCompetencies()
+    return JSON.parse(
+      JSON.stringify(this.competencies.filter((c) => c.teacher_id === teacherId)),
+    )
+  }
+
+  async setCompetency(input: SetCompetencyInput): Promise<void> {
+    this.ensureCompetencies()
+    const idx = this.competencies.findIndex(
+      (c) =>
+        c.teacher_id === input.teacher_id &&
+        c.subject_id === input.subject_id &&
+        c.role === input.role,
+    )
+    if (idx !== -1) {
+      this.competencies[idx].grade_scope = input.grade_scope
+    } else {
+      this.competencies.push({
+        teacher_id: input.teacher_id,
+        subject_id: input.subject_id,
+        role: input.role,
+        grade_scope: input.grade_scope,
+      })
+    }
+  }
+
+  async deleteCompetency(input: DeleteCompetencyInput): Promise<void> {
+    this.ensureCompetencies()
+    const idx = this.competencies.findIndex(
+      (c) =>
+        c.teacher_id === input.teacher_id &&
+        c.subject_id === input.subject_id &&
+        c.role === input.role,
+    )
+    if (idx !== -1) {
+      this.competencies.splice(idx, 1)
+    }
+  }
+
+  async replaceTeacherCompetencies(
+    input: ReplaceTeacherCompetenciesInput,
+  ): Promise<void> {
+    this.ensureCompetencies()
+    this.competencies = this.competencies.filter(
+      (c) => c.teacher_id !== input.teacher_id,
+    )
+    for (const c of input.competencies) {
+      this.competencies.push({ ...c })
+    }
+  }
+
   // Unavailability
   async listUnavailabilities(_schoolYearId: number): Promise<Unavailability[]> {
     return JSON.parse(JSON.stringify(this.unavailabilities))
@@ -462,6 +632,7 @@ export class MockExamPanelApi implements ExamPanelApi {
       id: maxId + 1,
       exam_id: input.exam_id,
       grade_id: input.grade_id,
+      subject_id: input.subject_id,
       teacher_id: input.teacher_id,
       role: input.role ?? null,
       kind: input.kind,
@@ -584,6 +755,37 @@ export class MockExamPanelApi implements ExamPanelApi {
   }
 
   // Analysis
+  async getProblemDetails(schoolYearId: number): Promise<ProblemDetails> {
+    this.ensureCompetencies()
+    const teachers = await this.listTeachers()
+    const teacherGrades: TeacherGrade[] = []
+    this.teacherGradesMap.forEach((gids, tid) => {
+      for (const gid of gids) {
+        teacherGrades.push({
+          teacher_id: tid,
+          school_year_id: schoolYearId,
+          grade_id: gid,
+        })
+      }
+    })
+    return {
+      problem: {
+        school_year: this.schoolYears[0],
+        campuses: this.campuses,
+        grades: this.grades,
+        subjects: this.subjects,
+        teachers,
+        teacher_grades: teacherGrades,
+        competencies: this.competencies,
+        exams: this.exams,
+        unavailabilities: this.unavailabilities,
+        locks: this.locks,
+        rule_settings: this.ruleSettings,
+      },
+      forced: [],
+    }
+  }
+
   async checkFeasibility(_schoolYearId: number): Promise<FeasibilityReportWithQuotas> {
     const activeTeachers = this.teachers.filter((t) => t.active && t.load_weight > 0)
     const totalSlots = this.exams.length * this.grades.length * 3
@@ -658,7 +860,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h2',
           code: 'insufficient_panel_teachers',
-          panel: { exam_id: this.exams[0]?.id ?? 1, grade_id: grade.id },
+          panel: {
+            exam_id: this.exams[0]?.id ?? 1,
+            grade_id: grade.id,
+            subject_id: this.subjects[0]?.id ?? 1,
+          },
           params: {
             exam: 'Các kỳ thi',
             grade: grade.code.toString(),
@@ -671,7 +877,11 @@ export class MockExamPanelApi implements ExamPanelApi {
           errors.push({
             rule: 'h3',
             code: 'insufficient_campuses',
-            panel: { exam_id: this.exams[0]?.id ?? 1, grade_id: grade.id },
+            panel: {
+              exam_id: this.exams[0]?.id ?? 1,
+              grade_id: grade.id,
+              subject_id: this.subjects[0]?.id ?? 1,
+            },
             params: {
               exam: 'Các kỳ thi',
               grade: grade.code.toString(),
@@ -683,7 +893,11 @@ export class MockExamPanelApi implements ExamPanelApi {
           warnings.push({
             rule: 'h2',
             code: 'tight_panel_roster',
-            panel: { exam_id: this.exams[0]?.id ?? 1, grade_id: grade.id },
+            panel: {
+              exam_id: this.exams[0]?.id ?? 1,
+              grade_id: grade.id,
+              subject_id: this.subjects[0]?.id ?? 1,
+            },
             params: {
               exam: 'Các kỳ thi',
               grade: grade.code.toString(),
@@ -711,7 +925,11 @@ export class MockExamPanelApi implements ExamPanelApi {
           errors.push({
             rule: 'h6',
             code: 'pinned_teacher_ineligible_due_to_unavailability',
-            panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+            panel: {
+              exam_id: lock.exam_id,
+              grade_id: lock.grade_id,
+              subject_id: lock.subject_id,
+            },
             teacher: lock.teacher_id,
             params: {
               teacher: teacherName,
@@ -728,7 +946,11 @@ export class MockExamPanelApi implements ExamPanelApi {
           errors.push({
             rule: 'h6',
             code: 'pinned_teacher_not_qualified',
-            panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+            panel: {
+              exam_id: lock.exam_id,
+              grade_id: lock.grade_id,
+              subject_id: lock.subject_id,
+            },
             teacher: lock.teacher_id,
             params: {
               teacher: teacherName,
@@ -755,7 +977,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h6',
           code: 'lock_conflict',
-          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          panel: {
+            exam_id: lock.exam_id,
+            grade_id: lock.grade_id,
+            subject_id: lock.subject_id,
+          },
           teacher: lock.teacher_id,
           params: {
             teacher: teacher?.full_name || `Teacher #${lock.teacher_id}`,
@@ -776,7 +1002,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h6',
           code: 'excess_pinned_setters_and_reviewers_and_pins',
-          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          panel: {
+            exam_id: lock.exam_id,
+            grade_id: lock.grade_id,
+            subject_id: lock.subject_id,
+          },
           params: { count: pins.length.toString() },
         })
       }
@@ -786,7 +1016,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h6',
           code: 'excess_pinned_setters_and_reviewers_and_pins',
-          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          panel: {
+            exam_id: lock.exam_id,
+            grade_id: lock.grade_id,
+            subject_id: lock.subject_id,
+          },
           params: { count: pinnedSetters.length.toString() },
         })
       }
@@ -796,7 +1030,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h6',
           code: 'excess_pinned_setters_and_reviewers_and_pins',
-          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          panel: {
+            exam_id: lock.exam_id,
+            grade_id: lock.grade_id,
+            subject_id: lock.subject_id,
+          },
           params: { count: pinnedReviewers.length.toString() },
         })
       }
@@ -1206,15 +1444,17 @@ export class MockExamPanelApi implements ExamPanelApi {
     for (const teacher of this.teachers) {
       const simAssignments = assignments.map((a) => ({ ...a }))
       let replaced = false
-      let sCount = 0
       for (const a of simAssignments) {
-        if (a.exam_id === slot.exam_id && a.grade_id === slot.grade_id && a.role === slot.role) {
-          if (slot.role === 'reviewer' || sCount === slot.position) {
-            a.teacher_id = teacher.id
-            replaced = true
-            break
-          }
-          sCount += 1
+        if (
+          a.exam_id === slot.exam_id &&
+          a.grade_id === slot.grade_id &&
+          a.subject_id === slot.subject_id &&
+          a.role === slot.role &&
+          a.position === slot.position
+        ) {
+          a.teacher_id = teacher.id
+          replaced = true
+          break
         }
       }
       if (!replaced) {
@@ -1222,8 +1462,10 @@ export class MockExamPanelApi implements ExamPanelApi {
           plan_id: assignments[0]?.plan_id ?? 0,
           exam_id: slot.exam_id,
           grade_id: slot.grade_id,
+          subject_id: slot.subject_id,
           teacher_id: teacher.id,
           role: slot.role,
+          position: slot.position,
         })
       }
 

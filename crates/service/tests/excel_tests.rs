@@ -207,6 +207,9 @@ fn test_teacher_matching_and_ambiguity_detection() {
             load_weight: 1.0,
             active: true,
             note: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .unwrap();
     service
@@ -228,6 +231,9 @@ fn test_teacher_matching_and_ambiguity_detection() {
             load_weight: 1.0,
             active: true,
             note: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .unwrap();
     service
@@ -317,6 +323,9 @@ fn test_sync_mode_deactivates_omitted_teachers() {
             load_weight: 1.0,
             active: true,
             note: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .unwrap();
 
@@ -328,6 +337,9 @@ fn test_sync_mode_deactivates_omitted_teachers() {
             load_weight: 1.0,
             active: true,
             note: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .unwrap();
 
@@ -339,6 +351,9 @@ fn test_sync_mode_deactivates_omitted_teachers() {
             load_weight: 1.0,
             active: true,
             note: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .unwrap();
 

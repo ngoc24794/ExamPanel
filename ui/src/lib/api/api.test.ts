@@ -184,6 +184,7 @@ describe('MockExamPanelApi Contract Tests', () => {
     const lock = await api.createLock({
       exam_id: 1,
       grade_id: 1,
+      subject_id: 1,
       teacher_id: 1,
       role: 'setter',
       kind: 'pin',

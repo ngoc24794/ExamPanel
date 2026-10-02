@@ -8,12 +8,15 @@ import type {
   BackupValidationSummary,
   Campus,
   CandidateEval,
+  Competency,
   CreateCampusInput,
   CreateExamInput,
   CreateGradeInput,
   CreateLockInput,
   CreateSchoolYearInput,
+  CreateSubjectInput,
   CreateTeacherInput,
+  DeleteCompetencyInput,
   EvaluationOutcome,
   Exam,
   FeasibilityReportWithQuotas,
@@ -27,16 +30,21 @@ import type {
   PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
+  ProblemDetails,
   Progress,
   QuotaPreviewItem,
   ReoptimizeRequest,
+  ReplaceTeacherCompetenciesInput,
   RulePresetItem,
   RuleSetting,
   SchoolYear,
+  SetCompetencyInput,
   SlotRef,
+  Subject,
   Teacher,
   TeacherWithGrades,
   Unavailability,
+  UpdateSubjectInput,
 } from './generated/types'
 
 export type ThemeMode = 'light' | 'dark' | 'system'
@@ -98,6 +106,20 @@ export interface ExamPanelApi {
   deleteExam(id: number): Promise<void>
   reorderExams(examIds: number[]): Promise<void>
 
+  // Subjects
+  listSubjects(schoolYearId: number): Promise<Subject[]>
+  createSubject(input: CreateSubjectInput): Promise<Subject>
+  updateSubject(input: UpdateSubjectInput): Promise<void>
+  deleteSubject(id: number): Promise<void>
+  reorderSubjects(schoolYearId: number, subjectIds: number[]): Promise<void>
+
+  // Competencies
+  listCompetencies(schoolYearId: number): Promise<Competency[]>
+  getTeacherCompetencies(teacherId: number, schoolYearId: number): Promise<Competency[]>
+  setCompetency(input: SetCompetencyInput): Promise<void>
+  deleteCompetency(input: DeleteCompetencyInput): Promise<void>
+  replaceTeacherCompetencies(input: ReplaceTeacherCompetenciesInput): Promise<void>
+
   // Unavailability
   listUnavailabilities(schoolYearId: number): Promise<Unavailability[]>
   setUnavailability(unavailability: Unavailability): Promise<void>
@@ -116,6 +138,7 @@ export interface ExamPanelApi {
   previewQuotas(input: PreviewQuotasInput): Promise<QuotaPreviewItem[]>
 
   // Analysis
+  getProblemDetails(schoolYearId: number): Promise<ProblemDetails>
   checkFeasibility(schoolYearId: number): Promise<FeasibilityReportWithQuotas>
   evaluateAssignments(
     schoolYearId: number,

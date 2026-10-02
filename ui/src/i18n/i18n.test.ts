@@ -86,6 +86,8 @@ describe('i18n locales parity', () => {
       'soft.setter_consecutive',
       'soft.grade_not_rotated',
       'soft.load_deviation',
+      'soft.exam_crowding',
+      'soft.review_subject_missing',
     ]
 
     const viKeys = getFlatKeys(vi as JsonObject)

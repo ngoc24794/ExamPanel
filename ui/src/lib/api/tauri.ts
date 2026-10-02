@@ -8,12 +8,15 @@ import type {
   BackupValidationSummary,
   Campus,
   CandidateEval,
+  Competency,
   CreateCampusInput,
   CreateExamInput,
   CreateGradeInput,
   CreateLockInput,
   CreateSchoolYearInput,
+  CreateSubjectInput,
   CreateTeacherInput,
+  DeleteCompetencyInput,
   EvaluationOutcome,
   Exam,
   ExamPanelApi,
@@ -29,17 +32,22 @@ import type {
   PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
+  ProblemDetails,
   Progress,
   QuotaPreviewItem,
   ReoptimizeRequest,
+  ReplaceTeacherCompetenciesInput,
   RulePresetItem,
   RuleSetting,
   SchoolYear,
+  SetCompetencyInput,
   SlotRef,
+  Subject,
   Teacher,
   TeacherWithGrades,
   ThemeMode,
   Unavailability,
+  UpdateSubjectInput,
 } from './types'
 
 export class TauriExamPanelApi implements ExamPanelApi {
@@ -212,6 +220,56 @@ export class TauriExamPanelApi implements ExamPanelApi {
     await invoke<void>('reorder_exams', { examIds })
   }
 
+  // Subjects
+  async listSubjects(schoolYearId: number): Promise<Subject[]> {
+    return await invoke<Subject[]>('list_subjects', { schoolYearId })
+  }
+
+  async createSubject(input: CreateSubjectInput): Promise<Subject> {
+    return await invoke<Subject>('create_subject', { input })
+  }
+
+  async updateSubject(input: UpdateSubjectInput): Promise<void> {
+    await invoke<void>('update_subject', { input })
+  }
+
+  async deleteSubject(id: number): Promise<void> {
+    await invoke<void>('delete_subject', { id })
+  }
+
+  async reorderSubjects(schoolYearId: number, subjectIds: number[]): Promise<void> {
+    await invoke<void>('reorder_subjects', { schoolYearId, subjectIds })
+  }
+
+  // Competencies
+  async listCompetencies(schoolYearId: number): Promise<Competency[]> {
+    return await invoke<Competency[]>('list_competencies', { schoolYearId })
+  }
+
+  async getTeacherCompetencies(
+    teacherId: number,
+    schoolYearId: number,
+  ): Promise<Competency[]> {
+    return await invoke<Competency[]>('get_teacher_competencies', {
+      teacherId,
+      schoolYearId,
+    })
+  }
+
+  async setCompetency(input: SetCompetencyInput): Promise<void> {
+    await invoke<void>('set_competency', { input })
+  }
+
+  async deleteCompetency(input: DeleteCompetencyInput): Promise<void> {
+    await invoke<void>('delete_competency', { input })
+  }
+
+  async replaceTeacherCompetencies(
+    input: ReplaceTeacherCompetenciesInput,
+  ): Promise<void> {
+    await invoke<void>('replace_teacher_competencies', { input })
+  }
+
   // Unavailability
   async listUnavailabilities(schoolYearId: number): Promise<Unavailability[]> {
     return await invoke<Unavailability[]>('list_unavailabilities', {
@@ -264,6 +322,10 @@ export class TauriExamPanelApi implements ExamPanelApi {
   }
 
   // Analysis
+  async getProblemDetails(schoolYearId: number): Promise<ProblemDetails> {
+    return await invoke<ProblemDetails>('get_problem_details', { schoolYearId })
+  }
+
   async checkFeasibility(schoolYearId: number): Promise<FeasibilityReportWithQuotas> {
     const res = await invoke<FeasibilityReportWithQuotas>('check_feasibility', {
       schoolYearId,

@@ -34,11 +34,21 @@ export function normalizeCampusColorKey(color: string): CampusPaletteKey {
   if ((CAMPUS_PALETTE_KEYS as readonly string[]).includes(normalized)) {
     return normalized as CampusPaletteKey
   }
-  // Fallback for legacy hex codes if loaded from old seeds
+  if (normalized.startsWith('palette-')) {
+    const num = parseInt(normalized.replace('palette-', ''), 10)
+    if (!isNaN(num) && num >= 1 && num <= CAMPUS_PALETTE_KEYS.length) {
+      return CAMPUS_PALETTE_KEYS[num - 1]
+    }
+  }
+  // Fallback for hex codes
   if (normalized === '#3b82f6') return 'blue'
   if (normalized === '#10b981') return 'emerald'
   if (normalized === '#f59e0b') return 'amber'
   if (normalized === '#8b5cf6') return 'purple'
+  if (normalized === '#f43f5e') return 'rose'
+  if (normalized === '#6366f1') return 'indigo'
+  if (normalized === '#14b8a6') return 'teal'
+  if (normalized === '#f97316') return 'orange'
   return 'blue'
 }
 
@@ -52,9 +62,13 @@ export function getCampusColorStyle(color: string): React.CSSProperties {
 }
 
 export function getCampusDotColor(color: string | undefined | null): string {
-  if (!color) return '#94a3b8'
+  if (!color) return '#3b82f6'
+  const trimmed = color.trim()
+  if (trimmed.startsWith('#') && trimmed.length >= 4) {
+    return trimmed
+  }
   const key = normalizeCampusColorKey(color)
   const opt = CAMPUS_PALETTE_OPTIONS.find((o) => o.key === key)
-  return opt ? opt.previewColor : '#94a3b8'
+  return opt ? opt.previewColor : '#3b82f6'
 }
 

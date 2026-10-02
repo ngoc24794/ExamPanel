@@ -57,6 +57,7 @@ import {
   useRulePresets,
   useRuleSettings,
   useSchoolYears,
+  useSubjects,
   useTeachers,
   useUnavailabilities,
   useSaveRuleSettings,
@@ -89,6 +90,7 @@ export const RulesPage: React.FC = () => {
 
   const { data: grades = [] } = useGrades()
   const { data: exams = [] } = useExams(currentYear?.id)
+  const { data: subjects = [] } = useSubjects(currentYear?.id)
   const { data: teachersWithGrades = [] } = useTeachers(currentYear?.id)
   const { data: unavailabilities = [] } = useUnavailabilities(currentYear?.id)
   const { data: serverRuleSettings = [] } = useRuleSettings(currentYear?.id)
@@ -237,6 +239,7 @@ export const RulesPage: React.FC = () => {
   const [lockDialogOpen, setLockDialogOpen] = React.useState(false)
   const [lockExamId, setLockExamId] = React.useState<string>('')
   const [lockGradeId, setLockGradeId] = React.useState<string>('')
+  const [lockSubjectId, setLockSubjectId] = React.useState<string>('')
   const [lockTeacherId, setLockTeacherId] = React.useState<string>('')
   const [lockRole, setLockRole] = React.useState<string>('any')
   const [lockKind, setLockKind] = React.useState<LockKind>('pin')
@@ -245,6 +248,7 @@ export const RulesPage: React.FC = () => {
   const handleOpenCreateLock = () => {
     setLockExamId(exams[0]?.id.toString() || '')
     setLockGradeId(grades[0]?.id.toString() || '')
+    setLockSubjectId(subjects[0]?.id.toString() || '')
     setLockTeacherId('')
     setLockRole('any')
     setLockKind('pin')
@@ -259,6 +263,7 @@ export const RulesPage: React.FC = () => {
       await createLockMutation.mutateAsync({
         exam_id: Number(lockExamId),
         grade_id: Number(lockGradeId),
+        subject_id: Number(lockSubjectId) || subjects[0]?.id || 1,
         teacher_id: Number(lockTeacherId),
         role: lockRole === 'any' ? null : (lockRole as Role),
         kind: lockKind,
@@ -889,7 +894,7 @@ export const RulesPage: React.FC = () => {
             <DialogTitle>{t('locks.createLock')}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveLock} className="space-y-4 pt-2">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">
                   {t('locks.exam')}
@@ -926,6 +931,27 @@ export const RulesPage: React.FC = () => {
                     {grades.map((g) => (
                       <SelectItem key={g.id} value={g.id.toString()}>
                         {g.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">
+                  {t('subjects.title', { defaultValue: 'Môn học' })}
+                </label>
+                <Select value={lockSubjectId} onValueChange={setLockSubjectId}>
+                  <SelectTrigger
+                    className="text-xs bg-background"
+                    data-testid="lock-subject-select"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((s) => (
+                      <SelectItem key={s.id} value={s.id.toString()}>
+                        {s.name} ({s.code})
                       </SelectItem>
                     ))}
                   </SelectContent>

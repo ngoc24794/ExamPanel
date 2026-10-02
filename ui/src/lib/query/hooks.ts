@@ -8,16 +8,21 @@ import {
   type CreateGradeInput,
   type CreateLockInput,
   type CreateSchoolYearInput,
+  type CreateSubjectInput,
   type CreateTeacherInput,
+  type DeleteCompetencyInput,
   type Exam,
   type Grade,
   type PlanDetails,
   type PlanStatus,
   type PlanSummary,
+  type ReplaceTeacherCompetenciesInput,
   type RuleSetting,
+  type SetCompetencyInput,
   type Teacher,
   type TeacherWithGrades,
   type Unavailability,
+  type UpdateSubjectInput,
 } from '@/lib/api'
 import { toast } from 'sonner'
 import i18n from '@/i18n'
@@ -35,10 +40,16 @@ export const queryKeys = {
   locks: (schoolYearId: number) => ['locks', schoolYearId] as const,
   ruleSettings: (schoolYearId: number) => ['ruleSettings', schoolYearId] as const,
   rulePresets: ['rulePresets'] as const,
+  subjects: (schoolYearId: number) => ['subjects', schoolYearId] as const,
+  competencies: (schoolYearId: number) => ['competencies', schoolYearId] as const,
+  teacherCompetencies: (teacherId: number, schoolYearId: number) =>
+    ['competencies', schoolYearId, teacherId] as const,
+  problemDetails: (schoolYearId: number) => ['problemDetails', schoolYearId] as const,
   feasibility: (schoolYearId: number) => ['feasibility', schoolYearId] as const,
   plans: (schoolYearId: number) => ['plans', schoolYearId] as const,
   planDetails: (planId: number) => ['planDetails', planId] as const,
   planStatus: (planId: number) => ['planStatus', planId] as const,
+  previewQuotas: (schoolYearId: number) => ['previewQuotas', schoolYearId] as const,
 }
 
 // Queries
@@ -617,6 +628,178 @@ export function useUpdatePlanAssignments(schoolYearId: number) {
           defaultValue: 'Đã lưu phương án phân công',
         }),
       )
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+// Queries - Subjects & Competencies
+export function useSubjects(schoolYearId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.subjects(schoolYearId ?? 0),
+    queryFn: () =>
+      schoolYearId ? api.listSubjects(schoolYearId) : Promise.resolve([]),
+    enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+export function useCompetencies(schoolYearId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.competencies(schoolYearId ?? 0),
+    queryFn: () =>
+      schoolYearId ? api.listCompetencies(schoolYearId) : Promise.resolve([]),
+    enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+export function useTeacherCompetencies(
+  teacherId: number | undefined,
+  schoolYearId: number | undefined,
+) {
+  return useQuery({
+    queryKey: queryKeys.teacherCompetencies(teacherId ?? 0, schoolYearId ?? 0),
+    queryFn: () =>
+      teacherId && schoolYearId
+        ? api.getTeacherCompetencies(teacherId, schoolYearId)
+        : Promise.resolve([]),
+    enabled:
+      typeof teacherId === 'number' &&
+      teacherId > 0 &&
+      typeof schoolYearId === 'number' &&
+      schoolYearId > 0,
+  })
+}
+
+export function useProblemDetails(schoolYearId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.problemDetails(schoolYearId ?? 0),
+    queryFn: () =>
+      schoolYearId ? api.getProblemDetails(schoolYearId) : Promise.reject('No year'),
+    enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+export function usePreviewQuotas(schoolYearId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.previewQuotas(schoolYearId ?? 0),
+    queryFn: () =>
+      schoolYearId
+        ? api.previewQuotas({ school_year_id: schoolYearId, rule_settings: [] })
+        : Promise.resolve([]),
+    enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
+  })
+}
+
+// Mutations - Subjects
+export function useCreateSubject() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: CreateSubjectInput) => api.createSubject(input),
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: queryKeys.subjects(vars.school_year_id) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(vars.school_year_id) })
+      toast.success(
+        i18n.t('subjects.createSuccess', {
+          defaultValue: 'Đã tạo môn học thành công',
+        }),
+      )
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+export function useUpdateSubject(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: UpdateSubjectInput) => api.updateSubject(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.subjects(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      toast.success(
+        i18n.t('subjects.updateSuccess', {
+          defaultValue: 'Đã cập nhật môn học thành công',
+        }),
+      )
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+export function useDeleteSubject(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => api.deleteSubject(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.subjects(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      toast.success(
+        i18n.t('subjects.deleteSuccess', {
+          defaultValue: 'Đã xóa môn học thành công',
+        }),
+      )
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+export function useReorderSubjects(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (subjectIds: number[]) => api.reorderSubjects(schoolYearId, subjectIds),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.subjects(schoolYearId) })
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+// Mutations - Competencies
+export function useSetCompetency(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: SetCompetencyInput) => api.setCompetency(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.competencies(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+export function useDeleteCompetency(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: DeleteCompetencyInput) => api.deleteCompetency(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.competencies(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
+  })
+}
+
+export function useReplaceTeacherCompetencies(schoolYearId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: ReplaceTeacherCompetenciesInput) =>
+      api.replaceTeacherCompetencies(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.competencies(schoolYearId) })
+      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
     },
     onError: (err) => {
       toast.error(getErrorMessage(err))

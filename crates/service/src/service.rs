@@ -2,15 +2,16 @@
 
 use crate::dto::{
     AppInfo, AppSettings, CreateCampusInput, CreateExamInput, CreateGradeInput, CreateLockInput,
-    CreateSchoolYearInput, CreateTeacherInput, EvaluationOutcome, FeasibilityReportWithQuotas,
-    OptimizeBudget, OptimizeOutcome, OptimizeRequest, PlanDetails, PlanStatus, PreviewQuotasInput,
-    QuotaPreviewItem, RulePresetItem,
+    CreateSchoolYearInput, CreateSubjectInput, CreateTeacherInput, DeleteCompetencyInput,
+    EvaluationOutcome, FeasibilityReportWithQuotas, OptimizeBudget, OptimizeOutcome,
+    OptimizeRequest, PlanDetails, PlanStatus, PreviewQuotasInput, ProblemDetails, QuotaPreviewItem,
+    ReplaceTeacherCompetenciesInput, RulePresetItem, SetCompetencyInput, UpdateSubjectInput,
 };
 use crate::error::AppError;
 use exam_panel_core::domain::{
-    calculate_quotas, Assignment, Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockId,
-    LockKind, Plan, PlanId, PlanSummary, Problem, Role, RulePreset, RuleSetting, SchoolYear,
-    SchoolYearId, Teacher, TeacherId, TeacherWithGrades, Unavailability,
+    calculate_quotas, Assignment, Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, Lock,
+    LockId, LockKind, Plan, PlanId, PlanSummary, Problem, RulePreset, RuleSetting, SchoolYear,
+    SchoolYearId, Subject, SubjectId, Teacher, TeacherId, TeacherWithGrades, Unavailability,
 };
 use exam_panel_core::feasibility::check_feasibility;
 use exam_panel_core::optimize::{
@@ -311,13 +312,16 @@ impl AppService {
             .store
             .lock()
             .map_err(|_| AppError::new("lock_poisoned"))?;
-        let teacher = store.create_teacher(
+        let teacher = store.create_teacher_full(
             &input.full_name,
             input.campus_id,
             input.load_weight,
             input.active,
             input.note.as_deref(),
             input.code.as_deref(),
+            input.display_name.as_deref(),
+            input.quota_override,
+            input.max_tasks_per_exam_override,
         )?;
         Ok(teacher)
     }
@@ -467,6 +471,146 @@ impl AppService {
     }
 
     // -------------------------------------------------------------------------
+    // Subjects
+    // -------------------------------------------------------------------------
+
+    pub fn list_subjects(&self, school_year_id: SchoolYearId) -> Result<Vec<Subject>, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let subjects = store.get_subjects(school_year_id)?;
+        Ok(subjects)
+    }
+
+    pub fn create_subject(&self, input: CreateSubjectInput) -> Result<Subject, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let subject = store.create_subject(
+            input.school_year_id,
+            &input.code,
+            &input.name,
+            &input.color,
+            input.sort_order,
+            input.setters,
+            input.reviewers,
+            input.min_campuses,
+        )?;
+        Ok(subject)
+    }
+
+    pub fn update_subject(&self, input: UpdateSubjectInput) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let subject = Subject {
+            id: input.id,
+            code: input.code,
+            name: input.name,
+            color: input.color,
+            sort_order: input.sort_order,
+            setters: input.setters,
+            reviewers: input.reviewers,
+            min_campuses: input.min_campuses,
+        };
+        store.update_subject(&subject)?;
+        Ok(())
+    }
+
+    pub fn delete_subject(&self, id: SubjectId) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        store.delete_subject(id)?;
+        Ok(())
+    }
+
+    pub fn reorder_subjects(
+        &self,
+        school_year_id: SchoolYearId,
+        ordered_ids: Vec<SubjectId>,
+    ) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        store.reorder_subjects(school_year_id, &ordered_ids)?;
+        Ok(())
+    }
+
+    // -------------------------------------------------------------------------
+    // Teacher Competencies
+    // -------------------------------------------------------------------------
+
+    pub fn list_competencies(
+        &self,
+        school_year_id: SchoolYearId,
+    ) -> Result<Vec<Competency>, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let competencies = store.get_competencies(school_year_id)?;
+        Ok(competencies)
+    }
+
+    pub fn get_teacher_competencies(
+        &self,
+        teacher_id: TeacherId,
+        school_year_id: SchoolYearId,
+    ) -> Result<Vec<Competency>, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let competencies = store.get_teacher_competencies(teacher_id, school_year_id)?;
+        Ok(competencies)
+    }
+
+    pub fn set_competency(&self, input: SetCompetencyInput) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        store.set_competency(
+            input.teacher_id,
+            input.subject_id,
+            input.role,
+            input.grade_scope,
+        )?;
+        Ok(())
+    }
+
+    pub fn delete_competency(&self, input: DeleteCompetencyInput) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        store.delete_competency(input.teacher_id, input.subject_id, input.role)?;
+        Ok(())
+    }
+
+    pub fn replace_teacher_competencies(
+        &self,
+        input: ReplaceTeacherCompetenciesInput,
+    ) -> Result<(), AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        store.replace_teacher_competencies(
+            input.teacher_id,
+            input.school_year_id,
+            &input.competencies,
+        )?;
+        Ok(())
+    }
+
+    // -------------------------------------------------------------------------
     // Unavailability
     // -------------------------------------------------------------------------
 
@@ -529,6 +673,7 @@ impl AppService {
         let lock = store.create_lock(
             input.exam_id,
             input.grade_id,
+            input.subject_id,
             input.teacher_id,
             input.role,
             input.kind,
@@ -1028,24 +1173,23 @@ impl AppService {
 
             // Temporarily pin the kept slots without persisting locks
             for slot in &keep {
-                let mut s_count = 0;
                 for a in &assignments {
                     if a.exam_id == slot.exam_id
                         && a.grade_id == slot.grade_id
+                        && a.subject_id == slot.subject_id
                         && a.role == slot.role
+                        && a.position == slot.position
                     {
-                        if slot.role == Role::Reviewer || s_count == slot.position {
-                            problem.locks.push(exam_panel_core::domain::Lock {
-                                id: exam_panel_core::domain::LockId(0),
-                                exam_id: slot.exam_id,
-                                grade_id: slot.grade_id,
-                                teacher_id: a.teacher_id,
-                                role: Some(slot.role),
-                                kind: LockKind::Pin,
-                            });
-                            break;
-                        }
-                        s_count += 1;
+                        problem.locks.push(exam_panel_core::domain::Lock {
+                            id: exam_panel_core::domain::LockId(0),
+                            exam_id: slot.exam_id,
+                            grade_id: slot.grade_id,
+                            subject_id: slot.subject_id,
+                            teacher_id: a.teacher_id,
+                            role: Some(slot.role),
+                            kind: LockKind::Pin,
+                        });
+                        break;
                     }
                 }
             }
@@ -1106,6 +1250,15 @@ impl AppService {
 
     pub fn load_problem(&self, school_year_id: SchoolYearId) -> Result<Problem, AppError> {
         self.load_problem_snapshot(school_year_id)
+    }
+
+    pub fn get_problem_details(
+        &self,
+        school_year_id: SchoolYearId,
+    ) -> Result<ProblemDetails, AppError> {
+        let problem = self.load_problem_snapshot(school_year_id)?;
+        let forced = exam_panel_core::domain::find_forced_placements(&problem).unwrap_or_default();
+        Ok(ProblemDetails { problem, forced })
     }
 
     // -------------------------------------------------------------------------

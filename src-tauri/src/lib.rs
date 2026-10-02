@@ -354,6 +354,17 @@ pub fn run() {
             commands::restore_database,
             commands::validate_backup,
             commands::list_backups,
+            commands::list_subjects,
+            commands::create_subject,
+            commands::update_subject,
+            commands::delete_subject,
+            commands::reorder_subjects,
+            commands::list_competencies,
+            commands::get_teacher_competencies,
+            commands::set_competency,
+            commands::delete_competency,
+            commands::replace_teacher_competencies,
+            commands::get_problem_details,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
