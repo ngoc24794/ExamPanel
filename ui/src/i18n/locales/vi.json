@@ -267,8 +267,17 @@
     "placeNamePlaceholder": "VD: Hà Nội",
     "saveOrgInfo": "Lưu thông tin đơn vị",
     "saveOrgInfoSuccess": "Đã cập nhật thông tin đơn vị thành công",
-    "aboutSection": "Thông tin ứng dụng",
+    "aboutSection": "Giới thiệu",
     "version": "Phiên bản ứng dụng",
+    "commitHash": "Mã phiên bản (Git)",
+    "buildDate": "Ngày đóng gói",
+    "dataLocation": "Thư mục lưu trữ dữ liệu",
+    "storageMode": "Chế độ lưu trữ",
+    "portableMode": "Di động (Portable USB)",
+    "installedMode": "Cài đặt hệ thống (App Data)",
+    "openDataDir": "Mở thư mục dữ liệu",
+    "openLogDir": "Mở thư mục nhật ký",
+    "thirdPartyLicenses": "Giấy phép phần mềm bên thứ ba",
     "releaseNotes": "Phần mềm phân công ra đề & phản biện thi THPT."
   },
   "diagnostics": {

@@ -27,6 +27,12 @@ pub struct AppInfo {
     #[serde(default)]
     #[cfg_attr(feature = "typegen", ts(optional))]
     pub mode: Option<String>,
+    #[serde(default)]
+    #[cfg_attr(feature = "typegen", ts(optional))]
+    pub commit_hash: Option<String>,
+    #[serde(default)]
+    #[cfg_attr(feature = "typegen", ts(optional))]
+    pub build_date: Option<String>,
 }
 
 /// Global user-configurable interface and state settings.

@@ -105,6 +105,8 @@ export class MockExamPanelApi implements ExamPanelApi {
       data_dir: '/mock/data',
       is_portable: true,
       db_path: '/mock/data/exampanel.db',
+      commit_hash: '0c24c8e',
+      build_date: '2026-10-02',
     }
   }
 

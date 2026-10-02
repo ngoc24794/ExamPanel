@@ -9,7 +9,7 @@ export type RuleKey = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "h7" | "s1" | "s
 
 export type OptimizationEffort = "fast" | "standard" | "thorough";
 
-export type AppInfo = { version: string, data_dir: string, is_portable: boolean, db_path: string, name?: string, identifier?: string, mode?: string, };
+export type AppInfo = { version: string, data_dir: string, is_portable: boolean, db_path: string, name?: string, identifier?: string, mode?: string, commit_hash?: string, build_date?: string, };
 
 export type AppSettings = { theme: string, language: string, current_school_year_id: number | null, school_name?: string, department_name?: string, signer_title?: string, signer_name?: string, place_name?: string, };
 

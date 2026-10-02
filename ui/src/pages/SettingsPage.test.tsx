@@ -81,4 +81,15 @@ describe('SettingsPage', () => {
       expect(deptInput).toHaveValue('Tổ Toán')
     })
   })
+
+  it('renders Giới thiệu (About) section with version, commit hash, and build date', async () => {
+    renderWithProviders(<SettingsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('about-section')).toBeInTheDocument()
+      expect(screen.getByTestId('about-version')).toHaveTextContent('v0.1.0')
+      expect(screen.getByTestId('about-commit')).toHaveTextContent('0c24c8e')
+      expect(screen.getByTestId('about-build-date')).toHaveTextContent('2026-10-02')
+    })
+  })
 })

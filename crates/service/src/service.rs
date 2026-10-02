@@ -68,14 +68,19 @@ impl AppService {
         let is_portable = data_dir != fallback;
         let db_path = resolve_database_path();
 
+        let commit_hash = option_env!("EXAMPANEL_COMMIT_HASH").map(|s| s.to_string());
+        let build_date = option_env!("EXAMPANEL_BUILD_DATE").map(|s| s.to_string());
+
         Ok(AppInfo {
             version: env!("CARGO_PKG_VERSION").to_string(),
             data_dir: data_dir.to_string_lossy().to_string(),
             is_portable,
             db_path: db_path.to_string_lossy().to_string(),
             name: Some("ExamPanel".to_string()),
-            identifier: Some("com.exampanel.app".to_string()),
-            mode: Some("tauri".to_string()),
+            identifier: Some("vn.exampanel.app".to_string()),
+            mode: Some(if is_portable { "portable" } else { "installed" }.to_string()),
+            commit_hash,
+            build_date,
         })
     }
 

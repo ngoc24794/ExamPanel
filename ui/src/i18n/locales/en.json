@@ -269,7 +269,16 @@
     "saveOrgInfoSuccess": "Organization details saved successfully",
     "aboutSection": "About ExamPanel",
     "version": "Application Version",
-    "releaseNotes": "High School Exam Panel Assignment Optimization."
+    "commitHash": "Commit Hash",
+    "buildDate": "Build Date",
+    "dataLocation": "Data Directory",
+    "storageMode": "Storage Mode",
+    "portableMode": "Portable (USB Drive)",
+    "installedMode": "Installed (System App Data)",
+    "openDataDir": "Open Data Folder",
+    "openLogDir": "Open Logs Folder",
+    "thirdPartyLicenses": "Third-Party Open Source Licenses",
+    "releaseNotes": "Automated panel assignment and reviewer allocation for high school exams."
   },
   "diagnostics": {
     "duplicate_campus_id": "Duplicate campus ID: {{campus_id}}",

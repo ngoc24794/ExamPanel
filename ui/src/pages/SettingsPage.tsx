@@ -361,7 +361,7 @@ export const SettingsPage: React.FC = () => {
         <BackupSection />
 
         {/* Section 3: About ExamPanel */}
-        <Card className="bg-card border-border">
+        <Card className="bg-card border-border" data-testid="about-section">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
               <Info className="h-4 w-4 text-primary" />
@@ -371,11 +371,35 @@ export const SettingsPage: React.FC = () => {
           <CardContent className="space-y-3 pt-2 text-xs">
             <div className="flex items-center justify-between pb-2 border-b border-border">
               <span className="text-muted-foreground">{t('settings.version')}</span>
-              <span className="font-mono font-semibold text-foreground">
+              <span className="font-mono font-semibold text-foreground" data-testid="about-version">
                 v{appInfo?.version || '0.1.0'}
               </span>
             </div>
-            <p className="text-muted-foreground">{t('settings.releaseNotes')}</p>
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <span className="text-muted-foreground">{t('settings.commitHash')}</span>
+              <span className="font-mono text-foreground" data-testid="about-commit">
+                {appInfo?.commit_hash || '0c24c8e'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <span className="text-muted-foreground">{t('settings.buildDate')}</span>
+              <span className="font-mono text-foreground" data-testid="about-build-date">
+                {appInfo?.build_date || '2026-10-02'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <span className="text-muted-foreground">{t('settings.storageMode')}</span>
+              <Badge variant={appInfo?.is_portable ? 'default' : 'secondary'} className="text-[10px]">
+                {appInfo?.is_portable ? t('settings.portableMode') : t('settings.installedMode')}
+              </Badge>
+            </div>
+            <div className="flex flex-col gap-1 pb-2 border-b border-border">
+              <span className="text-muted-foreground">{t('settings.dataLocation')}</span>
+              <span className="font-mono text-[11px] text-foreground break-all bg-muted/50 p-2 rounded border border-border">
+                {appInfo?.data_dir || '/data'}
+              </span>
+            </div>
+            <p className="text-muted-foreground pt-1">{t('settings.releaseNotes')}</p>
           </CardContent>
         </Card>
       </div>

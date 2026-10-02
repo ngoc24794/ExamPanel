@@ -15,7 +15,8 @@
     "fmt": "cargo fmt -- --check && pnpm -C ui format:check",
     "fmt:fix": "cargo fmt && pnpm -C ui format",
     "typegen": "cargo run -p exam-panel-service --features typegen --bin generate_types",
-    "check-all": "cargo fmt -- --check && cargo clippy -- -D warnings && cargo test && cargo test -p exam-panel-service --features typegen --test generate_types && pnpm -C ui lint && pnpm -C ui typecheck && pnpm -C ui test && pnpm -C ui build"
+    "check-version": "node scripts/check-version.mjs",
+    "check-all": "pnpm check-version && cargo fmt -- --check && cargo clippy -- -D warnings && cargo test && cargo test -p exam-panel-service --features typegen --test generate_types && pnpm -C ui lint && pnpm -C ui typecheck && pnpm -C ui test && pnpm -C ui build"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.12.1"
