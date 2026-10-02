@@ -694,6 +694,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             });
             // Each teaches both grades
             teacher_grades.push(TeacherGrade {

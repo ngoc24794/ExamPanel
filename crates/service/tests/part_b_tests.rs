@@ -1,4 +1,4 @@
-use exam_panel_core::domain::{CampusId, ExamId, GradeId, Role, SchoolYearId};
+use exam_panel_core::domain::{CampusId, ExamId, GradeId, Role, RuleKey, SchoolYearId};
 use exam_panel_core::optimize::{OptimizationEffort, SlotRef};
 use exam_panel_service::dto::{OptimizeBudget, OptimizeRequest};
 use exam_panel_service::service::AppService;
@@ -30,9 +30,10 @@ fn test_part_b_plan_status_and_staleness() {
         .expect("save optimize result");
     let plan_id = plan_ids[0];
 
-    // Status immediately after optimize should be fresh (problem_changed: false)
+    // Status immediately after optimize should be fresh (data_changed: false, rules_changed: false)
     let status_initial = service.plan_status(plan_id).expect("plan_status");
-    assert!(!status_initial.problem_changed);
+    assert!(!status_initial.data_changed);
+    assert!(!status_initial.rules_changed);
     assert!(status_initial.hard_violations_now.is_empty());
 
     // Make a data change to make problem stale (e.g. create a new teacher)
@@ -43,14 +44,15 @@ fn test_part_b_plan_status_and_staleness() {
             load_weight: 1.0,
             active: true,
             note: None,
+            code: None,
         })
         .expect("create teacher");
 
-    // Status now must report problem_changed: true
+    // Status now must report data_changed: true
     let status_stale = service.plan_status(plan_id).expect("plan_status");
     assert!(
-        status_stale.problem_changed,
-        "Plan should be marked stale after problem data changed!"
+        status_stale.data_changed,
+        "Plan should have data_changed: true after problem data changed!"
     );
 
     // List plans must also show is_stale: true
@@ -61,6 +63,112 @@ fn test_part_b_plan_status_and_staleness() {
     // mark_final must be rejected with error "plan_stale"
     let err = service.mark_final(plan_id).unwrap_err();
     assert_eq!(err.code, "plan_stale");
+}
+
+#[test]
+fn test_part_a1_staleness_split_data_vs_rules() {
+    let service = AppService::open_in_memory().expect("open service");
+    service.seed_demo().expect("seed demo data");
+
+    let sy_id = SchoolYearId(1);
+    let outcome = service
+        .run_optimize(
+            sy_id,
+            OptimizeRequest {
+                base_seed: Some(42),
+                runs: 2,
+                budget: OptimizeBudget::Iterations(1_000),
+                k: 1,
+                diversity_threshold: None,
+            },
+            None,
+            None,
+        )
+        .expect("run optimize");
+
+    let plan_ids = service
+        .save_optimize_result(sy_id, outcome)
+        .expect("save optimize result");
+    let plan_id = plan_ids[0];
+
+    // Initial state: both hashes match
+    let st0 = service.plan_status(plan_id).expect("status 0");
+    assert!(!st0.data_changed);
+    assert!(!st0.rules_changed);
+
+    // 1. Change soft rule weight only: rules_changed = true, data_changed = false
+    let mut rules = service.get_rule_settings(sy_id).expect("get_rule_settings");
+    if let Some(r) = rules.iter_mut().find(|r| r.key == RuleKey::S1) {
+        r.weight = 99.0;
+    }
+    service
+        .save_rule_settings(sy_id, rules)
+        .expect("save_rule_settings");
+
+    let st1 = service.plan_status(plan_id).expect("status 1");
+    assert!(
+        !st1.data_changed,
+        "data_changed should be false when only soft rule weight changed"
+    );
+    assert!(
+        st1.rules_changed,
+        "rules_changed should be true when soft rule weight changed"
+    );
+
+    // mark_final does NOT block on rules_changed
+    service
+        .mark_final(plan_id)
+        .expect("mark_final should succeed when only rules_changed");
+
+    // Unmark final by creating a duplicate
+    let copy_id = service
+        .create_manual_copy(plan_id, "Bản thử".to_string())
+        .expect("copy");
+
+    // 2. Change data: data_changed = true
+    service
+        .create_teacher(exam_panel_service::dto::CreateTeacherInput {
+            full_name: "Thầy Giáo Mới".to_string(),
+            campus_id: CampusId(1),
+            load_weight: 1.0,
+            active: true,
+            note: None,
+            code: Some("GV_TEST_A1".to_string()),
+        })
+        .expect("create teacher");
+
+    let st2 = service.plan_status(copy_id).expect("status 2");
+    assert!(
+        st2.data_changed,
+        "data_changed should be true when master data changed"
+    );
+
+    // mark_final MUST be blocked on data_changed
+    let err = service.mark_final(copy_id).unwrap_err();
+    assert_eq!(
+        err.code, "plan_stale",
+        "mark_final must fail when data_changed is true"
+    );
+
+    // 3. Editing and saving a repaired copy refreshes both hashes and unblocks mark_final
+    let details = service.get_plan(copy_id).expect("get_plan");
+    service
+        .update_plan_assignments(copy_id, details.assignments)
+        .expect("update_plan_assignments refreshes data_hash and rules_hash");
+
+    let st3 = service.plan_status(copy_id).expect("status 3");
+    assert!(
+        !st3.data_changed,
+        "data_changed should be false after save refreshed hashes"
+    );
+    assert!(
+        !st3.rules_changed,
+        "rules_changed should be false after save refreshed hashes"
+    );
+
+    service
+        .mark_final(copy_id)
+        .expect("mark_final should now succeed after saving repaired copy");
 }
 
 #[test]

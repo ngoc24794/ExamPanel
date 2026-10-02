@@ -234,8 +234,11 @@ impl Problem {
     ///    - rule_settings sorted by rule key string
     /// 2. Build a stable JSON structure where numbers and floats are formatted deterministically.
     /// 3. Hash the resulting UTF-8 bytes with SHA-256 and encode as a 64-char lowercase hexadecimal string.
+    ///
+    /// Computes a canonical SHA-256 hash of problem DATA (campuses, grades, teachers with codes,
+    /// teacher_grades, exams, unavailabilities, locks, and hard rules H4 and H7 tolerance).
     #[must_use]
-    pub fn canonical_hash(&self) -> String {
+    pub fn data_hash(&self) -> String {
         use sha2::{Digest, Sha256};
 
         let mut campuses: Vec<_> = self
@@ -287,6 +290,7 @@ impl Problem {
                     "load_weight": format!("{:.4}", t.load_weight),
                     "active": t.active,
                     "note": &t.note,
+                    "code": &t.code,
                 })
             })
             .collect();
@@ -369,19 +373,18 @@ impl Problem {
                 .then(a["kind"].as_str().cmp(&b["kind"].as_str()))
         });
 
-        let mut rule_settings: Vec<_> = self
+        let h4_enabled = self
             .rule_settings
             .iter()
-            .map(|rs| {
-                serde_json::json!({
-                    "key": rs.key.to_string(),
-                    "enabled": rs.enabled,
-                    "weight": format!("{:.4}", rs.weight),
-                    "params": &rs.params,
-                })
-            })
-            .collect();
-        rule_settings.sort_by(|a, b| a["key"].as_str().cmp(&b["key"].as_str()));
+            .find(|rs| rs.key == RuleKey::H4)
+            .is_none_or(|rs| rs.enabled);
+
+        let h7_tolerance = self
+            .rule_settings
+            .iter()
+            .find(|rs| rs.key == RuleKey::H7)
+            .and_then(|rs| rs.params.get("tolerance").and_then(|v| v.as_i64()))
+            .unwrap_or(1);
 
         let canonical_doc = serde_json::json!({
             "school_year": {
@@ -395,12 +398,61 @@ impl Problem {
             "exams": exams,
             "unavailabilities": unavailabilities,
             "locks": locks,
-            "rule_settings": rule_settings,
+            "hard_rules": {
+                "h4_single_panel_per_exam_enabled": h4_enabled,
+                "h7_tolerance": h7_tolerance,
+            },
         });
 
         let serialized = serde_json::to_string(&canonical_doc).unwrap_or_default();
         let hash = Sha256::digest(serialized.as_bytes());
         format!("{hash:x}")
+    }
+
+    /// Computes a canonical SHA-256 hash of problem soft RULES (weights, enabled status, params for S1..S8).
+    #[must_use]
+    pub fn rules_hash(&self) -> String {
+        use sha2::{Digest, Sha256};
+
+        let soft_keys = [
+            RuleKey::S1,
+            RuleKey::S2,
+            RuleKey::S3,
+            RuleKey::S4,
+            RuleKey::S5,
+            RuleKey::S6,
+            RuleKey::S7,
+            RuleKey::S8,
+        ];
+
+        let mut soft_rules: Vec<_> = self
+            .rule_settings
+            .iter()
+            .filter(|rs| soft_keys.contains(&rs.key))
+            .map(|rs| {
+                serde_json::json!({
+                    "key": rs.key.to_string(),
+                    "enabled": rs.enabled,
+                    "weight": format!("{:.4}", rs.weight),
+                    "params": &rs.params,
+                })
+            })
+            .collect();
+        soft_rules.sort_by(|a, b| a["key"].as_str().cmp(&b["key"].as_str()));
+
+        let canonical_doc = serde_json::json!({
+            "soft_rules": soft_rules,
+        });
+
+        let serialized = serde_json::to_string(&canonical_doc).unwrap_or_default();
+        let hash = Sha256::digest(serialized.as_bytes());
+        format!("{hash:x}")
+    }
+
+    /// Combined canonical hash for legacy or backwards-compatible identification.
+    #[must_use]
+    pub fn canonical_hash(&self) -> String {
+        format!("{}:{}", self.data_hash(), self.rules_hash())
     }
 }
 
@@ -435,6 +487,7 @@ mod tests {
             load_weight: 1.0,
             active: true,
             note: None,
+            code: None,
         };
         let tg1 = TeacherGrade {
             teacher_id: TeacherId(1),
@@ -552,6 +605,7 @@ mod tests {
             load_weight: 0.8,
             active: true,
             note: None,
+            code: Some("GV002".to_string()),
         };
         p1.teachers.push(t2.clone());
         p2.teachers.insert(0, t2);
@@ -567,32 +621,70 @@ mod tests {
         p1.exams.push(e2.clone());
         p2.exams.insert(0, e2);
 
+        assert_eq!(p1.data_hash(), p2.data_hash());
+        assert_eq!(p1.rules_hash(), p2.rules_hash());
         assert_eq!(p1.canonical_hash(), p2.canonical_hash());
     }
 
     #[test]
     fn test_canonical_hash_changes_on_modification() {
         let p1 = make_valid_problem();
-        let h1 = p1.canonical_hash();
+        let d1 = p1.data_hash();
+        let r1 = p1.rules_hash();
 
+        // 1. Data change (teacher weight) changes data_hash but NOT rules_hash
         let mut p2 = make_valid_problem();
         p2.teachers[0].load_weight = 0.5;
-        assert_ne!(h1, p2.canonical_hash());
+        assert_ne!(d1, p2.data_hash());
+        assert_eq!(r1, p2.rules_hash());
 
+        // 2. Soft rule change changes rules_hash but NOT data_hash
         let mut p3 = make_valid_problem();
-        p3.rule_settings[0].weight = 50.0;
-        assert_ne!(h1, p3.canonical_hash());
+        let s1_idx = p3
+            .rule_settings
+            .iter()
+            .position(|r| r.key == RuleKey::S1)
+            .unwrap();
+        p3.rule_settings[s1_idx].weight = 50.0;
+        assert_eq!(d1, p3.data_hash());
+        assert_ne!(r1, p3.rules_hash());
 
+        // 3. Campus rename changes data_hash but NOT rules_hash
         let mut p4 = make_valid_problem();
         p4.campuses[0].name = "Renamed Campus".to_string();
-        assert_ne!(h1, p4.canonical_hash());
+        assert_ne!(d1, p4.data_hash());
+        assert_eq!(r1, p4.rules_hash());
 
+        // 4. Unavailability changes data_hash but NOT rules_hash
         let mut p5 = make_valid_problem();
         p5.unavailabilities.push(Unavailability {
             teacher_id: TeacherId(1),
             exam_id: ExamId(1),
             reason: Some("Off".to_string()),
         });
-        assert_ne!(h1, p5.canonical_hash());
+        assert_ne!(d1, p5.data_hash());
+        assert_eq!(r1, p5.rules_hash());
+
+        // 5. Hard rule H4 toggle changes data_hash but NOT rules_hash
+        let mut p6 = make_valid_problem();
+        let h4_idx = p6
+            .rule_settings
+            .iter()
+            .position(|r| r.key == RuleKey::H4)
+            .unwrap();
+        p6.rule_settings[h4_idx].enabled = false;
+        assert_ne!(d1, p6.data_hash());
+        assert_eq!(r1, p6.rules_hash());
+
+        // 6. Hard rule H7 tolerance changes data_hash but NOT rules_hash
+        let mut p7 = make_valid_problem();
+        let h7_idx = p7
+            .rule_settings
+            .iter()
+            .position(|r| r.key == RuleKey::H7)
+            .unwrap();
+        p7.rule_settings[h7_idx].params = serde_json::json!({ "tolerance": 2 });
+        assert_ne!(d1, p7.data_hash());
+        assert_eq!(r1, p7.rules_hash());
     }
 }

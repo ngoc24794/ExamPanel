@@ -394,6 +394,7 @@ mod tests {
                 load_weight: weight,
                 active: true,
                 note: None,
+                code: None,
             })
             .collect();
 
@@ -495,6 +496,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             });
 
             let g1 = ((tid - 1) % 3) + 1;
@@ -1098,152 +1100,5 @@ mod tests {
             "BENCH Synthetic 40 (R=8, 200k iters each, total {} iters): {:?}",
             res.stats.total_iterations, elapsed
         );
-    }
-
-    #[test]
-    #[ignore]
-    fn print_report_demo_data() {
-        use crate::domain::{Role, TeacherId};
-        let problem = make_seed_demo_problem();
-        let hard_sol = solve_hard(
-            &problem,
-            &SolveOptions {
-                seed: 42,
-                time_limit_ms: 2000,
-                max_nodes: 500_000,
-            },
-        )
-        .expect("solve hard");
-
-        let hard_report = evaluate(&problem, &hard_sol.assignments);
-
-        let opts = OptimizeOptions {
-            base_seed: 42,
-            budget: Budget::Iterations(200_000),
-            num_runs: 8,
-            max_plans: 3,
-            diversity_threshold: 0.20,
-            cancel: None,
-            progress: None,
-            initial_assignments: Some(hard_sol.assignments),
-        };
-
-        let res = optimize(&problem, &opts).expect("optimize demo");
-        let best_plan = &res.plans[0];
-
-        println!("\n=== TABLE 1: BEFORE / AFTER SCORE PER RULE ===");
-        println!(
-            "| Rule | Name | Weight | Hard Solve Units | Hard Penalty | Opt Units | Opt Penalty | Lower Bound |"
-        );
-        println!("|---|---|---|---|---|---|---|---|");
-        let rule_names = [
-            ("S1", "Reviewer count"),
-            ("S2", "Role balance"),
-            ("S3", "Independent reviewer"),
-            ("S4", "Repeated setter pair"),
-            ("S5", "Repeated review relation"),
-            ("S6", "Consecutive setting"),
-            ("S7", "Grade rotation"),
-            ("S8", "Load deviation"),
-        ];
-        for i in 0..8 {
-            let hr = &hard_report.by_rule[i];
-            let or = &best_plan.report.by_rule[i];
-            println!(
-                "| {} | {} | {:.1} | {:.2} | {:.2} | {:.2} | {:.2} | {:.2} |",
-                rule_names[i].0,
-                rule_names[i].1,
-                hr.weight,
-                hr.units,
-                hr.penalty,
-                or.units,
-                or.penalty,
-                or.lower_bound
-            );
-        }
-        println!(
-            "| **TOTAL** | | | | **{:.2}** | | **{:.2}** |",
-            hard_report.total, best_plan.report.total
-        );
-
-        println!("\n=== TABLE 2: 4x3 ASSIGNMENT SCHEDULE (EXAM x GRADE) ===");
-        println!("| Exam | Grade | Setters (Campus) | Reviewer (Campus) | Campuses Distinct |");
-        println!("|---|---|---|---|---|");
-        let camp_code = |tid: TeacherId| {
-            let t = problem.teachers.iter().find(|t| t.id == tid).unwrap();
-            let c = problem
-                .campuses
-                .iter()
-                .find(|c| c.id == t.campus_id)
-                .unwrap();
-            format!("{} ({})", t.full_name, c.code)
-        };
-        for e in &problem.exams {
-            for g in &problem.grades {
-                let setters: Vec<_> = best_plan
-                    .assignments
-                    .iter()
-                    .filter(|a| a.exam_id == e.id && a.grade_id == g.id && a.role == Role::Setter)
-                    .collect();
-                let rev: Vec<_> = best_plan
-                    .assignments
-                    .iter()
-                    .filter(|a| a.exam_id == e.id && a.grade_id == g.id && a.role == Role::Reviewer)
-                    .collect();
-                let s_str = format!(
-                    "{}, {}",
-                    camp_code(setters[0].teacher_id),
-                    camp_code(setters[1].teacher_id)
-                );
-                let r_str = camp_code(rev[0].teacher_id);
-                println!("| {} | {} | {} | {} | Yes |", e.code, g.name, s_str, r_str);
-            }
-        }
-
-        println!("\n=== TABLE 3: PER-TEACHER WORKLOAD TABLE ===");
-        println!("| ID | Teacher Name | Quota q_t | Total Tasks | Setter Tasks | Reviewer Tasks | Grades Assigned |");
-        println!("|---|---|---|---|---|---|---|");
-        for ts in &best_plan.report.per_teacher {
-            let t = problem
-                .teachers
-                .iter()
-                .find(|t| t.id == ts.teacher_id)
-                .unwrap();
-            let grades_str = ts
-                .grades_assigned
-                .iter()
-                .map(|gid| {
-                    let g = problem.grades.iter().find(|g| g.id == *gid).unwrap();
-                    g.code.to_string()
-                })
-                .collect::<Vec<_>>()
-                .join(", ");
-            println!(
-                "| {} | {} | {:.2} | {} | {} | {} | {} |",
-                t.id.0, t.full_name, ts.quota, ts.count, ts.setter, ts.reviewer, grades_str
-            );
-        }
-
-        println!("\n=== TABLE 4: REMAINING SOFT VIOLATIONS ===");
-        for v in &best_plan.report.violations {
-            println!(
-                "- Rule {:?} (code: `{}`): panel {:?}, teachers {:?}, params: {:?}",
-                v.rule, v.code, v.panel, v.teachers, v.params
-            );
-        }
-
-        println!("\n=== TABLE 5: PAIRWISE DISTANCES BETWEEN RETURNED PLANS ===");
-        println!("Number of plans returned: {}", res.plans.len());
-        for i in 0..res.plans.len() {
-            for j in (i + 1)..res.plans.len() {
-                let d = plan_distance(&res.plans[i].assignments, &res.plans[j].assignments);
-                println!(
-                    "Distance between Plan {} (score {:.2}) and Plan {} (score {:.2}): {:.3} ({:.1}%)",
-                    res.plans[i].rank, res.plans[i].report.total,
-                    res.plans[j].rank, res.plans[j].report.total,
-                    d, d * 100.0
-                );
-            }
-        }
     }
 }

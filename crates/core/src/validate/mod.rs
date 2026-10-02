@@ -410,6 +410,7 @@ mod tests {
             load_weight: 1.0,
             active: true,
             note: None,
+            code: None,
         };
         let t2 = Teacher {
             id: TeacherId(2),
@@ -418,6 +419,7 @@ mod tests {
             load_weight: 1.0,
             active: true,
             note: None,
+            code: None,
         };
         let t3 = Teacher {
             id: TeacherId(3),
@@ -426,6 +428,7 @@ mod tests {
             load_weight: 1.0,
             active: true,
             note: None,
+            code: None,
         };
 
         let tg1 = TeacherGrade {
@@ -589,6 +592,7 @@ mod tests {
             load_weight: 1.0,
             active: true,
             note: None,
+            code: None,
         });
         p.teacher_grades.push(TeacherGrade {
             teacher_id: TeacherId(4),

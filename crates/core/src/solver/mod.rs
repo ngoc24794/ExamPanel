@@ -842,6 +842,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(2),
@@ -850,6 +851,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(3),
@@ -858,6 +860,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(4),
@@ -866,6 +869,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(5),
@@ -874,6 +878,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(6),
@@ -882,6 +887,7 @@ mod tests {
                 load_weight: 0.5,
                 active: true,
                 note: Some("Bán thời gian".to_string()),
+                code: None,
             },
             Teacher {
                 id: TeacherId(7),
@@ -890,6 +896,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(8),
@@ -898,6 +905,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(9),
@@ -906,6 +914,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(10),
@@ -914,6 +923,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(11),
@@ -922,6 +932,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
         ];
 
@@ -1208,6 +1219,7 @@ mod tests {
                     load_weight: 1.0,
                     active: true,
                     note: None,
+                    code: None,
                 });
 
                 // Qualifications: T1..T3 more likely G1, T4..T6 more likely G2
@@ -1426,6 +1438,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             });
 
             // Each teacher teaches 1 or 2 grades

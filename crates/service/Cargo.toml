@@ -6,8 +6,19 @@ authors.workspace = true
 license.workspace = true
 
 [features]
-default = ["dev-tools"]
+default = []
+typegen = ["dep:ts-rs"]
 dev-tools = []
+
+[[bin]]
+name = "generate_types"
+path = "src/bin/generate_types.rs"
+required-features = ["typegen"]
+
+[[test]]
+name = "generate_types"
+path = "tests/generate_types.rs"
+required-features = ["typegen"]
 
 [dependencies]
 exam-panel-core = { workspace = true }
@@ -15,7 +26,7 @@ exam-panel-storage = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
-ts-rs = { version = "12", features = ["serde-compat"] }
+ts-rs = { version = "12", features = ["serde-compat"], optional = true }
 
 [dev-dependencies]
 tempfile = "3.17"

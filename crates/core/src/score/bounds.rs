@@ -400,6 +400,7 @@ mod tests {
                     load_weight: lw,
                     active: true,
                     note: None,
+                    code: None,
                 });
 
                 // Qualified for all grades in this tiny instance

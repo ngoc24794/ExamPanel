@@ -38,6 +38,7 @@ import {
   ShieldAlert,
   ArrowRightLeft,
   Sparkles,
+  Info,
 } from 'lucide-react'
 import { CandidateSelectModal } from './CandidateSelectModal'
 
@@ -203,12 +204,12 @@ export function PlanMatrixView({
 
   return (
     <div className="space-y-4" data-testid="plan-matrix-view">
-      {/* Stale Problem Warning Banner */}
-      {planStatus?.problem_changed && (
+      {/* Data Changed Warning Banner */}
+      {planStatus?.data_changed && (
         <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4 text-amber-700 dark:text-amber-300 space-y-2">
           <div className="flex items-center gap-2 font-medium">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            <span>{t('assignments.staleWarning')}</span>
+            <span>{t('assignments.dataChangedWarning')}</span>
           </div>
           {planStatus.hard_violations_now.length > 0 ? (
             <div className="text-xs space-y-1 pl-7">
@@ -226,9 +227,17 @@ export function PlanMatrixView({
             </div>
           ) : (
             <p className="text-xs pl-7 text-muted-foreground">
-              Phương án vẫn thỏa mãn ràng buộc cứng theo dữ liệu mới, nhưng điểm số có thể thay đổi.
+              {t('assignments.dataChangedNoViolations')}
             </p>
           )}
+        </div>
+      )}
+
+      {/* Rules Changed Info Banner */}
+      {!planStatus?.data_changed && planStatus?.rules_changed && (
+        <div className="rounded-lg border border-blue-500/40 bg-blue-500/10 p-3 text-blue-700 dark:text-blue-300 flex items-center gap-2 text-xs">
+          <Info className="h-4 w-4 text-blue-500 shrink-0" />
+          <span>{t('assignments.rulesChangedInfo')}</span>
         </div>
       )}
 

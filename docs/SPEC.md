@@ -284,6 +284,9 @@ The solver runs in pure Rust (`crates/core`) with zero UI or database coupling:
   - `initial_report: ScoreReport`
   - `stats: OptimizeStats { total_runs: usize, total_iterations: u64, elapsed_ms: u64 }`
 
+### 5.4 Determinism and Seed Reproducibility
+PRNG seeds guarantee exact, bit-for-bit schedule reproducibility within a given software release and dependency graph. However, solver trajectories and intermediate scores for a given seed are not guaranteed to remain invariant across changes in underlying PRNG dependencies or library versions (e.g., changes in `rand` algorithms or feature flags). For long-term archival and auditability, users should persist the finalized assignment matrix, exported workbooks, or database backups.
+
 ---
 
 ## 6. Portable Storage Specification

@@ -32,6 +32,8 @@ pub struct Teacher {
     pub load_weight: f64,
     pub active: bool,
     pub note: Option<String>,
+    #[serde(default)]
+    pub code: Option<String>,
 }
 
 /// An academic year under management (e.g., "2026-2027").
@@ -449,7 +451,10 @@ pub struct Plan {
     pub source: String,
     #[serde(default)]
     #[ts(optional)]
-    pub problem_hash: Option<String>,
+    pub data_hash: Option<String>,
+    #[serde(default)]
+    #[ts(optional)]
+    pub rules_hash: Option<String>,
 }
 
 /// Summary record for plan listing.
@@ -466,7 +471,10 @@ pub struct PlanSummary {
     pub source: String,
     #[serde(default)]
     #[ts(optional)]
-    pub problem_hash: Option<String>,
+    pub data_hash: Option<String>,
+    #[serde(default)]
+    #[ts(optional)]
+    pub rules_hash: Option<String>,
     #[serde(default)]
     pub is_stale: bool,
 }

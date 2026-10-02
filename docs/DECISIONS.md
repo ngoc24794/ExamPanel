@@ -200,3 +200,18 @@
   4. Run simulated annealing subject to the combined locks.
   5. Return new ranked draft plans via standard optimization outcomes.
 - **Consequences:** Clean separation between temporary optimization pinning and permanent master data locks.
+
+## ADR-0032: Zero-Dependency DOM and CSS Visualization for Statistics Page
+- **Status:** Accepted
+- **Context:** The Statistics page visualizes teacher workload distribution, deviation from quota, and setter vs. reviewer splits. Adding heavy charting libraries (e.g., Chart.js, Recharts, ECharts) adds 150–500 KB to the webview bundle and complicates automated headless testing and print styling.
+- **Decision:** Build all statistical charts using semantic HTML tables, flexbox progress indicators, and CSS design tokens (bg-primary, bg-muted, etc.) styled with Tailwind CSS.
+- **Consequences:** Zero external chart dependencies, instantaneous rendering, full i18n support, complete headless Playwright testability, and seamless print stylesheets.
+
+## ADR-0033: Dual-Hash Staleness Tracking (Data Hash vs Rules Hash)
+- **Status:** Accepted
+- **Context:** In Phase 8, any modification to problem inputs triggered a single problem_hash mismatch, flagging the plan as stale and blocking mark_final. However, modifying soft constraint weights only affects the objective function score without altering feasibility or master data validity.
+- **Decision:** Split the problem hash into two independent SHA-256 hashes:
+  - data_hash: covers structural entities (campuses, grades, teachers + per-year grades, exams, unavailabilities, locks, and hard rule settings H4 and H7 tolerance).
+  - rules_hash: covers soft constraint enabled flags and penalty weights (S1–S8).
+  plan_status returns { data_changed, rules_changed, hard_violations_now, score_now }. Only data_changed = true blocks mark_final. When only rules_changed = true, the UI displays an informational notice and permits finalization. Saving an edited plan copy recomputes and synchronizes both hashes with live data.
+- **Consequences:** Administrators can adjust evaluation criteria and tune soft weights without invalidating existing feasible plans, while preventing obsolete plans from being finalized against altered master rosters.

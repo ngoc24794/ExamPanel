@@ -5,12 +5,13 @@ use std::collections::BTreeMap;
 use thiserror::Error;
 
 /// Standard serializable application error contract.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Error, ts_rs::TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Error)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 #[error("AppError {code}: {params:?}")]
 pub struct AppError {
     pub code: String,
     #[serde(default)]
-    #[ts(type = "Record<string, unknown>")]
+    #[cfg_attr(feature = "typegen", ts(type = "Record<string, unknown>"))]
     pub params: BTreeMap<String, serde_json::Value>,
 }
 

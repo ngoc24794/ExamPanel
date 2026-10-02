@@ -778,6 +778,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(2),
@@ -786,6 +787,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
             Teacher {
                 id: TeacherId(3),
@@ -794,6 +796,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             },
         ];
 
@@ -864,6 +867,7 @@ mod tests {
             load_weight: 1.0,
             active: true,
             note: None,
+            code: None,
         };
         problem.teachers.push(t4);
         problem.teacher_grades.push(TeacherGrade {
@@ -948,6 +952,7 @@ mod tests {
             load_weight: 1.0,
             active: true,
             note: None,
+            code: None,
         });
         problem.teacher_grades.push(TeacherGrade {
             teacher_id: TeacherId(4),
@@ -994,6 +999,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             });
         }
         for tid in 1..=5 {
@@ -1059,6 +1065,7 @@ mod tests {
                 load_weight: 1.0,
                 active: true,
                 note: None,
+                code: None,
             });
             problem.teacher_grades.push(TeacherGrade {
                 teacher_id: TeacherId(tid),
