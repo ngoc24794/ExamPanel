@@ -26,10 +26,10 @@ impl Default for ValidateOptions {
 }
 
 /// A specific hard constraint violation found in an assignment set.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Violation {
     pub rule: RuleKey,
-    pub code: &'static str,
+    pub code: String,
     pub panel: Option<PanelKey>,
     pub teacher: Option<TeacherId>,
     pub params: BTreeMap<String, serde_json::Value>,
@@ -37,10 +37,10 @@ pub struct Violation {
 
 impl Violation {
     #[must_use]
-    pub fn new(rule: RuleKey, code: &'static str) -> Self {
+    pub fn new(rule: RuleKey, code: impl Into<String>) -> Self {
         Self {
             rule,
-            code,
+            code: code.into(),
             panel: None,
             teacher: None,
             params: BTreeMap::new(),

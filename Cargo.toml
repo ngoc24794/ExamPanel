@@ -3,11 +3,13 @@ resolver = "2"
 members = [
     "crates/core",
     "crates/storage",
+    "crates/service",
     "src-tauri",
 ]
 default-members = [
     "crates/core",
     "crates/storage",
+    "crates/service",
 ]
 
 [workspace.package]
@@ -23,3 +25,4 @@ thiserror = "2.0"
 rusqlite = { version = "0.32", features = ["bundled"] }
 exam-panel-core = { path = "crates/core" }
 exam-panel-storage = { path = "crates/storage" }
+exam-panel-service = { path = "crates/service" }

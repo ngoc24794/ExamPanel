@@ -12,7 +12,7 @@ use std::collections::{HashMap, HashSet};
 pub struct RuleBound {
     pub rule: RuleKey,
     pub units_lower_bound: f64,
-    pub method: &'static str,
+    pub method: String,
 }
 
 /// Computes provable, cheap lower bounds for all soft rules S1..S8.
@@ -221,42 +221,42 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
         RuleBound {
             rule: RuleKey::S1,
             units_lower_bound: s1_bound,
-            method: "reviewer_capacity_pigeonhole",
+            method: "reviewer_capacity_pigeonhole".to_string(),
         },
         RuleBound {
             rule: RuleKey::S2,
             units_lower_bound: s2_bound,
-            method: "trivial",
+            method: "trivial".to_string(),
         },
         RuleBound {
             rule: RuleKey::S3,
             units_lower_bound: s3_bound,
-            method: "trivial",
+            method: "trivial".to_string(),
         },
         RuleBound {
             rule: RuleKey::S4,
             units_lower_bound: s4_bound,
-            method: "trivial",
+            method: "trivial".to_string(),
         },
         RuleBound {
             rule: RuleKey::S5,
             units_lower_bound: s5_bound,
-            method: "trivial",
+            method: "trivial".to_string(),
         },
         RuleBound {
             rule: RuleKey::S6,
             units_lower_bound: s6_bound,
-            method: "pigeonhole_setter_adjacency",
+            method: "pigeonhole_setter_adjacency".to_string(),
         },
         RuleBound {
             rule: RuleKey::S7,
             units_lower_bound: s7_bound,
-            method: "trivial",
+            method: "trivial".to_string(),
         },
         RuleBound {
             rule: RuleKey::S8,
             units_lower_bound: s8_bound,
-            method: "greedy_marginal_cost_allocation",
+            method: "greedy_marginal_cost_allocation".to_string(),
         },
     ]
 }

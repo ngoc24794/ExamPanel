@@ -1083,7 +1083,7 @@ impl Store {
                     plan.school_year_id.value(),
                     plan.name,
                     plan.created_at,
-                    plan.seed,
+                    plan.seed as i64,
                     plan.score,
                     if plan.is_final { 1 } else { 0 },
                     plan.rank,
@@ -1102,7 +1102,7 @@ impl Store {
                     plan.school_year_id.value(),
                     plan.name,
                     plan.created_at,
-                    plan.seed,
+                    plan.seed as i64,
                     plan.score,
                     if plan.is_final { 1 } else { 0 },
                     plan.rank,
@@ -1149,12 +1149,13 @@ impl Store {
         let mut plan_rows = plan_stmt
             .query_map(params![plan_id.value()], |row| {
                 let final_int: i32 = row.get(6)?;
+                let seed_i64: i64 = row.get(4)?;
                 Ok(Plan {
                     id: PlanId(row.get(0)?),
                     school_year_id: SchoolYearId(row.get(1)?),
                     name: row.get(2)?,
                     created_at: row.get(3)?,
-                    seed: row.get(4)?,
+                    seed: seed_i64 as u64,
                     score: row.get(5)?,
                     is_final: final_int == 1,
                     rank: row.get(7)?,
@@ -1312,7 +1313,7 @@ impl Store {
                         plan.school_year_id.value(),
                         plan.name,
                         plan.created_at,
-                        plan.seed,
+                        plan.seed as i64,
                         plan.score,
                         if plan.is_final { 1 } else { 0 },
                         plan.rank,
@@ -1331,7 +1332,7 @@ impl Store {
                         plan.school_year_id.value(),
                         plan.name,
                         plan.created_at,
-                        plan.seed,
+                        plan.seed as i64,
                         plan.score,
                         if plan.is_final { 1 } else { 0 },
                         plan.rank,

@@ -803,6 +803,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "exam-panel-service"
+version = "0.1.0"
+dependencies = [
+ "exam-panel-core",
+ "exam-panel-service",
+ "exam-panel-storage",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "exam-panel-storage"
 version = "0.1.0"
 dependencies = [

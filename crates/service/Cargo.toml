@@ -1,0 +1,21 @@
+[package]
+name = "exam-panel-service"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[features]
+default = []
+dev-tools = []
+
+[dependencies]
+exam-panel-core = { workspace = true }
+exam-panel-storage = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+exam-panel-service = { path = ".", features = ["dev-tools"] }
+tempfile = "3.17"
