@@ -1,42 +1,36 @@
 # ExamPanel
 
-> Cross-platform, portable desktop application that automatically assigns teachers to write and review exam papers across a full school year.
+> Cross-platform, portable desktop application that automatically assigns teachers to write and review exam papers across a full school year. Built with Rust, Tauri 2, React, TypeScript, and SQLite.
 
 ---
 
-## Features (Phase 1: Architecture & Foundation)
-- **High-Performance Pure Core:** Rust workspace isolating domain logic, constraint checkers, and solvers from UI and database concerns.
-- **Embedded Portable Database:** Bundled SQLite (`rusqlite`) with automatic portable path resolution (`./data/exam-panel.db` with OS app-data fallback).
-- **Modern Responsive Frontend:** React 18, TypeScript, Vite, Tailwind CSS, and shadcn/ui.
-- **Dual-Mode Execution:** Automatic environment detection running in standard browsers (`MockExamPanelApi`) or inside desktop shells (`TauriExamPanelApi`).
-- **Complete Internationalization (i18n):** Default Vietnamese (`vi`) and English (`en`) with zero hard-coded UI strings.
-- **Adaptive Theme System:** Light, dark, and system color scheme support with CSS variable tokens.
+## Overview & Architecture
 
----
+ExamPanel solves the high school exam panel assignment problem (Phân công ra đề và phản biện đề kiểm tra) by combining a mathematical constraint solver with an intuitive, bilingual (Vietnamese/English) desktop interface.
 
-## Directory Structure
+### Architectural Invariants
+- **`crates/core`:** Pure mathematical domain core, constraint checkers (H1–H7 hard constraints, S1–S7 soft objectives), simulated annealing solver, and scoring algorithms. Zero external I/O or Tauri dependencies.
+- **`crates/storage`:** Embedded SQLite (`rusqlite`) storage engine, incremental schema migrations (`crates/storage/migrations/`), automated backup rotations, and portable path resolution.
+- **`crates/service`:** Application business services, Excel template importing and report generation (`rust_xlsxwriter`, `calamine`), session management, and trial sandbox isolation.
+- **`src-tauri`:** Tauri 2 desktop shell with single-instance enforcement, window-state persistence, native logging (`tauri-plugin-log`), and scoped security permissions.
+- **`ui`:** React 18, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query, and 100% i18n (`vi` default, `en` secondary).
+
 ```
-exam-panel/
-├── AGENTS.md                 # Agent working agreements & invariants
-├── README.md                 # Project overview and quickstart guide
-├── Cargo.toml                # Rust workspace configuration
-├── rust-toolchain.toml       # Rust toolchain pinning
-├── package.json              # Root orchestration and convenience scripts
-├── .editorconfig             # Editor whitespace and encoding standards
-├── .gitignore                # Git exclusions (target, data, db, node_modules)
-├── .github/
-│   └── workflows/
-│       └── ci.yml            # Automated CI workflows (Rust & UI)
-├── docs/
-│   ├── SPEC.md               # Full business specification (H1-H7, S1-S7)
-│   ├── ARCHITECTURE.md       # Architecture diagram, data flow, layers
-│   ├── TECH.md               # Tool versions & common commands
-│   └── DECISIONS.md          # Architectural Decision Records (ADRs)
+ExamPanel/
 ├── crates/
 │   ├── core/                 # Pure domain + solver (no Tauri/SQLite)
-│   └── storage/              # SQLite connection, paths, migrations
+│   ├── storage/              # SQLite connection, migrations, backups
+│   └── service/              # Business services, Excel import/export
 ├── src-tauri/                # Desktop shell wrapper (Tauri 2)
-└── ui/                       # React + TypeScript + Vite + Tailwind UI
+├── ui/                       # React + TypeScript + Vite + Tailwind UI
+├── docs/                     # Specifications, architecture, user guides
+│   ├── SPEC.md               # Full business specification
+│   ├── ARCHITECTURE.md       # Architecture diagram and layers
+│   ├── DECISIONS.md          # Architectural Decision Records (ADRs)
+│   ├── user-guide/           # Bilingual user guides (vi, en) and PDF
+│   └── release/              # Release procedures and manual checklist
+├── scripts/                  # Version checks, packaging, and CI helpers
+└── .github/workflows/        # CI/CD and release automation
 ```
 
 ---
@@ -47,28 +41,31 @@ exam-panel/
 - **Node.js** `v20+` (tested on `v24.18.0`)
 - **pnpm** `v9+` (tested on `v11.22.0`)
 - **Rust** `1.80+` (tested on `1.98.0 / 1.99.0`)
+- **Microsoft Edge WebView2** (preinstalled on modern Windows 10/11)
 
-### Quick Setup
+### Installation
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd exam-panel
+cd ExamPanel
 
-# Install frontend dependencies
+# Install dependencies
+pnpm install
 pnpm -C ui install
 ```
 
 ---
 
-## Development Scripts
-
-From the repository root, you can run:
+## Development & Verification Commands
 
 ```bash
 # Start frontend dev server in browser mode (http://127.0.0.1:5173)
 pnpm dev-ui
 
-# Run full test suite (Rust unit tests + UI Vitest tests)
+# Start Tauri desktop app in development mode
+pnpm tauri dev
+
+# Run full test suite (Rust unit/integration tests + UI Vitest tests)
 pnpm test
 
 # Run code linters (Cargo clippy + ESLint)
@@ -77,34 +74,36 @@ pnpm lint
 # Check code formatting (rustfmt + prettier)
 pnpm fmt
 
-# Automatically format code
-pnpm fmt:fix
-
 # Run complete CI verification pipeline
 pnpm check-all
+
+# Run full Playwright End-to-End test suite
+pnpm -C ui test:e2e
 ```
 
 ---
 
-## Testing & Verification
+## Release Packaging
 
-### Backend Tests
-```bash
-cargo test
-cargo clippy -- -D warnings
-cargo fmt --check
-```
+To build the release packages on Windows:
 
-### Frontend Tests
 ```bash
-cd ui
-pnpm test
-pnpm lint
-pnpm typecheck
-pnpm build
+# 1. Verify version consistency across Cargo.toml, tauri.conf.json, and package.json
+node scripts/check-version.mjs
+
+# 2. Build release binary and NSIS installer
+pnpm tauri build
+
+# 3. Create Windows Portable ZIP
+# Generates target/ExamPanel-0.1.0-windows-x64-portable.zip
+# Containing ExamPanel.exe, ExamPanel.portable marker, DOC-TOI.txt, and user guide.
 ```
 
 ---
 
-## License
-MIT OR Apache-2.0
+## Documentation
+
+- **Vietnamese User Guide:** [docs/user-guide/vi/01-bat-dau-nhanh.md](docs/user-guide/vi/01-bat-dau-nhanh.md)
+- **English User Guide:** [docs/user-guide/en/README.md](docs/user-guide/en/README.md)
+- **Release Manual Checklist:** [docs/release/v0.1.0-checklist.md](docs/release/v0.1.0-checklist.md)
+- **Architecture & ADRs:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DECISIONS.md](docs/DECISIONS.md)

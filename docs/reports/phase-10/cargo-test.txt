@@ -1,0 +1,292 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_core-f9cfb79fd29a0d4f.exe)
+
+running 77 tests
+test domain::entities::tests::test_lock_kind_string_and_serde ... ok
+test domain::ids::tests::test_id_serde_roundtrip ... ok
+test domain::entities::tests::test_role_string_and_serde ... ok
+test domain::entities::tests::test_panel_composition_constants ... ok
+test domain::entities::tests::test_rule_key_strings_and_serde ... ok
+test domain::entities::tests::test_rule_presets ... ok
+test domain::problem::tests::test_lock_unknown_teacher ... ok
+test domain::problem::tests::test_invalid_load_weight_error ... ok
+test domain::problem::tests::test_duplicate_exam_code_error ... ok
+test domain::ids::tests::test_id_display_and_conversion ... ok
+test domain::problem::tests::test_unavailability_unknown_exam ... ok
+test domain::problem::tests::test_unknown_campus_error ... ok
+test domain::problem::tests::test_valid_problem_passes ... ok
+test feasibility::maxflow::tests::test_dinic_basic_flow ... ok
+test feasibility::maxflow::tests::test_h4_exam_bottleneck_scenario ... ok
+test domain::problem::tests::test_problem_serde_roundtrip ... ok
+test feasibility::tests::test_degenerate_database_diagnostics ... ok
+test feasibility::tests::test_diagnostic_exam_capacity_bottleneck_under_h4 ... ok
+test feasibility::tests::test_diagnostic_insufficient_setters_and_reviewers ... ok
+test feasibility::tests::test_diagnostic_lock_conflict_and_excess_pins ... ok
+test feasibility::tests::test_diagnostic_insufficient_panel_teachers_and_campuses ... ok
+test feasibility::tests::test_diagnostic_capacity_and_warnings ... ok
+test feasibility::tests::test_diagnostic_excess_pinned_setters_and_reviewers_and_pins ... ok
+test feasibility::tests::test_diagnostic_pinned_campus_monopoly ... ok
+test feasibility::tests::test_diagnostic_pinned_teacher_ineligible_due_to_unavailability ... ok
+test feasibility::tests::test_diagnostic_pinned_quota_exceeded ... ok
+test feasibility::tests::test_diagnostic_pinned_teacher_multiple_panels ... ok
+test optimize::tests::bench_demo_200k_iterations ... ignored
+test feasibility::tests::test_valid_problem_feasibility ... ok
+test optimize::tests::bench_synthetic_40_200k_iterations ... ignored
+test feasibility::tests::test_diagnostic_structural_error ... ok
+test domain::problem::tests::test_canonical_hash_stability_under_reordering ... ok
+test domain::problem::tests::test_canonical_hash_changes_on_modification ... ok
+test optimize::eval_edit::tests::test_evaluate_swap_delta_matches_full_eval ... ok
+test optimize::tests::test_cancellation_stops_promptly ... ok
+test optimize::eval_edit::tests::test_evaluate_candidates_delta_matches_full_eval ... ok
+test optimize::tests::test_d1_incremental_state_consistency_synthetic_40_10k_moves ... ok
+test optimize::tests::test_d2_random_walk_hard_invariants_preserved ... ok
+test optimize::tests::test_d1_incremental_state_consistency_demo_10k_moves ... ok
+test score::bounds::tests::test_s6_exact_per_teacher_minimum_function ... ok
+test score::tests::test_lower_bounds_calculation ... ok
+test score::tests::test_s1_reviewer_count_violations ... ok
+test score::tests::test_s2_role_balance ... ok
+test optimize::tests::test_proptest_d1_incremental_state_consistency ... ok
+test score::tests::test_s3_independent_reviewer ... ok
+test score::tests::test_s4_setter_pair_repeated ... ok
+test score::tests::test_s5_review_relation_repeated ... ok
+test score::tests::test_s6_setter_consecutive ... ok
+test score::tests::test_s7_grade_rotation ... ok
+test score::tests::test_s8_load_deviation ... ok
+test optimize::tests::test_diversity_threshold_respected ... ok
+test solver::tests::test_performance_synthetic_40_teacher_instance ... ok
+test solver::tests::test_performance_timing_demo_seed ... ok
+test solver::tests::test_solve_demo_seed_returns_valid_solution ... ok
+test solver::tests::test_solver_determinism_and_multi_seed_variation ... ok
+test solver::tests::test_solver_stops_early_on_infeasible_problem ... ok
+test tests::test_core_version_returns_package_version ... ok
+test validate::tests::test_h1_duplicate_teacher_in_panel ... ok
+test validate::tests::test_h2_inactive_and_zero_weight ... ok
+test validate::tests::test_h2_unqualified_grade ... ok
+test validate::tests::test_h3_single_campus_panel ... ok
+test validate::tests::test_h4_multiple_panels_in_same_exam ... ok
+test validate::tests::test_h5_teacher_unavailable ... ok
+test validate::tests::test_h7_quota_exceeded_and_unmet ... ok
+test validate::tests::test_h6_forbid_and_pin_locks ... ok
+test validate::tests::test_valid_complete_assignment ... ok
+test validate::tests::test_partial_mode_permits_incomplete_panel ... ok
+test optimize::tests::test_proptest_d2_random_walk_hard_invariants ... ok
+test optimize::tests::test_pinned_slots_never_move ... ok
+test optimize::tests::test_improvement_over_solve_hard_demo_seed ... ok
+test optimize::tests::test_performance_timing_demo_default_run ... ok
+test optimize::tests::test_lower_bound_awareness_demo_seed ... ok
+test optimize::eval_edit::tests::test_reoptimize_keeps_slots_fixed_and_valid ... ok
+test optimize::tests::test_fairness_regression_demo_seed ... ok
+test optimize::tests::test_determinism_across_runs ... ok
+test solver::tests::test_exhaustive_cross_check_tiny_instances ... ok
+test score::bounds::tests::test_lower_bounds_validity_exhaustive_tiny_instances ... ok
+
+test result: ok. 75 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 35.89s
+
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_service-d14b502d15f45d2d.exe)
+
+running 4 tests
+test excel::normalize::tests::test_normalize_text_and_code ... ok
+test excel::normalize::tests::test_parse_load_weight ... ok
+test excel::normalize::tests::test_parse_boolean ... ok
+test excel::normalize::tests::test_parse_grade_codes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\excel_tests.rs (target\debug\deps\excel_tests-b11b0b7fe5829e38.exe)
+
+running 6 tests
+test test_transactional_apply_rollback_on_error ... ok
+test test_sync_mode_deactivates_omitted_teachers ... ok
+test test_template_generation_and_calamine_sheets ... ok
+test test_template_roundtrip_preview_and_apply ... ok
+test test_teacher_matching_and_ambiguity_detection ... ok
+test test_export_workbook_calamine_verification ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests\part_b_tests.rs (target\debug\deps\part_b_tests-d2e3be217a56e6be.exe)
+
+running 4 tests
+test test_part_a1_staleness_split_data_vs_rules ... ok
+test test_part_b_manual_editing_and_immutability ... ok
+test test_part_b_reoptimize_from_plan ... ok
+test test_part_b_plan_status_and_staleness ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests\pipeline_report_test.rs (target\debug\deps\pipeline_report_test-63e8c3d8820c72b5.exe)
+
+running 1 test
+test test_pipeline_report_zero_hard_violations_and_bounds_respected ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.20s
+
+     Running tests\service_tests.rs (target\debug\deps\service_tests-4ff5ffc08c2f603a.exe)
+
+running 12 tests
+test test_rule_presets_and_quota_preview ... ok
+test test_error_mapping ... ok
+test test_app_info_and_settings ... ok
+test test_feasibility_and_evaluation ... ok
+test test_lock_not_held_during_optimize_and_cancellation ... ok
+test test_busy_job_rejection ... ok
+test test_school_years_and_exams ... ok
+test test_exam_crud_and_reorder ... ok
+test test_unavailabilities_locks_and_rule_settings ... ok
+test test_campuses_and_grades_crud ... ok
+test test_teachers_and_grades ... ok
+test test_optimization_persistence_and_plan_crud ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests\trial_mode_tests.rs (target\debug\deps\trial_mode_tests-0db872fce897ab52.exe)
+
+running 2 tests
+test test_startup_error_classification ... ok
+test test_trial_mode_isolation_real_db_untouched ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_storage-bd8eff6c72555ba9.exe)
+
+running 25 tests
+test migrations::tests::test_migrations_rejects_higher_user_version ... ok
+test paths::tests::test_portable_marker_absent_defaults_to_installed ... ok
+test paths::tests::test_is_dir_writable_in_temp_dir ... ok
+test paths::tests::test_resolve_database_path_ends_with_db_filename ... ok
+test paths::tests::test_portable_marker_present_and_writable ... ok
+test paths::tests::test_portable_marker_read_only_folder ... ok
+test backup::tests::test_missing_table_rejection ... ok
+test backup::tests::test_corrupted_file_rejection ... ok
+test tests::test_open_in_memory_connection_succeeds ... ok
+test migrations::tests::test_migrations_fresh_db_reaches_latest_version ... ok
+test migrations::tests::test_migrations_idempotent ... ok
+test tests::test_locks_lock_id_delete_and_unique_expression_index ... ok
+test migrations::tests::test_upgrade_from_v1_to_v4_preserves_data ... ok
+test tests::test_migrations_and_idempotency ... ok
+test tests::test_partial_unique_indexes ... ok
+test tests::test_fk_and_check_constraints ... ok
+test migrations::tests::test_upgrade_from_v3_to_v4_backfills_data_hash_and_drops_problem_hash ... ok
+test tests::test_create_school_year_and_copy_teacher_grades ... ok
+test backup::tests::test_newer_user_version_rejection ... ok
+test backup::tests::test_backup_and_restore_roundtrip ... ok
+test tests::test_save_and_load_plan_roundtrip ... ok
+test tests::test_seed_demo_and_load_problem_validation ... ok
+test tests::test_protect_historical_plans_on_delete_restrict ... ok
+test tests::test_plan_batch_operations_and_methods ... ok
+test backup::tests::test_restore_reopens_connection_on_file_store ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+   Doc-tests exam_panel_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests exam_panel_service
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests exam_panel_storage
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling phf_macros v0.13.1
+   Compiling schemars v0.8.22
+   Compiling windows-sys v0.61.2
+   Compiling log v0.4.34
+   Compiling windows-core v0.62.2
+   Compiling time v0.3.55
+   Compiling miniz_oxide v0.9.1
+   Compiling miniz_oxide v0.8.9
+   Compiling tracing-core v0.1.36
+   Compiling serialize-to-javascript v0.1.2
+   Compiling ts-rs-macros v12.0.1
+   Compiling windows_x86_64_msvc v0.53.1
+   Compiling windows-targets v0.53.5
+   Compiling windows-numerics v0.3.1
+   Compiling windows-future v0.3.2
+   Compiling windows-collections v0.3.2
+   Compiling flate2 v1.1.10
+   Compiling tracing v0.1.44
+   Compiling zopfli v0.8.3
+   Compiling rusqlite v0.32.1
+   Compiling png v0.17.16
+   Compiling png v0.18.1
+   Compiling windows-sys v0.60.2
+   Compiling windows v0.62.2
+   Compiling phf v0.13.1
+   Compiling web_atoms v0.2.6
+   Compiling cssparser v0.37.0
+   Compiling zip v2.4.2
+   Compiling plist v1.10.1
+   Compiling cookie v0.18.2
+   Compiling markup5ever v0.39.0
+   Compiling selectors v0.38.0
+   Compiling ico v0.5.0
+   Compiling html5ever v0.39.0
+   Compiling ts-rs v12.0.1
+   Compiling zip v8.6.0
+   Compiling calamine v0.26.1
+   Compiling rfd v0.16.0
+   Compiling fern v0.7.1
+   Compiling dom_query v0.28.0
+   Compiling exam-panel-core v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\core)
+   Compiling rust_xlsxwriter v0.99.1
+   Compiling winapi-util v0.1.11
+   Compiling softbuffer v0.4.8
+   Compiling tauri-utils v2.10.1
+   Compiling mio v1.2.3
+   Compiling socket2 v0.6.5
+   Compiling same-file v1.0.6
+   Compiling dirs-sys v0.5.0
+   Compiling walkdir v2.5.0
+   Compiling tokio v1.53.1
+   Compiling dirs v7.0.0
+   Compiling muda v0.20.0
+   Compiling window-vibrancy v0.8.1
+   Compiling exam-panel-storage v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\storage)
+   Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
+   Compiling tauri-build v2.7.1
+   Compiling tauri-plugin v2.7.1
+   Compiling tauri-codegen v2.7.1
+   Compiling tauri v2.12.1
+   Compiling tauri-macros v2.7.1
+   Compiling tauri-plugin-fs v2.6.0
+   Compiling tauri-plugin-dialog v2.8.1
+   Compiling tauri-plugin-log v2.10.0
+   Compiling tauri-plugin-window-state v2.5.0
+   Compiling tauri-plugin-opener v2.7.0
+   Compiling exam-panel-app v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\src-tauri)
+   Compiling webview2-com-sys v0.39.1
+   Compiling tao v0.37.1
+   Compiling webview2-com v0.39.1
+   Compiling wry v0.57.0
+   Compiling tauri-runtime v2.12.1
+   Compiling tauri-runtime-wry v2.12.1
+   Compiling tauri-plugin-single-instance v2.5.2
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 23s
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_app-df5c5194bf3cb281.exe)
+
+running 1 test
+test tests::test_ping_returns_expected_format ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\main.rs (target\debug\deps\exam_panel_app-5128c77594ab616a.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests exam_panel_app
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

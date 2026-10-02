@@ -1,0 +1,7 @@
+Checking version consistency (Source of truth: Cargo.toml = 0.1.0):
+  - Cargo.toml:             0.1.0
+  - src-tauri/tauri.conf:   0.1.0
+  - ui/package.json:        0.1.0
+  - package.json:           0.1.0
+
+Version consistency verified: 0.1.0 matches across all configuration files.
