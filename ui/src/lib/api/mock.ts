@@ -1654,6 +1654,43 @@ export class MockExamPanelApi implements ExamPanelApi {
           errors: [],
         },
       ],
+      subjects: [
+        {
+          row_index: 2,
+          status: 'new',
+          code: 'VL',
+          name: 'Vật lí',
+          setters: 2,
+          reviewers: 1,
+          min_campuses: 2,
+          color: '#2563EB',
+          errors: [],
+        },
+        {
+          row_index: 3,
+          status: 'new',
+          code: 'CN',
+          name: 'Công nghệ',
+          setters: 1,
+          reviewers: 1,
+          min_campuses: 2,
+          color: '#10B981',
+          errors: [],
+        },
+      ],
+      competencies: [
+        {
+          row_index: 2,
+          status: 'new',
+          teacher_ref: 'GV001',
+          subject_code: 'VL',
+          role: 'Cả hai',
+          grade_scope: 'Theo khối dạy',
+          matched_teacher_id: BigInt(1),
+          matched_subject_id: null,
+          errors: [],
+        },
+      ],
       campuses_summary: {
         new_count: 1,
         update_count: 0,
@@ -1667,6 +1704,18 @@ export class MockExamPanelApi implements ExamPanelApi {
         error_count: 0,
       },
       unavailabilities_summary: {
+        new_count: 1,
+        update_count: 0,
+        unchanged_count: 0,
+        error_count: 0,
+      },
+      subjects_summary: {
+        new_count: 2,
+        update_count: 0,
+        unchanged_count: 0,
+        error_count: 0,
+      },
+      competencies_summary: {
         new_count: 1,
         update_count: 0,
         unchanged_count: 0,
@@ -1706,6 +1755,9 @@ export class MockExamPanelApi implements ExamPanelApi {
       teachers_updated: preview.teachers_summary.update_count,
       teachers_deactivated: preview.deactivated_teachers.length,
       unavailabilities_created: preview.unavailabilities_summary.new_count,
+      subjects_created: preview.subjects_summary.new_count,
+      subjects_updated: preview.subjects_summary.update_count,
+      competencies_created: preview.competencies_summary.new_count,
     }
   }
 

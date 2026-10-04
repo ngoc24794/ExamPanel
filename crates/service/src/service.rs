@@ -1277,6 +1277,12 @@ impl AppService {
         Ok(())
     }
 
+    pub fn generate_q_sample_template_v2(&self, target_path: &Path) -> Result<(), AppError> {
+        crate::excel::template::generate_q_sample_template_v2(target_path)
+            .map_err(|e| AppError::internal(format!("Lỗi tạo biểu mẫu mẫu Q: {e}")))?;
+        Ok(())
+    }
+
     pub fn preview_import(
         &self,
         school_year_id: SchoolYearId,

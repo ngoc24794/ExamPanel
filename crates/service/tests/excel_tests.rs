@@ -23,11 +23,13 @@ fn test_template_generation_and_calamine_sheets() {
         open_workbook_auto(&template_path).expect("open template workbook");
     let names = workbook.sheet_names().to_vec();
 
-    assert_eq!(names.len(), 4);
+    assert_eq!(names.len(), 6);
     assert_eq!(names[0], "Hướng dẫn");
     assert_eq!(names[1], "Phân hiệu");
     assert_eq!(names[2], "Giáo viên");
     assert_eq!(names[3], "Lịch vắng");
+    assert_eq!(names[4], "Môn");
+    assert_eq!(names[5], "Môn đảm nhiệm");
 
     // Verify headers on "Phân hiệu"
     let range_campuses = workbook.worksheet_range("Phân hiệu").unwrap();
@@ -523,10 +525,14 @@ fn test_transactional_apply_rollback_on_error() {
             load_weight: 1.0,
             active: true,
             note: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
             matched_teacher_id: None,
             errors: Vec::new(),
         }],
         unavailabilities: Vec::new(),
+        subjects: Vec::new(),
+        competencies: Vec::new(),
         campuses_summary: exam_panel_service::dto::ImportSummaryCounts {
             new_count: 1,
             update_count: 0,
@@ -545,6 +551,8 @@ fn test_transactional_apply_rollback_on_error() {
             unchanged_count: 0,
             error_count: 0,
         },
+        subjects_summary: exam_panel_service::dto::ImportSummaryCounts::default(),
+        competencies_summary: exam_panel_service::dto::ImportSummaryCounts::default(),
         deactivated_teachers: Vec::new(),
         feasibility_report: None,
     };
@@ -759,4 +767,75 @@ fn test_export_q_plan_golden_calamine() {
     let report_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../docs/reports/phase-12/export-structure.txt");
     let _ = std::fs::write(&report_path, report_output);
+}
+
+#[test]
+fn test_q_sample_template_v2_generation_and_import() {
+    let service = AppService::open_in_memory().unwrap();
+    let sy = service
+        .create_school_year(CreateSchoolYearInput {
+            name: "2026-2027".to_string(),
+            is_current: true,
+            copy_grades_from: None,
+        })
+        .unwrap();
+
+    let report_dir =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/reports/phase-12");
+    std::fs::create_dir_all(&report_dir).unwrap();
+    let sample_xlsx = report_dir.join("template-v2-q-sample.xlsx");
+
+    // 1. Generate Q sample template v2
+    service
+        .generate_q_sample_template_v2(&sample_xlsx)
+        .expect("generate Q sample template v2");
+    assert!(sample_xlsx.exists());
+
+    // 2. Preview import
+    let preview = service
+        .preview_import(sy.id, &sample_xlsx, "upsert")
+        .expect("preview Q sample import");
+
+    assert!(preview.can_apply, "preview should be valid and applicable");
+    assert_eq!(preview.campuses.len(), 4);
+    assert_eq!(preview.teachers.len(), 12);
+    assert_eq!(preview.subjects.len(), 2);
+    assert_eq!(preview.competencies.len(), 23);
+
+    // Verify feasibility simulation
+    assert!(preview.feasibility_report.is_some());
+    let feas = preview.feasibility_report.as_ref().unwrap();
+    assert!(
+        feas.report.is_feasible,
+        "Q sample template v2 must be 100% feasible, errors: {:?}",
+        feas.report.errors
+    );
+    assert_eq!(feas.report.errors.len(), 0);
+
+    // 3. Apply import
+    let apply_res = service
+        .apply_import(sy.id, &preview)
+        .expect("apply Q sample import");
+
+    assert_eq!(apply_res.campuses_created, 4);
+    assert_eq!(apply_res.teachers_created, 12);
+
+    // 4. Verify entities in database
+    let teachers = service.list_teachers().unwrap();
+    assert_eq!(teachers.len(), 12);
+
+    let t_nghia = teachers
+        .iter()
+        .find(|t| t.full_name == "Trương Văn Nghĩa")
+        .expect("T Nghĩa exists");
+    assert_eq!(t_nghia.display_name.as_deref(), Some("T Nghĩa"));
+    assert_eq!(t_nghia.quota_override, Some(12));
+    assert_eq!(t_nghia.max_tasks_per_exam_override, Some(3));
+
+    let c_qui = teachers
+        .iter()
+        .find(|t| t.full_name == "Bùi Thị Quí")
+        .expect("C Quí exists");
+    assert_eq!(c_qui.display_name.as_deref(), Some("C Quí"));
+    assert_eq!(c_qui.max_tasks_per_exam_override, Some(3));
 }

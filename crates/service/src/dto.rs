@@ -452,6 +452,8 @@ pub struct TeacherImportRow {
     pub load_weight: f64,
     pub active: bool,
     pub note: Option<String>,
+    pub quota_override: Option<u32>,
+    pub max_tasks_per_exam_override: Option<u32>,
     pub matched_teacher_id: Option<i64>,
     pub errors: Vec<ImportCellError>,
 }
@@ -469,6 +471,34 @@ pub struct UnavailabilityImportRow {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct SubjectImportRow {
+    pub row_index: usize,
+    pub status: ImportRowStatus,
+    pub code: String,
+    pub name: String,
+    pub setters: u8,
+    pub reviewers: u8,
+    pub min_campuses: u8,
+    pub color: String,
+    pub errors: Vec<ImportCellError>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct CompetencyImportRow {
+    pub row_index: usize,
+    pub status: ImportRowStatus,
+    pub teacher_ref: String,
+    pub subject_code: String,
+    pub role: String,
+    pub grade_scope: String,
+    pub matched_teacher_id: Option<i64>,
+    pub matched_subject_id: Option<i64>,
+    pub errors: Vec<ImportCellError>,
+}
+
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct ImportSummaryCounts {
     pub new_count: usize,
@@ -494,9 +524,13 @@ pub struct ImportPreviewResult {
     pub campuses: Vec<CampusImportRow>,
     pub teachers: Vec<TeacherImportRow>,
     pub unavailabilities: Vec<UnavailabilityImportRow>,
+    pub subjects: Vec<SubjectImportRow>,
+    pub competencies: Vec<CompetencyImportRow>,
     pub campuses_summary: ImportSummaryCounts,
     pub teachers_summary: ImportSummaryCounts,
     pub unavailabilities_summary: ImportSummaryCounts,
+    pub subjects_summary: ImportSummaryCounts,
+    pub competencies_summary: ImportSummaryCounts,
     pub deactivated_teachers: Vec<DeactivatedTeacherPreview>,
     pub feasibility_report: Option<FeasibilityReportWithQuotas>,
 }
@@ -511,6 +545,9 @@ pub struct ImportApplyResult {
     pub teachers_updated: usize,
     pub teachers_deactivated: usize,
     pub unavailabilities_created: usize,
+    pub subjects_created: usize,
+    pub subjects_updated: usize,
+    pub competencies_created: usize,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -658,6 +695,8 @@ pub fn generate_typescript_declarations() -> String {
     export_type!(CampusImportRow);
     export_type!(TeacherImportRow);
     export_type!(UnavailabilityImportRow);
+    export_type!(SubjectImportRow);
+    export_type!(CompetencyImportRow);
     export_type!(ImportSummaryCounts);
     export_type!(DeactivatedTeacherPreview);
     export_type!(ImportPreviewResult);
