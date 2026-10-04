@@ -50,7 +50,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("solve_hard Summary (5 runs):");
     println!("  - Min:    {:.3} ms", solve_min);
     println!("  - Median: {:.3} ms", solve_med);
-    println!("  - Max:    {:.3} ms\n", solve_max);
+    println!("  - Max:    {:.3} ms", solve_max);
+    println!("  - Target: <= 50.0 ms");
+    if solve_med <= 50.0 {
+        println!(
+            "  - Status: PASSED (median {:.3} ms <= 50.0 ms target)\n",
+            solve_med
+        );
+    } else {
+        println!(
+            "  - Status: EXCEEDS 50ms TARGET (measured: {:.3} ms)\n",
+            solve_med
+        );
+    }
 
     // -------------------------------------------------------------------------
     // 2. optimize Benchmark: R = 8 runs, 200,000 iterations each (3 runs)
@@ -92,23 +104,66 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opt_min = opt_times.first().unwrap().as_secs_f64();
     let opt_med = opt_times[opt_times.len() / 2].as_secs_f64();
     let opt_max = opt_times.last().unwrap().as_secs_f64();
+    let med_throughput = 1_600_000.0 / opt_med;
     println!("\noptimize Summary (3 runs of 8 x 200k iterations):");
-    println!("  - Min:    {:.3} s", opt_min);
-    println!("  - Median: {:.3} s", opt_med);
-    println!("  - Max:    {:.3} s", opt_max);
-    println!("  - Target: 1.500 s");
+    println!("  - Min:        {:.3} s", opt_min);
+    println!("  - Median:     {:.3} s", opt_med);
+    println!("  - Max:        {:.3} s", opt_max);
+    println!("  - Throughput: {:.0} it/s", med_throughput);
+    println!("  - Target:     1.500 s");
 
     if opt_med <= 1.5 {
         println!(
-            "  - Status: PASSED (median {:.3} s <= 1.5 s target)",
+            "  - Status: PASSED (median {:.3} s <= 1.5 s target)\n",
             opt_med
         );
     } else {
         println!(
-            "  - Status: EXCEEDS 1.5s TARGET (measured median: {:.3} s; proposed target: {:.2} s)",
+            "  - Status: EXCEEDS 1.5s TARGET (measured median: {:.3} s; proposed target: {:.2} s)\n",
             opt_med,
             (opt_med * 1.2).ceil()
         );
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. Calamine Import Benchmark (5 runs)
+    // -------------------------------------------------------------------------
+    println!("## 3. Stage 3: Calamine Excel Import Benchmark (5 runs)");
+    let sample_xlsx = std::path::Path::new("docs/reports/phase-12/template-v2-q-sample.xlsx");
+    if sample_xlsx.exists() {
+        use calamine::{open_workbook_auto, Reader, Sheets};
+        use std::fs::File;
+        use std::io::BufReader;
+
+        let mut cal_times = Vec::new();
+        for i in 1..=5 {
+            let start = Instant::now();
+            let mut workbook: Sheets<BufReader<File>> = open_workbook_auto(sample_xlsx)?;
+            let mut total_cells = 0;
+            for sheet_name in workbook.sheet_names() {
+                if let Ok(range) = workbook.worksheet_range(&sheet_name) {
+                    total_cells += range.get_size().0 * range.get_size().1;
+                }
+            }
+            let elapsed = start.elapsed();
+            cal_times.push(elapsed);
+            println!(
+                "  - Run {}: {:.3} ms ({} cells read across all sheets)",
+                i,
+                elapsed.as_secs_f64() * 1000.0,
+                total_cells
+            );
+        }
+        cal_times.sort();
+        let cal_min = cal_times.first().unwrap().as_secs_f64() * 1000.0;
+        let cal_med = cal_times[cal_times.len() / 2].as_secs_f64() * 1000.0;
+        let cal_max = cal_times.last().unwrap().as_secs_f64() * 1000.0;
+        println!("\nCalamine Import Summary (5 runs):");
+        println!("  - Min:    {:.3} ms", cal_min);
+        println!("  - Median: {:.3} ms", cal_med);
+        println!("  - Max:    {:.3} ms", cal_max);
+    } else {
+        println!("  (Sample xlsx not found, skipping calamine benchmark)");
     }
 
     Ok(())
