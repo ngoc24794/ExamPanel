@@ -130,6 +130,9 @@ pub struct IncrementalState {
     pub reviewer_subject_competent: Vec<Vec<bool>>, // [t][s]
     pub teacher_subject_reviews: Vec<Vec<usize>>,   // [t][s]
 
+    // Available exams per teacher for S9 offset
+    pub teacher_available_exams: Vec<usize>,
+
     // Sorted exam indices for S6 consecutive setting
     pub sorted_exam_indices: Vec<usize>,
 
@@ -590,6 +593,20 @@ impl IncrementalState {
             panel_min_campuses.push(sub.min_campuses);
         }
 
+        let mut teacher_available_exams = vec![0usize; num_teachers];
+        for (t_idx, t) in problem.teachers.iter().enumerate() {
+            teacher_available_exams[t_idx] = problem
+                .exams
+                .iter()
+                .filter(|e| {
+                    !problem
+                        .unavailabilities
+                        .iter()
+                        .any(|u| u.teacher_id == t.id && u.exam_id == e.id)
+                })
+                .count();
+        }
+
         // Initialize counters
         let mut state = Self {
             teacher_ids,
@@ -635,6 +652,7 @@ impl IncrementalState {
             review_relations: vec![vec![0; num_teachers]; num_teachers],
             reviewer_subject_competent,
             teacher_subject_reviews: vec![vec![0; num_subjects]; num_teachers],
+            teacher_available_exams,
             sorted_exam_indices,
             current_units: [0.0; 10],
             current_penalty: 0.0,

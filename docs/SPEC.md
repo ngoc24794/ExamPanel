@@ -121,48 +121,46 @@ All hard constraints must be strictly satisfied for a plan to be valid.
   Then clamp $\text{hi}_t$ to the maximum achievable: $\text{hi}_t \le \text{availability}_t$ when H4 is enabled (and $\le D$). A teacher with $w'_t = 0$ has $\text{lo}_t = \text{hi}_t = 0$.
 - *Note:* $k = 0$ is the strictest fair setting. Phase 4 adds a soft "load deviation" penalty that pulls each teacher toward $q_t$ even when $k \ge 1$.
 
-### 3.2 Soft Constraints (S1–S8)
+### 3.2 Soft Constraints (S1–S10)
 Soft constraints guide schedule quality and optimization. Each constraint can be individually enabled/disabled and configured with a penalty weight $W \ge 0$.
 All counts are evaluated over a complete school year plan. "Unit" = one incident; weighted penalty = weight $\times$ units. Each rule emits stable violation codes for user explanations.
 
 | Code | Constraint Name | Description | Default Weight | Violation Codes | Formal Unit Metric |
 |------|-----------------|-------------|----------------|-----------------|---------------------|
-| **S1** | Reviewer Count | Reviewer assignments for eligible teachers with quota $q_t \ge 1$. | `10.0` | `reviewer_never`, `reviewer_too_many` | For each teacher with $q_t \ge 1$ eligible as reviewer: $(1 \text{ if reviews } = 0) + \max(0, \text{reviews} - 2)$. Params: $\min = 1, \max = 2$. |
-| **S2** | Role Balance | Ratio of reviewer tasks to total tasks ($1/3$). | `3.0` | `role_imbalance` | For each teacher with $count_t \ge 2$, let $lo = \lfloor count_t / 3 \rfloor, hi = \lceil count_t / 3 \rceil$: distance from $reviews_t$ to $[lo, hi]$ (0 when inside). |
+| **S1** | Reviewer Count | Reviewer assignments for eligible teachers with quota $q_t \ge 1$. | `10.0` | `reviewer_never`, `reviewer_too_many` | For each teacher with $q_t \ge 1$ eligible as reviewer: $(1 \text{ if reviews } = 0) + \max(0, \text{reviews} - \text{max\_reviews})$. |
+| **S2** | Role Balance | Ratio of reviewer tasks to total tasks ($\rho = \text{reviewer\_seats} / \text{total\_seats}$). | `3.0` | `role_imbalance` | For each teacher with $c'_t \ge 2$, let $lo = \lfloor c'_t \times \rho \rfloor, hi = \lceil c'_t \times \rho \rceil$: distance from $r'_t$ to $[lo, hi]$ (0 when inside). |
 | **S3** | Independent Reviewer | Reviewer should not share campus with panel setters. | `4.0` | `reviewer_same_campus` | Per panel: number of setters sharing the reviewer's campus ($0 \dots 2$). |
 | **S4** | Repeated Setter Pair | Distinctness of setter co-author pairs. | `6.0` | `setter_pair_repeated` | Per unordered setter pair $\{A, B\}$: $\max(0, \text{times\_together} - 1)$. |
 | **S5** | Repeated Review Relation | Diversity of directed reviewer-to-author oversight. | `6.0` | `review_relation_repeated` | Per ordered pair $(\text{reviewer } A, \text{setter } B)$: $\max(0, \text{times} - 1)$. |
-| **S6** | Consecutive Setting | Rest periods between heavy authoring duties across adjacent exams. | `2.0` | `setter_consecutive` | Per teacher, per pair of consecutive exams (by sort_order) where teacher is a SETTER in both: $1\text{ unit}$. |
+| **S6** | Consecutive Setting | Rest periods between heavy authoring duties across adjacent exams. | `2.0` | `setter_consecutive` | Per teacher, per pair of consecutive exams (by sort_order) where teacher is a non-forced SETTER in both: $1\text{ unit}$. |
 | **S7** | Grade Rotation | Grade variety for multi-grade instructors. | `1.0` | `grade_not_rotated` | For teachers teaching $\ge 2$ grades in the year: $\max(0, \min(count_t, \|\text{grades}_t\|) - \text{distinct\_grades\_assigned}_t)$. |
-| **S8** | Load Balance | Deviation from ideal availability-scaled quota $q_t$. | `8.0` | `load_deviation` | Per teacher: $(count_t - q_t)^2$. Pulls toward fair target even under H7 tolerance $k \ge 1$. |
+| **S8** | Load Balance | Deviation from ideal quota $q_t$ under quota v2. | `8.0` | `load_deviation` | Per teacher: $(c'_t - q'_t)^2$ for non-forced teachers. Pulls toward fair target even under H7 tolerance. |
+| **S9** | Avoidable Exam Crowding | Multi-task clustering in the same exam period beyond unavoidable quota overflow. | `5.0` | `exam_crowding` | Per teacher: $\text{avoidable}_t = \text{crowding}_t - \max(0, c_t - m_t)$, where $\text{crowding}_t = \sum_e \max(0, k_{t,e} - 1)$, $c_t = \sum_e k_{t,e}$ non-forced tasks, and $m_t$ is available exams count. |
+| **S10** | Review Subject Missing | Breadth of review oversight across all subjects taught/competent. | `4.0` | `review_subject_missing` | For each teacher with $q_t \ge 1$ and reviewer competency in subject $s$: $+1$ unit if assigned 0 reviews in subject $s$. |
 
 ### 3.3 Provable Lower Bounds
 To inform human coordinators when schedule quality cannot be improved further, provable mathematical lower bounds are computed per rule:
-- **S1 (Reviewer Capacity Pigeonhole):** Total reviewer slots $P = \text{exams} \times \text{grades}$. If eligible reviewers $N_{rev} > P$, at least $N_{rev} - P$ teachers cannot receive a review assignment (`reviewer_never`). If $P > 2 N_{rev}$, at least $P - 2 N_{rev}$ assignments exceed the maximum threshold of 2 (`reviewer_too_many`). Bound: $\max(0, N_{rev} - P) + \max(0, P - 2 N_{rev})$.
+- **S1 (Reviewer Capacity Pigeonhole):** Total reviewer slots $P = \text{non-forced reviewer seats}$. If eligible reviewers $N_{rev} > P$, at least $N_{rev} - P$ teachers cannot receive a review assignment (`reviewer_never`). If $P > \text{max\_reviews} \times N_{rev}$, at least $P - \text{max\_reviews} \times N_{rev}$ assignments exceed the maximum threshold (`reviewer_too_many`). Bound: $\max(0, N_{rev} - P) + \max(0, P - \text{max\_reviews} \times N_{rev})$.
 - **S6 (Setter Consecutive Pigeonhole):** With $E$ exams, a teacher can set at most $\lceil E/2 \rceil$ times without being assigned in adjacent exams. For $s_t$ setter assignments, the minimum unavoidable adjacent pairs is $\max(0, 2 s_t - E - 1)$.
-  *Proof:* Any subset of $s_t$ exams out of $E$ decomposes into $k$ contiguous runs of setters. The number of adjacent pairs is $\sum_j (r_j - 1) = s_t - k$. Since there must be at least one non-setting exam between every pair of runs, the number of non-setting exams $E - s_t \ge k - 1 \implies k \le E - s_t + 1$. Also $k \le s_t$. Hence $k_{max} = \min(s_t, E - s_t + 1)$. Minimizing adjacent pairs yields $A_{min}(s_t, E) = s_t - k_{max} = \max(0, 2 s_t - E - 1)$.
-  Specifically for $E = 4$:
-  - $s_t \le 2$: 0 adjacent pairs (e.g., exams 1 and 3).
-  - $s_t = 3$: $\ge 1$ adjacent pair ($\max(0, 2 \times 3 - 4 - 1) = 1$).
-  - $s_t = 4$: 3 adjacent pairs ($\max(0, 2 \times 4 - 4 - 1) = 3$ because all 3 adjacent pairs (1,2), (2,3), (3,4) are unavoidably present).
-  *(Note: A naive heuristic $\max(0, k - 2)$ would incorrectly predict $4 - 2 = 2$ for $k = 4$, whereas the exact bound is 3).*
-  The aggregate lower bound is determined by greedily allocating total setter slots $S_{total} = 2 \times \text{panels}$ across teachers up to their setter capacities $cap_t = \min(hi_t, \text{eligible setter exams})$ minimizing $\sum_t \max(0, 2 s_t - E - 1)$. On the 11-teacher, 4-exam benchmark ($S_{total} = 24$), 11 teachers take 2 slots with 0 adjacent pairs ($11 \times 2 = 22$), forcing at least 2 teachers to take 3 slots ($2 \times 3 - 4 - 1 = 1$ pair each). Thus, this lower bound is provably 2.0 (while additional coupling constraints in practice may result in 3 teachers having 3 tasks, giving optimum $\ge 3$).
-- **S8 (Discrete Optimal Load Balance):** The exact global minimum of $\sum_t (c_t - q_t)^2$ subject to $\sum c_t = D$ and $lo_t \le c_t \le hi_t$ is computed via greedy marginal-cost allocation over separable convex objectives. On the demo benchmark, this global discrete minimum is exactly $\approx 2.60$.
-- **S2, S3, S4, S5, S7:** 0.0 unless proved otherwise by counting arguments.
+  The aggregate lower bound is determined by greedily allocating total setter slots across teachers up to their setter capacities minimizing adjacent setter pairs.
+- **S8 (Discrete Optimal Load Balance):** The exact global minimum of $\sum_t (c'_t - q'_t)^2$ subject to $\sum c'_t = D'$ and $lo_t \le c'_t \le hi_t$ is computed via greedy marginal-cost allocation over separable convex objectives.
+- **S9 (Avoidable Exam Crowding):** 0.0 lower bound, since any teacher with $c_t$ tasks can theoretically achieve $\text{crowding}_t = \max(0, c_t - m_t)$ when tasks are distributed evenly across all $m_t$ available exams.
+- **S10 (Review Subject Coverage):** 0.0 lower bound whenever non-forced reviewer capacity suffices for each reviewer-competent teacher to receive $\ge 1$ review per competent subject.
+- **S2, S3, S4, S5, S7:** 0.0 unless proved otherwise by instance-specific constraints.
 
 ### 3.4 Rule Presets
 ExamPanel defines three canonical rule weight presets in `crates/core` as the single source of truth:
 1. **Cân bằng (mặc định) / Balanced (Default):**
    Standard production balance between workload equality, team variety, and role health.
-   - S1: `10.0`, S2: `3.0`, S3: `4.0`, S4: `6.0`, S5: `6.0`, S6: `2.0`, S7: `1.0`, S8: `8.0`.
+   - S1: `10.0`, S2: `3.0`, S3: `4.0`, S4: `6.0`, S5: `6.0`, S6: `2.0`, S7: `1.0`, S8: `8.0`, S9: `5.0`, S10: `4.0`.
    - H4 enabled (`100.0`), H7 tolerance = `1` (`100.0`).
 2. **Ưu tiên công bằng khối lượng / Prioritize Workload Fairness:**
-   Raises S8 and S1 weights to emphasize exact quota adherence and strict reviewer task bounds.
-   - S1: `14.0`, S2: `3.0`, S3: `2.0`, S4: `3.0`, S5: `3.0`, S6: `2.0`, S7: `1.0`, S8: `16.0`.
+   Raises S8, S1, and S9 weights to emphasize exact quota adherence, reviewer task bounds, and exam pacing.
+   - S1: `12.0`, S2: `3.0`, S3: `4.0`, S4: `6.0`, S5: `6.0`, S6: `2.0`, S7: `1.0`, S8: `16.0`, S9: `8.0`, S10: `4.0`.
    - H4 enabled (`100.0`), H7 tolerance = `1` (`100.0`).
 3. **Ưu tiên đa dạng ê-kíp / Prioritize Team Diversity:**
-   Raises S4, S5, and S3 weights to eliminate repeated authoring pairings and repeated oversight relations.
-   - S1: `6.0`, S2: `3.0`, S3: `8.0`, S4: `12.0`, S5: `12.0`, S6: `2.0`, S7: `1.0`, S8: `4.0`.
+   Raises S4, S5, S3, and S10 weights to eliminate repeated authoring pairings, repeated oversight relations, and broaden subject review coverage.
+   - S1: `10.0`, S2: `3.0`, S3: `8.0`, S4: `12.0`, S5: `12.0`, S6: `2.0`, S7: `1.0`, S8: `6.0`, S9: `5.0`, S10: `6.0`.
    - H4 enabled (`100.0`), H7 tolerance = `1` (`100.0`).
 
 ---

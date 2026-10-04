@@ -209,27 +209,9 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
     let (s8_bound, _) = optimal_s8_allocation(problem, non_forced_slots);
 
     // -------------------------------------------------------------------------
-    // S9: Exam crowding pigeonhole
+    // S9: Avoidable exam crowding lower bound (0.0 under even distribution)
     // -------------------------------------------------------------------------
-    let s9_bound = {
-        let mut total_available_pairs = 0usize;
-        for t in &problem.teachers {
-            if !t.active || t.load_weight <= 0.0 || t.quota_override.is_some() {
-                continue;
-            }
-            let is_competent = problem.competencies.iter().any(|c| c.teacher_id == t.id);
-            if !is_competent {
-                continue;
-            }
-            let avail = problem
-                .exams
-                .iter()
-                .filter(|e| !unavailabilities_set.contains(&(t.id, e.id)))
-                .count();
-            total_available_pairs += avail;
-        }
-        non_forced_slots.saturating_sub(total_available_pairs) as f64
-    };
+    let s9_bound = 0.0;
 
     // -------------------------------------------------------------------------
     // S10: Review subject missing

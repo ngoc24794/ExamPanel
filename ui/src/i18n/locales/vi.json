@@ -348,7 +348,7 @@
     "setter_consecutive": "Giáo viên {{teacher}} liên tiếp ra đề ở 2 kỳ thi liền kề ({{exam1}} và {{exam2}})",
     "grade_not_rotated": "Giáo viên {{teacher}} chỉ được phân công {{assigned}} khối lớp (mục tiêu xoay vòng: {{target}} khối)",
     "load_deviation": "Giáo viên {{teacher}} được giao {{count}} nhiệm vụ, lệch {{deviation}} so với chỉ tiêu {{quota}}",
-    "exam_crowding": "Giáo viên {{teacher}} đảm nhận {{count}} nhiệm vụ trong kỳ thi {{exam}} (vượt quá mức phân bổ đều)",
+    "exam_crowding": "Giáo viên {{teacher}} có {{avoidable}} nhiệm vụ dồn kỳ thi có thể tránh được (dồn {{crowding}}, bù trừ tất yếu {{offset}})",
     "review_subject_missing": "Giáo viên {{teacher}} có chuyên môn phản biện môn {{subject}} nhưng chưa được phân công phản biện môn này lần nào"
   },
   "errors": {

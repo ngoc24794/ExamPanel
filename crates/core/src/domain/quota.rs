@@ -397,6 +397,11 @@ mod tests {
             });
         }
 
+        let mut rule_settings = RuleSetting::default_settings();
+        if let Some(h4) = rule_settings.iter_mut().find(|r| r.key == RuleKey::H4) {
+            h4.params = serde_json::json!({ "max_tasks_per_exam": 1, "max_setter_per_exam": 1 });
+        }
+
         let problem = Problem {
             school_year: sy,
             campuses,
@@ -408,7 +413,7 @@ mod tests {
             competencies,
             unavailabilities: vec![],
             locks: vec![],
-            rule_settings: RuleSetting::default_settings(),
+            rule_settings,
         };
 
         let quotas = calculate_quotas(&problem);

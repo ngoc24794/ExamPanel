@@ -122,6 +122,12 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
         forced_set.contains(&(a.exam_id, a.grade_id, a.subject_id, a.role, a.teacher_id))
     };
 
+    let unavailabilities_set: HashSet<(TeacherId, crate::domain::ExamId)> = problem
+        .unavailabilities
+        .iter()
+        .map(|u| (u.teacher_id, u.exam_id))
+        .collect();
+
     // Map rule settings for quick lookup
     let rule_settings_map: HashMap<RuleKey, &crate::domain::RuleSetting> =
         problem.rule_settings.iter().map(|s| (s.key, s)).collect();
@@ -588,32 +594,52 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
     }
 
     // -------------------------------------------------------------------------
-    // S9: Exam Crowding
+    // S9: Exam Crowding (Avoidable multi-task crowding after unavoidable offset)
     // -------------------------------------------------------------------------
     let (s9_enabled, s9_weight) = get_rule_setting(RuleKey::S9, 5.0);
     let mut s9_units = 0.0;
 
-    for (&(tid, eid), &tasks) in &non_forced_exam_tasks {
-        if tasks > 1 {
-            let excess = (tasks - 1) as f64;
-            s9_units += excess;
-            let tname = teacher_map
-                .get(&tid)
-                .map(|t| t.full_name.clone())
-                .unwrap_or_default();
-            let ecode = exam_map
-                .get(&eid)
-                .map(|e| e.code.clone())
-                .unwrap_or_default();
+    for t in &problem.teachers {
+        if !t.active || t.load_weight <= 0.0 {
+            continue;
+        }
+
+        let m_t = problem
+            .exams
+            .iter()
+            .filter(|e| !unavailabilities_set.contains(&(t.id, e.id)))
+            .count();
+
+        let mut crowding_t = 0usize;
+        let mut c_t = 0usize;
+        for e in &problem.exams {
+            let tasks = non_forced_exam_tasks
+                .get(&(t.id, e.id))
+                .copied()
+                .unwrap_or(0);
+            c_t += tasks;
+            if tasks > 1 {
+                crowding_t += tasks - 1;
+            }
+        }
+
+        let offset = c_t.saturating_sub(m_t);
+        let avoidable_t = crowding_t.saturating_sub(offset);
+
+        if avoidable_t > 0 {
+            s9_units += avoidable_t as f64;
             let mut params = BTreeMap::new();
-            params.insert("teacher".to_string(), tname);
-            params.insert("exam".to_string(), ecode);
-            params.insert("count".to_string(), tasks.to_string());
+            params.insert("teacher".to_string(), t.full_name.clone());
+            params.insert("avoidable".to_string(), avoidable_t.to_string());
+            params.insert("crowding".to_string(), crowding_t.to_string());
+            params.insert("offset".to_string(), offset.to_string());
+            params.insert("tasks".to_string(), c_t.to_string());
+            params.insert("available_exams".to_string(), m_t.to_string());
             violations.push(SoftViolation {
                 rule: RuleKey::S9,
                 code: "exam_crowding".to_string(),
                 panel: None,
-                teachers: vec![tid],
+                teachers: vec![t.id],
                 params,
             });
         }
@@ -1882,5 +1908,197 @@ mod tests {
             .violations
             .iter()
             .any(|v| v.code == "load_deviation" && v.teachers == vec![TeacherId(1)]));
+    }
+
+    #[test]
+    fn test_s9_avoidable_crowding_q_plan_nocampus() {
+        use crate::domain::{make_canonical_q_problem, make_q_assignments, QVariant, TeacherId};
+        use crate::score::evaluate;
+
+        let problem = make_canonical_q_problem(QVariant::NoCampus);
+        let q_assignments = make_q_assignments();
+
+        let unavailabilities_set: std::collections::HashSet<(TeacherId, crate::domain::ExamId)> =
+            problem
+                .unavailabilities
+                .iter()
+                .map(|u| (u.teacher_id, u.exam_id))
+                .collect();
+
+        let forced = crate::domain::find_forced_placements(&problem).unwrap_or_default();
+        let mut forced_exam_tasks = std::collections::HashMap::new();
+        for fp in &forced {
+            *forced_exam_tasks
+                .entry((fp.teacher_id, fp.panel.exam_id))
+                .or_insert(0usize) += 1;
+        }
+
+        let mut non_forced_exam_tasks = std::collections::HashMap::new();
+        for a in &q_assignments {
+            let is_forced = forced.iter().any(|fp| {
+                fp.panel.exam_id == a.exam_id
+                    && fp.panel.grade_id == a.grade_id
+                    && fp.panel.subject_id == a.subject_id
+                    && fp.role == a.role
+                    && fp.position == a.position
+                    && fp.teacher_id == a.teacher_id
+            });
+            if !is_forced {
+                *non_forced_exam_tasks
+                    .entry((a.teacher_id, a.exam_id))
+                    .or_insert(0usize) += 1;
+            }
+        }
+
+        println!("\n=== Q's Plan S9 Breakdown per Teacher ===");
+        println!(
+            "{:<12} | {:<16} | {:<10} | {:<5} | {:<5} | {:<6} | {:<10} | {:<10}",
+            "Teacher",
+            "Tasks per Exam",
+            "Crowding",
+            "c_t",
+            "m_t",
+            "Offset",
+            "Avoidable",
+            "Idle Exams"
+        );
+        println!("{:-<90}", "");
+
+        let mut total_crowding = 0usize;
+        let mut total_offset = 0usize;
+        let mut total_avoidable = 0usize;
+        let mut total_idle_pairs = 0usize;
+
+        let mut t_nghia_avoidable = 0usize;
+        let mut c_hien_offset = 0usize;
+        let mut c_lai_offset = 0usize;
+        let mut c_qui_offset = 0usize;
+
+        for t in &problem.teachers {
+            let m_t = problem
+                .exams
+                .iter()
+                .filter(|e| !unavailabilities_set.contains(&(t.id, e.id)))
+                .count();
+
+            let mut tasks_per_exam = Vec::new();
+            let mut crowding_t = 0usize;
+            let mut c_t = 0usize;
+            let mut idle_t = 0usize;
+
+            for e in &problem.exams {
+                let tasks = non_forced_exam_tasks
+                    .get(&(t.id, e.id))
+                    .copied()
+                    .unwrap_or(0);
+                tasks_per_exam.push(tasks);
+                c_t += tasks;
+                if tasks > 1 {
+                    crowding_t += tasks - 1;
+                }
+                if tasks == 0 {
+                    idle_t += 1;
+                }
+            }
+
+            let offset = c_t.saturating_sub(m_t);
+            let avoidable_t = crowding_t.saturating_sub(offset);
+
+            if t.id == TeacherId(1) {
+                c_hien_offset = offset;
+            } else if t.id == TeacherId(2) {
+                c_lai_offset = offset;
+            } else if t.id == TeacherId(8) {
+                c_qui_offset = offset;
+            } else if t.id == TeacherId(12) {
+                t_nghia_avoidable = avoidable_t;
+            }
+
+            if t.id != TeacherId(12) {
+                total_crowding += crowding_t;
+                total_offset += offset;
+                total_avoidable += avoidable_t;
+                total_idle_pairs += idle_t;
+            }
+
+            let tasks_str = format!("{:?}", tasks_per_exam);
+            println!(
+                "{:<12} | {:<16} | {:<10} | {:<5} | {:<5} | {:<6} | {:<10} | {:<10}",
+                t.display_name.as_deref().unwrap_or(&t.full_name),
+                tasks_str,
+                crowding_t,
+                c_t,
+                m_t,
+                offset,
+                avoidable_t,
+                idle_t
+            );
+        }
+
+        println!("{:-<90}", "");
+        println!(
+            "Total (11 non-forced teachers): Crowding = {}, Offset = {}, Avoidable = {}, Idle Pairs = {}\n",
+            total_crowding, total_offset, total_avoidable, total_idle_pairs
+        );
+
+        // Assert exact values required by Phase 11.1
+        assert_eq!(total_crowding, 13, "Expected total crowding = 13");
+        assert_eq!(total_offset, 4, "Expected total offset = 4");
+        assert_eq!(c_hien_offset, 1, "C Hiền offset must be 1");
+        assert_eq!(c_lai_offset, 1, "C Lài offset must be 1");
+        assert_eq!(c_qui_offset, 2, "C Quí offset must be 2");
+        assert_eq!(total_avoidable, 9, "Expected total avoidable S9 units = 9");
+        assert_eq!(total_idle_pairs, 9, "Expected idle teacher-exam pairs = 9");
+        assert_eq!(
+            t_nghia_avoidable, 0,
+            "T Nghĩa must contribute 0 avoidable S9"
+        );
+
+        // Verify score evaluation reports 9 units for S9
+        let report = evaluate(&problem, &q_assignments);
+        let s9_score = report
+            .by_rule
+            .iter()
+            .find(|r| r.rule == crate::domain::RuleKey::S9)
+            .unwrap();
+        assert_eq!(
+            s9_score.units, 9.0,
+            "S9 rule units in ScoreReport must be 9.0"
+        );
+        assert_eq!(
+            s9_score.penalty, 45.0,
+            "S9 penalty (weight 5.0 * 9.0) must be 45.0"
+        );
+
+        // Structural minimum crowding plan:
+        // A plan where all teachers spread their tasks across exams so crowding equals offset.
+        // For four 5-task teachers: tasks [2, 1, 1, 1] -> crowding 1, offset 1, avoidable 0.
+        // For seven 4-task teachers: tasks [1, 1, 1, 1] -> crowding 0, offset 0, avoidable 0.
+        // Total crowding = 4, Total avoidable = 0.
+        // Let's optimize or construct:
+        let opt_res = crate::optimize::optimize(
+            &problem,
+            &crate::optimize::OptimizeOptions {
+                base_seed: 42,
+                num_runs: 2,
+                budget: crate::optimize::Budget::Iterations(50_000),
+                max_plans: 1,
+                initial_assignments: Some(q_assignments.clone()),
+                ..Default::default()
+            },
+        )
+        .expect("optimize min crowding");
+
+        let best_plan = &opt_res.plans[0];
+        let best_report = evaluate(&problem, &best_plan.assignments);
+        let best_s9 = best_report
+            .by_rule
+            .iter()
+            .find(|r| r.rule == crate::domain::RuleKey::S9)
+            .unwrap();
+        assert_eq!(
+            best_s9.units, 0.0,
+            "Optimizer reaching structural minimum crowding must get S9 = 0"
+        );
     }
 }

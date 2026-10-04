@@ -178,17 +178,22 @@ impl IncrementalState {
         diff * diff
     }
 
-    /// Evaluates S9 cost for a single teacher.
+    /// Evaluates S9 cost for a single teacher (avoidable crowding after offset max(0, c_t - m_t)).
     #[inline]
     pub fn eval_teacher_s9(&self, t: usize) -> f64 {
-        let mut u = 0.0;
+        let m_t = self.teacher_available_exams[t];
+        let mut crowding = 0usize;
+        let mut c_t = 0usize;
         for e in 0..self.exam_ids.len() {
             let tasks = self.teacher_exam_tasks[t][e].saturating_sub(self.forced_exam_tasks[t][e]);
+            c_t += tasks;
             if tasks > 1 {
-                u += (tasks - 1) as f64;
+                crowding += tasks - 1;
             }
         }
-        u
+        let offset = c_t.saturating_sub(m_t);
+        let avoidable = crowding.saturating_sub(offset);
+        avoidable as f64
     }
 
     /// Evaluates S10 cost for a single teacher.

@@ -348,7 +348,7 @@
     "setter_consecutive": "Teacher {{teacher}} is setter in consecutive exams ({{exam1}} and {{exam2}})",
     "grade_not_rotated": "Teacher {{teacher}} assigned to only {{assigned}} grade(s) (rotation target: {{target}} grades)",
     "load_deviation": "Teacher {{teacher}} assigned {{count}} tasks, deviating {{deviation}} from target quota {{quota}}",
-    "exam_crowding": "Teacher {{teacher}} holds {{count}} tasks in exam {{exam}} (exceeds even distribution)",
+    "exam_crowding": "Teacher {{teacher}} has {{avoidable}} avoidable crowded task(s) (crowding {{crowding}}, unavoidable offset {{offset}})",
     "review_subject_missing": "Teacher {{teacher}} is competent to review {{subject}} but is not assigned to review it"
   },
   "errors": {

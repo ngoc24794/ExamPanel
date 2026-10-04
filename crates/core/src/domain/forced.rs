@@ -140,6 +140,17 @@ pub fn find_forced_placements(problem: &Problem) -> Result<Vec<Placement>, Strin
         }
     }
 
+    // Check for excess PIN locks upfront before candidate availability checks
+    for (&(panel, role), &target_seats) in &seats_needed {
+        let current_count = assigned.get(&(panel, role)).map_or(0, |v| v.len());
+        if current_count > target_seats {
+            return Err(format!(
+                "Infeasible: Panel {:?} role {:?} has {} PIN locks exceeding seat count {}",
+                panel, role, current_count, target_seats
+            ));
+        }
+    }
+
     // 3. Fixpoint propagation
     loop {
         let mut changed = false;
