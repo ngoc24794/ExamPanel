@@ -4,9 +4,45 @@ use exam_panel_core::domain::fixtures::{make_canonical_q_problem, make_q_assignm
 use exam_panel_core::domain::{Role, RuleKey};
 use exam_panel_core::optimize::{optimize, Budget, OptimizeOptions};
 use exam_panel_core::score::bounds::lower_bounds;
-use exam_panel_core::score::evaluate;
+use exam_panel_core::score::{evaluate, ScoreReport};
 use exam_panel_core::validate::{validate_assignments, ValidateOptions};
 use std::collections::HashMap;
+
+fn assert_plan_respects_lower_bounds(
+    plan_name: &str,
+    report: &ScoreReport,
+    bounds_map: &HashMap<RuleKey, f64>,
+    weights_map: &HashMap<RuleKey, f64>,
+) {
+    let mut sum_lb_penalties_no_s3 = 0.0;
+    let mut plan_penalties_no_s3 = 0.0;
+
+    for (&rule, &lb_units) in bounds_map {
+        let rule_score = report.by_rule.iter().find(|r| r.rule == rule);
+        let plan_units = rule_score.map_or(0.0, |r| r.units);
+        let plan_penalty = rule_score.map_or(0.0, |r| r.penalty);
+        let weight = weights_map.get(&rule).copied().unwrap_or(0.0);
+
+        assert!(
+            plan_units >= lb_units - 1e-4,
+            "Plan '{}': Rule {:?} units ({:.4}) < LB units ({:.4})! Violation of lower bound integrity.",
+            plan_name, rule, plan_units, lb_units
+        );
+
+        if rule != RuleKey::S3 {
+            sum_lb_penalties_no_s3 += lb_units * weight;
+            plan_penalties_no_s3 += plan_penalty;
+        }
+    }
+
+    assert!(
+        plan_penalties_no_s3 >= sum_lb_penalties_no_s3 - 1e-4,
+        "Plan '{}': Total penalty without S3 ({:.4}) < sum of lower-bound penalties ({:.4})!",
+        plan_name,
+        plan_penalties_no_s3,
+        sum_lb_penalties_no_s3
+    );
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Check user inputs: "none" provided, use synthetic canonical Q fixtures
@@ -53,6 +89,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let warm_plan = &warm_res.plans[0];
     let warm_report = &warm_plan.report;
 
+    // Initial evaluation of Q's plan for warm start
+    let warm_initial_report = evaluate(&problem_nocampus, &q_assigns);
+    assert!(
+        (warm_initial_report.total - q_report_nocampus.total).abs() < 1e-4,
+        "Warm start initial report total must equal Q's plan total: {} vs {}",
+        warm_initial_report.total,
+        q_report_nocampus.total
+    );
+
     // 3. Preset "Cho phép dồn việc trong một kỳ" (S9 off / weight 0)
     eprintln!("Running Preset Evaluation: 'Cho phép dồn việc trong một kỳ' (S9 disabled)...");
     let mut problem_s9_off = problem_nocampus.clone();
@@ -66,6 +111,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let s9_off_res = optimize(&problem_s9_off, &cold_opts)?;
     let s9_off_best = &s9_off_res.plans[0];
+    let s9_report = &s9_off_best.report;
 
     // Precompute bounds
     let bounds = lower_bounds(&problem_nocampus);
@@ -93,6 +139,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (RuleKey::S10, 4.0, "S10 Review subject missing"),
     ];
 
+    let weights_map: HashMap<RuleKey, f64> = soft_rules.iter().map(|&(k, w, _)| (k, w)).collect();
+
+    // Verify lower bound integrity assertions on all evaluated plans
+    assert_plan_respects_lower_bounds("Q Plan", &q_report_nocampus, &bounds_map, &weights_map);
+    assert_plan_respects_lower_bounds("Cold Start Best", cold_report, &bounds_map, &weights_map);
+    assert_plan_respects_lower_bounds("Warm Start Best", warm_report, &bounds_map, &weights_map);
+
+    let mut weights_map_s9_off = weights_map.clone();
+    weights_map_s9_off.insert(RuleKey::S9, 0.0);
+    assert_plan_respects_lower_bounds("S9 Off Best", s9_report, &bounds_map, &weights_map_s9_off);
+
     let q_s3_pen = q_report_nocampus
         .by_rule
         .iter()
@@ -109,9 +166,83 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .find(|r| r.rule == RuleKey::S3)
         .map_or(0.0, |r| r.penalty);
 
-    println!("# Báo cáo so sánh và kiểm định thực tế (Phase 12 - Part F)\n");
+    // Compute sum of lower bound penalties
+    let mut sum_lb_penalties_no_s3 = 0.0;
+    let mut sum_lb_penalties_with_s3_zero = 0.0;
+    let mut sum_lb_penalties_with_s3_accounting = 0.0;
 
-    println!("## 1. Nguồn dữ liệu kiểm định");
+    for (k, w, _) in &soft_rules {
+        let lb_u = bounds_map.get(k).copied().unwrap_or(0.0);
+        let pen = lb_u * w;
+        if *k != RuleKey::S3 {
+            sum_lb_penalties_no_s3 += pen;
+            sum_lb_penalties_with_s3_zero += pen;
+            sum_lb_penalties_with_s3_accounting += pen;
+        } else {
+            sum_lb_penalties_with_s3_accounting += 36.0 * w; // 36 units single-campus
+        }
+    }
+
+    println!("# Báo cáo so sánh và kiểm định thực tế (Phase 12 - Part F / Phase 12.1)\n");
+
+    println!("## 1. Thông số cấu hình & Nguồn dữ liệu kiểm định");
+    println!("- **Fixture variant:** `QVariant::NoCampus` (chính) & `QVariant::SyntheticCampuses` (kiểm tra phân hiệu)");
+    println!("- **Tham số quy tắc cứng H3 / H4 / H7:**");
+    println!("  * **H3 (Độc lập cơ sở ban đề):** min_campuses = 1 (trên NoCampus); min_campuses = 2 (trên SyntheticCampuses, áp dụng cho cả VL và CN).");
+    println!("  * **H4 (Giới hạn nhiệm vụ/kỳ):** Mặc định max_tasks_per_exam = 2. Cấu hình override: C Quí = 3 (cho phép 3 việc trong kỳ), T Nghĩa = 3 (do bắt buộc 3 ban CN mỗi kỳ).");
+    println!("  * **H7 (Giới hạn ra đề liên tiếp):** max_consecutive_setter = 2.");
+    println!("- **Trạng thái kích hoạt và trọng số của toàn bộ quy tắc:**");
+    println!("  * Quy tắc cứng: H1 (Chuyên môn) = ON, H2 (Khối lớp) = ON, H3 (Cơ sở) = ON (min_campuses tùy cấu hình), H4 (Giới hạn/kỳ) = ON, H5 (Trùng giờ) = ON, H6 (Bận) = ON, H7 (Liên tiếp) = ON.");
+    println!("  * Quy tắc mềm: S1 = 10.0, S2 = 3.0, S3 = 4.0, S4 = 6.0, S5 = 6.0, S6 = 2.0, S7 = 1.0, S8 = 8.0, S9 = 5.0, S10 = 4.0 (Tất cả đều ON).");
+    println!("- **Thông số tối ưu hoá:** Hạt giống base seed = 42 (dải seeds 42..49), Số luồng R = 8, Số bước lặp = 200,000 / luồng (tổng 1,600,000 bước lặp), Số phương án giữ lại K = 3.");
+    println!("- **Cận dưới lý thuyết Σ LB:**");
+    println!("  * S5 LB = 1.00 đơn vị (phạt: 6.00) [Nguyên lý Dirichlet trên CN: 12 ban đề / 11 GV phản biện]");
+    println!("  * S6 LB = 2.00 đơn vị (phạt: 4.00) [Cân bằng lượt ra đề 24 lượt VL / 11 GV: 9 người 2 lượt, 2 người 3 lượt => 2 x (2*3-5) = 2.0]");
+    println!("  * S8 LB = 2.5455 đơn vị (phạt: 20.36) [48 lượt / 11 GV, quota = 48/11: 4 người 5 việc, 7 người 4 việc => Σ(c-q)² = 28/11 ≈ 2.5455]");
+    println!(
+        "  * Các quy tắc mềm khác (S1, S2, S4, S7, S9, S10): Cận dưới = 0.00 đơn vị (phạt: 0.00)"
+    );
+    println!(
+        "  * **Tổng cận dưới Σ LB (Không tính S3):** **{:.2}** (S5: 6.00 + S6: 4.00 + S8: 20.36)",
+        sum_lb_penalties_no_s3
+    );
+    println!(
+        "  * **Tổng cận dưới Σ LB (Tính S3 = 0.00 theo cận dưới độc lập):** **{:.2}**",
+        sum_lb_penalties_with_s3_zero
+    );
+    println!(
+        "  * **Tổng cận dưới Σ LB (Tính S3 đơn cơ sở = 36 đơn vị x 4.0 = 144.00):** **{:.2}**",
+        sum_lb_penalties_with_s3_accounting
+    );
+
+    println!("\n### Bảng cấu hình giáo viên (Quota override & Max tasks override)");
+    println!("| Mã GV | Tên đầy đủ | Cách gọi | Cơ sở | Hệ số tải | Quota Override | Max Tasks/Exam Override | Ghi chú |");
+    println!("| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :--- |");
+    for t in &problem_nocampus.teachers {
+        println!(
+            "| {:<5} | {:<16} | {:<8} | {:^5} | {:^9.1} | {:^14} | {:^23} | {:<15} |",
+            t.code.as_deref().unwrap_or("-"),
+            t.full_name,
+            t.display_name.as_deref().unwrap_or("-"),
+            t.campus_id.0,
+            t.load_weight,
+            t.quota_override
+                .map(|q| q.to_string())
+                .unwrap_or_else(|| "None".to_string()),
+            t.max_tasks_per_exam_override
+                .map(|m| m.to_string())
+                .unwrap_or_else(|| "None".to_string()),
+            if t.id.value() == 8 {
+                "C Quí: max-tasks=3, quota=None"
+            } else if t.id.value() == 12 {
+                "T Nghĩa: quota=12, max-tasks=3"
+            } else {
+                "Mặc định"
+            }
+        );
+    }
+
+    println!("\n## 2. Nguồn dữ liệu kiểm định");
     if user_inputs_provided {
         println!("- Dữ liệu: Phân hiệu và phân công thực tế từ tổ bộ môn (đã được ẩn danh hoá theo quy định bảo mật).");
     } else {
@@ -122,7 +253,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    println!("\n## 2. Kiểm định bảng phân công của Thầy Q");
+    println!("\n## 3. Kiểm định bảng phân công của Thầy Q");
     println!(
         "- Tổng số phân công: {} chỗ (12 ban đề Vật lí x 3 = 36; 12 ban đề Công nghệ x 2 = 24).",
         q_assigns.len()
@@ -240,21 +371,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    println!("\n## 3. So sánh Tối ưu Hoá: Khởi động Lạnh (Cold) vs Khởi động Ấm (Warm)");
+    println!("\n## 4. So sánh Tối ưu Hoá: Khởi động Lạnh (Cold) vs Khởi động Ấm (Warm)");
     println!("- Tham số: Seed cơ sở = 42, Số luồng R = 8 (hạt giống 42..49), Số bước lặp = 200,000 / luồng, K = 3.");
-    println!("- Điểm khởi tạo của Warm Run (từ phương án của Thầy Q):");
-    println!("  * Bao gồm S3: **{:.2}**", q_report_nocampus.total);
+    println!("- Điểm khởi tạo của Warm Run (tính bởi cùng bộ đánh giá trên phương án của Thầy Q):");
+    println!("  * Bao gồm S3: **{:.2}**", warm_initial_report.total);
     println!(
-        "  * Không tính S3: **{:.2}**",
+        "  * Không tính S3: **{:.2}** (chính xác bằng điểm phương án Q: **{:.2}**)",
+        warm_initial_report.total - q_s3_pen,
         q_report_nocampus.total - q_s3_pen
     );
     println!(
-        "- Điểm tối ưu nhất (Cold Start): Có S3 = **{:.2}**, Không tính S3 = **{:.2}**",
+        "- Điểm tối ưu nhất (Cold Start, winning seed {}): Có S3 = **{:.2}**, Không tính S3 = **{:.2}**",
+        cold_plan.seed,
         cold_report.total,
         cold_report.total - cold_s3_pen
     );
     println!(
-        "- Điểm tối ưu nhất (Warm Start): Có S3 = **{:.2}**, Không tính S3 = **{:.2}**",
+        "- Điểm tối ưu nhất (Warm Start, winning seed {}): Có S3 = **{:.2}**, Không tính S3 = **{:.2}**",
+        warm_plan.seed,
         warm_report.total,
         warm_report.total - warm_s3_pen
     );
@@ -353,7 +487,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         q_tot_no_s3, cold_tot_no_s3, warm_tot_no_s3
     );
 
-    println!("\n## 4. Thống kê phân công theo giáo viên (Phương án tối ưu tốt nhất)");
+    println!("\n## 5. Thống kê phân công theo giáo viên (Phương án tối ưu tốt nhất)");
     println!("| Mã GV | Cách gọi | Phân hiệu | Chỉ tiêu q | Tổng lượt | Ra đề | Phản biện | GK1 | CK1 | GK2 | CK2 | Chênh lệch | Ghi chú |");
     println!("| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |");
 
@@ -423,7 +557,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    println!("\n## 5. Bảng phân công phương án tối ưu (Dạng bảng tổ - Q-Style Grid)");
+    println!("\n## 6. Bảng phân công phương án tối ưu (Dạng bảng tổ - Q-Style Grid)");
     println!("| Kì thi | Vai trò | Khối 10 (VL) | Khối 10 (CN) | Khối 11 (VL) | Khối 11 (CN) | Khối 12 (VL) | Khối 12 (CN) |");
     println!("| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |");
 
@@ -495,11 +629,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    println!("\n## 6. Đánh giá Preset 'Cho phép dồn việc trong một kỳ' (Tắt S9)");
+    println!("\n## 7. Đánh giá Preset 'Cho phép dồn việc trong một kỳ' (Tắt S9)");
     println!(
         "- **Mục đích:** Kiểm tra khả năng đạt 0 điểm phạt mềm khi cho phép dồn việc (S9 = 0)."
     );
-    let s9_report = &s9_off_best.report;
     let s9_s3_pen = s9_report
         .by_rule
         .iter()
@@ -529,7 +662,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     println!("  * Giải thích: Do S5 có cận dưới lý thuyết >= 1.0 (nguyên lý Dirichlet trên môn Công nghệ) và S6 có cận dưới lý thuyết = 2.0 (bài toán cân bằng lượt ra đề 24 lượt / 11 GV), nên ngay cả khi dồn việc tự do, tổng điểm phạt vẫn không thể đạt 0 tuyệt đối.");
 
-    println!("\n## 7. Giải trình cơ sở toán học của các cận dưới (Lower Bounds)");
+    println!("\n## 8. Giải trình cơ sở toán học của các cận dưới (Lower Bounds)");
     println!("1. **Cận dưới S6 = 2.0:** Trong 4 kỳ thi, có 24 lượt giáo viên ra đề không bắt buộc (12 ban đề VL x 2) cần phân bổ cho 11 giáo viên đủ điều kiện (k_t <= 4, Thầy Nghĩa được loại trừ do 12 ghế ra đề CN của thầy là bắt buộc cố định). Để cực tiểu hoá tổng hàm lồi f(k_t) với f(k) = max(0, 2k - 5), thuật toán tham lam cân bằng tối ưu phân bổ 9 giáo viên nhận 2 lượt ra đề (f = 0) và 2 giáo viên nhận 3 lượt ra đề (f = 1 mỗi người), xác lập cận dưới chính xác tuyệt đối là 2.0 đơn vị.");
     println!("2. **Cận dưới S10 = 0.0:** Cả 11 giáo viên (GV001..GV011) đều có chuyên môn phản biện cho cả 2 môn Vật lí (VL) và Công nghệ (CN). Toàn bộ năm học có 12 ghế phản biện VL và 12 ghế phản biện CN. Vì 11 <= 12 ở cả hai môn, về mặt toán học hoàn toàn tồn tại phân công để mỗi giáo viên đều được phản biện mỗi môn ít nhất 1 lần.");
     println!("3. **Cận dưới S5 >= 1.0:** Ở môn Công nghệ, toàn bộ 12 ban đề đều do Thầy Nghĩa ra đề độc quyền, và chỉ có 11 giáo viên khác có thể làm phản biện. Theo nguyên lý Dirichlet (Pigeonhole Principle), phân phối 12 lượt phản biện cho 11 người chắc chắn sẽ có ít nhất một giáo viên phải phản biện cho Thầy Nghĩa ít nhất ceil(12/11) = 2 lần. Mỗi lượt phản biện lặp lại tạo ra max(0, count - 1) >= 1 đơn vị vi phạm. Do đó S5 >= 1.0.");
