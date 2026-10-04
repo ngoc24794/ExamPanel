@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Tiếng Việt (Vietnamese)
 
 #### Tính năng mới & Sửa lỗi (Added & Fixed)
+- **Bảng phân công kiểu Tổ bộ môn & Xuất/Nhập theo định dạng trường (Phase 12):**
+  - Giao diện bảng phân công "Bảng tổ" (`/assignments`) tái hiện định dạng bảng giấy thực tế của Thầy Q: cột khối lớp nhóm theo kỳ thi, dòng Đề / Phản biện, bảng thống kê phân công gắn liền bên phải với các huy hiệu cảnh báo mật độ nhiệm vụ ($\ge 2$ việc, $\ge 3$ việc).
+  - Tích hợp đầy đủ thao tác chỉnh sửa tương tác trên Bảng tổ (gợi ý ứng viên xếp hạng theo $\Delta$ điểm, kéo thả hoán đổi, phím tắt Enter/Delete, khóa/cấm nhiệm vụ, cố định chỗ bắt buộc của Thầy Nghĩa).
+  - Xuất bảng tính Excel chuẩn mẫu trường với sheet đầu tiên "Bảng phân công (mẫu tổ)" có tiêu đề cơ quan, khung chữ ký, cột đệm và định dạng in khổ A4 ngang đen trắng.
+  - Hỗ trợ in trực quan qua route `/print/plan/:id` và xuất PDF tự động bằng Playwright.
+  - Wizard nhập bảng phân công có sẵn từ tập tin Excel hoặc vùng dán clipboard TSV, nhận diện cấu trúc tự động, khớp tên giáo viên đa cấp (cách gọi, họ tên, chuẩn hóa NFC/NFD không dấu) và lưu trữ dưới nguồn `'manual'` với xuất xứ `'import'`.
+  - Mẫu nhập liệu Excel v2 bổ sung các sheet "Môn", "Môn đảm nhiệm" và các cột "Cách gọi", "Chỉ tiêu riêng", "Số việc tối đa mỗi kỳ", kèm mô phỏng tính khả thi trước khi áp dụng.
+  - Cập nhật thuật toán tính cận dưới toán học cho quy tắc S6 trên bài toán đa môn, đạt cận dưới chính xác 2.0 đơn vị trên bộ dữ liệu Thầy Q.
+  - Bổ sung bản ghi quyết định kiến trúc ADR-0043.
+
 - **Quy tắc phân công & Tối ưu hóa (Phase 11.1):**
   - Cập nhật công thức chuẩn cho tiêu chí S9 (Tránh dồn lịch thi): $\text{avoidable}_t = \max(0, \text{crowding}_t - \max(0, c_t - m_t))$, loại bỏ trừ phạt không công bằng do giới hạn cơ học số kỳ thi.
   - Tích hợp tiêu chí S10 (Đa dạng môn duyệt phản biện) và chế độ S1 Auto-Max cho ngưỡng phản biện.
@@ -31,6 +41,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### English
 
 #### Added & Fixed
+- **Q-Style Department Grid & School-Format Export/Import (Phase 12):**
+  - "Bảng tổ" view on `/assignments` reproducing Coordinator Q's authentic paper schedule: grade columns grouped under exam blocks, Setter/Reviewer rows, and an attached live workload table with task density badges ($\ge 2, \ge 3$ tasks).
+  - Complete interactive editing parity on the Q-style grid (candidate ranking with $\Delta$ score, drag-and-drop swaps, keyboard navigation, pin/forbid overrides, immovable forced seats).
+  - Excel export in official school format with first sheet "Bảng phân công (mẫu tổ)" containing department headers, signature blocks, spacer columns, and A4 landscape grayscale formatting.
+  - Interactive printing via route `/print/plan/:id` and automated headless PDF generation via Playwright.
+  - Existing plan import wizard supporting both Excel workbooks and clipboard TSV text, with structure detection, multi-tier name matching (display name, full name, accent-folded NFC/NFD), and atomic save under `source: 'manual'` with `origin: 'import'`.
+  - Excel Template v2 adding sheets `"Môn"` and `"Môn đảm nhiệm"` and teacher columns `"Cách gọi"`, `"Chỉ tiêu riêng"`, and `"Số việc tối đa mỗi kỳ"`, backed by non-destructive feasibility simulation.
+  - Multi-subject mathematical lower bound for S6 achieving exactly 2.0 units on the canonical Q dataset.
+  - Added architecture decision record ADR-0043.
+
 - **Scheduling Rules & Optimization Core (Phase 11.1):**
   - Corrected S9 avoidable crowding penalty formula: $\text{avoidable}_t = \max(0, \text{crowding}_t - \max(0, c_t - m_t))$, eliminating structural overflow penalties.
   - Integrated S10 review subject diversity penalty and dynamic S1 Auto-Max pacing mode.

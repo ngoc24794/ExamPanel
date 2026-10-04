@@ -396,15 +396,34 @@ Evaluation on `nocampus` with $R = 8 \times 200,000$ iterations (seed 42):
 
 | Rule | Weight | Lower Bound (Units) | Q's Manual Plan (Units) | Cold Start Optimizer (Units) | Warm Start Optimizer (Units) |
 |---|---|---|---|---|---|
-| **S1** (Reviewer Count) | 10.0 | 0.00 | 0.00 | 0.00 | 0.00 |
+| **S1** (Reviewer Frequency) | 10.0 | 0.00 | 1.00 | 0.00 | 0.00 |
 | **S2** (Role Balance) | 3.0 | 0.00 | 1.00 | 0.00 | 0.00 |
-| **S3** (Campus Independence) | 4.0 | 0.00 | 0.00 | 0.00 | 0.00 |
-| **S4** (Repeated Setter Pair) | 6.0 | 0.00 | 1.00 | 1.00 | 1.00 |
+| **S3** (Campus Independence) | 4.0 | 0.00 | 36.00 | 36.00 | 36.00 |
+| **S4** (Repeated Setter Pair) | 6.0 | 0.00 | 0.00 | 0.00 | 0.00 |
 | **S5** (Repeated Review Rel) | 6.0 | 1.00 | 1.00 | 1.00 | 1.00 |
-| **S6** (Consecutive Setter) | 2.0 | 0.00 | 3.00 | 1.00 | 1.00 |
+| **S6** (Consecutive Setter) | 2.0 | 2.00 | 8.00 | 3.00 | 3.00 |
 | **S7** (Grade Rotation) | 1.0 | 0.00 | 0.00 | 0.00 | 0.00 |
 | **S8** (Load Deviation) | 8.0 | 2.55 | 4.55 | 2.55 | 2.55 |
 | **S9** (Avoidable Crowding) | 5.0 | 0.00 | 9.00 | 0.00 | 0.00 |
 | **S10** (Review Subj Missing)| 4.0 | 0.00 | 0.00 | 0.00 | 0.00 |
-| **Total Penalty (w/o S3)** | | **26.36** | **99.36** | **32.73** | **32.73** |
-| **Total Penalty (with S3)** | | **26.36** | **99.36** | **32.73** | **32.73** |
+| **Total Penalty (w/o S3)** | | **30.36** | **116.36** | **32.36** | **32.36** |
+| **Total Penalty (with S3)** | | **174.36** | **260.36** | **176.36** | **176.36** |
+
+- **S3 Single-Campus Accounting:** In single-campus / `nocampus` environments, all faculty share Campus 1. For each of the 12 Vật lí panels (2 setters, 1 reviewer), the reviewer shares campus with 2 setters (12 × 2 = 24 units). For each of the 12 Công nghệ panels (1 setter, 1 reviewer), the reviewer shares campus with 1 setter (12 × 1 = 12 units). Total unavoidable single-campus S3 units = 24 + 12 = 36.0 units (penalty 144.00 at weight 4.0).
+- **S6 Multi-Subject Lower Bound:** In a 4-exam year with 24 non-forced setter presences over 11 teachers (excluding the fixed setter Thầy Nghĩa), greedily balancing 24 presences yields 9 teachers with 2 presences ($f=0$) and 2 teachers with 3 presences ($f=1$ each), establishing a provable lower bound of $\sum f(k_t) = 2.0$ units.
+
+---
+
+## 10. Phase 12 User Interface and Export Specifications
+
+### 10.1 Q-Style Assignment Grid (`/assignments`)
+- **Default View:** Route `/assignments` defaults to the "Bảng tổ" (Q-style grid) view, persisted in user settings alongside the "Chi tiết" matrix view.
+- **Visual Hierarchy:** Header block shows exam terms as merged row blocks, with sub-columns for Grade 10, 11, 12, each sub-divided into academic subjects (VL, CN) with distinct color tokens.
+- **Attached Workload Panel:** Attached to the right of the grid (GV, Tổng lượt, Đề, PB, GK1, CK1, GK2, CK2), highlighting overloaded cells ($\ge 2$ tasks badge, $\ge 3$ tasks strong marker).
+- **Interactive Editing Parity:** Click/Enter on any seat opens candidate ranking with $\Delta$ score. Drag-and-drop swaps, keyboard navigation, undo/redo, and context menus for pinning and forbidding. Forced seats (Thầy Nghĩa) remain locked.
+
+### 10.2 Excel Template v2 and Print Layout
+- **Template v2:** Standard workbook includes sheets `"Hướng dẫn"`, `"Phân hiệu"`, `"Giáo viên"`, `"Lịch vắng"`, `"Môn"`, and `"Môn đảm nhiệm"`. Teachers sheet includes columns `"Cách gọi"`, `"Chỉ tiêu riêng"`, and `"Số việc tối đa mỗi kỳ"`.
+- **School Format Print & Export:** First sheet `"Bảng phân công (mẫu tổ)"` reproduces Coordinator Q's official landscape format with signature blocks, title header, spacer column, and summary statistics readable in grayscale. Printable via route `/print/plan/:id`.
+- **Existing Plan Import:** Directly parses imported Excel workbooks or TSV clipboard data with accent-folded name resolution, structure detection, and atomic rollback on error.
+

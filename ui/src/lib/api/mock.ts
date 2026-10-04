@@ -1625,6 +1625,8 @@ export class MockExamPanelApi implements ExamPanelApi {
           active: true,
           note: null,
           matched_teacher_id: BigInt(1),
+          quota_override: null,
+          max_tasks_per_exam_override: null,
           errors: [],
         },
         {
@@ -1640,6 +1642,8 @@ export class MockExamPanelApi implements ExamPanelApi {
           active: true,
           note: 'Giáo viên thỉnh giảng',
           matched_teacher_id: null,
+          quota_override: null,
+          max_tasks_per_exam_override: null,
           errors: [],
         },
       ],

@@ -297,4 +297,19 @@
   3. Permanently remove all "Cơ sở" terminology across code, fixtures, and tests, enforced by automated scanning in `test_no_forbidden_terms_in_fixtures_and_seeds`.
 - **Consequences:** Consistent, reproducible benchmark environments matching authentic institutional structures, and strict adherence to prohibited term policies.
 
+## ADR-0043: Q-Style Grid, Import-As-Plan Architecture, and Template v2
+- **Status:** Accepted
+- **Context:**
+  1. Department coordinator Q organizes schedules in a compact paper-based layout with grade columns grouped under exam blocks, showing roles ("Đề", "P.Biện") and an attached workload totals panel. The application previously only offered a per-panel list view.
+  2. Coordinators frequently receive existing schedules from past semesters or external spreadsheets and need to import them directly as functional plans without re-typing 60 assignments.
+  3. Previews in desktop software must never mutate persistent state or generate phantom database records prior to user confirmation.
+  4. Multi-subject panels require explicit configuration of subjects (setters, reviewers, min campuses) and teacher competencies (role, taught grade scope vs all grades).
+- **Decision:**
+  1. **Q-Style Assignment Grid (`/assignments` default view):** Replicate coordinator Q's layout with a view toggle persisted in settings ("Bảng tổ" default vs "Chi tiết"). Attach a live workload summary table to the right with non-color task density markers (>=2, >=3 tasks). Full editing parity through existing `ExamPanelApi` (candidate evaluation with delta score, swap, pin, forbid).
+  2. **Re-use Source `'manual'` with Origin `'import'`:** Imported plans reuse the existing `'manual'` plan status and table schema. Metadata `run_params_json.origin = "import"` records the import provenance without requiring database migrations.
+  3. **Multi-Stage Teacher Name Matching:** When importing plans or rosters, match names by: (a) exact teacher code, (b) display name (`cách gọi`), (c) full name, (d) accent-folded and case-normalized matching (both NFC and NFD Unicode normalization supported).
+  4. **Strict Read-Only Preview Architecture:** Both plan import and template import parse and simulate feasibility strictly in-memory without issuing database writes. Apply actions execute atomically inside a single SQLite transaction with an automated pre-import backup.
+  5. **Excel Template v2:** Add sheets `"Môn"` and `"Môn đảm nhiệm"` alongside teacher columns `"Cách gọi"`, `"Chỉ tiêu riêng"`, and `"Số việc tối đa mỗi kỳ"`. For backwards compatibility, files omitting `"Môn đảm nhiệm"` automatically assign default setter and reviewer competencies for taught grades.
+- **Consequences:** Seamless UX matching the department's authentic workflow, robust error-resistant import pipelines, 100% database integrity with zero schema bloat, and complete backward compatibility with template v1 files.
+
 

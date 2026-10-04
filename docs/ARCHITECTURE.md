@@ -258,6 +258,11 @@ Each code corresponds to a localized entry `errors.<code>` in `vi.json` and `en.
 - Types are exported to `ui/src/lib/api/generated/types.ts`.
 - Freshness is safeguarded by an automated integration test (`crates/service/tests/generate_types.rs`) that asserts the committed TypeScript declarations match the canonical Rust structs. Any discrepancy causes `cargo test` and `pnpm check-all` to fail.
 
+### 3.9 Q-Style Assignment Grid, Import-as-Plan, and Template v2 Pipeline
+- **Q-Style Layout & Parity:** The `/assignments` view replicates Coordinator Q's compact grade-block representation with an attached live workload table. Candidate replacement, swap, pin, and forbid operations reuse the unified `ExamPanelApi` contract (`evaluateCandidate`, `setLock`, `deleteLock`).
+- **Import as Plan:** Wizard reads Excel sheets or clipboard TSV tables directly into an in-memory `PlanImportPreview`. Name resolution employs a 4-tier pipeline (code -> display name -> full name -> accent/case-folded match). Upon user apply, assignments are saved under `source: 'manual'` with metadata `run_params_json.origin = "import"` without schema alterations.
+- **Excel Template v2 & Atomic Import:** Imports parse master data (`Môn`, `Môn đảm nhiệm`, `Giáo viên`, `Phân hiệu`, `Lịch vắng`) in-memory, run non-destructive feasibility simulations, and apply changes atomically within a single SQLite transaction preceded by an automated safety backup (`pre-import`).
+
 ---
 
 ## 4. Architectural Invariants
@@ -268,5 +273,7 @@ Each code corresponds to a localized entry `errors.<code>` in `vi.json` and `en.
 5. **Deterministic Optimization:** Given the same `base_seed` and `Budget::Iterations`, parallel multi-run optimization yields identical results across all CPU thread configurations.
 6. **Decoupled Service Layer:** `crates/service` must not depend on `tauri`. Tauri commands are thin forwarding wrappers over `AppService`.
 7. **Non-Blocking Compute:** The database lock must never be held during feasibility analysis or optimization.
+8. **Non-Mutating Import Previews:** Both plan and template import wizards must never execute database writes or generate orphaned records prior to explicit user confirmation.
+
 
 
