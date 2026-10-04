@@ -2101,4 +2101,186 @@ mod tests {
             "Optimizer reaching structural minimum crowding must get S9 = 0"
         );
     }
+
+    #[test]
+    fn test_s8_verification_q_plan() {
+        use crate::domain::fixtures::{make_canonical_q_problem, make_q_assignments, QVariant};
+        use crate::domain::{calculate_quotas, Role, RuleKey, TeacherId};
+        use crate::score::bounds::lower_bounds;
+
+        let problem = make_canonical_q_problem(QVariant::NoCampus);
+        let q_assignments = make_q_assignments();
+
+        // 1. Quota calculations
+        let quotas = calculate_quotas(&problem);
+        assert_eq!(quotas.len(), 12);
+
+        // 11 non-forced teachers share 48 slots: q = 48/11 ~ 4.3636, lo = 3, hi = 6
+        let expected_q_non_forced = 48.0 / 11.0;
+        for tid in 1..=11 {
+            let q = quotas
+                .iter()
+                .find(|q| q.teacher_id == TeacherId(tid))
+                .unwrap();
+            let teacher = problem
+                .teachers
+                .iter()
+                .find(|t| t.id == TeacherId(tid))
+                .unwrap();
+            assert!(teacher.active);
+            assert_eq!(teacher.load_weight, 1.0);
+            assert_eq!(teacher.quota_override, None);
+            assert_eq!(q.available_exams, 4);
+            assert!(
+                (q.quota - expected_q_non_forced).abs() < 1e-6,
+                "Teacher {} quota {} != expected {}",
+                tid,
+                q.quota,
+                expected_q_non_forced
+            );
+            assert_eq!(q.lo, 3, "Teacher {} lo != 3", tid);
+            assert_eq!(q.hi, 6, "Teacher {} hi != 6", tid);
+        }
+
+        // T Nghĩa (Teacher 12) is forced at 12: q = 12.0, lo = 12, hi = 12
+        let q_nghia = quotas
+            .iter()
+            .find(|q| q.teacher_id == TeacherId(12))
+            .unwrap();
+        let t_nghia = problem
+            .teachers
+            .iter()
+            .find(|t| t.id == TeacherId(12))
+            .unwrap();
+        assert_eq!(t_nghia.quota_override, Some(12));
+        assert_eq!(q_nghia.quota, 12.0);
+        assert_eq!(q_nghia.lo, 12);
+        assert_eq!(q_nghia.hi, 12);
+
+        // 2. Evaluate Q's manual plan
+        let rep_a = evaluate(&problem, &q_assignments);
+        let s8_a = rep_a
+            .by_rule
+            .iter()
+            .find(|r| r.rule == RuleKey::S8)
+            .unwrap();
+
+        println!("\n=== S8 VERIFICATION TABLE ON Q'S MANUAL PLAN ===");
+        println!("| ID | Teacher Name | Count | Quota q_t | lo | hi | (c - q)^2 | Weight | Avail | Override | Forced Seats |");
+        println!("|---|---|---|---|---|---|---|---|---|---|---|");
+
+        let mut sum_sq_diff = 0.0;
+        for t in &problem.teachers {
+            let count = q_assignments
+                .iter()
+                .filter(|a| a.teacher_id == t.id)
+                .count();
+            let q = quotas.iter().find(|q| q.teacher_id == t.id).unwrap();
+            let diff = count as f64 - q.quota;
+            let sq = diff * diff;
+            sum_sq_diff += sq;
+
+            let ov_str = t
+                .quota_override
+                .map(|v| v.to_string())
+                .unwrap_or_else(|| "-".to_string());
+            let forced_seats = if t.id == TeacherId(12) { 12 } else { 0 };
+
+            println!(
+                "| {} | {} | {} | {:.4} | {} | {} | {:.4} | {:.1} | {} | {} | {} |",
+                t.id.0,
+                t.full_name,
+                count,
+                q.quota,
+                q.lo,
+                q.hi,
+                sq,
+                t.load_weight,
+                q.available_exams,
+                ov_str,
+                forced_seats
+            );
+        }
+
+        println!(
+            "Sum of (c - q)^2 = {:.6} (expected 50/11 = {:.6})",
+            sum_sq_diff,
+            50.0 / 11.0
+        );
+        println!(
+            "S8 units = {:.6} (expected 50/11 = {:.6})",
+            s8_a.units,
+            50.0 / 11.0
+        );
+        println!(
+            "S8 penalty = {:.6} (expected 400/11 = {:.6})",
+            s8_a.penalty,
+            400.0 / 11.0
+        );
+
+        assert!((sum_sq_diff - 50.0 / 11.0).abs() < 1e-6);
+        assert!((s8_a.units - 50.0 / 11.0).abs() < 1e-6);
+        assert!((s8_a.penalty - 400.0 / 11.0).abs() < 1e-6);
+
+        // 3. Lower bound check
+        let bounds = lower_bounds(&problem);
+        let s8_bound = bounds.iter().find(|b| b.rule == RuleKey::S8).unwrap();
+        let expected_s8_bound = 28.0 / 11.0;
+        println!("\n=== S8 LOWER BOUND ===");
+        println!(
+            "Exact integer minimum S8 units: {:.6} (28/11)",
+            expected_s8_bound
+        );
+        println!(
+            "Exact lower bound penalty: {:.6} (224/11)",
+            expected_s8_bound * 8.0
+        );
+        assert!((s8_bound.units_lower_bound - expected_s8_bound).abs() < 1e-6);
+
+        // 4. Test two plans with different count vectors producing different S8
+        // Plan B: Move 1 task in Exam 2, Grade 12, VL from C Quí (Teacher 8) to T Phúc (Teacher 3).
+        let mut plan_b_assignments = q_assignments.clone();
+        let target_idx = plan_b_assignments
+            .iter()
+            .position(|a| {
+                a.exam_id == crate::domain::ExamId(2)
+                    && a.grade_id == crate::domain::GradeId(3)
+                    && a.subject_id == crate::domain::SubjectId(1)
+                    && a.teacher_id == TeacherId(8)
+                    && a.role == Role::Setter
+            })
+            .expect("find C Quí assignment in E2 G12 VL");
+
+        plan_b_assignments[target_idx].teacher_id = TeacherId(3); // T Phúc
+
+        let rep_b = evaluate(&problem, &plan_b_assignments);
+        let s8_b = rep_b
+            .by_rule
+            .iter()
+            .find(|r| r.rule == RuleKey::S8)
+            .unwrap();
+
+        println!("\n=== PLAN COMPARISON ===");
+        println!(
+            "Plan A (Q's manual): S8 units = {:.4}, penalty = {:.4}",
+            s8_a.units, s8_a.penalty
+        );
+        println!(
+            "Plan B (Balanced)  : S8 units = {:.4}, penalty = {:.4}",
+            s8_b.units, s8_b.penalty
+        );
+
+        assert!(
+            s8_a.units != s8_b.units,
+            "S8 units must differ for different count vectors"
+        );
+        assert!(
+            s8_b.units < s8_a.units,
+            "Plan B must have strictly lower S8 than Plan A"
+        );
+        assert!(
+            (s8_b.units - expected_s8_bound).abs() < 1e-6,
+            "Plan B achieves the exact global integer lower bound 28/11"
+        );
+    }
 }

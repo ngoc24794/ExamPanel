@@ -1,0 +1,53 @@
+
+running 2 tests
+
+=== Q's Plan S9 Breakdown per Teacher ===
+Teacher      | Tasks per Exam   | Crowding   | c_t   | m_t   | Offset | Avoidable  | Idle Exams
+------------------------------------------------------------------------------------------
+C Hiền       | [2, 1, 1, 1]     | 1          | 5     | 4     | 1      | 0          | 0         
+C Lài        | [2, 2, 1, 0]     | 2          | 5     | 4     | 1      | 1          | 1         
+T Phúc       | [2, 0, 1, 1]     | 1          | 4     | 4     | 0      | 1          | 1         
+T Lộc        | [2, 0, 1, 1]     | 1          | 4     | 4     | 0      | 1          | 1         
+C Thư        | [1, 1, 2, 0]     | 1          | 4     | 4     | 0      | 1          | 1         
+C Na         | [1, 0, 1, 2]     | 1          | 4     | 4     | 0      | 1          | 1         
+C Bình       | [1, 2, 0, 1]     | 1          | 4     | 4     | 0      | 1          | 1         
+C Quí        | [1, 1, 1, 3]     | 2          | 6     | 4     | 2      | 0          | 0         
+C Tú         | [0, 2, 1, 1]     | 1          | 4     | 4     | 0      | 1          | 1         
+C Như        | [0, 1, 2, 1]     | 1          | 4     | 4     | 0      | 1          | 1         
+C Lan        | [0, 2, 1, 1]     | 1          | 4     | 4     | 0      | 1          | 1         
+T Nghĩa      | [0, 0, 0, 0]     | 0          | 0     | 4     | 0      | 0          | 4         
+------------------------------------------------------------------------------------------
+Total (11 non-forced teachers): Crowding = 13, Offset = 4, Avoidable = 9, Idle Pairs = 9
+
+
+=== S8 VERIFICATION TABLE ON Q'S MANUAL PLAN ===
+| ID | Teacher Name | Count | Quota q_t | lo | hi | (c - q)^2 | Weight | Avail | Override | Forced Seats |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Cô Hiền | 5 | 4.3636 | 3 | 6 | 0.4050 | 1.0 | 4 | - | 0 |
+| 2 | Cô Lài | 5 | 4.3636 | 3 | 6 | 0.4050 | 1.0 | 4 | - | 0 |
+| 3 | Thầy Phúc | 4 | 4.3636 | 3 | 6 | 0.1322 | 1.0 | 4 | - | 0 |
+| 4 | Thầy Lộc | 4 | 4.3636 | 3 | 6 | 0.1322 | 1.0 | 4 | - | 0 |
+| 5 | Cô Thư | 4 | 4.3636 | 3 | 6 | 0.1322 | 1.0 | 4 | - | 0 |
+| 6 | Cô Na | 4 | 4.3636 | 3 | 6 | 0.1322 | 1.0 | 4 | - | 0 |
+| 7 | Cô Bình | 4 | 4.3636 | 3 | 6 | 0.1322 | 1.0 | 4 | - | 0 |
+| 8 | Cô Quí | 6 | 4.3636 | 3 | 6 | 2.6777 | 1.0 | 4 | - | 0 |
+| 9 | Cô Tú | 4 | 4.3636 | 3 | 6 | 0.1322 | 1.0 | 4 | - | 0 |
+| 10 | Cô Như | 4 | 4.3636 | 3 | 6 | 0.1322 | 1.0 | 4 | - | 0 |
+| 11 | Cô Lan | 4 | 4.3636 | 3 | 6 | 0.1322 | 1.0 | 4 | - | 0 |
+| 12 | Thầy Nghĩa | 12 | 12.0000 | 12 | 12 | 0.0000 | 1.0 | 4 | 12 | 12 |
+Sum of (c - q)^2 = 4.545455 (expected 50/11 = 4.545455)
+S8 units = 4.545455 (expected 50/11 = 4.545455)
+S8 penalty = 36.363636 (expected 400/11 = 36.363636)
+
+=== S8 LOWER BOUND ===
+Exact integer minimum S8 units: 2.545455 (28/11)
+Exact lower bound penalty: 20.363636 (224/11)
+
+=== PLAN COMPARISON ===
+Plan A (Q's manual): S8 units = 4.5455, penalty = 36.3636
+Plan B (Balanced)  : S8 units = 2.5455, penalty = 20.3636
+test score::tests::test_s8_verification_q_plan ... ok
+test score::tests::test_s9_avoidable_crowding_q_plan_nocampus ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 84 filtered out; finished in 0.47s
+
