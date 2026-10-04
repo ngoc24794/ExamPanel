@@ -59,7 +59,7 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
     guide_sheet.write_with_format(
         r,
         2,
-        "Mã định danh duy nhất của phân hiệu/cơ sở (VD: CS1, CS2).",
+        "Mã định danh duy nhất của phân hiệu (VD: PH1, PH2).",
         &instruction_format,
     )?;
     r += 1;
@@ -67,7 +67,7 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
     guide_sheet.write_with_format(
         r,
         2,
-        "Tên đầy đủ của phân hiệu (VD: Cơ sở 1 - Ba Đình).",
+        "Tên đầy đủ của phân hiệu (VD: Phân hiệu 1 - Ba Đình).",
         &instruction_format,
     )?;
 

@@ -17,7 +17,7 @@ pub use backup::{
     validate_backup_file, BackupFileInfo, BackupValidationSummary, MAX_AUTO_BACKUPS,
 };
 pub use migrations::{get_current_version, latest_version, run_migrations};
-pub use seeds::{seed_defaults, seed_demo};
+pub use seeds::{seed_defaults, seed_demo, seed_legacy_demo};
 pub use store::Store;
 
 /// Storage errors that can occur during database operations.
@@ -374,16 +374,17 @@ mod tests {
             .load_problem(current_sy.id)
             .expect("load problem snapshot");
 
-        // Verify counts from requirements:
-        // 4 campuses, 11 teachers, 3 grades, 4 exams
+        // Verify counts from Q-shaped canonical problem:
+        // 4 campuses, 12 teachers, 3 grades, 4 exams, 2 subjects
         assert_eq!(problem.campuses.len(), 4, "expected 4 campuses");
-        assert_eq!(problem.teachers.len(), 11, "expected 11 teachers");
+        assert_eq!(problem.teachers.len(), 12, "expected 12 teachers");
         assert_eq!(problem.grades.len(), 3, "expected 3 grades");
         assert_eq!(problem.exams.len(), 4, "expected 4 exams");
+        assert_eq!(problem.subjects.len(), 2, "expected 2 subjects");
         assert_eq!(
             problem.unavailabilities.len(),
-            1,
-            "expected 1 unavailability entry"
+            0,
+            "expected 0 unavailability entries"
         );
 
         // Problem must pass validation with 0 errors
@@ -392,6 +393,111 @@ mod tests {
             validation_errors.is_empty(),
             "demo problem snapshot failed structural validation: {validation_errors:?}"
         );
+    }
+
+    #[test]
+    fn test_seed_legacy_demo_validation() {
+        let store = Store::open_in_memory().unwrap();
+        seed_legacy_demo(store.conn()).expect("seed legacy demo data");
+
+        let current_sy = store
+            .get_current_school_year()
+            .expect("get current year")
+            .expect("current year must exist");
+
+        let problem = store
+            .load_problem(current_sy.id)
+            .expect("load problem snapshot");
+
+        assert_eq!(problem.campuses.len(), 4);
+        assert_eq!(problem.teachers.len(), 11);
+        assert_eq!(problem.grades.len(), 3);
+        assert_eq!(problem.exams.len(), 4);
+        assert_eq!(problem.unavailabilities.len(), 1);
+
+        let validation_errors = problem.validate();
+        assert!(
+            validation_errors.is_empty(),
+            "legacy demo failed structural validation: {validation_errors:?}"
+        );
+    }
+
+    #[test]
+    fn test_no_forbidden_terms_in_fixtures_and_seeds() {
+        use exam_panel_core::domain::fixtures::{make_canonical_q_problem, QVariant};
+
+        fn assert_no_forbidden(text: &str, location: &str) {
+            let lower = text.to_lowercase();
+            let stripped = lower.replace("cơ sở dữ liệu", "");
+            assert!(
+                !stripped.contains("cơ sở"),
+                "Forbidden term 'cơ sở' found in {location}: '{text}'"
+            );
+        }
+
+        // 1. Check canonical Q problems
+        for variant in [QVariant::NoCampus, QVariant::SyntheticCampuses] {
+            let p = make_canonical_q_problem(variant);
+            for c in &p.campuses {
+                assert_no_forbidden(&c.name, "campus.name");
+                assert_no_forbidden(&c.code, "campus.code");
+            }
+            for t in &p.teachers {
+                assert_no_forbidden(&t.full_name, "teacher.full_name");
+                if let Some(ref d) = t.display_name {
+                    assert_no_forbidden(d, "teacher.display_name");
+                }
+                if let Some(ref n) = t.note {
+                    assert_no_forbidden(n, "teacher.note");
+                }
+            }
+            for e in &p.exams {
+                assert_no_forbidden(&e.name, "exam.name");
+            }
+            for s in &p.subjects {
+                assert_no_forbidden(&s.name, "subject.name");
+            }
+        }
+
+        // 2. Check seed_demo DB strings
+        let mut conn = open_in_memory().unwrap();
+        run_migrations(&mut conn).unwrap();
+        seed_demo(&conn).unwrap();
+
+        let mut stmt = conn.prepare("SELECT name FROM campuses").unwrap();
+        let campus_names: Vec<String> = stmt
+            .query_map([], |r| r.get(0))
+            .unwrap()
+            .map(|r| r.unwrap())
+            .collect();
+        for name in campus_names {
+            assert_no_forbidden(&name, "seed_demo campuses.name");
+        }
+
+        let mut stmt = conn.prepare("SELECT full_name FROM teachers").unwrap();
+        let teacher_names: Vec<String> = stmt
+            .query_map([], |r| r.get(0))
+            .unwrap()
+            .map(|r| r.unwrap())
+            .collect();
+        for name in teacher_names {
+            assert_no_forbidden(&name, "seed_demo teachers.full_name");
+        }
+
+        // 3. Check seed_legacy_demo DB strings
+        let mut conn_legacy = open_in_memory().unwrap();
+        run_migrations(&mut conn_legacy).unwrap();
+        seed_legacy_demo(&conn_legacy).unwrap();
+
+        let mut stmt = conn_legacy.prepare("SELECT name FROM campuses").unwrap();
+        let campus_names: Vec<String> = stmt
+            .query_map([], |r| r.get(0))
+            .unwrap()
+            .map(|r| r.unwrap())
+            .collect();
+        for name in campus_names {
+            assert_no_forbidden(&name, "seed_legacy_demo campuses.name");
+        }
     }
 
     #[test]

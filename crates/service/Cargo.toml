@@ -24,6 +24,10 @@ required-features = ["dev-tools"]
 name = "phase11_report"
 path = "src/bin/phase11_report.rs"
 
+[[bin]]
+name = "import_q_data"
+path = "src/bin/import_q_data.rs"
+
 [[test]]
 name = "generate_types"
 path = "tests/generate_types.rs"

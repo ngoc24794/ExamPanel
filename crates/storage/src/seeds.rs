@@ -27,13 +27,146 @@ pub fn seed_defaults(conn: &Connection) -> Result<(), StorageError> {
     Ok(())
 }
 
-/// Seeds a comprehensive demonstration dataset with 4 campuses, 11 teachers,
-/// a current school year 2026-2027, 4 exams, grade qualifications (each grade
-/// having >= 3 teachers from >= 2 campuses, teachers teaching 2 grades, one
-/// teacher with load_weight 0.5), and one unavailability entry.
-///
-/// Used by unit/integration tests and developer flags; never applied to real user databases.
+/// Seeds the canonical Q-shaped demonstration dataset with 4 synthetic campuses
+/// (or real campus/grade data overlay if `data/q_real_data.json` or `EXAMPANEL_Q_DATA_PATH` is present).
 pub fn seed_demo(conn: &Connection) -> Result<(), StorageError> {
+    seed_defaults(conn)?;
+
+    let real_data = exam_panel_core::domain::fixtures::load_q_real_data_from_file_or_env();
+    let problem = exam_panel_core::domain::fixtures::make_canonical_q_problem_with_real_data(
+        exam_panel_core::domain::fixtures::QVariant::SyntheticCampuses,
+        real_data.as_ref(),
+    );
+
+    let tx = conn
+        .unchecked_transaction()
+        .map_err(StorageError::from_sqlite)?;
+
+    // 1. Four Campuses
+    for c in &problem.campuses {
+        tx.execute(
+            "INSERT OR IGNORE INTO campuses (id, code, name, color) VALUES (?1, ?2, ?3, ?4);",
+            rusqlite::params![c.id.0, c.code, c.name, c.color],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
+
+    // 2. Teachers (12 teachers)
+    for t in &problem.teachers {
+        tx.execute(
+            "INSERT OR IGNORE INTO teachers (id, code, full_name, display_name, campus_id, load_weight, active, note, quota_override, max_tasks_per_exam_override)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);",
+            rusqlite::params![
+                t.id.0,
+                t.code,
+                t.full_name,
+                t.display_name,
+                t.campus_id.0,
+                t.load_weight,
+                if t.active { 1 } else { 0 },
+                t.note,
+                t.quota_override,
+                t.max_tasks_per_exam_override,
+            ],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
+
+    // 3. School Year
+    tx.execute(
+        "INSERT OR IGNORE INTO school_years (id, name, is_current) VALUES (?1, ?2, ?3);",
+        rusqlite::params![
+            problem.school_year.id.0,
+            problem.school_year.name,
+            if problem.school_year.is_current { 1 } else { 0 },
+        ],
+    )
+    .map_err(StorageError::from_sqlite)?;
+
+    // 4. Exams
+    for e in &problem.exams {
+        tx.execute(
+            "INSERT OR IGNORE INTO exams (id, school_year_id, code, name, sort_order) VALUES (?1, ?2, ?3, ?4, ?5);",
+            rusqlite::params![e.id.0, e.school_year_id.0, e.code, e.name, e.sort_order],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
+
+    // 4b. Subjects
+    for s in &problem.subjects {
+        tx.execute(
+            "INSERT OR IGNORE INTO subjects (id, school_year_id, code, name, color, sort_order, setters, reviewers, min_campuses)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9);",
+            rusqlite::params![
+                s.id.0,
+                problem.school_year.id.0,
+                s.code,
+                s.name,
+                s.color,
+                s.sort_order,
+                s.setters,
+                s.reviewers,
+                s.min_campuses,
+            ],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
+
+    // 4c. Competencies
+    for c in &problem.competencies {
+        tx.execute(
+            "INSERT OR IGNORE INTO teacher_competencies (teacher_id, subject_id, role, grade_scope) VALUES (?1, ?2, ?3, ?4);",
+            rusqlite::params![
+                c.teacher_id.0,
+                c.subject_id.0,
+                c.role.as_str(),
+                c.grade_scope.as_str(),
+            ],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
+
+    // 5. Teacher Grades
+    for tg in &problem.teacher_grades {
+        tx.execute(
+            "INSERT OR IGNORE INTO teacher_grades (teacher_id, school_year_id, grade_id) VALUES (?1, ?2, ?3);",
+            rusqlite::params![tg.teacher_id.0, tg.school_year_id.0, tg.grade_id.0],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
+
+    // 6. Unavailabilities
+    for u in &problem.unavailabilities {
+        tx.execute(
+            "INSERT OR IGNORE INTO unavailability (teacher_id, exam_id, reason) VALUES (?1, ?2, ?3);",
+            rusqlite::params![u.teacher_id.0, u.exam_id.0, u.reason],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
+
+    // 7. Rule Settings
+    for rule in &problem.rule_settings {
+        let params_str = serde_json::to_string(&rule.params)?;
+        tx.execute(
+            "INSERT OR IGNORE INTO rule_settings (school_year_id, rule_key, enabled, weight, params_json)
+             VALUES (?1, ?2, ?3, ?4, ?5);",
+            rusqlite::params![
+                problem.school_year.id.0,
+                rule.key.as_str(),
+                if rule.enabled { 1 } else { 0 },
+                rule.weight,
+                params_str,
+            ],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
+
+    tx.commit().map_err(StorageError::from_sqlite)?;
+    Ok(())
+}
+
+/// Seeds the legacy demonstration dataset with 4 campuses, 11 teachers.
+pub fn seed_legacy_demo(conn: &Connection) -> Result<(), StorageError> {
     // Ensure default grades are present
     seed_defaults(conn)?;
 
@@ -44,10 +177,10 @@ pub fn seed_demo(conn: &Connection) -> Result<(), StorageError> {
     // 1. Four Campuses with distinct theme-friendly palette tokens
     tx.execute(
         "INSERT OR IGNORE INTO campuses (id, code, name, color) VALUES
-         (1, 'CS1', 'Phân hiệu 1 - Ba Đình', 'blue'),
-         (2, 'CS2', 'Phân hiệu 2 - Cầu Giấy', 'emerald'),
-         (3, 'CS3', 'Phân hiệu 3 - Hà Đông', 'amber'),
-         (4, 'CS4', 'Phân hiệu 4 - Hoàn Kiếm', 'purple');",
+         (1, 'PH1', 'Phân hiệu 1 - Ba Đình', 'blue'),
+         (2, 'PH2', 'Phân hiệu 2 - Cầu Giấy', 'emerald'),
+         (3, 'PH3', 'Phân hiệu 3 - Hà Đông', 'amber'),
+         (4, 'PH4', 'Phân hiệu 4 - Hoàn Kiếm', 'purple');",
         [],
     )
     .map_err(StorageError::from_sqlite)?;

@@ -52,22 +52,22 @@ fn test_campuses_and_grades_crud() {
 
     let created_c = service
         .create_campus(CreateCampusInput {
-            code: "CS1".to_string(),
-            name: "Cơ sở 1".to_string(),
+            code: "PH1".to_string(),
+            name: "Phân hiệu 1".to_string(),
             color: "#3b82f6".to_string(),
         })
         .expect("create campus");
-    assert_eq!(created_c.code, "CS1");
+    assert_eq!(created_c.code, "PH1");
 
     let mut campus_to_update = created_c.clone();
-    campus_to_update.name = "Cơ sở 1 (Cập nhật)".to_string();
+    campus_to_update.name = "Phân hiệu 1 (Cập nhật)".to_string();
     service
         .update_campus(campus_to_update)
         .expect("update campus");
 
     let campuses_after = service.list_campuses().expect("list campuses");
     assert_eq!(campuses_after.len(), 1);
-    assert_eq!(campuses_after[0].name, "Cơ sở 1 (Cập nhật)");
+    assert_eq!(campuses_after[0].name, "Phân hiệu 1 (Cập nhật)");
 
     // Grades (seed_defaults initializes grades 10, 11, 12)
     let grades = service.list_grades().expect("list grades");
@@ -104,8 +104,8 @@ fn test_teachers_and_grades() {
 
     let campus = service
         .create_campus(CreateCampusInput {
-            code: "CS1".to_string(),
-            name: "Cơ sở 1".to_string(),
+            code: "PH1".to_string(),
+            name: "Phân hiệu 1".to_string(),
             color: "#3b82f6".to_string(),
         })
         .expect("create campus");
@@ -323,7 +323,7 @@ fn test_optimization_persistence_and_plan_crud() {
 
     // Get plan details
     let p1 = service.get_plan(saved_ids[0]).expect("get plan");
-    assert_eq!(p1.assignments.len(), 36); // 4 exams * 3 grades * 3 teachers
+    assert_eq!(p1.assignments.len(), 60); // 4 exams * 3 grades * (3 VL + 2 CN) = 60 seats
     assert!(p1.score_report.is_some());
 
     // Rename plan
@@ -451,16 +451,16 @@ fn test_error_mapping() {
     // Duplicate campus code error
     service
         .create_campus(CreateCampusInput {
-            code: "CS1".to_string(),
-            name: "Cơ sở 1".to_string(),
+            code: "PH1".to_string(),
+            name: "Phân hiệu 1".to_string(),
             color: "#000".to_string(),
         })
         .expect("create first");
 
     let err = service
         .create_campus(CreateCampusInput {
-            code: "CS1".to_string(),
-            name: "Cơ sở 1 trùng".to_string(),
+            code: "PH1".to_string(),
+            name: "Phân hiệu 1 trùng".to_string(),
             color: "#111".to_string(),
         })
         .expect_err("duplicate code");

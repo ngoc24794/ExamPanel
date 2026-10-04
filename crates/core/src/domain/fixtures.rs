@@ -40,25 +40,25 @@ pub fn make_canonical_q_problem(variant: QVariant) -> Problem {
                 Campus {
                     id: CampusId(1),
                     code: "PH1".to_string(),
-                    name: "Phân hiệu 1".to_string(),
+                    name: "Phân hiệu 1 (giả lập)".to_string(),
                     color: "palette-1".to_string(),
                 },
                 Campus {
                     id: CampusId(2),
                     code: "PH2".to_string(),
-                    name: "Phân hiệu 2".to_string(),
+                    name: "Phân hiệu 2 (giả lập)".to_string(),
                     color: "palette-2".to_string(),
                 },
                 Campus {
                     id: CampusId(3),
                     code: "PH3".to_string(),
-                    name: "Phân hiệu 3".to_string(),
+                    name: "Phân hiệu 3 (giả lập)".to_string(),
                     color: "palette-3".to_string(),
                 },
                 Campus {
                     id: CampusId(4),
                     code: "PH4".to_string(),
-                    name: "Phân hiệu 4".to_string(),
+                    name: "Phân hiệu 4 (giả lập)".to_string(),
                     color: "palette-4".to_string(),
                 },
             ],
@@ -495,4 +495,121 @@ pub fn make_synthetic_40_problem_2sub() -> Problem {
         locks: vec![],
         rule_settings: RuleSetting::default_settings(),
     }
+}
+
+/// Real campus and grade data from Q to override synthetic fixtures without code changes.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+pub struct QRealData {
+    /// Optional campuses to override default campuses.
+    #[serde(default)]
+    pub campuses: Vec<Campus>,
+    /// Optional teacher-to-campus mapping. Key can be teacher code (e.g. "HIEN") or teacher id ("1").
+    /// Value can be campus code (e.g. "PH1") or campus id ("1").
+    #[serde(default)]
+    pub teacher_campuses: std::collections::HashMap<String, String>,
+    /// Optional teacher-to-grades mapping. Key can be teacher code or id.
+    /// Value is a list of grade codes (e.g. [10, 11, 12]).
+    #[serde(default)]
+    pub teacher_grades: std::collections::HashMap<String, Vec<i64>>,
+}
+
+impl QRealData {
+    /// Applies this real data overlay onto a problem instance.
+    pub fn apply_to_problem(&self, problem: &mut Problem) {
+        if !self.campuses.is_empty() {
+            problem.campuses = self.campuses.clone();
+        }
+
+        // Apply teacher campuses
+        for (teacher_key, campus_key) in &self.teacher_campuses {
+            let campus_id = problem
+                .campuses
+                .iter()
+                .find(|c| {
+                    c.code.eq_ignore_ascii_case(campus_key) || c.id.0.to_string() == *campus_key
+                })
+                .map(|c| c.id);
+
+            if let Some(cid) = campus_id {
+                if let Some(t) = problem.teachers.iter_mut().find(|t| {
+                    t.code
+                        .as_deref()
+                        .map(|c| c.eq_ignore_ascii_case(teacher_key))
+                        .unwrap_or(false)
+                        || t.id.0.to_string() == *teacher_key
+                }) {
+                    t.campus_id = cid;
+                }
+            }
+        }
+
+        // Apply teacher grades
+        for (teacher_key, grade_codes) in &self.teacher_grades {
+            let teacher_id = problem
+                .teachers
+                .iter()
+                .find(|t| {
+                    t.code
+                        .as_deref()
+                        .map(|c| c.eq_ignore_ascii_case(teacher_key))
+                        .unwrap_or(false)
+                        || t.id.0.to_string() == *teacher_key
+                })
+                .map(|t| t.id);
+
+            if let Some(tid) = teacher_id {
+                problem.teacher_grades.retain(|tg| tg.teacher_id != tid);
+                for gcode in grade_codes {
+                    if let Some(grade) = problem
+                        .grades
+                        .iter()
+                        .find(|g| (g.code as i64) == *gcode || g.id.0 == *gcode)
+                    {
+                        problem.teacher_grades.push(TeacherGrade {
+                            teacher_id: tid,
+                            school_year_id: problem.school_year.id,
+                            grade_id: grade.id,
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    /// Loads QRealData from a JSON string.
+    pub fn from_json_str(json_str: &str) -> Result<Self, serde_json::Error> {
+        serde_json::from_str(json_str)
+    }
+}
+
+/// Default path where real campus/grade data from Q may be placed.
+pub const DEFAULT_Q_REAL_DATA_PATH: &str = "data/q_real_data.json";
+
+/// Loads real data from the environment variable `EXAMPANEL_Q_DATA_PATH` or the default path if present.
+#[must_use]
+pub fn load_q_real_data_from_file_or_env() -> Option<QRealData> {
+    let path = std::env::var("EXAMPANEL_Q_DATA_PATH")
+        .unwrap_or_else(|_| DEFAULT_Q_REAL_DATA_PATH.to_string());
+    let path = std::path::Path::new(&path);
+    if path.exists() {
+        if let Ok(content) = std::fs::read_to_string(path) {
+            if let Ok(data) = QRealData::from_json_str(&content) {
+                return Some(data);
+            }
+        }
+    }
+    None
+}
+
+/// Builds canonical Q problem, optionally applying real data overlay if provided or discovered.
+#[must_use]
+pub fn make_canonical_q_problem_with_real_data(
+    variant: QVariant,
+    real_data: Option<&QRealData>,
+) -> Problem {
+    let mut problem = make_canonical_q_problem(variant);
+    if let Some(data) = real_data {
+        data.apply_to_problem(&mut problem);
+    }
+    problem
 }

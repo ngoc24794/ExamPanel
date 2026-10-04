@@ -22,14 +22,14 @@ fn make_canonical_problem(h3_enabled: bool) -> Problem {
     let campuses = vec![
         Campus {
             id: CampusId(1),
-            code: "CS1".to_string(),
-            name: "Cơ sở 1".to_string(),
+            code: "PH1".to_string(),
+            name: "Phân hiệu 1".to_string(),
             color: "palette-1".to_string(),
         },
         Campus {
             id: CampusId(2),
-            code: "CS2".to_string(),
-            name: "Cơ sở 2".to_string(),
+            code: "PH2".to_string(),
+            name: "Phân hiệu 2".to_string(),
             color: "palette-2".to_string(),
         },
     ];
@@ -613,7 +613,7 @@ fn main() {
 
 ## 1. Canonical Dataset Overview
 - **Teachers**: 12 (11 Vật lí teachers + Thầy Nghĩa)
-- **Campuses**: 2 (Cơ sở 1, Cơ sở 2)
+- **Campuses**: 2 (Phân hiệu 1, Phân hiệu 2)
 - **Subjects**: 2
   - **VL (Vật lí)**: 2 setters + 1 reviewer, min 2 campuses
   - **CN (Công nghệ)**: 1 setter + 1 reviewer, min 2 campuses

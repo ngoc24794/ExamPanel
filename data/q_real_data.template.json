@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Real campus and grade data from Q to override synthetic fixtures without code changes",
+  "campuses": [
+    { "id": 1, "code": "PH1", "name": "Phân hiệu 1", "color": "palette-1" },
+    { "id": 2, "code": "PH2", "name": "Phân hiệu 2", "color": "palette-2" },
+    { "id": 3, "code": "PH3", "name": "Phân hiệu 3", "color": "palette-3" },
+    { "id": 4, "code": "PH4", "name": "Phân hiệu 4", "color": "palette-4" }
+  ],
+  "teacher_campuses": {
+    "HIEN": "PH1",
+    "LAI": "PH2",
+    "PHUC": "PH3",
+    "LOC": "PH4",
+    "THU": "PH1",
+    "NA": "PH2",
+    "BINH": "PH3",
+    "QUI": "PH4",
+    "TU": "PH1",
+    "NHU": "PH2",
+    "LAN": "PH3",
+    "NGHIA": "PH1"
+  },
+  "teacher_grades": {
+    "HIEN": [10, 11, 12],
+    "LAI": [10, 11, 12],
+    "PHUC": [10, 12],
+    "LOC": [10, 11],
+    "THU": [11],
+    "NA": [10, 11],
+    "BINH": [11, 12],
+    "QUI": [11, 12],
+    "TU": [10],
+    "NHU": [10],
+    "LAN": [12],
+    "NGHIA": [10, 11, 12]
+  }
+}

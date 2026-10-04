@@ -244,9 +244,13 @@ fn test_part_b_manual_editing_and_immutability() {
     assert!(swap_eval.new_total >= 0.0);
 
     // 5. Apply an invalid assignment (H4 violation: same teacher assigned to multiple panels in same exam)
-    let first_exam = assignments[0].exam_id;
-    let first_grade = assignments[0].grade_id;
-    let t_id = assignments[0].teacher_id;
+    let (first_exam, first_grade, t_id) = {
+        let a = assignments
+            .iter()
+            .find(|a| a.teacher_id.0 != 8 && a.teacher_id.0 != 12)
+            .unwrap();
+        (a.exam_id, a.grade_id, a.teacher_id)
+    };
     for a in &mut assignments {
         if a.exam_id == first_exam && a.grade_id != first_grade {
             a.teacher_id = t_id;

@@ -65,10 +65,10 @@ fn test_template_roundtrip_preview_and_apply() {
     campuses.set_name("Phân hiệu").unwrap();
     campuses.write(0, 0, "Mã phân hiệu (*)").unwrap();
     campuses.write(0, 1, "Tên phân hiệu (*)").unwrap();
-    campuses.write(1, 0, "CS1").unwrap();
-    campuses.write(1, 1, "Cơ sở 1 - Ba Đình").unwrap();
-    campuses.write(2, 0, "CS2").unwrap();
-    campuses.write(2, 1, "Cơ sở 2 - Cầu Giấy").unwrap();
+    campuses.write(1, 0, "PH1").unwrap();
+    campuses.write(1, 1, "Phân hiệu 1 - Ba Đình").unwrap();
+    campuses.write(2, 0, "PH2").unwrap();
+    campuses.write(2, 1, "Phân hiệu 2 - Cầu Giấy").unwrap();
 
     let teachers = wb.add_worksheet();
     teachers.set_name("Giáo viên").unwrap();
@@ -83,7 +83,7 @@ fn test_template_roundtrip_preview_and_apply() {
     // Row 1: Teacher An
     teachers.write(1, 0, "GV001").unwrap();
     teachers.write(1, 1, "Nguyễn Văn An").unwrap();
-    teachers.write(1, 2, "CS1").unwrap();
+    teachers.write(1, 2, "PH1").unwrap();
     teachers.write(1, 3, "10, 11").unwrap();
     teachers.write(1, 4, "1").unwrap();
     teachers.write(1, 5, "Có").unwrap();
@@ -92,7 +92,7 @@ fn test_template_roundtrip_preview_and_apply() {
     // Row 2: Teacher Binh
     teachers.write(2, 0, "GV002").unwrap();
     teachers.write(2, 1, "Trần Thị Bình").unwrap();
-    teachers.write(2, 2, "CS2").unwrap();
+    teachers.write(2, 2, "PH2").unwrap();
     teachers.write(2, 3, "Khối 11, 12").unwrap();
     teachers.write(2, 4, "0.5").unwrap();
     teachers.write(2, 5, "Có").unwrap();
@@ -185,15 +185,15 @@ fn test_teacher_matching_and_ambiguity_detection() {
 
     let c1 = service
         .create_campus(CreateCampusInput {
-            code: "CS1".to_string(),
-            name: "Cơ sở 1".to_string(),
+            code: "PH1".to_string(),
+            name: "Phân hiệu 1".to_string(),
             color: "blue".to_string(),
         })
         .unwrap();
     let c2 = service
         .create_campus(CreateCampusInput {
-            code: "CS2".to_string(),
-            name: "Cơ sở 2".to_string(),
+            code: "PH2".to_string(),
+            name: "Phân hiệu 2".to_string(),
             color: "emerald".to_string(),
         })
         .unwrap();
@@ -257,7 +257,7 @@ fn test_teacher_matching_and_ambiguity_detection() {
     teachers1.write(0, 3, "Khối dạy (*)").unwrap();
     teachers1.write(1, 0, "").unwrap(); // No code
     teachers1.write(1, 1, "Nguyễn Văn An").unwrap();
-    teachers1.write(1, 2, "CS3").unwrap(); // Unknown campus
+    teachers1.write(1, 2, "PH3").unwrap(); // Unknown campus
     teachers1.write(1, 3, "10, 11").unwrap();
     wb1.save(&excel_path).unwrap();
 
@@ -277,7 +277,7 @@ fn test_teacher_matching_and_ambiguity_detection() {
     teachers2.write(0, 3, "Khối dạy (*)").unwrap();
     teachers2.write(1, 0, "GV001").unwrap();
     teachers2.write(1, 1, "Nguyễn Văn An").unwrap();
-    teachers2.write(1, 2, "CS1").unwrap();
+    teachers2.write(1, 2, "PH1").unwrap();
     teachers2.write(1, 3, "10, 11").unwrap();
     wb2.save(&excel_path).unwrap();
 
@@ -308,8 +308,8 @@ fn test_sync_mode_deactivates_omitted_teachers() {
 
     let c1 = service
         .create_campus(CreateCampusInput {
-            code: "CS1".to_string(),
-            name: "Cơ sở 1".to_string(),
+            code: "PH1".to_string(),
+            name: "Phân hiệu 1".to_string(),
             color: "blue".to_string(),
         })
         .unwrap();
@@ -368,12 +368,12 @@ fn test_sync_mode_deactivates_omitted_teachers() {
 
     teachers.write(1, 0, "GV01").unwrap();
     teachers.write(1, 1, "Teacher 1").unwrap();
-    teachers.write(1, 2, "CS1").unwrap();
+    teachers.write(1, 2, "PH1").unwrap();
     teachers.write(1, 3, "10").unwrap();
 
     teachers.write(2, 0, "GV02").unwrap();
     teachers.write(2, 1, "Teacher 2").unwrap();
-    teachers.write(2, 2, "CS1").unwrap();
+    teachers.write(2, 2, "PH1").unwrap();
     teachers.write(2, 3, "11").unwrap();
 
     wb.save(&excel_path).unwrap();
@@ -498,8 +498,8 @@ fn test_transactional_apply_rollback_on_error() {
         campuses: vec![exam_panel_service::dto::CampusImportRow {
             row_index: 2,
             status: exam_panel_service::dto::ImportRowStatus::New,
-            code: "CS_NEW".to_string(),
-            name: "Cơ sở mới".to_string(),
+            code: "PH_NEW".to_string(),
+            name: "Phân hiệu mới".to_string(),
             errors: Vec::new(),
         }],
         teachers: vec![exam_panel_service::dto::TeacherImportRow {

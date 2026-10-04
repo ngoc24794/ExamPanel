@@ -79,8 +79,8 @@ describe('ImportWizardModal Component Tests', () => {
 
     // Switch to campuses tab
     fireEvent.click(screen.getByTestId('tab-campuses'))
-    expect(await screen.findByText('CS1')).toBeInTheDocument()
-    expect(screen.getByText('CS3')).toBeInTheDocument()
+    expect(await screen.findByText('PH1')).toBeInTheDocument()
+    expect(screen.getByText('PH3')).toBeInTheDocument()
 
     // Switch to deactivated tab
     fireEvent.click(screen.getByTestId('tab-deactivated'))

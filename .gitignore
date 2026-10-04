@@ -3,7 +3,8 @@
 **/*.rs.bk
 
 # SQLite & Data
-data/
+data/*
+!data/q_real_data.template.json
 *.db
 *.db-shm
 *.db-wal
