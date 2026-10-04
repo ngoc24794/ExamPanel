@@ -32,6 +32,10 @@ path = "src/bin/import_q_data.rs"
 name = "task5_comparison"
 path = "src/bin/task5_comparison.rs"
 
+[[bin]]
+name = "task6_h3"
+path = "src/bin/task6_h3.rs"
+
 [[test]]
 name = "generate_types"
 path = "tests/generate_types.rs"

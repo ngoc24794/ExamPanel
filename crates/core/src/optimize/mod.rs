@@ -1275,4 +1275,41 @@ mod tests {
             initial_report_demo.total
         );
     }
+
+    #[test]
+    fn test_h3_multi_campus_verification_and_q_plan_4_campuses() {
+        use crate::domain::fixtures::{make_canonical_q_problem, make_q_assignments, QVariant};
+        use std::collections::HashSet;
+
+        // 1. Verify synthetic_campuses with H3 on is feasible
+        let prob_h3_on = make_canonical_q_problem(QVariant::SyntheticCampuses);
+        let feas = crate::feasibility::check_feasibility(&prob_h3_on);
+        assert!(feas.is_feasible(), "synthetic_campuses must be feasible");
+
+        // 2. Verify that under the discovered 4-campus assignment, Q's manual plan satisfies H3 on all 24 panels
+        let q_assigns = make_q_assignments();
+        let teacher_campus: [usize; 13] = [0, 2, 2, 3, 2, 2, 3, 3, 2, 2, 3, 3, 1];
+        for e in 1..=4 {
+            for g in 1..=3 {
+                for s_id in 1..=2 {
+                    let p_assigns: Vec<_> = q_assigns
+                        .iter()
+                        .filter(|a| {
+                            a.exam_id == crate::domain::ExamId(e)
+                                && a.grade_id == crate::domain::GradeId(g)
+                                && a.subject_id == crate::domain::SubjectId(s_id)
+                        })
+                        .collect();
+                    let campuses: HashSet<usize> = p_assigns
+                        .iter()
+                        .map(|a| teacher_campus[a.teacher_id.0 as usize])
+                        .collect();
+                    assert!(
+                        campuses.len() >= 2,
+                        "Panel e={e}, g={g}, s={s_id} must have >= 2 campuses, got {campuses:?}"
+                    );
+                }
+            }
+        }
+    }
 }
