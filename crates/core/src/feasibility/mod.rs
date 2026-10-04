@@ -885,6 +885,7 @@ mod tests {
     use crate::domain::{
         Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, GradeScope, Lock, LockId, Role,
         RuleSetting, SchoolYear, SchoolYearId, Subject, SubjectId, Teacher, TeacherGrade,
+        Unavailability,
     };
 
     fn make_valid_problem() -> Problem {
@@ -1281,5 +1282,315 @@ mod tests {
             .errors
             .iter()
             .any(|d| d.code == "panel_unfillable_under_h4"));
+    }
+
+    #[test]
+    fn test_degenerate_database_diagnostics() {
+        let empty_sy = SchoolYear {
+            id: SchoolYearId(1),
+            name: "2026-2027".to_string(),
+            is_current: true,
+        };
+        let p_empty = Problem {
+            school_year: empty_sy,
+            campuses: vec![],
+            grades: vec![],
+            subjects: vec![],
+            teachers: vec![],
+            teacher_grades: vec![],
+            competencies: vec![],
+            exams: vec![],
+            unavailabilities: vec![],
+            locks: vec![],
+            rule_settings: vec![],
+        };
+        let rep_empty = check_feasibility(&p_empty);
+        assert!(!rep_empty.is_feasible());
+        assert!(rep_empty.errors.iter().any(|d| d.code == "no_campuses"));
+        assert!(rep_empty
+            .errors
+            .iter()
+            .any(|d| d.code == "no_active_teachers"));
+        assert!(rep_empty.errors.iter().any(|d| d.code == "no_grades"));
+        assert!(rep_empty.errors.iter().any(|d| d.code == "no_exams"));
+        assert!(rep_empty.errors.iter().any(|d| d.code == "no_subjects"));
+
+        let mut p_single = make_valid_problem();
+        p_single.teachers.retain(|t| t.campus_id == CampusId(1));
+        p_single
+            .teacher_grades
+            .retain(|tg| tg.teacher_id != TeacherId(3));
+        p_single
+            .competencies
+            .retain(|c| c.teacher_id != TeacherId(3));
+        let rep_single = check_feasibility(&p_single);
+        assert!(!rep_single.is_feasible());
+        assert!(rep_single.errors.iter().any(|d| d.code == "single_campus"));
+
+        let mut p_inactive = make_valid_problem();
+        for t in &mut p_inactive.teachers {
+            t.active = false;
+        }
+        let rep_inactive = check_feasibility(&p_inactive);
+        assert!(!rep_inactive.is_feasible());
+        assert!(rep_inactive
+            .errors
+            .iter()
+            .any(|d| d.code == "no_active_teachers"));
+    }
+
+    #[test]
+    fn test_diagnostic_capacity_and_warnings() {
+        let problem = make_valid_problem();
+        let report = check_feasibility(&problem);
+        assert!(report
+            .warnings
+            .iter()
+            .any(|w| w.code == "tight_panel_roster"));
+        assert!(report
+            .warnings
+            .iter()
+            .any(|w| w.code == "teacher_single_panel_eligibility"));
+    }
+
+    #[test]
+    fn test_diagnostic_excess_pinned_setters_and_reviewers_and_pins() {
+        let mut problem = make_valid_problem();
+        // Add more teachers to allow multiple pins
+        for tid in 4..=6 {
+            problem.teachers.push(Teacher {
+                id: TeacherId(tid),
+                full_name: format!("Teacher {tid}"),
+                display_name: None,
+                campus_id: CampusId(if tid % 2 == 0 { 1 } else { 2 }),
+                load_weight: 1.0,
+                active: true,
+                note: None,
+                code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
+            });
+            problem.teacher_grades.push(TeacherGrade {
+                teacher_id: TeacherId(tid),
+                school_year_id: problem.school_year.id,
+                grade_id: GradeId(10),
+            });
+            problem.competencies.push(Competency {
+                teacher_id: TeacherId(tid),
+                subject_id: SubjectId(1),
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            });
+            problem.competencies.push(Competency {
+                teacher_id: TeacherId(tid),
+                subject_id: SubjectId(1),
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            });
+        }
+
+        // Sub 1 needs 2 setters, 1 reviewer. Pin 3 setters and 2 reviewers.
+        problem.locks.push(Lock {
+            id: LockId(1),
+            exam_id: ExamId(1),
+            grade_id: GradeId(10),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(1),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+        problem.locks.push(Lock {
+            id: LockId(2),
+            exam_id: ExamId(1),
+            grade_id: GradeId(10),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(2),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+        problem.locks.push(Lock {
+            id: LockId(3),
+            exam_id: ExamId(1),
+            grade_id: GradeId(10),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(3),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+        problem.locks.push(Lock {
+            id: LockId(4),
+            exam_id: ExamId(1),
+            grade_id: GradeId(10),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(4),
+            role: Some(Role::Reviewer),
+            kind: LockKind::Pin,
+        });
+        problem.locks.push(Lock {
+            id: LockId(5),
+            exam_id: ExamId(1),
+            grade_id: GradeId(10),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(5),
+            role: Some(Role::Reviewer),
+            kind: LockKind::Pin,
+        });
+
+        let report = check_feasibility(&problem);
+        assert!(report
+            .errors
+            .iter()
+            .any(|d| d.code == "excess_pinned_setters"));
+        assert!(report
+            .errors
+            .iter()
+            .any(|d| d.code == "excess_pinned_reviewers"));
+        assert!(report
+            .errors
+            .iter()
+            .any(|d| d.code == "excess_pins_in_panel"));
+    }
+
+    #[test]
+    fn test_diagnostic_pinned_teacher_ineligible_due_to_unavailability() {
+        let mut problem = make_valid_problem();
+        problem.unavailabilities.push(Unavailability {
+            teacher_id: TeacherId(1),
+            exam_id: ExamId(1),
+            reason: None,
+        });
+        problem.locks.push(Lock {
+            id: LockId(1),
+            exam_id: ExamId(1),
+            grade_id: GradeId(10),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(1),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+
+        let report = check_feasibility(&problem);
+        assert!(report
+            .errors
+            .iter()
+            .any(|d| d.code == "pinned_teacher_ineligible"));
+    }
+
+    #[test]
+    fn test_diagnostic_pinned_quota_exceeded() {
+        let mut problem = make_valid_problem();
+        problem.teachers[0].quota_override = Some(1);
+        problem.exams.push(Exam {
+            id: ExamId(2),
+            school_year_id: problem.school_year.id,
+            code: "CK1".to_string(),
+            name: "Cuối kỳ 1".to_string(),
+            sort_order: 2,
+        });
+        problem.locks.push(Lock {
+            id: LockId(1),
+            exam_id: ExamId(1),
+            grade_id: GradeId(10),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(1),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+        problem.locks.push(Lock {
+            id: LockId(2),
+            exam_id: ExamId(2),
+            grade_id: GradeId(10),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(1),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+
+        let report = check_feasibility(&problem);
+        assert!(report
+            .errors
+            .iter()
+            .any(|d| d.code == "pinned_quota_exceeded"));
+    }
+
+    #[test]
+    fn test_diagnostic_pinned_teacher_multiple_panels() {
+        let mut problem = make_valid_problem();
+        let g11 = Grade {
+            id: GradeId(11),
+            code: 11,
+            name: "Khối 11".to_string(),
+            sort_order: 2,
+        };
+        problem.grades.push(g11);
+        problem.teacher_grades.push(TeacherGrade {
+            teacher_id: TeacherId(1),
+            school_year_id: problem.school_year.id,
+            grade_id: GradeId(11),
+        });
+
+        if let Some(s) = problem
+            .rule_settings
+            .iter_mut()
+            .find(|s| s.key == RuleKey::H4)
+        {
+            s.params["max_tasks_per_exam"] = serde_json::json!(1);
+        }
+
+        problem.locks.push(Lock {
+            id: LockId(1),
+            exam_id: ExamId(1),
+            grade_id: GradeId(10),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(1),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+        problem.locks.push(Lock {
+            id: LockId(2),
+            exam_id: ExamId(1),
+            grade_id: GradeId(11),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(1),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+
+        let report = check_feasibility(&problem);
+        assert!(report
+            .errors
+            .iter()
+            .any(|d| d.code == "pinned_teacher_multiple_panels"));
+    }
+
+    #[test]
+    fn test_diagnostic_structural_error() {
+        let mut problem = make_valid_problem();
+        problem.exams.push(Exam {
+            id: ExamId(2),
+            school_year_id: problem.school_year.id,
+            code: "GK1".to_string(), // duplicate code!
+            name: "Duplicate".to_string(),
+            sort_order: 2,
+        });
+
+        let report = check_feasibility(&problem);
+        assert!(report
+            .errors
+            .iter()
+            .any(|d| d.code == "duplicate_exam_code"));
+
+        let mut p2 = make_valid_problem();
+        p2.teachers[0].campus_id = CampusId(999);
+        let rep2 = check_feasibility(&p2);
+        assert!(rep2.errors.iter().any(|d| d.code == "unknown_campus_ref"));
+
+        let mut p3 = make_valid_problem();
+        p3.teachers[0].load_weight = 1.5;
+        let rep3 = check_feasibility(&p3);
+        assert!(rep3
+            .errors
+            .iter()
+            .any(|d| d.code == "load_weight_out_of_range"));
     }
 }

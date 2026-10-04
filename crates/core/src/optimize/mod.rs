@@ -280,6 +280,7 @@ pub fn optimize(problem: &Problem, opts: &OptimizeOptions) -> Result<OptimizeRes
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domain::*;
     use crate::validate::{validate_assignments, ValidateOptions};
     use rand_chacha::ChaCha8Rng;
     use rand_core::{RngCore, SeedableRng};
@@ -610,10 +611,21 @@ mod tests {
         while accepted_moves < 10_000 {
             if let Some(m) = state.sample_candidate_move(&mut rng) {
                 let delta = state.try_apply_move(m);
-                // Accept all moves or randomly accept
                 let accept = rng.next_u32() % 2 == 0;
                 if accept {
                     accepted_moves += 1;
+                    let assigns = state.to_assignments(crate::domain::PlanId(0));
+                    let violations = validate_assignments(
+                        &problem,
+                        &assigns,
+                        &ValidateOptions {
+                            require_complete: true,
+                        },
+                    );
+                    assert!(
+                        violations.is_empty(),
+                        "Hard constraint violated after accepted move {accepted_moves}: {violations:?}"
+                    );
                 } else {
                     state.revert_move(m, delta);
                 }
@@ -633,7 +645,7 @@ mod tests {
 
     #[test]
     fn test_d1_incremental_state_consistency_synthetic_40_10k_moves() {
-        let problem = make_synthetic_40_problem();
+        let problem = make_synthetic_40_problem_2sub();
         let sol = solve_hard(
             &problem,
             &SolveOptions {
@@ -654,6 +666,18 @@ mod tests {
                 let accept = rng.next_u32() % 2 == 0;
                 if accept {
                     accepted_moves += 1;
+                    let assigns = state.to_assignments(crate::domain::PlanId(0));
+                    let violations = validate_assignments(
+                        &problem,
+                        &assigns,
+                        &ValidateOptions {
+                            require_complete: true,
+                        },
+                    );
+                    assert!(
+                        violations.is_empty(),
+                        "Hard constraint violated after accepted move {accepted_moves}: {violations:?}"
+                    );
                 } else {
                     state.revert_move(m, delta);
                 }
@@ -662,31 +686,64 @@ mod tests {
 
         let full_eval = state.full_evaluate(&problem);
         let diff = (state.current_penalty - full_eval.total).abs();
-        for rs in &full_eval.by_rule {
-            println!(
-                "Rule {:?}: units = {}, penalty = {}",
-                rs.rule, rs.units, rs.penalty
-            );
-        }
-        let full_rebuilt = {
-            let mut s = state.clone();
-            s.rebuild_counters_and_full_eval();
-            s
-        };
-        println!("State current_penalty: {}", state.current_penalty);
-        println!("State rebuilt penalty: {}", full_rebuilt.current_penalty);
-        println!("Full eval total:       {}", full_eval.total);
-        for i in 0..8 {
-            println!(
-                "Rule S{}: state units = {}, rebuilt units = {}",
-                i + 1,
-                state.current_units[i],
-                full_rebuilt.current_units[i]
-            );
-        }
         assert!(
             diff < 1e-9,
-            "Synthetic 40 10k moves: incremental penalty {} != full eval total {} (diff: {})",
+            "Synthetic 40 2-subject 10k moves: incremental penalty {} != full eval total {} (diff: {})",
+            state.current_penalty,
+            full_eval.total,
+            diff
+        );
+    }
+
+    #[test]
+    fn test_d1_incremental_state_consistency_q_shaped_10k_moves() {
+        let problem = make_canonical_q_problem(QVariant::NoCampus);
+        let assignments = make_q_assignments();
+        let violations = validate_assignments(
+            &problem,
+            &assignments,
+            &ValidateOptions {
+                require_complete: true,
+            },
+        );
+        assert!(
+            violations.is_empty(),
+            "Q manual plan has violations on nocampus: {violations:?}"
+        );
+
+        let mut state = IncrementalState::new(&problem, &assignments);
+        let mut rng = ChaCha8Rng::seed_from_u64(54321);
+
+        let mut accepted_moves = 0;
+        while accepted_moves < 10_000 {
+            if let Some(m) = state.sample_candidate_move(&mut rng) {
+                let delta = state.try_apply_move(m);
+                let accept = rng.next_u32() % 2 == 0;
+                if accept {
+                    accepted_moves += 1;
+                    let assigns = state.to_assignments(crate::domain::PlanId(0));
+                    let v = validate_assignments(
+                        &problem,
+                        &assigns,
+                        &ValidateOptions {
+                            require_complete: true,
+                        },
+                    );
+                    assert!(
+                        v.is_empty(),
+                        "Hard constraint violated after accepted move {accepted_moves}: {v:?}"
+                    );
+                } else {
+                    state.revert_move(m, delta);
+                }
+            }
+        }
+
+        let full_eval = state.full_evaluate(&problem);
+        let diff = (state.current_penalty - full_eval.total).abs();
+        assert!(
+            diff < 1e-9,
+            "Q-shaped 10k moves: incremental penalty {} != full eval total {} (diff: {})",
             state.current_penalty,
             full_eval.total,
             diff

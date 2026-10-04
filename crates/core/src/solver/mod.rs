@@ -797,6 +797,7 @@ fn backtrack(
         }
 
         // Backtrack unplace
+        stats.backtracks += 1;
         assigned[chosen_p] = None;
         used_count[triple.s1] -= 1;
         exam_tasks[triple.s1][chosen_e] -= 1;
@@ -821,11 +822,13 @@ fn backtrack(
 mod tests {
     use super::*;
     use crate::domain::{
-        Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, GradeScope, Role, RuleSetting,
-        SchoolYear, SchoolYearId, Subject, SubjectId, Teacher, TeacherGrade,
+        Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, GradeScope, Lock, LockId,
+        LockKind, Role, RuleSetting, SchoolYear, SchoolYearId, Subject, SubjectId, Teacher,
+        TeacherGrade,
     };
     use crate::validate::{validate_assignments, ValidateOptions};
     use rand::Rng;
+    use std::time::Instant;
 
     fn make_valid_test_problem() -> Problem {
         let sy = SchoolYear {
@@ -1145,15 +1148,400 @@ mod tests {
     }
 
     #[test]
-    fn test_cross_check_300_tiny_instances() {
-        let mut rng = ChaCha8Rng::seed_from_u64(424242);
-        let mut tested = 0usize;
+    fn test_solve_demo_seed_returns_valid_solution() {
+        let problem = make_valid_test_problem();
+        let opts = SolveOptions {
+            seed: 42,
+            time_limit_ms: 2000,
+            max_nodes: 500_000,
+        };
 
-        for _ in 0..1000 {
-            if tested >= 300 {
-                break;
+        let result = solve_hard(&problem, &opts);
+        assert!(result.is_ok(), "solve_hard failed: {:?}", result.err());
+
+        let solution = result.unwrap();
+        assert_eq!(solution.assignments.len(), 36);
+
+        let violations = validate_assignments(
+            &problem,
+            &solution.assignments,
+            &ValidateOptions {
+                require_complete: true,
+            },
+        );
+        assert!(
+            violations.is_empty(),
+            "returned solution has violations: {violations:?}"
+        );
+    }
+
+    #[test]
+    fn test_solver_determinism_and_multi_seed_variation() {
+        let problem = make_valid_test_problem();
+
+        let opts1 = SolveOptions {
+            seed: 12345,
+            ..Default::default()
+        };
+        let sol1a = solve_hard(&problem, &opts1).expect("sol1a");
+        let sol1b = solve_hard(&problem, &opts1).expect("sol1b");
+        assert_eq!(
+            sol1a.assignments, sol1b.assignments,
+            "same seed must produce identical assignments"
+        );
+
+        let opts2 = SolveOptions {
+            seed: 98765,
+            ..Default::default()
+        };
+        let sol2 = solve_hard(&problem, &opts2).expect("sol2");
+        assert_ne!(
+            sol1a.assignments, sol2.assignments,
+            "different seeds should produce distinct assignments"
+        );
+    }
+
+    #[test]
+    fn test_solver_stops_early_on_infeasible_problem() {
+        let mut problem = make_valid_test_problem();
+        // Conflicting PIN + FORBID
+        problem.locks.push(Lock {
+            id: LockId(1),
+            exam_id: ExamId(1),
+            grade_id: GradeId(1),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(1),
+            role: Some(Role::Setter),
+            kind: LockKind::Pin,
+        });
+        problem.locks.push(Lock {
+            id: LockId(2),
+            exam_id: ExamId(1),
+            grade_id: GradeId(1),
+            subject_id: SubjectId(1),
+            teacher_id: TeacherId(1),
+            role: None,
+            kind: LockKind::Forbid,
+        });
+
+        let opts = SolveOptions::default();
+        let res = solve_hard(&problem, &opts);
+        assert!(matches!(res, Err(SolveError::Infeasible { .. })));
+    }
+
+    #[test]
+    fn test_performance_timing_demo_seed() {
+        let problem = make_valid_test_problem();
+        let opts = SolveOptions {
+            seed: 42,
+            time_limit_ms: 2000,
+            max_nodes: 500_000,
+        };
+
+        let start = Instant::now();
+        let sol = solve_hard(&problem, &opts).expect("demo solve");
+        let elapsed = start.elapsed();
+
+        println!(
+            "Demo seed solve time: {:?} (nodes: {}, backtracks: {})",
+            elapsed, sol.stats.nodes, sol.stats.backtracks
+        );
+        assert_eq!(sol.assignments.len(), 36);
+    }
+
+    #[test]
+    fn test_performance_synthetic_40_teacher_instance() {
+        let sy = SchoolYear {
+            id: SchoolYearId(1),
+            name: "2026-2027".to_string(),
+            is_current: true,
+        };
+
+        let campuses: Vec<Campus> = (1..=6)
+            .map(|c| Campus {
+                id: CampusId(c),
+                code: format!("CS{c}"),
+                name: format!("Campus {c}"),
+                color: "#1e40af".to_string(),
+            })
+            .collect();
+
+        let grades: Vec<Grade> = (1..=3)
+            .map(|g| Grade {
+                id: GradeId(g),
+                code: (9 + g) as i32,
+                name: format!("Khối {}", 9 + g),
+                sort_order: g as i32,
+            })
+            .collect();
+
+        let exams: Vec<Exam> = (1..=4)
+            .map(|e| Exam {
+                id: ExamId(e),
+                school_year_id: sy.id,
+                code: format!("EX{e}"),
+                name: format!("Kỳ thi {e}"),
+                sort_order: e as i32,
+            })
+            .collect();
+
+        let mut teachers = Vec::with_capacity(40);
+        let mut teacher_grades = Vec::new();
+
+        for tid in 1..=40 {
+            let cid = ((tid - 1) % 6) + 1;
+            teachers.push(Teacher {
+                id: TeacherId(tid),
+                full_name: format!("Giáo viên {tid}"),
+                display_name: None,
+                campus_id: CampusId(cid),
+                load_weight: 1.0,
+                active: true,
+                note: None,
+                code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
+            });
+
+            let g1 = ((tid - 1) % 3) + 1;
+            teacher_grades.push(TeacherGrade {
+                teacher_id: TeacherId(tid),
+                school_year_id: sy.id,
+                grade_id: GradeId(g1),
+            });
+            if tid % 2 == 0 {
+                let g2 = (g1 % 3) + 1;
+                teacher_grades.push(TeacherGrade {
+                    teacher_id: TeacherId(tid),
+                    school_year_id: sy.id,
+                    grade_id: GradeId(g2),
+                });
+            }
+        }
+
+        let sub1 = Subject {
+            id: SubjectId(1),
+            code: "CHUNG".to_string(),
+            name: "Chung".to_string(),
+            color: "slate".to_string(),
+            sort_order: 1,
+            setters: 2,
+            reviewers: 1,
+            min_campuses: 2,
+        };
+
+        let mut competencies = Vec::new();
+        for t in &teachers {
+            competencies.push(Competency {
+                teacher_id: t.id,
+                subject_id: sub1.id,
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            });
+            competencies.push(Competency {
+                teacher_id: t.id,
+                subject_id: sub1.id,
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            });
+        }
+
+        let problem = Problem {
+            school_year: sy,
+            campuses,
+            grades,
+            subjects: vec![sub1],
+            exams,
+            teachers,
+            teacher_grades,
+            competencies,
+            unavailabilities: vec![],
+            locks: vec![],
+            rule_settings: RuleSetting::default_settings(),
+        };
+
+        let opts = SolveOptions {
+            seed: 777,
+            time_limit_ms: 3000,
+            max_nodes: 500_000,
+        };
+
+        let start = Instant::now();
+        let result = solve_hard(&problem, &opts);
+        let elapsed = start.elapsed();
+
+        assert!(
+            result.is_ok(),
+            "synthetic 40 solve failed: {:?}",
+            result.err()
+        );
+        let solution = result.unwrap();
+        assert_eq!(solution.assignments.len(), 36);
+
+        let violations = validate_assignments(
+            &problem,
+            &solution.assignments,
+            &ValidateOptions {
+                require_complete: true,
+            },
+        );
+        assert!(violations.is_empty(), "violations: {violations:?}");
+
+        println!(
+            "Synthetic 40-teacher solve time: {:?} (nodes: {}, backtracks: {})",
+            elapsed, solution.stats.nodes, solution.stats.backtracks
+        );
+    }
+
+    fn brute_force_has_solution(problem: &Problem) -> bool {
+        let panels = problem.all_panels();
+        let teachers: Vec<TeacherId> = problem.teachers.iter().map(|t| t.id).collect();
+        let n = teachers.len();
+
+        let mut candidate_panels: Vec<Vec<Vec<Assignment>>> = Vec::new();
+        for p in &panels {
+            let sub = problem
+                .effective_subjects()
+                .into_iter()
+                .find(|s| s.id == p.subject_id)
+                .unwrap();
+            let mut list = Vec::new();
+
+            if sub.setters == 1 && sub.reviewers == 1 {
+                for i in 0..n {
+                    for j in 0..n {
+                        if i == j {
+                            continue;
+                        }
+                        let assigns = vec![
+                            Assignment::new(
+                                p.exam_id,
+                                p.grade_id,
+                                p.subject_id,
+                                teachers[i],
+                                Role::Setter,
+                                0,
+                            ),
+                            Assignment::new(
+                                p.exam_id,
+                                p.grade_id,
+                                p.subject_id,
+                                teachers[j],
+                                Role::Reviewer,
+                                0,
+                            ),
+                        ];
+                        let v = validate_assignments(
+                            problem,
+                            &assigns,
+                            &ValidateOptions {
+                                require_complete: false,
+                            },
+                        );
+                        if v.is_empty() {
+                            list.push(assigns);
+                        }
+                    }
+                }
+            } else if sub.setters == 2 && sub.reviewers == 1 {
+                for i in 0..n {
+                    for j in (i + 1)..n {
+                        for k in 0..n {
+                            if k == i || k == j {
+                                continue;
+                            }
+                            let assigns = vec![
+                                Assignment::new(
+                                    p.exam_id,
+                                    p.grade_id,
+                                    p.subject_id,
+                                    teachers[i],
+                                    Role::Setter,
+                                    0,
+                                ),
+                                Assignment::new(
+                                    p.exam_id,
+                                    p.grade_id,
+                                    p.subject_id,
+                                    teachers[j],
+                                    Role::Setter,
+                                    1,
+                                ),
+                                Assignment::new(
+                                    p.exam_id,
+                                    p.grade_id,
+                                    p.subject_id,
+                                    teachers[k],
+                                    Role::Reviewer,
+                                    0,
+                                ),
+                            ];
+                            let v = validate_assignments(
+                                problem,
+                                &assigns,
+                                &ValidateOptions {
+                                    require_complete: false,
+                                },
+                            );
+                            if v.is_empty() {
+                                list.push(assigns);
+                            }
+                        }
+                    }
+                }
             }
 
+            candidate_panels.push(list);
+        }
+
+        fn search(
+            idx: usize,
+            candidate_panels: &[Vec<Vec<Assignment>>],
+            current: &mut Vec<Assignment>,
+            problem: &Problem,
+        ) -> bool {
+            if idx == candidate_panels.len() {
+                return validate_assignments(
+                    problem,
+                    current,
+                    &ValidateOptions {
+                        require_complete: true,
+                    },
+                )
+                .is_empty();
+            }
+
+            for panel_assigns in &candidate_panels[idx] {
+                let start_len = current.len();
+                current.extend_from_slice(panel_assigns);
+                let v = validate_assignments(
+                    problem,
+                    current,
+                    &ValidateOptions {
+                        require_complete: false,
+                    },
+                );
+                if v.is_empty() && search(idx + 1, candidate_panels, current, problem) {
+                    return true;
+                }
+                current.truncate(start_len);
+            }
+            false
+        }
+
+        let mut current = Vec::new();
+        search(0, &candidate_panels, &mut current, problem)
+    }
+
+    #[test]
+    fn test_cross_check_300_tiny_instances() {
+        let mut rng = ChaCha8Rng::seed_from_u64(20261004);
+        let num_instances = 300;
+        let mut feasible_count = 0;
+        let mut infeasible_count = 0;
+        let mut backtrack_count = 0;
+
+        for instance_idx in 0..num_instances {
             let sy = SchoolYear {
                 id: SchoolYearId(1),
                 name: "2026-2027".to_string(),
@@ -1177,12 +1565,22 @@ mod tests {
                 name: "G10".to_string(),
                 sort_order: 1,
             };
-            let sub = Subject {
+            let sub1 = Subject {
                 id: SubjectId(1),
                 code: "VL".to_string(),
-                name: "VL".to_string(),
+                name: "Vật lí".to_string(),
                 color: "blue".to_string(),
                 sort_order: 1,
+                setters: 2,
+                reviewers: 1,
+                min_campuses: 2,
+            };
+            let sub2 = Subject {
+                id: SubjectId(2),
+                code: "CN".to_string(),
+                name: "Công nghệ".to_string(),
+                color: "green".to_string(),
+                sort_order: 2,
                 setters: 2,
                 reviewers: 1,
                 min_campuses: 2,
@@ -1195,17 +1593,30 @@ mod tests {
                 sort_order: 1,
             };
 
-            let num_teachers = rng.gen_range(4..=6);
+            let num_teachers = 6;
             let mut teachers = Vec::new();
             let mut teacher_grades = Vec::new();
             let mut competencies = Vec::new();
 
             for tid in 1..=num_teachers {
-                let camp = if tid <= num_teachers / 2 {
+                let camp = if tid <= 3 {
                     CampusId(1)
-                } else {
+                } else if tid == 4 {
+                    if rng.gen_bool(0.6) {
+                        CampusId(1)
+                    } else {
+                        CampusId(2)
+                    }
+                } else if tid == 5 {
                     CampusId(2)
+                } else {
+                    if rng.gen_bool(0.5) {
+                        CampusId(2)
+                    } else {
+                        CampusId(1)
+                    }
                 };
+
                 teachers.push(Teacher {
                     id: TeacherId(tid as i64),
                     full_name: format!("T{tid}"),
@@ -1223,61 +1634,134 @@ mod tests {
                     school_year_id: sy.id,
                     grade_id: GradeId(1),
                 });
-                competencies.push(Competency {
-                    teacher_id: TeacherId(tid as i64),
-                    subject_id: SubjectId(1),
-                    role: Role::Setter,
-                    grade_scope: GradeScope::Taught,
-                });
-                competencies.push(Competency {
-                    teacher_id: TeacherId(tid as i64),
-                    subject_id: SubjectId(1),
-                    role: Role::Reviewer,
-                    grade_scope: GradeScope::Taught,
-                });
+
+                // Random competencies across sub1 and sub2
+                let p_sub1 = if tid <= 3 { 0.85 } else { 0.55 };
+                let p_sub2 = if tid >= 4 { 0.85 } else { 0.55 };
+
+                if rng.gen_bool(p_sub1) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(1),
+                        role: Role::Setter,
+                        grade_scope: GradeScope::Taught,
+                    });
+                }
+                if rng.gen_bool(p_sub1) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(1),
+                        role: Role::Reviewer,
+                        grade_scope: GradeScope::Taught,
+                    });
+                }
+                if rng.gen_bool(p_sub2) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(2),
+                        role: Role::Setter,
+                        grade_scope: GradeScope::Taught,
+                    });
+                }
+                if rng.gen_bool(p_sub2) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(2),
+                        role: Role::Reviewer,
+                        grade_scope: GradeScope::Taught,
+                    });
+                }
+            }
+
+            // Ensure each teacher has at least one competency so they aren't completely dead
+            for tid in 1..=num_teachers {
+                if !competencies
+                    .iter()
+                    .any(|c| c.teacher_id == TeacherId(tid as i64))
+                {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(if tid <= 3 { 1 } else { 2 }),
+                        role: Role::Setter,
+                        grade_scope: GradeScope::Taught,
+                    });
+                }
+            }
+
+            let mut rule_settings = RuleSetting::default_settings();
+            if let Some(h4) = rule_settings.iter_mut().find(|r| r.key == RuleKey::H4) {
+                h4.params["max_tasks_per_exam"] = serde_json::json!(1);
             }
 
             let problem = Problem {
                 school_year: sy,
                 campuses: vec![c1, c2],
                 grades: vec![g1],
-                subjects: vec![sub],
+                subjects: vec![sub1, sub2],
                 exams: vec![e1],
                 teachers,
                 teacher_grades,
                 competencies,
                 unavailabilities: vec![],
                 locks: vec![],
-                rule_settings: RuleSetting::default_settings(),
+                rule_settings,
             };
 
-            let report = check_feasibility(&problem);
-            if !report.is_feasible() {
-                continue;
-            }
+            let bf_feasible = brute_force_has_solution(&problem);
 
             let opts = SolveOptions {
-                seed: 123 + tested as u64,
+                seed: 42 + instance_idx as u64,
                 time_limit_ms: 1000,
                 max_nodes: 50_000,
             };
 
-            if let Ok(sol) = solve_hard(&problem, &opts) {
-                let violations = validate_assignments(
-                    &problem,
-                    &sol.assignments,
-                    &ValidateOptions {
-                        require_complete: true,
-                    },
-                );
-                assert!(violations.is_empty(), "Violations found: {violations:?}");
-                tested += 1;
+            let res = solve_hard(&problem, &opts);
+            match res {
+                Ok(sol) => {
+                    assert!(
+                        bf_feasible,
+                        "Instance {instance_idx}: Solver found solution but brute force said infeasible!"
+                    );
+                    let v = validate_assignments(
+                        &problem,
+                        &sol.assignments,
+                        &ValidateOptions {
+                            require_complete: true,
+                        },
+                    );
+                    assert!(
+                        v.is_empty(),
+                        "Instance {instance_idx} produced violations: {v:?}"
+                    );
+                    feasible_count += 1;
+                    if sol.stats.backtracks > 0 {
+                        backtrack_count += 1;
+                    }
+                }
+                Err(_) => {
+                    assert!(
+                        !bf_feasible,
+                        "Instance {instance_idx}: Brute force found solution but solver reported infeasible!"
+                    );
+                    infeasible_count += 1;
+                }
             }
         }
 
-        assert!(
-            tested >= 300,
-            "Expected >= 300 tested instances, got {tested}"
+        let backtrack_pct = if feasible_count > 0 {
+            (backtrack_count as f64 / feasible_count as f64) * 100.0
+        } else {
+            0.0
+        };
+
+        println!(
+            "Cross-check: {} instances tested | Feasible: {}, Infeasible: {} | Backtracked: {} ({:.1}% of feasible)",
+            num_instances, feasible_count, infeasible_count, backtrack_count, backtrack_pct
         );
+
+        assert_eq!(feasible_count + infeasible_count, num_instances);
+        assert!(feasible_count > 0, "Expected some feasible instances");
+        assert!(infeasible_count > 0, "Expected some infeasible instances");
+        assert!(backtrack_count > 0, "Expected some backtracked instances");
     }
 }

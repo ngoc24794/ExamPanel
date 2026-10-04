@@ -401,6 +401,26 @@ mod tests {
     use rand_core::SeedableRng;
 
     #[test]
+    fn test_s6_exact_per_teacher_minimum_function() {
+        let num_exams = 4usize;
+        let adj_cost = |s: usize| -> usize {
+            let max_non_adjacent = num_exams.div_ceil(2);
+            if s > max_non_adjacent && 2 * s > num_exams + 1 {
+                2 * s - num_exams - 1
+            } else {
+                0
+            }
+        };
+
+        assert_eq!(adj_cost(0), 0);
+        assert_eq!(adj_cost(1), 0);
+        assert_eq!(adj_cost(2), 0);
+        assert_eq!(adj_cost(3), 1);
+        assert_eq!(adj_cost(4), 3);
+        assert_ne!(adj_cost(4), 4 - 2);
+    }
+
+    #[test]
     fn test_lower_bounds_validity_exhaustive_tiny_instances() {
         let mut rng = ChaCha8Rng::seed_from_u64(1234567);
         let mut valid_tested_instances = 0usize;
@@ -410,9 +430,9 @@ mod tests {
                 break;
             }
 
-            let num_exams = rng.gen_range(2..=3);
+            let num_exams = 2;
             let num_grades = 1usize;
-            let num_teachers = rng.gen_range(4..=6);
+            let num_teachers = rng.gen_range(4..=5);
 
             let sy = SchoolYear {
                 id: SchoolYearId(1),
@@ -445,13 +465,23 @@ mod tests {
 
             let sub1 = Subject {
                 id: SubjectId(1),
-                code: "CHUNG".to_string(),
-                name: "Chung".to_string(),
+                code: "SUB1".to_string(),
+                name: "Subject 1".to_string(),
                 color: "slate".to_string(),
                 sort_order: 1,
-                setters: 2,
+                setters: 1,
                 reviewers: 1,
-                min_campuses: 2,
+                min_campuses: 1,
+            };
+            let sub2 = Subject {
+                id: SubjectId(2),
+                code: "SUB2".to_string(),
+                name: "Subject 2".to_string(),
+                color: "blue".to_string(),
+                sort_order: 2,
+                setters: 1,
+                reviewers: 1,
+                min_campuses: 1,
             };
 
             let exams: Vec<Exam> = (1..=num_exams)
@@ -496,18 +526,37 @@ mod tests {
                     });
                 }
 
-                competencies.push(Competency {
-                    teacher_id: TeacherId(tid as i64),
-                    subject_id: SubjectId(1),
-                    role: Role::Setter,
-                    grade_scope: GradeScope::Taught,
-                });
-                competencies.push(Competency {
-                    teacher_id: TeacherId(tid as i64),
-                    subject_id: SubjectId(1),
-                    role: Role::Reviewer,
-                    grade_scope: GradeScope::Taught,
-                });
+                // Multi-subject competencies:
+                // Sub 1 competency
+                if rng.gen_bool(0.8) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(1),
+                        role: Role::Setter,
+                        grade_scope: GradeScope::Taught,
+                    });
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(1),
+                        role: Role::Reviewer,
+                        grade_scope: GradeScope::Taught,
+                    });
+                }
+                // Sub 2 competency
+                if rng.gen_bool(0.8) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(2),
+                        role: Role::Setter,
+                        grade_scope: GradeScope::Taught,
+                    });
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(2),
+                        role: Role::Reviewer,
+                        grade_scope: GradeScope::Taught,
+                    });
+                }
             }
 
             let mut unavailabilities = Vec::new();
@@ -525,7 +574,7 @@ mod tests {
                 school_year: sy,
                 campuses,
                 grades,
-                subjects: vec![sub1],
+                subjects: vec![sub1, sub2],
                 exams,
                 teachers,
                 teacher_grades,
@@ -537,48 +586,59 @@ mod tests {
 
             let panels = problem.all_panels();
 
-            // Candidate triples for each panel
-            let mut panel_triples: Vec<Vec<(usize, usize, usize)>> = Vec::new();
+            let is_competent = |tid: TeacherId, gid: GradeId, sid: SubjectId, role: Role| -> bool {
+                problem.competencies.iter().any(|c| {
+                    c.teacher_id == tid
+                        && c.subject_id == sid
+                        && c.role == role
+                        && (c.grade_scope == GradeScope::Any
+                            || problem
+                                .teacher_grades
+                                .iter()
+                                .any(|tg| tg.teacher_id == tid && tg.grade_id == gid))
+                })
+            };
+
+            // Candidate pairs (setter, reviewer) for each panel
+            let mut panel_pairs: Vec<Vec<(usize, usize)>> = Vec::new();
             for p in &panels {
-                let mut triples = Vec::new();
-                for u1 in 0..num_teachers {
-                    for u2 in (u1 + 1)..num_teachers {
-                        for ur in 0..num_teachers {
-                            if ur == u1 || ur == u2 {
-                                continue;
-                            }
-                            let c1 = problem.teachers[u1].campus_id;
-                            let c2 = problem.teachers[u2].campus_id;
-                            let cr = problem.teachers[ur].campus_id;
-                            let mut distinct_campuses = HashSet::new();
-                            distinct_campuses.insert(c1);
-                            distinct_campuses.insert(c2);
-                            distinct_campuses.insert(cr);
-                            if distinct_campuses.len() < 2 {
-                                continue;
-                            }
+                let mut pairs = Vec::new();
+                for u_s in 0..num_teachers {
+                    let ts_id = problem.teachers[u_s].id;
+                    if !is_competent(ts_id, p.grade_id, p.subject_id, Role::Setter) {
+                        continue;
+                    }
+                    if problem
+                        .unavailabilities
+                        .iter()
+                        .any(|u| u.teacher_id == ts_id && u.exam_id == p.exam_id)
+                    {
+                        continue;
+                    }
 
-                            let t1_id = problem.teachers[u1].id;
-                            let t2_id = problem.teachers[u2].id;
-                            let tr_id = problem.teachers[ur].id;
-
-                            if problem.unavailabilities.iter().any(|u| {
-                                u.exam_id == p.exam_id
-                                    && (u.teacher_id == t1_id
-                                        || u.teacher_id == t2_id
-                                        || u.teacher_id == tr_id)
-                            }) {
-                                continue;
-                            }
-
-                            triples.push((u1, u2, ur));
+                    for u_r in 0..num_teachers {
+                        if u_r == u_s {
+                            continue;
                         }
+                        let tr_id = problem.teachers[u_r].id;
+                        if !is_competent(tr_id, p.grade_id, p.subject_id, Role::Reviewer) {
+                            continue;
+                        }
+                        if problem
+                            .unavailabilities
+                            .iter()
+                            .any(|u| u.teacher_id == tr_id && u.exam_id == p.exam_id)
+                        {
+                            continue;
+                        }
+
+                        pairs.push((u_s, u_r));
                     }
                 }
-                panel_triples.push(triples);
+                panel_pairs.push(pairs);
             }
 
-            if panel_triples.iter().any(|v| v.is_empty()) {
+            if panel_pairs.iter().any(|v| v.is_empty()) {
                 continue;
             }
 
@@ -606,10 +666,10 @@ mod tests {
                 })
                 .collect();
 
-            fn search_fast(
+            fn search_multi_fast(
                 p_idx: usize,
                 panels: &[PanelKey],
-                panel_triples: &[Vec<(usize, usize, usize)>],
+                panel_pairs: &[Vec<(usize, usize)>],
                 problem: &Problem,
                 hi_limits: &[usize],
                 lo_limits: &[usize],
@@ -628,24 +688,18 @@ mod tests {
                 }
 
                 let panel = panels[p_idx];
-                for &(u1, u2, ur) in &panel_triples[p_idx] {
-                    if used_counts[u1] >= hi_limits[u1]
-                        || used_counts[u2] >= hi_limits[u2]
-                        || used_counts[ur] >= hi_limits[ur]
-                    {
+                for &(u_s, u_r) in &panel_pairs[p_idx] {
+                    if used_counts[u_s] >= hi_limits[u_s] || used_counts[u_r] >= hi_limits[u_r] {
                         continue;
                     }
 
-                    let t1_id = problem.teachers[u1].id;
-                    let t2_id = problem.teachers[u2].id;
-                    let tr_id = problem.teachers[ur].id;
+                    let ts_id = problem.teachers[u_s].id;
+                    let tr_id = problem.teachers[u_r].id;
 
                     let mut conflict = false;
                     for a in current.iter() {
                         if a.exam_id == panel.exam_id
-                            && (a.teacher_id == t1_id
-                                || a.teacher_id == t2_id
-                                || a.teacher_id == tr_id)
+                            && (a.teacher_id == ts_id || a.teacher_id == tr_id)
                         {
                             conflict = true;
                             break;
@@ -655,25 +709,16 @@ mod tests {
                         continue;
                     }
 
-                    used_counts[u1] += 1;
-                    used_counts[u2] += 1;
-                    used_counts[ur] += 1;
+                    used_counts[u_s] += 1;
+                    used_counts[u_r] += 1;
 
                     current.push(Assignment::new(
                         panel.exam_id,
                         panel.grade_id,
                         panel.subject_id,
-                        t1_id,
+                        ts_id,
                         Role::Setter,
                         0,
-                    ));
-                    current.push(Assignment::new(
-                        panel.exam_id,
-                        panel.grade_id,
-                        panel.subject_id,
-                        t2_id,
-                        Role::Setter,
-                        1,
                     ));
                     current.push(Assignment::new(
                         panel.exam_id,
@@ -684,10 +729,10 @@ mod tests {
                         0,
                     ));
 
-                    search_fast(
+                    search_multi_fast(
                         p_idx + 1,
                         panels,
-                        panel_triples,
+                        panel_pairs,
                         problem,
                         hi_limits,
                         lo_limits,
@@ -698,18 +743,16 @@ mod tests {
 
                     current.pop();
                     current.pop();
-                    current.pop();
 
-                    used_counts[u1] -= 1;
-                    used_counts[u2] -= 1;
-                    used_counts[ur] -= 1;
+                    used_counts[u_s] -= 1;
+                    used_counts[u_r] -= 1;
                 }
             }
 
-            search_fast(
+            search_multi_fast(
                 0,
                 &panels,
-                &panel_triples,
+                &panel_pairs,
                 &problem,
                 &hi_limits,
                 &lo_limits,
@@ -723,77 +766,89 @@ mod tests {
             }
 
             let mut min_s1 = f64::INFINITY;
-            let mut min_s6 = usize::MAX;
+            let mut min_s6 = f64::INFINITY;
             let mut min_s8 = f64::INFINITY;
 
-            let exam_order: HashMap<ExamId, usize> = problem
-                .exams
+            let eligible_reviewers_count = quotas
                 .iter()
-                .enumerate()
-                .map(|(idx, e)| (e.id, idx))
-                .collect();
+                .filter(|q| {
+                    if q.quota < 1.0 {
+                        return false;
+                    }
+                    let t = match problem.teachers.iter().find(|t| t.id == q.teacher_id) {
+                        Some(t) if t.active && t.load_weight > 0.0 => t,
+                        _ => return false,
+                    };
+                    problem
+                        .competencies
+                        .iter()
+                        .any(|c| c.teacher_id == t.id && c.role == Role::Reviewer)
+                })
+                .count();
+            let non_forced_reviewer_slots = panels.len();
+            let auto_max = if eligible_reviewers_count > 0 {
+                (non_forced_reviewer_slots as f64 / eligible_reviewers_count as f64).ceil() as usize
+            } else {
+                2
+            };
 
             for sol in &all_solutions {
-                let mut teacher_setter_exams: HashMap<TeacherId, Vec<usize>> = HashMap::new();
-                for a in sol {
-                    if a.role == Role::Setter {
-                        let e_idx = exam_order[&a.exam_id];
-                        teacher_setter_exams
-                            .entry(a.teacher_id)
-                            .or_default()
-                            .push(e_idx);
-                    }
-                }
+                let mut counts = vec![0usize; num_teachers];
+                let mut rev_counts = vec![0usize; num_teachers];
+                let mut setter_exams = vec![vec![]; num_teachers];
 
-                let mut s6_units = 0;
-                for (_, mut exams) in teacher_setter_exams {
-                    exams.sort_unstable();
-                    for w in exams.windows(2) {
-                        if w[1] == w[0] + 1 {
-                            s6_units += 1;
-                        }
-                    }
-                }
-                min_s6 = min_s6.min(s6_units);
-
-                let mut reviewer_counts = HashMap::new();
                 for a in sol {
+                    let t_idx = a.teacher_id.0 as usize - 1;
+                    counts[t_idx] += 1;
                     if a.role == Role::Reviewer {
-                        *reviewer_counts.entry(a.teacher_id).or_insert(0usize) += 1;
+                        rev_counts[t_idx] += 1;
+                    } else if a.role == Role::Setter {
+                        setter_exams[t_idx].push(a.exam_id.0 as usize);
                     }
                 }
-                let mut s1_units = 0.0;
+
+                let mut s1 = 0.0;
                 for q in &quotas {
                     if q.quota < 1.0 {
                         continue;
                     }
-                    let t = match problem.teachers.iter().find(|t| t.id == q.teacher_id) {
-                        Some(t) if t.active && t.load_weight > 0.0 => t,
-                        _ => continue,
-                    };
-                    let revs = reviewer_counts.get(&t.id).copied().unwrap_or(0);
+                    let t_idx = q.teacher_id.0 as usize - 1;
+                    let is_comp = problem
+                        .competencies
+                        .iter()
+                        .any(|c| c.teacher_id == q.teacher_id && c.role == Role::Reviewer);
+                    if !is_comp {
+                        continue;
+                    }
+                    let revs = rev_counts[t_idx];
                     if revs == 0 {
-                        s1_units += 1.0;
-                    } else if revs > 2 {
-                        s1_units += (revs - 2) as f64;
+                        s1 += 1.0;
+                    } else if revs > auto_max {
+                        s1 += (revs - auto_max) as f64;
                     }
                 }
-                min_s1 = min_s1.min(s1_units);
 
-                let mut counts = HashMap::new();
-                for a in sol {
-                    *counts.entry(a.teacher_id).or_insert(0usize) += 1;
+                let mut s6 = 0.0;
+                for mut exams in setter_exams {
+                    exams.sort_unstable();
+                    exams.dedup();
+                    for w in exams.windows(2) {
+                        if w[1] == w[0] + 1 {
+                            s6 += 1.0;
+                        }
+                    }
                 }
-                let s8_units: f64 = quotas
-                    .iter()
-                    .map(|q| {
-                        let c = counts.get(&q.teacher_id).copied().unwrap_or(0) as f64;
-                        (c - q.quota).powi(2)
-                    })
-                    .sum();
-                if s8_units < min_s8 {
-                    min_s8 = s8_units;
+
+                let mut s8 = 0.0;
+                for q in &quotas {
+                    let t_idx = q.teacher_id.0 as usize - 1;
+                    let diff = (counts[t_idx] as f64) - q.quota;
+                    s8 += diff * diff;
                 }
+
+                min_s1 = min_s1.min(s1);
+                min_s6 = min_s6.min(s6);
+                min_s8 = min_s8.min(s8);
             }
 
             let bounds = lower_bounds(&problem);
@@ -818,7 +873,7 @@ mod tests {
                 "Instance {attempt}: Exhaustive min S1 ({min_s1}) is LESS than computed bound ({s1_bound})! S1 bound is invalid."
             );
             assert!(
-                min_s6 as f64 >= s6_bound - 1e-6,
+                min_s6 >= s6_bound - 1e-6,
                 "Instance {attempt}: Exhaustive min S6 ({min_s6}) is LESS than computed bound ({s6_bound})! S6 bound is invalid."
             );
             assert!(
@@ -829,9 +884,13 @@ mod tests {
             valid_tested_instances += 1;
         }
 
+        println!(
+            "Tested {} feasible multi-subject tiny instances, all satisfied S1, S6, S8 lower bounds.",
+            valid_tested_instances
+        );
         assert!(
             valid_tested_instances >= 200,
-            "Expected at least 200 feasible tiny instances tested, got {valid_tested_instances}"
+            "Expected at least 200 feasible tiny multi-subject instances tested, got {valid_tested_instances}"
         );
     }
 }

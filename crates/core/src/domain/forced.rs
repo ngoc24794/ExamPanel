@@ -318,4 +318,279 @@ mod tests {
             .iter()
             .any(|p| p.teacher_id == TeacherId(2) && p.role == Role::Reviewer));
     }
+
+    #[test]
+    fn test_forced_placement_cascade_propagation() {
+        // T1 and T2 are both eligible for Setter.
+        // But only T1 is eligible for Reviewer (needed=1).
+        // Since T1 is forced into Reviewer, T1 cannot take Setter.
+        // That leaves only T2 for Setter (needed=1), cascading T2 to Setter!
+        let school_year = SchoolYear {
+            id: SchoolYearId(1),
+            name: "2026-2027".to_string(),
+            is_current: true,
+        };
+        let exam = Exam {
+            id: ExamId(1),
+            school_year_id: SchoolYearId(1),
+            code: "GK1".to_string(),
+            name: "Giữa kỳ 1".to_string(),
+            sort_order: 1,
+        };
+        let grade = Grade {
+            id: GradeId(1),
+            code: 10,
+            name: "Khối 10".to_string(),
+            sort_order: 1,
+        };
+        let subject = Subject {
+            id: SubjectId(1),
+            code: "CN".to_string(),
+            name: "Công nghệ".to_string(),
+            color: "blue".to_string(),
+            sort_order: 1,
+            setters: 1,
+            reviewers: 1,
+            min_campuses: 1,
+        };
+        let t1 = Teacher {
+            id: TeacherId(1),
+            full_name: "T1".to_string(),
+            campus_id: CampusId(1),
+            load_weight: 1.0,
+            active: true,
+            note: None,
+            code: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
+        };
+        let t2 = Teacher {
+            id: TeacherId(2),
+            full_name: "T2".to_string(),
+            campus_id: CampusId(1),
+            load_weight: 1.0,
+            active: true,
+            note: None,
+            code: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
+        };
+        // Both T1 and T2 have Setter competency; only T1 has Reviewer competency
+        let competencies = vec![
+            Competency {
+                teacher_id: TeacherId(1),
+                subject_id: SubjectId(1),
+                role: Role::Setter,
+                grade_scope: GradeScope::Any,
+            },
+            Competency {
+                teacher_id: TeacherId(2),
+                subject_id: SubjectId(1),
+                role: Role::Setter,
+                grade_scope: GradeScope::Any,
+            },
+            Competency {
+                teacher_id: TeacherId(1),
+                subject_id: SubjectId(1),
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Any,
+            },
+        ];
+
+        let problem = Problem {
+            school_year,
+            campuses: vec![Campus {
+                id: CampusId(1),
+                code: "CS1".to_string(),
+                name: "Phân hiệu 1".to_string(),
+                color: "blue".to_string(),
+            }],
+            grades: vec![grade],
+            subjects: vec![subject],
+            teachers: vec![t1, t2],
+            teacher_grades: vec![],
+            competencies,
+            exams: vec![exam],
+            unavailabilities: vec![],
+            locks: vec![],
+            rule_settings: RuleSetting::default_settings(),
+        };
+
+        let forced = find_forced_placements(&problem).expect("find forced cascade");
+        assert_eq!(forced.len(), 2);
+        // T1 must be Reviewer, T2 must be Setter
+        assert!(forced
+            .iter()
+            .any(|p| p.teacher_id == TeacherId(1) && p.role == Role::Reviewer));
+        assert!(forced
+            .iter()
+            .any(|p| p.teacher_id == TeacherId(2) && p.role == Role::Setter));
+    }
+
+    #[test]
+    fn test_forced_placement_infeasible_zero_candidates() {
+        let school_year = SchoolYear {
+            id: SchoolYearId(1),
+            name: "2026-2027".to_string(),
+            is_current: true,
+        };
+        let exam = Exam {
+            id: ExamId(1),
+            school_year_id: SchoolYearId(1),
+            code: "GK1".to_string(),
+            name: "Giữa kỳ 1".to_string(),
+            sort_order: 1,
+        };
+        let grade = Grade {
+            id: GradeId(1),
+            code: 10,
+            name: "Khối 10".to_string(),
+            sort_order: 1,
+        };
+        let subject = Subject {
+            id: SubjectId(1),
+            code: "CN".to_string(),
+            name: "Công nghệ".to_string(),
+            color: "blue".to_string(),
+            sort_order: 1,
+            setters: 1,
+            reviewers: 1,
+            min_campuses: 1,
+        };
+
+        let problem = Problem {
+            school_year,
+            campuses: vec![Campus {
+                id: CampusId(1),
+                code: "CS1".to_string(),
+                name: "Phân hiệu 1".to_string(),
+                color: "blue".to_string(),
+            }],
+            grades: vec![grade],
+            subjects: vec![subject],
+            teachers: vec![],
+            teacher_grades: vec![],
+            competencies: vec![],
+            exams: vec![exam],
+            unavailabilities: vec![],
+            locks: vec![],
+            rule_settings: RuleSetting::default_settings(),
+        };
+
+        let res = find_forced_placements(&problem);
+        assert!(res.is_err(), "Expected error due to zero candidates");
+        let err_msg = res.err().unwrap();
+        assert!(err_msg.contains("Infeasible"));
+    }
+
+    #[test]
+    fn test_forced_placement_infeasible_excess_pins() {
+        let school_year = SchoolYear {
+            id: SchoolYearId(1),
+            name: "2026-2027".to_string(),
+            is_current: true,
+        };
+        let exam = Exam {
+            id: ExamId(1),
+            school_year_id: SchoolYearId(1),
+            code: "GK1".to_string(),
+            name: "Giữa kỳ 1".to_string(),
+            sort_order: 1,
+        };
+        let grade = Grade {
+            id: GradeId(1),
+            code: 10,
+            name: "Khối 10".to_string(),
+            sort_order: 1,
+        };
+        let subject = Subject {
+            id: SubjectId(1),
+            code: "CN".to_string(),
+            name: "Công nghệ".to_string(),
+            color: "blue".to_string(),
+            sort_order: 1,
+            setters: 1,
+            reviewers: 1,
+            min_campuses: 1,
+        };
+        let t1 = Teacher {
+            id: TeacherId(1),
+            full_name: "T1".to_string(),
+            campus_id: CampusId(1),
+            load_weight: 1.0,
+            active: true,
+            note: None,
+            code: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
+        };
+        let t2 = Teacher {
+            id: TeacherId(2),
+            full_name: "T2".to_string(),
+            campus_id: CampusId(1),
+            load_weight: 1.0,
+            active: true,
+            note: None,
+            code: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
+        };
+        let panel = PanelKey {
+            exam_id: ExamId(1),
+            grade_id: GradeId(1),
+            subject_id: SubjectId(1),
+        };
+
+        // Two PIN locks for Setter when setters = 1!
+        let locks = vec![
+            Lock {
+                id: LockId(1),
+                exam_id: panel.exam_id,
+                grade_id: panel.grade_id,
+                subject_id: panel.subject_id,
+                teacher_id: TeacherId(1),
+                role: Some(Role::Setter),
+                kind: LockKind::Pin,
+            },
+            Lock {
+                id: LockId(2),
+                exam_id: panel.exam_id,
+                grade_id: panel.grade_id,
+                subject_id: panel.subject_id,
+                teacher_id: TeacherId(2),
+                role: Some(Role::Setter),
+                kind: LockKind::Pin,
+            },
+        ];
+
+        let problem = Problem {
+            school_year,
+            campuses: vec![Campus {
+                id: CampusId(1),
+                code: "CS1".to_string(),
+                name: "Phân hiệu 1".to_string(),
+                color: "blue".to_string(),
+            }],
+            grades: vec![grade],
+            subjects: vec![subject],
+            teachers: vec![t1, t2],
+            teacher_grades: vec![],
+            competencies: vec![],
+            exams: vec![exam],
+            unavailabilities: vec![],
+            locks,
+            rule_settings: RuleSetting::default_settings(),
+        };
+
+        let res = find_forced_placements(&problem);
+        assert!(res.is_err(), "Expected error due to excess pins");
+        let err_msg = res.err().unwrap();
+        assert!(
+            err_msg.contains("Infeasible") && err_msg.contains("PIN locks exceeding seat count")
+        );
+    }
 }

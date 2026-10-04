@@ -1181,4 +1181,706 @@ mod tests {
         let s2 = rep.by_rule.iter().find(|r| r.rule == RuleKey::S2).unwrap();
         assert_eq!(s2.units, 3.0);
     }
+
+    #[test]
+    fn test_lower_bounds_calculation() {
+        let problem = make_test_problem();
+        let bounds = lower_bounds(&problem);
+        assert_eq!(bounds.len(), 10);
+        for b in &bounds {
+            assert!(b.units_lower_bound >= 0.0);
+        }
+        let s8_bound = bounds.iter().find(|b| b.rule == RuleKey::S8).unwrap();
+        assert!(s8_bound.units_lower_bound >= 0.0);
+    }
+
+    #[test]
+    fn test_s3_independent_reviewer() {
+        let problem = make_test_problem();
+        // T1, T2, T3 are Campus 1. T4, T5, T6 are Campus 2.
+        // In panel E1 G1: setters T1, T4; reviewer T2. T1 and T2 share Campus 1 -> 1 unit.
+        let assignments = vec![
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Reviewer,
+                0,
+            ),
+            // other panels cleanly segregated
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Reviewer,
+                0,
+            ),
+        ];
+
+        let rep = evaluate(&problem, &assignments);
+        let s3 = rep.by_rule.iter().find(|r| r.rule == RuleKey::S3).unwrap();
+        // Panel 1: reviewer T2 (C1), setters T1 (C1), T4 (C2) -> 1 unit
+        // Panel 2: reviewer T5 (C2), setters T2 (C1), T3 (C1) -> 0 units
+        // Panel 3: reviewer T1 (C1), setters T4 (C2), T5 (C2) -> 0 units
+        // Panel 4: reviewer T1 (C1), setters T3 (C1), T6 (C2) -> 1 unit
+        // Total S3 units = 2
+        assert_eq!(s3.units, 2.0);
+        assert!(rep
+            .violations
+            .iter()
+            .any(|v| v.code == "reviewer_same_campus"
+                && v.panel == Some(PanelKey::new(ExamId(1), GradeId(1), SubjectId(1)))));
+    }
+
+    #[test]
+    fn test_s4_setter_pair_repeated() {
+        let problem = make_test_problem();
+        // T1 and T2 pair up as setters in E1 G1 and in E2 G1 -> 1 excess unit
+        let assignments = vec![
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Reviewer,
+                0,
+            ),
+        ];
+
+        let rep = evaluate(&problem, &assignments);
+        let s4 = rep.by_rule.iter().find(|r| r.rule == RuleKey::S4).unwrap();
+        assert_eq!(s4.units, 1.0);
+        assert!(rep
+            .violations
+            .iter()
+            .any(|v| v.code == "setter_pair_repeated"
+                && v.teachers == vec![TeacherId(1), TeacherId(2)]));
+    }
+
+    #[test]
+    fn test_s5_review_relation_repeated() {
+        let problem = make_test_problem();
+        // T4 reviews T1 in E1 G1 and in E2 G1 -> 1 excess unit
+        let assignments = vec![
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Reviewer,
+                0,
+            ),
+        ];
+
+        let rep = evaluate(&problem, &assignments);
+        let s5 = rep.by_rule.iter().find(|r| r.rule == RuleKey::S5).unwrap();
+        assert_eq!(s5.units, 1.0);
+        assert!(rep
+            .violations
+            .iter()
+            .any(|v| v.code == "review_relation_repeated"
+                && v.teachers == vec![TeacherId(4), TeacherId(1)]));
+    }
+
+    #[test]
+    fn test_s6_setter_consecutive() {
+        let problem = make_test_problem();
+        // T1 is a setter in E1 (G1) and also in E2 (G1) -> 1 unit
+        let assignments = vec![
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Reviewer,
+                0,
+            ),
+        ];
+
+        let rep = evaluate(&problem, &assignments);
+        let s6 = rep.by_rule.iter().find(|r| r.rule == RuleKey::S6).unwrap();
+        // T1 is setter in E1 and E2 -> 1 unit
+        // T3 is setter in E1 and E2 -> 1 unit
+        // Total S6 = 2 units
+        assert_eq!(s6.units, 2.0);
+        assert!(rep
+            .violations
+            .iter()
+            .any(|v| v.code == "setter_consecutive" && v.teachers == vec![TeacherId(1)]));
+    }
+
+    #[test]
+    fn test_s7_grade_rotation() {
+        let problem = make_test_problem();
+        // T1 is assigned twice, but both times in GradeId(1) -> distinct = 1, target = min(2, 2) = 2. diff = 1 unit
+        let assignments = vec![
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Reviewer,
+                0,
+            ),
+        ];
+
+        let rep = evaluate(&problem, &assignments);
+        assert!(rep
+            .violations
+            .iter()
+            .any(|v| v.code == "grade_not_rotated" && v.teachers == vec![TeacherId(1)]));
+    }
+
+    #[test]
+    fn test_s8_load_deviation() {
+        let problem = make_test_problem();
+        // Quota is 2.0 for all 6 teachers.
+        // T1 has count = 3 -> diff = 1.0, sq = 1.0
+        // T2 has count = 1 -> diff = -1.0, sq = 1.0
+        // T3..T6 have count = 2 -> diff = 0.0
+        let assignments = vec![
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(5),
+                Role::Reviewer,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(2),
+                GradeId(2),
+                SubjectId(1),
+                TeacherId(6),
+                Role::Reviewer,
+                0,
+            ),
+        ];
+
+        let rep = evaluate(&problem, &assignments);
+        let s8 = rep.by_rule.iter().find(|r| r.rule == RuleKey::S8).unwrap();
+        // T1 has count = 3: (3 - 2)^2 = 1
+        // T2 has count = 1: (1 - 2)^2 = 1
+        // T3..T6: 0
+        // Total S8 units = 2.0
+        assert_eq!(s8.units, 2.0);
+        assert!(rep
+            .violations
+            .iter()
+            .any(|v| v.code == "load_deviation" && v.teachers == vec![TeacherId(1)]));
+    }
 }

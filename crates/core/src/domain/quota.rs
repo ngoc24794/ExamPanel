@@ -287,3 +287,145 @@ pub fn calculate_quotas(problem: &Problem) -> Vec<TeacherQuota> {
 
     quotas
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::{
+        Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, GradeScope, Role, RuleSetting,
+        SchoolYear, SchoolYearId, Subject, SubjectId, Teacher, TeacherGrade,
+    };
+
+    #[test]
+    fn test_quota_v2_regression_legacy_demo_equals_phase_3() {
+        let sy = SchoolYear {
+            id: SchoolYearId(1),
+            name: "2026-2027".to_string(),
+            is_current: true,
+        };
+        let campuses = vec![
+            Campus {
+                id: CampusId(1),
+                code: "CS1".to_string(),
+                name: "Campus 1".to_string(),
+                color: "#111".to_string(),
+            },
+            Campus {
+                id: CampusId(2),
+                code: "CS2".to_string(),
+                name: "Campus 2".to_string(),
+                color: "#222".to_string(),
+            },
+            Campus {
+                id: CampusId(3),
+                code: "CS3".to_string(),
+                name: "Campus 3".to_string(),
+                color: "#333".to_string(),
+            },
+            Campus {
+                id: CampusId(4),
+                code: "CS4".to_string(),
+                name: "Campus 4".to_string(),
+                color: "#444".to_string(),
+            },
+        ];
+        let grades: Vec<Grade> = (1..=3)
+            .map(|g| Grade {
+                id: GradeId(g),
+                code: (9 + g) as i32,
+                name: format!("Khối {}", 9 + g),
+                sort_order: g as i32,
+            })
+            .collect();
+        let exams: Vec<Exam> = (1..=4)
+            .map(|e| Exam {
+                id: ExamId(e),
+                school_year_id: sy.id,
+                code: format!("EX{e}"),
+                name: format!("Kỳ thi {e}"),
+                sort_order: e as i32,
+            })
+            .collect();
+        let sub = Subject {
+            id: SubjectId(1),
+            code: "CHUNG".to_string(),
+            name: "Chung".to_string(),
+            color: "slate".to_string(),
+            sort_order: 1,
+            setters: 2,
+            reviewers: 1,
+            min_campuses: 2,
+        };
+
+        let mut teachers = Vec::new();
+        let mut teacher_grades = Vec::new();
+        let mut competencies = Vec::new();
+
+        for tid in 1..=11 {
+            teachers.push(Teacher {
+                id: TeacherId(tid),
+                full_name: format!("Teacher {tid}"),
+                display_name: None,
+                campus_id: CampusId(((tid - 1) % 4) + 1),
+                load_weight: 1.0,
+                active: true,
+                note: None,
+                code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
+            });
+
+            for g in &grades {
+                teacher_grades.push(TeacherGrade {
+                    teacher_id: TeacherId(tid),
+                    school_year_id: sy.id,
+                    grade_id: g.id,
+                });
+            }
+
+            competencies.push(Competency {
+                teacher_id: TeacherId(tid),
+                subject_id: sub.id,
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            });
+            competencies.push(Competency {
+                teacher_id: TeacherId(tid),
+                subject_id: sub.id,
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            });
+        }
+
+        let problem = Problem {
+            school_year: sy,
+            campuses,
+            grades,
+            subjects: vec![sub],
+            exams,
+            teachers,
+            teacher_grades,
+            competencies,
+            unavailabilities: vec![],
+            locks: vec![],
+            rule_settings: RuleSetting::default_settings(),
+        };
+
+        let quotas = calculate_quotas(&problem);
+        assert_eq!(quotas.len(), 11);
+
+        let expected_q = 36.0 / 11.0;
+        for q in &quotas {
+            assert!(
+                (q.quota - expected_q).abs() < 1e-4,
+                "Teacher {:?} quota {} != expected {}",
+                q.teacher_id,
+                q.quota,
+                expected_q
+            );
+            assert_eq!(q.lo, 2, "Teacher {:?} lo != 2", q.teacher_id);
+            assert_eq!(q.hi, 4, "Teacher {:?} hi != 4", q.teacher_id);
+            assert_eq!(q.available_exams, 4);
+        }
+    }
+}
