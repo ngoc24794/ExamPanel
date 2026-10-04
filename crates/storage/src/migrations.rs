@@ -3,7 +3,7 @@
 use crate::StorageError;
 use rusqlite::Connection;
 
-const MIGRATIONS: &[(i32, &str)] = &[
+pub const MIGRATIONS: &[(i32, &str)] = &[
     (1, include_str!("../migrations/0001_initial.sql")),
     (2, include_str!("../migrations/0002_plans_extension.sql")),
     (3, include_str!("../migrations/0003_plans_problem_hash.sql")),

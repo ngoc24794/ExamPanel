@@ -1,0 +1,9 @@
+
+running 2 tests
+Schema verification: Committed v4 fixture sqlite_master SQL matches migrations 1..=4 perfectly!
+test test_v4_synthetic_fixture_schema_integrity ... ok
+Legacy-equivalence verified: score = 133.30, 0 violations, 36 assignments intact.
+test test_restore_v4_synthetic_fixture_with_migration_and_legacy_equivalence ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+

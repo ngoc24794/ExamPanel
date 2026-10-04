@@ -6,6 +6,7 @@
 data/*
 !data/q_real_data.template.json
 *.db
+!crates/storage/fixtures/*.db
 *.db-shm
 *.db-wal
 *.sqlite

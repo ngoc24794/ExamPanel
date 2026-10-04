@@ -580,7 +580,7 @@ mod tests {
         use std::path::PathBuf;
 
         let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let fixture_path = manifest_dir.join("fixtures/v4_legacy_synthetic.db");
+        let fixture_path = manifest_dir.join("fixtures/v4_synthetic.db");
         assert!(
             fixture_path.exists(),
             "Committed v4 backup fixture must exist at {:?}",
@@ -604,7 +604,7 @@ mod tests {
         assert_eq!(subjects[0].code, "CHUNG");
 
         let teachers = active_store.get_teachers().unwrap();
-        assert_eq!(teachers.len(), 3);
+        assert_eq!(teachers.len(), 12);
         assert_eq!(teachers[0].code.as_deref(), Some("GV01"));
 
         let plans = active_store.list_plans(SchoolYearId(1)).unwrap();
