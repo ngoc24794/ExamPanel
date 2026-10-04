@@ -1780,6 +1780,29 @@ export class MockExamPanelApi implements ExamPanelApi {
       [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Phương án #2', rank: 2 } }))],
       [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Phương án #3', rank: 3 } }))],
     ])
+    this.subjects = [
+      {
+        id: 1,
+        code: 'VL',
+        name: 'Vật lí',
+        color: 'palette-1',
+        sort_order: 1,
+        setters: 2,
+        reviewers: 1,
+        min_campuses: 2,
+      },
+      {
+        id: 2,
+        code: 'CN',
+        name: 'Công nghệ',
+        color: 'palette-2',
+        sort_order: 2,
+        setters: 1,
+        reviewers: 1,
+        min_campuses: 2,
+      },
+    ]
+    this.competencies = []
   }
 }
 

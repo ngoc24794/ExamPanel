@@ -8,6 +8,8 @@ import {
   Sparkles,
   Building2,
   Users,
+  BookOpen,
+  Award,
 } from 'lucide-react'
 import {
   Card,
@@ -22,11 +24,15 @@ import { useSeedDemo } from '@/lib/query/hooks'
 interface OnboardingProps {
   campusesCount: number
   teachersCount: number
+  subjectsCount?: number
+  competenciesCount?: number
 }
 
 export const Onboarding: React.FC<OnboardingProps> = ({
   campusesCount,
   teachersCount,
+  subjectsCount = 0,
+  competenciesCount = 0,
 }) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -34,6 +40,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({
 
   const hasCampuses = campusesCount > 0
   const hasTeachers = teachersCount > 0
+  const hasSubjects = subjectsCount > 0
+  const hasCompetencies = competenciesCount > 0
 
   const steps = [
     {
@@ -56,15 +64,33 @@ export const Onboarding: React.FC<OnboardingProps> = ({
     },
     {
       id: 3,
+      title: t('onboarding.stepSubjects'),
+      description: t('onboarding.stepSubjectsDesc'),
+      done: hasSubjects,
+      action: () => navigate('/subjects'),
+      actionLabel: t('onboarding.goToSubjects'),
+      icon: <BookOpen className="h-5 w-5" />,
+    },
+    {
+      id: 4,
+      title: t('onboarding.stepCompetencies'),
+      description: t('onboarding.stepCompetenciesDesc'),
+      done: hasCompetencies,
+      action: () => navigate('/competencies'),
+      actionLabel: t('onboarding.goToCompetencies'),
+      icon: <Award className="h-5 w-5" />,
+    },
+    {
+      id: 5,
       title: t('onboarding.step3'),
       description: t('onboarding.step3Desc'),
-      done: hasCampuses && hasTeachers,
+      done: hasCampuses && hasTeachers && hasSubjects,
       action: () => navigate('/rules'),
       actionLabel: t('onboarding.goToRules'),
       icon: <Sparkles className="h-5 w-5" />,
     },
     {
-      id: 4,
+      id: 6,
       title: t('onboarding.step4'),
       description: t('onboarding.step4Desc'),
       done: false,
@@ -100,7 +126,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {steps.map((step) => (
             <div
               key={step.id}

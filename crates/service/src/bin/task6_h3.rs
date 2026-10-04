@@ -125,8 +125,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("  - {k} campus(es): {cnt} panels");
         }
     }
+    let s3_off_units = plan_off
+        .report
+        .by_rule
+        .iter()
+        .find(|r| r.rule == RuleKey::S3)
+        .map_or(0.0, |r| r.units);
+    println!("S3 units (Campus independence): {:.2} units", s3_off_units);
     println!(
-        "Monochromatic panels under H3 OFF (panels with only 1 campus): {}",
+        "Number of panels below min_campuses: {}",
         off_mono_panels.len()
     );
     for (e, g, s, assigns) in &off_mono_panels {
@@ -178,7 +185,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("  - {k} campus(es): {cnt} panels");
         }
     }
-    println!("Monochromatic panels under H3 ON: {}", on_mono_panels.len());
+    let s3_on_units = plan_on
+        .report
+        .by_rule
+        .iter()
+        .find(|r| r.rule == RuleKey::S3)
+        .map_or(0.0, |r| r.units);
+    println!("S3 units (Campus independence): {:.2} units", s3_on_units);
+    println!(
+        "Number of panels below min_campuses: {}",
+        on_mono_panels.len()
+    );
 
     let val_opts = ValidateOptions {
         require_complete: true,

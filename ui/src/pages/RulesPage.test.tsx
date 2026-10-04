@@ -1,5 +1,4 @@
-import * as React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, beforeEach } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -25,17 +24,26 @@ describe('RulesPage', () => {
     await api.seedDemo()
   })
 
-  it('renders hard rules section with always-on badges and H4 toggle', async () => {
+  it('renders hard rules section with H3 and H4 toggles and limits', async () => {
     renderWithProviders(<RulesPage />)
 
     await waitFor(() => {
       expect(screen.getByTestId('rules-page')).toBeInTheDocument()
       expect(screen.getByTestId('hard-rules-section')).toBeInTheDocument()
+      expect(screen.getByTestId('toggle-h3')).toBeInTheDocument()
       expect(screen.getByTestId('toggle-h4')).toBeInTheDocument()
+      expect(screen.getByTestId('input-h4-max-tasks')).toBeInTheDocument()
+      expect(screen.getByTestId('input-h4-max-setter')).toBeInTheDocument()
+    })
+
+    // Toggle H3 off -> should show warning box
+    fireEvent.click(screen.getByTestId('toggle-h3'))
+    await waitFor(() => {
+      expect(screen.getByTestId('h3-warning-box')).toBeInTheDocument()
     })
   })
 
-  it('navigates to soft rules tab and applies presets', async () => {
+  it('navigates to soft rules tab, renders S1/S9/S10 and applies presets', async () => {
     const user = userEvent.setup()
     renderWithProviders(<RulesPage />)
 
@@ -45,6 +53,11 @@ describe('RulesPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('soft-rules-section')).toBeInTheDocument()
       expect(screen.getByTestId('preset-workload-btn')).toBeInTheDocument()
+      expect(screen.getByTestId('preset-balanced-btn')).toBeInTheDocument()
+      expect(screen.getByTestId('preset-diversity-btn')).toBeInTheDocument()
+      expect(screen.getByTestId('s1-mode-auto')).toBeInTheDocument()
+      expect(screen.getByTestId('soft-rule-card-s9')).toBeInTheDocument()
+      expect(screen.getByTestId('soft-rule-card-s10')).toBeInTheDocument()
     })
 
     // Click Preset "Ưu tiên công bằng khối lượng"

@@ -1,0 +1,78 @@
+# Phase 12 Test Inventory & Verification Report (Part A1)
+
+## 1. Explanation of the "2 Tests" Discrepancy in Phase 11.1
+
+In Phase 11.1's test inventory, `crates/service` was reported as having **2** tests, compared to **28** in Phase 9 and **31** in Phase 11.
+
+### Root Cause Analysis
+This discrepancy was caused solely by a faulty reporting / counting method in the log parser, not by any removal of tests:
+1. `crates/service` comprises multiple independent test binaries:
+   - Library unit tests: `src/lib.rs` (4 tests)
+   - Binaries unit tests: `src/bin/*.rs` (0 tests)
+   - Integration test: `tests/excel_tests.rs` (7 tests)
+   - Integration test: `tests/part_b_tests.rs` (4 tests)
+   - Integration test: `tests/pipeline_report_test.rs` (1 test)
+   - Integration test: `tests/service_tests.rs` (13 tests)
+   - Integration test: `tests/trial_mode_tests.rs` (2 tests)
+2. When `cargo test` executes, each test binary outputs its own test summary line:
+   `test result: ok. <N> passed; 0 failed; ...`
+3. A naive regex or dictionary assignment that matched `test result: ok. (\d+) passed` and assigned `crate_counts["exam-panel-service"] = N` sequentially overwrote the count with each subsequent binary.
+4. Because `tests/trial_mode_tests.rs` happens to be the last test binary executed for `exam-panel-service`, its count of **2 passed** overwrote the accumulated total, yielding `2` instead of `4 + 7 + 4 + 1 + 13 + 2 = 31`.
+5. No tests were deleted or missing in `crates/service`. All 31 tests (plus 1 in `generate_types.rs` under feature `typegen`) have been present and passing.
+
+The counting script `scripts/test-inventory.mjs` has been committed to enforce per-binary summation across all crates.
+
+---
+
+## 2. Test Counts Comparison: Phase 9 Release vs HEAD
+
+### Summary Table
+
+| Crate | Phase 9 Release (`8f0f0ec`) | HEAD (Phase 12) | Delta vs Phase 9 |
+| :--- | :---: | :---: | :---: |
+| `exam-panel-core` | 77 (75 ok, 2 ign) | 88 (86 ok, 2 ign) | +11 (+11 ok) |
+| `exam-panel-storage` | 20 (20 ok) | 34 (34 ok) | +14 (+14 ok) |
+| `exam-panel-service` | 27 (27 ok)* | 31 (31 ok)* | +4 (+4 ok) |
+| **Total Rust Tests** | **124 (122 ok, 2 ign)** | **153 (151 ok, 2 ign)** | **+29 (+29 ok)** |
+
+*\* Note: `crates/service/tests/generate_types.rs` provides 1 additional freshness test under `--features typegen` (`cargo test -p exam-panel-service --features typegen --test generate_types`), bringing the totals to 28 for Phase 9 and 32 for HEAD.*
+
+---
+
+## 3. Phase 9 Release (`8f0f0ec`) Detailed Inventory
+*Captured from a real `cargo test --workspace` execution in a temporary `git worktree` at commit `8f0f0ec`.*
+
+| Crate | Binary Target | Passed | Failed | Ignored | Total |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| `exam-panel-core` | `unittests src/lib.rs` | 75 | 0 | 2 | 77 |
+| `exam-panel-service` | `unittests src/lib.rs` | 4 | 0 | 0 | 4 |
+| `exam-panel-service` | `unittests src/bin/generate_sample_excels.rs` | 0 | 0 | 0 | 0 |
+| `exam-panel-service` | `tests/excel_tests.rs` | 6 | 0 | 0 | 6 |
+| `exam-panel-service` | `tests/part_b_tests.rs` | 4 | 0 | 0 | 4 |
+| `exam-panel-service` | `tests/pipeline_report_test.rs` | 1 | 0 | 0 | 1 |
+| `exam-panel-service` | `tests/service_tests.rs` | 12 | 0 | 0 | 12 |
+| `exam-panel-storage` | `unittests src/lib.rs` | 20 | 0 | 0 | 20 |
+| **Phase 9 Total** | | **122** | **0** | **2** | **124** |
+
+---
+
+## 4. HEAD Detailed Inventory
+*Captured from a real `cargo test --workspace` execution at HEAD.*
+
+| Crate | Binary Target | Passed | Failed | Ignored | Total |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| `exam-panel-core` | `unittests src/lib.rs` | 86 | 0 | 2 | 88 |
+| `exam-panel-service` | `unittests src/lib.rs` | 4 | 0 | 0 | 4 |
+| `exam-panel-service` | `unittests src/bin/generate_sample_excels.rs` | 0 | 0 | 0 | 0 |
+| `exam-panel-service` | `unittests src/bin/import_q_data.rs` | 0 | 0 | 0 | 0 |
+| `exam-panel-service` | `unittests src/bin/phase11_report.rs` | 0 | 0 | 0 | 0 |
+| `exam-panel-service` | `unittests src/bin/task5_comparison.rs` | 0 | 0 | 0 | 0 |
+| `exam-panel-service` | `unittests src/bin/task6_h3.rs` | 0 | 0 | 0 | 0 |
+| `exam-panel-service` | `unittests src/bin/task7_perf.rs` | 0 | 0 | 0 | 0 |
+| `exam-panel-service` | `tests/excel_tests.rs` | 7 | 0 | 0 | 7 |
+| `exam-panel-service` | `tests/part_b_tests.rs` | 4 | 0 | 0 | 4 |
+| `exam-panel-service` | `tests/pipeline_report_test.rs` | 1 | 0 | 0 | 1 |
+| `exam-panel-service` | `tests/service_tests.rs` | 13 | 0 | 0 | 13 |
+| `exam-panel-service` | `tests/trial_mode_tests.rs` | 2 | 0 | 0 | 2 |
+| `exam-panel-storage` | `unittests src/lib.rs` | 34 | 0 | 0 | 34 |
+| **HEAD Total** | | **151** | **0** | **2** | **153** |

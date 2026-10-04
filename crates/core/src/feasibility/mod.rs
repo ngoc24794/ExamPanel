@@ -573,6 +573,81 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
                     .with_param("count", expected_total),
             );
         }
+
+        // H3 campus reduction diagnostic: campus rules shrink eligible reviewer pool
+        let h3_enabled = problem
+            .rule_settings
+            .iter()
+            .find(|s| s.key == RuleKey::H3)
+            .is_none_or(|s| s.enabled);
+
+        if problem.campuses.len() > 1 && h3_enabled && min_campuses >= 2 {
+            let mut setter_campuses = HashSet::new();
+            let forced_panel_setters: Vec<_> = forced
+                .iter()
+                .filter(|fp| fp.panel == *pkey && fp.role == Role::Setter)
+                .collect();
+
+            if !forced_panel_setters.is_empty() && forced_panel_setters.len() == expected_setters {
+                for fs in &forced_panel_setters {
+                    if let Some(t) = problem.teachers.iter().find(|t| t.id == fs.teacher_id) {
+                        setter_campuses.insert(t.campus_id);
+                    }
+                }
+            } else if setter_count > 0 {
+                let candidate_setter_campuses: HashSet<CampusId> = problem
+                    .teachers
+                    .iter()
+                    .filter(|t| {
+                        crate::domain::forced::is_teacher_eligible(
+                            problem,
+                            t.id,
+                            pkey.exam_id,
+                            pkey.grade_id,
+                            pkey.subject_id,
+                            Role::Setter,
+                        )
+                    })
+                    .map(|t| t.campus_id)
+                    .collect();
+                if candidate_setter_campuses.len() == 1 {
+                    setter_campuses = candidate_setter_campuses;
+                }
+            }
+
+            if setter_campuses.len() == 1 {
+                let sole_setter_campus = *setter_campuses.iter().next().unwrap();
+                let eligible_reviewers_diff_campus = problem
+                    .teachers
+                    .iter()
+                    .filter(|t| {
+                        t.campus_id != sole_setter_campus
+                            && crate::domain::forced::is_teacher_eligible(
+                                problem,
+                                t.id,
+                                pkey.exam_id,
+                                pkey.grade_id,
+                                pkey.subject_id,
+                                Role::Reviewer,
+                            )
+                    })
+                    .count();
+
+                if eligible_reviewers_diff_campus < reviewer_count
+                    && eligible_reviewers_diff_campus >= expected_reviewers
+                {
+                    warnings.push(
+                        Diagnostic::new("h3_reviewer_pool_reduced")
+                            .with_panel(*pkey)
+                            .with_param("exam", exam_code)
+                            .with_param("grade", grade_code)
+                            .with_param("subject", subject.code.clone())
+                            .with_param("eligible_count", eligible_reviewers_diff_campus)
+                            .with_param("total_eligible", reviewer_count),
+                    );
+                }
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1621,5 +1696,20 @@ mod tests {
             .errors
             .iter()
             .any(|d| d.code == "load_weight_out_of_range"));
+    }
+
+    #[test]
+    fn test_diagnostic_h3_reviewer_pool_reduced() {
+        let problem = crate::domain::fixtures::make_canonical_q_problem(
+            crate::domain::fixtures::QVariant::SyntheticCampuses,
+        );
+        let report = check_feasibility(&problem);
+        assert!(
+            report
+                .warnings
+                .iter()
+                .any(|d| d.code == "h3_reviewer_pool_reduced"),
+            "Expected h3_reviewer_pool_reduced warning on Q synthetic campuses due to CN setter campus constraint"
+        );
     }
 }

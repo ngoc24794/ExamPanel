@@ -572,4 +572,43 @@ mod tests {
             "Competencies should be automatically populated for active teachers"
         );
     }
+
+    #[test]
+    fn test_restore_committed_v4_backup_fixture() {
+        use crate::migrations::get_current_version;
+        use exam_panel_core::domain::SchoolYearId;
+        use std::path::PathBuf;
+
+        let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let fixture_path = manifest_dir.join("fixtures/v4_legacy_synthetic.db");
+        assert!(
+            fixture_path.exists(),
+            "Committed v4 backup fixture must exist at {:?}",
+            fixture_path
+        );
+
+        let temp_dir = tempfile::tempdir().unwrap();
+        let active_db_file = temp_dir.path().join("active_restored.db");
+
+        let mut active_store = Store::open_at(&active_db_file).unwrap();
+        active_store.restore_from(&fixture_path).unwrap();
+
+        let ver = get_current_version(active_store.conn()).unwrap();
+        assert_eq!(
+            ver, 5,
+            "Restoring committed v4 backup fixture must upgrade schema to version 5"
+        );
+
+        let subjects = active_store.get_subjects(SchoolYearId(1)).unwrap();
+        assert_eq!(subjects.len(), 1);
+        assert_eq!(subjects[0].code, "CHUNG");
+
+        let teachers = active_store.get_teachers().unwrap();
+        assert_eq!(teachers.len(), 3);
+        assert_eq!(teachers[0].code.as_deref(), Some("GV01"));
+
+        let plans = active_store.list_plans(SchoolYearId(1)).unwrap();
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].name, "Phương án v4 mẫu");
+    }
 }

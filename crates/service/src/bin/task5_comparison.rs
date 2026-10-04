@@ -68,7 +68,56 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (RuleKey::S10, 4.0, "S10 Review subject missing"),
     ];
 
+    let q_s3_pen = q_report
+        .by_rule
+        .iter()
+        .find(|r| r.rule == RuleKey::S3)
+        .map_or(0.0, |r| r.penalty);
+    let cold_s3_pen = cold_report
+        .by_rule
+        .iter()
+        .find(|r| r.rule == RuleKey::S3)
+        .map_or(0.0, |r| r.penalty);
+    let warm_s3_pen = warm_report
+        .by_rule
+        .iter()
+        .find(|r| r.rule == RuleKey::S3)
+        .map_or(0.0, |r| r.penalty);
+
     println!("\n# Task 5 Comparison: Q Manual Plan vs Optimizer (nocampus)\n");
+
+    println!("## Warm vs Cold Optimization Summary");
+    println!("- Base Seed: 42, Runs: 8 (seeds 42..49), Iterations: 200,000 per run");
+    println!("- Initial Score of Warm Run (Q's manual plan on nocampus with C Quí's override):");
+    println!("  * With S3: {:.2}", q_report.total);
+    println!("  * Without S3: {:.2}", q_report.total - q_s3_pen);
+    println!(
+        "- Final Best Score (Cold Start): With S3 = {:.2}, Without S3 = {:.2}",
+        cold_report.total,
+        cold_report.total - cold_s3_pen
+    );
+    println!(
+        "- Final Best Score (Warm Start): With S3 = {:.2}, Without S3 = {:.2}",
+        warm_report.total,
+        warm_report.total - warm_s3_pen
+    );
+
+    let identical_in_every_rule = soft_rules.iter().all(|(key, _, _)| {
+        let cu = cold_report
+            .by_rule
+            .iter()
+            .find(|r| r.rule == *key)
+            .map_or(0.0, |r| r.units);
+        let wu = warm_report
+            .by_rule
+            .iter()
+            .find(|r| r.rule == *key)
+            .map_or(0.0, |r| r.units);
+        (cu - wu).abs() < 1e-4
+    });
+    if identical_in_every_rule {
+        println!("- Evidence of Identicality: Cold and Warm optimization runs produce IDENTICAL unit scores across all 10 rules.\n");
+    }
     println!("| Rule | Weight | LB Units | Q Units | Q Pen | Q Gap | Cold Units | Cold Pen | Cold Gap | Warm Units | Warm Pen | Warm Gap |");
     println!("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |");
 
@@ -137,17 +186,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     println!(
-        "| **Total (with S3)** | | | | **{:.2}** | | | **{:.2}** | | | **{:.2}** | |",
+        "| **Total (with S3)** | | | | **{:.2}** | | | **{:.2}** | | | **{:.2}** |",
         q_tot_with_s3, cold_tot_with_s3, warm_tot_with_s3
     );
     println!(
-        "| **Total (without S3)** | | | | **{:.2}** | | | **{:.2}** | | | **{:.2}** | |",
+        "| **Total (without S3)** | | | | **{:.2}** | | | **{:.2}** | | | **{:.2}** |",
         q_tot_no_s3, cold_tot_no_s3, warm_tot_no_s3
     );
 
     println!("\n## Lower Bound Reasoning");
+    println!("- **S6 Lower Bound = 2.0**: Across the 4 exams, 24 non-forced setter presences are distributed over 11 eligible teachers (k_t <= 4), with Teacher 12 excluded as his 12 setter seats are strictly forced. Minimizing sum f(k_t) where f(k) = max(0, 2k - 5) allocates 9 teachers 2 presences (f=0) and 2 teachers 3 presences (f=1 each), establishing an exact lower bound of 2.0 units.");
     println!("- **S10 Lower Bound = 0.0**: 11 teachers (Teachers 1..11) possess competencies to review both Vật lí (VL) and Công nghệ (CN). Across the schedule there are 12 VL review seats and 12 CN review seats. Since 11 <= 12 in both subjects, it is mathematically possible for every teacher to review each subject at least once.");
     println!("- **S5 Lower Bound >= 1.0**: In subject CN, all 12 panels require exactly 1 reviewer, and Teacher 12 (Thầy Nghĩa) is the unique forced setter. Only Teachers 1..11 can review CN. By the Pigeonhole Principle, assigning 12 seats among 11 teachers requires at least one teacher to review CN at least ceil(12/11) = 2 times. Each repeated review of Thầy Nghĩa incurs max(0, count - 1) >= 1 unit of penalty. Hence S5 >= 1.0.");
+    println!("- **S3 Single-Campus Explanation**: On nocampus, all teachers reside at Campus 1. For each of the 12 Vật lí (VL) panels (2 setters, 1 reviewer), the reviewer shares campus with 2 setters, contributing 12 x 2 = 24 units. For each of the 12 Công nghệ (CN) panels (1 setter, 1 reviewer), the reviewer shares campus with 1 setter, contributing 12 x 1 = 12 units. Total single-campus S3 units = 24 + 12 = 36.0 units.");
 
     Ok(())
 }

@@ -3,7 +3,7 @@
 //! Provides mathematically sound, cheap lower bounds for soft constraint rules
 //! to indicate when an objective cannot be improved further.
 
-use crate::domain::{calculate_quotas, Problem, Role, RuleKey, TeacherId};
+use crate::domain::{calculate_quotas, PanelKey, Problem, Role, RuleKey, TeacherId};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
@@ -102,7 +102,7 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
     // -------------------------------------------------------------------------
     // S6: Pigeonhole on setter slots with consecutive setting
     // -------------------------------------------------------------------------
-    let s6_bound = if num_exams <= 1 {
+    let s6_bound = if num_exams <= 1 || non_forced_setter_slots == 0 {
         0.0
     } else {
         let max_non_adjacent = num_exams.div_ceil(2);
@@ -113,6 +113,19 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
                 0
             }
         };
+
+        // Precompute remaining non-forced setter seats per panel
+        let mut panel_non_forced_setters: HashMap<PanelKey, usize> = HashMap::new();
+        for p in &panels {
+            if let Some(sub) = subjects.iter().find(|s| s.id == p.subject_id) {
+                let forced_on_panel = forced
+                    .iter()
+                    .filter(|fp| fp.panel == *p && fp.role == Role::Setter)
+                    .count();
+                panel_non_forced_setters
+                    .insert(*p, (sub.setters as usize).saturating_sub(forced_on_panel));
+            }
+        }
 
         // Compute maximum non-forced setter capacity per teacher
         let mut setter_caps = Vec::with_capacity(problem.teachers.len());
@@ -134,6 +147,9 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
                 .iter()
                 .find(|q| q.teacher_id == t.id)
                 .map_or(0, |q| q.hi);
+            let teacher_forced_seats = forced.iter().filter(|fp| fp.teacher_id == t.id).count();
+            let non_forced_hi = hi.saturating_sub(teacher_forced_seats);
+
             let eligible_setter_exams = problem
                 .exams
                 .iter()
@@ -141,21 +157,32 @@ pub fn lower_bounds(problem: &Problem) -> Vec<RuleBound> {
                     if unavailabilities_set.contains(&(t.id, e.id)) {
                         return false;
                     }
-                    problem.grades.iter().any(|g| {
-                        subjects.iter().any(|s| {
-                            crate::domain::forced::is_teacher_eligible(
-                                problem,
-                                t.id,
-                                e.id,
-                                g.id,
-                                s.id,
-                                Role::Setter,
-                            )
-                        })
+                    panels.iter().any(|p| {
+                        if p.exam_id != e.id {
+                            return false;
+                        }
+                        if panel_non_forced_setters.get(p).copied().unwrap_or(0) == 0 {
+                            return false;
+                        }
+                        if forced
+                            .iter()
+                            .any(|fp| fp.panel == *p && fp.teacher_id == t.id)
+                        {
+                            return false;
+                        }
+                        crate::domain::forced::is_teacher_eligible(
+                            problem,
+                            t.id,
+                            p.exam_id,
+                            p.grade_id,
+                            p.subject_id,
+                            Role::Setter,
+                        )
                     })
                 })
                 .count();
-            let cap = hi.min(eligible_setter_exams);
+
+            let cap = non_forced_hi.min(eligible_setter_exams).min(num_exams);
             setter_caps.push(cap);
         }
 
@@ -400,6 +427,19 @@ mod tests {
         assert_eq!(adj_cost(3), 1);
         assert_eq!(adj_cost(4), 3);
         assert_ne!(adj_cost(4), 4 - 2);
+    }
+
+    #[test]
+    fn test_s6_lower_bound_q_shaped_nocampus() {
+        let problem = crate::domain::fixtures::make_canonical_q_problem(
+            crate::domain::fixtures::QVariant::NoCampus,
+        );
+        let bounds = lower_bounds(&problem);
+        let s6_bound = bounds.iter().find(|b| b.rule == RuleKey::S6).unwrap();
+        assert_eq!(
+            s6_bound.units_lower_bound, 2.0,
+            "Expected S6 lower bound on Q-shaped data to be 2.0 units (24 presences over 11 teachers)"
+        );
     }
 
     #[test]

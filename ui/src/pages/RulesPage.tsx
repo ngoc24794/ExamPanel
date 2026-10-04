@@ -71,6 +71,7 @@ import {
   type Lock,
   type LockKind,
   type Role,
+  type RuleKey,
   type RuleSetting,
   type QuotaPreviewItem,
 } from '@/lib/api'
@@ -148,7 +149,9 @@ export const RulesPage: React.FC = () => {
     setIsDirty(true)
     setDraftSettings((prev) => {
       const idx = prev.findIndex((s) => s.key === key)
-      if (idx === -1) return prev
+      if (idx === -1) {
+        return [...prev, { key: key as RuleKey, enabled: true, weight: 100, params: {}, ...updates }]
+      }
       const copy = [...prev]
       copy[idx] = { ...copy[idx], ...updates }
       return copy

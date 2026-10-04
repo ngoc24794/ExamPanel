@@ -68,6 +68,14 @@ describe('OverviewPage & Onboarding', () => {
       ).toBeInTheDocument()
     })
 
+    // Check that subjects and competencies steps are present
+    expect(
+      screen.getByText(/3\. Cấu hình môn học|3\. Configure subjects/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/4\. Phân công môn đảm nhiệm|4\. Assign subject competencies/i),
+    ).toBeInTheDocument()
+
     // Restore
     api.listCampuses = originalListCampuses
   })

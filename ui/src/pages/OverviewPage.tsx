@@ -25,6 +25,8 @@ import {
   useSchoolYears,
   useTeachers,
   useFeasibility,
+  useSubjects,
+  useCompetencies,
 } from '@/lib/query/hooks'
 
 export const OverviewPage: React.FC = () => {
@@ -34,6 +36,8 @@ export const OverviewPage: React.FC = () => {
   const { data: schoolYears = [] } = useSchoolYears()
   const currentYear = schoolYears.find((y) => y.is_current) || schoolYears[0]
   const { data: teachersWithGrades = [] } = useTeachers(currentYear?.id)
+  const { data: subjects = [] } = useSubjects(currentYear?.id)
+  const { data: competencies = [] } = useCompetencies(currentYear?.id)
   const { data: feasibility } = useFeasibility(currentYear?.id)
 
   const [pingResult, setPingResult] = React.useState<string>('')
@@ -55,7 +59,8 @@ export const OverviewPage: React.FC = () => {
     fetchPing()
   }, [fetchPing])
 
-  const showOnboarding = campuses.length === 0 || teachersWithGrades.length === 0
+  const showOnboarding =
+    campuses.length === 0 || teachersWithGrades.length === 0 || subjects.length === 0
 
   return (
     <div className="space-y-6">
@@ -66,11 +71,13 @@ export const OverviewPage: React.FC = () => {
         <p className="text-sm text-muted-foreground mt-1">{t('overview.description')}</p>
       </div>
 
-      {/* Onboarding Checklist if no campuses or teachers */}
+      {/* Onboarding Checklist if no campuses or teachers or subjects */}
       {showOnboarding && (
         <Onboarding
           campusesCount={campuses.length}
           teachersCount={teachersWithGrades.length}
+          subjectsCount={subjects.length}
+          competenciesCount={competencies.length}
         />
       )}
 

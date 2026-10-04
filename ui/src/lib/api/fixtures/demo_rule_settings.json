@@ -1,5 +1,11 @@
 [
   {
+    "key": "h3",
+    "enabled": true,
+    "weight": 100.0,
+    "params": {}
+  },
+  {
     "key": "h4",
     "enabled": true,
     "weight": 100.0,
