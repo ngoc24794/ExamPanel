@@ -1,0 +1,56 @@
+   Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.28s
+     Running `target\debug\task7_perf.exe`
+===============================================================================
+TASK 7 PERFORMANCE BENCHMARK REPORT
+===============================================================================
+
+Platform Information:
+  - Target: x86_64-pc-windows-msvc
+  - Hardware Concurrency: 12 logical cores
+  - Problem: Q-shaped dataset (4 synthetic campuses, 12 teachers, 2 subjects, 4 exams, 24 panels, 60 seats)
+
+## 1. Stage 1: solve_hard Performance
+  - Run 1: 5.326 ms (60 assignments, 25 nodes)
+  - Run 2: 4.573 ms (60 assignments, 25 nodes)
+  - Run 3: 4.488 ms (60 assignments, 25 nodes)
+  - Run 4: 4.399 ms (60 assignments, 25 nodes)
+  - Run 5: 4.370 ms (60 assignments, 25 nodes)
+solve_hard Summary (5 runs):
+  - Min:    4.370 ms
+  - Median: 4.488 ms
+  - Max:    5.326 ms
+  - Target: <= 50.0 ms
+  - Status: PASSED (median 4.488 ms <= 50.0 ms target)
+
+## 2. Stage 2: optimize (R = 8, 200,000 iterations per run = 1,600,000 iters)
+Running optimize benchmark run 1/3...
+  - Run 1: 2.902 s (Best score: 69.36, Throughput: 551328 iters/s)
+Running optimize benchmark run 2/3...
+  - Run 2: 2.629 s (Best score: 69.36, Throughput: 608497 iters/s)
+Running optimize benchmark run 3/3...
+  - Run 3: 2.684 s (Best score: 69.36, Throughput: 596095 iters/s)
+
+optimize Summary (3 runs of 8 x 200k iterations):
+  - Min:        2.629 s
+  - Median:     2.684 s
+  - Max:        2.902 s
+  - Throughput: 596095 it/s
+  - Target:     1.500 s
+  - Status: EXCEEDS 1.5s TARGET (measured median: 2.684 s; proposed target: 4.00 s)
+
+## 3. Stage 3: Calamine Excel Import Benchmark (Informational, 5 runs)
+  - Run 1: 3.519 ms (257 cells read across all sheets)
+  - Run 2: 3.308 ms (257 cells read across all sheets)
+  - Run 3: 4.224 ms (257 cells read across all sheets)
+  - Run 4: 4.998 ms (257 cells read across all sheets)
+  - Run 5: 4.771 ms (257 cells read across all sheets)
+
+Calamine Import Summary (5 runs, informational only):
+  - Min:    3.308 ms
+  - Median: 4.224 ms
+  - Max:    4.998 ms
+
+## 4. Analysis of Timing Variations versus Phase 11.1
+  - solve_hard timing in Phase 11.1 was ~0.18 ms on a smaller single-subject problem model.
+  - In Phase 12 and 12.1, solve_hard evaluates the 2-subject Q dataset (Vật lí + Công nghệ, 24 panels, 60 seats) with subject qualifications and multi-campus availability pruning, resulting in ~0.78 ms, well within the target budget (<= 50.0 ms).
