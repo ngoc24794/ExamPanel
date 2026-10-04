@@ -36,6 +36,10 @@ path = "src/bin/task5_comparison.rs"
 name = "task6_h3"
 path = "src/bin/task6_h3.rs"
 
+[[bin]]
+name = "task7_perf"
+path = "src/bin/task7_perf.rs"
+
 [[test]]
 name = "generate_types"
 path = "tests/generate_types.rs"
