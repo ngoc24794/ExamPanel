@@ -349,6 +349,8 @@ pub fn run() {
             commands::generate_import_template,
             commands::preview_import,
             commands::apply_import,
+            commands::preview_import_plan,
+            commands::apply_imported_plan,
             commands::export_plan_excel,
             commands::backup_database,
             commands::restore_database,

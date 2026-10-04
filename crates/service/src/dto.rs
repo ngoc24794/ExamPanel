@@ -513,6 +513,42 @@ pub struct ImportApplyResult {
     pub unavailabilities_created: usize,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct PlanImportTeacherTotal {
+    pub teacher_id: TeacherId,
+    pub teacher_name: String,
+    pub display_name: String,
+    #[cfg_attr(feature = "typegen", ts(type = "number | null"))]
+    pub file_total: Option<i64>,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub computed_total: i64,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub setter_count: i64,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub reviewer_count: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct PlanImportPreview {
+    pub assignments: Vec<Assignment>,
+    pub teacher_totals: Vec<PlanImportTeacherTotal>,
+    pub errors: Vec<ImportCellError>,
+    pub warnings: Vec<String>,
+    pub can_apply: bool,
+    pub hard_violations: Vec<Violation>,
+    pub score_report: Option<ScoreReport>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct ApplyPlanImportInput {
+    pub school_year_id: SchoolYearId,
+    pub plan_name: Option<String>,
+    pub assignments: Vec<Assignment>,
+}
+
 /// Generates the complete TypeScript declaration file contents from Rust types.
 #[cfg(feature = "typegen")]
 #[must_use]
@@ -626,6 +662,9 @@ pub fn generate_typescript_declarations() -> String {
     export_type!(DeactivatedTeacherPreview);
     export_type!(ImportPreviewResult);
     export_type!(ImportApplyResult);
+    export_type!(PlanImportTeacherTotal);
+    export_type!(PlanImportPreview);
+    export_type!(ApplyPlanImportInput);
 
     out.replace("\r\n", "\n")
 }

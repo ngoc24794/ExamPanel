@@ -9,6 +9,7 @@ import demoTeachers from './fixtures/demo_teachers.json'
 import type {
   AppInfo,
   AppSettings,
+  ApplyPlanImportInput,
   Assignment,
   BackupFileInfo,
   BackupValidationSummary,
@@ -35,6 +36,8 @@ import type {
   OptimizeOutcome,
   OptimizeRequest,
   PlanDetails,
+  PlanImportPreview,
+  PlanImportTeacherTotal,
   PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
@@ -1708,6 +1711,78 @@ export class MockExamPanelApi implements ExamPanelApi {
 
   async exportPlanExcel(_planId: number, _targetPath: string): Promise<void> {
     // In mock mode, simulate export
+  }
+
+  async previewImportPlan(
+    _schoolYearId: number,
+    _filePath?: string,
+    _tsvContent?: string,
+  ): Promise<PlanImportPreview> {
+    const demoPlan = this.planDetailsMap.get(1)
+    const assignments: Assignment[] = demoPlan ? demoPlan.assignments : []
+    const teacherTotals: PlanImportTeacherTotal[] = this.teachers.map((t) => {
+      const count = assignments.filter((a: Assignment) => a.teacher_id === t.id).length
+      const de = assignments.filter(
+        (a: Assignment) => a.teacher_id === t.id && a.role === 'setter',
+      ).length
+      const pb = assignments.filter(
+        (a: Assignment) => a.teacher_id === t.id && a.role === 'reviewer',
+      ).length
+      return {
+        teacher_id: t.id,
+        teacher_name: t.full_name,
+        display_name: t.display_name || t.full_name,
+        file_total: count,
+        computed_total: count,
+        setter_count: de,
+        reviewer_count: pb,
+      }
+    })
+    return {
+      assignments: JSON.parse(JSON.stringify(assignments)),
+      teacher_totals: teacherTotals,
+      errors: [],
+      warnings: [],
+      can_apply: true,
+      hard_violations: [],
+      score_report: demoPlan?.score_report || null,
+    }
+  }
+
+  async applyImportedPlan(input: ApplyPlanImportInput): Promise<number> {
+    const nextId =
+      this.plans.reduce((max, pl) => Math.max(max, pl.id), 0) + 1
+    const summary: PlanSummary = {
+      id: nextId,
+      name: input.plan_name?.trim() || 'Nhập từ bảng của tổ',
+      created_at: new Date().toISOString(),
+      score: 0,
+      is_final: false,
+      is_stale: false,
+      source: 'manual',
+    }
+    this.plans.push(summary)
+
+    const newPlanDetails: PlanDetails = {
+      plan: {
+        id: nextId,
+        school_year_id: input.school_year_id,
+        name: summary.name,
+        created_at: summary.created_at,
+        seed: 0,
+        score: 0,
+        is_final: false,
+        source: 'manual',
+        run_params_json: JSON.stringify({ origin: 'import' }),
+      },
+      assignments: input.assignments.map((a: Assignment) => ({
+        ...a,
+        plan_id: nextId,
+      })),
+      score_report: undefined,
+    }
+    this.planDetailsMap.set(nextId, newPlanDetails)
+    return nextId
   }
 
   // Backup & Restore

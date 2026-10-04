@@ -52,6 +52,7 @@ import {
   FileSpreadsheet,
   Printer,
   RefreshCw,
+  FileUp,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { RunOptimizeDialog } from './assignments/RunOptimizeDialog'
@@ -61,6 +62,7 @@ import { QPlanGrid } from './assignments/QPlanGrid'
 import { TeacherFocusPanel } from './assignments/TeacherFocusPanel'
 import { PlanCompareModal } from './assignments/PlanCompareModal'
 import { ReoptimizeDialog } from './assignments/ReoptimizeDialog'
+import { ImportPlanModal } from './assignments/ImportPlanModal'
 import { FeasibilitySheet } from '@/components/FeasibilitySheet'
 
 export function AssignmentsPage() {
@@ -144,6 +146,7 @@ export function AssignmentsPage() {
   const [showCompareModal, setShowCompareModal] = React.useState(false)
   const [showReoptimizeDialog, setShowReoptimizeDialog] = React.useState(false)
   const [showFeasibilitySheet, setShowFeasibilitySheet] = React.useState(false)
+  const [showImportPlanModal, setShowImportPlanModal] = React.useState(false)
 
   // View mode toggle: 'grid' (Bảng tổ) | 'detail' (Chi tiết)
   const [viewMode, setViewMode] = React.useState<'grid' | 'detail'>(() => {
@@ -361,6 +364,18 @@ export function AssignmentsPage() {
             {t('assignments.compare')}
           </Button>
 
+          {/* Import Existing Plan Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowImportPlanModal(true)}
+            className="gap-1.5"
+            data-testid="import-plan-button"
+          >
+            <FileUp className="h-4 w-4" />
+            {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+          </Button>
+
           {/* Plans History Toggle */}
           <Button
             variant={showHistory ? 'default' : 'outline'}
@@ -431,10 +446,21 @@ export function AssignmentsPage() {
       {plans.length === 0 ? (
         <div className="p-12 text-center rounded-lg border border-dashed border-border bg-card space-y-4">
           <p className="text-sm text-muted-foreground">{t('assignments.noPlans')}</p>
-          <Button onClick={() => setShowRunDialog(true)} className="gap-2">
-            <Play className="h-4 w-4" />
-            {t('assignments.startRun')}
-          </Button>
+          <div className="flex items-center justify-center gap-2">
+            <Button onClick={() => setShowRunDialog(true)} className="gap-2">
+              <Play className="h-4 w-4" />
+              {t('assignments.startRun')}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowImportPlanModal(true)}
+              className="gap-2"
+              data-testid="empty-import-plan-button"
+            >
+              <FileUp className="h-4 w-4" />
+              {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -776,6 +802,17 @@ export function AssignmentsPage() {
         report={feasibilityReport?.report}
         schoolYearId={schoolYearId}
         schoolYearName={currentYear?.name}
+      />
+
+      {/* Import Existing Plan Modal (Part D) */}
+      <ImportPlanModal
+        open={showImportPlanModal}
+        onOpenChange={setShowImportPlanModal}
+        schoolYearId={schoolYearId}
+        onSuccess={async (newPlanId) => {
+          await refetchPlans()
+          setSelectedPlanId(newPlanId)
+        }}
       />
     </div>
   )

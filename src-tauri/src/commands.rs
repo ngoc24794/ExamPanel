@@ -9,12 +9,13 @@ use exam_panel_core::domain::{
 };
 use exam_panel_core::optimize::{CandidateEval, Progress, SlotRef};
 use exam_panel_service::dto::{
-    AppInfo, AppSettings, BackupFileInfo, BackupValidationSummary, CreateCampusInput,
-    CreateExamInput, CreateGradeInput, CreateLockInput, CreateSchoolYearInput, CreateSubjectInput,
-    CreateTeacherInput, DeleteCompetencyInput, EvaluationOutcome, FeasibilityReportWithQuotas,
-    ImportApplyResult, ImportPreviewResult, OptimizeOutcome, OptimizeRequest, PlanDetails,
-    PlanStatus, PreviewQuotasInput, ProblemDetails, QuotaPreviewItem, ReoptimizeRequest,
-    ReplaceTeacherCompetenciesInput, RulePresetItem, SetCompetencyInput, UpdateSubjectInput,
+    AppInfo, AppSettings, ApplyPlanImportInput, BackupFileInfo, BackupValidationSummary,
+    CreateCampusInput, CreateExamInput, CreateGradeInput, CreateLockInput, CreateSchoolYearInput,
+    CreateSubjectInput, CreateTeacherInput, DeleteCompetencyInput, EvaluationOutcome,
+    FeasibilityReportWithQuotas, ImportApplyResult, ImportPreviewResult, OptimizeOutcome,
+    OptimizeRequest, PlanDetails, PlanImportPreview, PlanStatus, PreviewQuotasInput,
+    ProblemDetails, QuotaPreviewItem, ReoptimizeRequest, ReplaceTeacherCompetenciesInput,
+    RulePresetItem, SetCompetencyInput, UpdateSubjectInput,
 };
 use exam_panel_service::error::AppError;
 use exam_panel_service::service::AppService;
@@ -555,6 +556,28 @@ pub fn apply_import(
     preview: ImportPreviewResult,
 ) -> Result<ImportApplyResult, AppError> {
     service.apply_import(school_year_id, &preview)
+}
+
+#[tauri::command]
+pub fn preview_import_plan(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: SchoolYearId,
+    file_path: Option<String>,
+    tsv_content: Option<String>,
+) -> Result<PlanImportPreview, AppError> {
+    service.preview_import_plan(
+        school_year_id,
+        file_path.as_deref().map(std::path::Path::new),
+        tsv_content.as_deref(),
+    )
+}
+
+#[tauri::command]
+pub fn apply_imported_plan(
+    service: State<'_, Arc<AppService>>,
+    input: ApplyPlanImportInput,
+) -> Result<PlanId, AppError> {
+    service.apply_imported_plan(input)
 }
 
 #[tauri::command]

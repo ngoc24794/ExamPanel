@@ -181,3 +181,9 @@ export type ImportPreviewResult = { mode: string, can_apply: boolean, campuses: 
 
 export type ImportApplyResult = { backup_path: string, campuses_created: number, campuses_updated: number, teachers_created: number, teachers_updated: number, teachers_deactivated: number, unavailabilities_created: number, };
 
+export type PlanImportTeacherTotal = { teacher_id: number, teacher_name: string, display_name: string, file_total: number | null, computed_total: number, setter_count: number, reviewer_count: number, };
+
+export type PlanImportPreview = { assignments: Array<Assignment>, teacher_totals: Array<PlanImportTeacherTotal>, errors: Array<ImportCellError>, warnings: Array<string>, can_apply: boolean, hard_violations: Array<Violation>, score_report: ScoreReport | null, };
+
+export type ApplyPlanImportInput = { school_year_id: number, plan_name: string | null, assignments: Array<Assignment>, };
+

@@ -3,6 +3,7 @@ import { openPath } from '@tauri-apps/plugin-opener'
 import type {
   AppInfo,
   AppSettings,
+  ApplyPlanImportInput,
   Assignment,
   BackupFileInfo,
   BackupValidationSummary,
@@ -29,6 +30,7 @@ import type {
   OptimizeOutcome,
   OptimizeRequest,
   PlanDetails,
+  PlanImportPreview,
   PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
@@ -507,6 +509,22 @@ export class TauriExamPanelApi implements ExamPanelApi {
 
   async exportPlanExcel(planId: number, targetPath: string): Promise<void> {
     await invoke<void>('export_plan_excel', { planId, targetPath })
+  }
+
+  async previewImportPlan(
+    schoolYearId: number,
+    filePath?: string,
+    tsvContent?: string,
+  ): Promise<PlanImportPreview> {
+    return await invoke<PlanImportPreview>('preview_import_plan', {
+      schoolYearId,
+      filePath,
+      tsvContent,
+    })
+  }
+
+  async applyImportedPlan(input: ApplyPlanImportInput): Promise<number> {
+    return await invoke<number>('apply_imported_plan', { input })
   }
 
   // Backup & Restore

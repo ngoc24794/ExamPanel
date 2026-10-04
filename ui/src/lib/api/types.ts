@@ -3,6 +3,7 @@ export * from './generated/types'
 import type {
   AppInfo,
   AppSettings,
+  ApplyPlanImportInput,
   Assignment,
   BackupFileInfo,
   BackupValidationSummary,
@@ -27,6 +28,7 @@ import type {
   OptimizeOutcome,
   OptimizeRequest,
   PlanDetails,
+  PlanImportPreview,
   PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
@@ -192,6 +194,12 @@ export interface ExamPanelApi {
     preview: ImportPreviewResult,
   ): Promise<ImportApplyResult>
   exportPlanExcel(planId: number, targetPath: string): Promise<void>
+  previewImportPlan(
+    schoolYearId: number,
+    filePath?: string,
+    tsvContent?: string,
+  ): Promise<PlanImportPreview>
+  applyImportedPlan(input: ApplyPlanImportInput): Promise<number>
 
   // Backup & Restore
   backupDatabase(targetPath: string): Promise<void>

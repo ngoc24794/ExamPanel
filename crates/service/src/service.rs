@@ -1,11 +1,12 @@
 //! Application service implementation orchestrating core algorithms and persistence.
 
 use crate::dto::{
-    AppInfo, AppSettings, CreateCampusInput, CreateExamInput, CreateGradeInput, CreateLockInput,
-    CreateSchoolYearInput, CreateSubjectInput, CreateTeacherInput, DeleteCompetencyInput,
-    EvaluationOutcome, FeasibilityReportWithQuotas, OptimizeBudget, OptimizeOutcome,
-    OptimizeRequest, PlanDetails, PlanStatus, PreviewQuotasInput, ProblemDetails, QuotaPreviewItem,
-    ReplaceTeacherCompetenciesInput, RulePresetItem, SetCompetencyInput, UpdateSubjectInput,
+    AppInfo, AppSettings, ApplyPlanImportInput, CreateCampusInput, CreateExamInput,
+    CreateGradeInput, CreateLockInput, CreateSchoolYearInput, CreateSubjectInput,
+    CreateTeacherInput, DeleteCompetencyInput, EvaluationOutcome, FeasibilityReportWithQuotas,
+    OptimizeBudget, OptimizeOutcome, OptimizeRequest, PlanDetails, PlanImportPreview, PlanStatus,
+    PreviewQuotasInput, ProblemDetails, QuotaPreviewItem, ReplaceTeacherCompetenciesInput,
+    RulePresetItem, SetCompetencyInput, UpdateSubjectInput,
 };
 use crate::error::AppError;
 use exam_panel_core::domain::{
@@ -1339,6 +1340,54 @@ impl AppService {
         .map_err(|e| AppError::internal(format!("Lỗi xuất phương án Excel: {e}")))?;
 
         Ok(())
+    }
+
+    pub fn preview_import_plan(
+        &self,
+        school_year_id: SchoolYearId,
+        file_path: Option<&Path>,
+        tsv_content: Option<&str>,
+    ) -> Result<PlanImportPreview, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let problem = store.load_problem(school_year_id)?;
+        drop(store);
+
+        crate::excel::plan_import::preview_plan_import(&problem, file_path, tsv_content)
+    }
+
+    pub fn apply_imported_plan(&self, input: ApplyPlanImportInput) -> Result<PlanId, AppError> {
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| AppError::new("lock_poisoned"))?;
+        let problem = store.load_problem(input.school_year_id)?;
+
+        let score_report = exam_panel_core::score::evaluate(&problem, &input.assignments);
+
+        let plan = exam_panel_core::domain::Plan {
+            id: PlanId(0),
+            school_year_id: input.school_year_id,
+            name: input
+                .plan_name
+                .filter(|s| !s.trim().is_empty())
+                .unwrap_or_else(|| "Nhập từ bảng của tổ".to_string()),
+            created_at: String::new(),
+            seed: 0,
+            score: Some(score_report.total),
+            is_final: false,
+            rank: None,
+            score_report_json: Some(serde_json::to_string(&score_report)?),
+            run_params_json: Some(serde_json::json!({ "origin": "import" }).to_string()),
+            source: "manual".to_string(),
+            data_hash: Some(problem.data_hash()),
+            rules_hash: Some(problem.rules_hash()),
+        };
+
+        let new_plan_id = store.save_plan(&plan, &input.assignments)?;
+        Ok(new_plan_id)
     }
 
     // -------------------------------------------------------------------------
