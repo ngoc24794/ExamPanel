@@ -1223,4 +1223,56 @@ mod tests {
             res.stats.total_iterations, elapsed
         );
     }
+
+    #[test]
+    fn test_optimize_never_returns_worse_total_than_initial_plan() {
+        use crate::domain::fixtures::{make_canonical_q_problem, make_q_assignments, QVariant};
+
+        // 1. Test on Q's plan
+        let problem_q = make_canonical_q_problem(QVariant::NoCampus);
+        let q_assigns = make_q_assignments();
+        let initial_report_q = evaluate(&problem_q, &q_assigns);
+
+        let opts_q = OptimizeOptions {
+            base_seed: 42,
+            budget: Budget::Iterations(5_000),
+            num_runs: 4,
+            max_plans: 3,
+            diversity_threshold: 0.10,
+            cancel: None,
+            progress: None,
+            initial_assignments: Some(q_assigns),
+        };
+        let res_q = optimize(&problem_q, &opts_q).expect("optimize should succeed");
+        assert!(
+            res_q.plans[0].report.total <= initial_report_q.total + 1e-6,
+            "optimized total ({}) must be <= initial total ({})",
+            res_q.plans[0].report.total,
+            initial_report_q.total
+        );
+
+        // 2. Test on legacy demo solve_hard plan
+        let problem_demo = make_seed_demo_problem();
+        let sol = crate::solver::solve_hard(&problem_demo, &crate::solver::SolveOptions::default())
+            .expect("solve hard");
+        let initial_report_demo = evaluate(&problem_demo, &sol.assignments);
+
+        let opts_demo = OptimizeOptions {
+            base_seed: 99,
+            budget: Budget::Iterations(5_000),
+            num_runs: 4,
+            max_plans: 3,
+            diversity_threshold: 0.10,
+            cancel: None,
+            progress: None,
+            initial_assignments: Some(sol.assignments),
+        };
+        let res_demo = optimize(&problem_demo, &opts_demo).expect("optimize should succeed");
+        assert!(
+            res_demo.plans[0].report.total <= initial_report_demo.total + 1e-6,
+            "optimized total ({}) must be <= initial total ({})",
+            res_demo.plans[0].report.total,
+            initial_report_demo.total
+        );
+    }
 }

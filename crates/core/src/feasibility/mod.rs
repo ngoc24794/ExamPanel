@@ -334,11 +334,23 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
         errors.push(Diagnostic::new("no_active_teachers"));
         degenerate = true;
     } else if !problem.campuses.is_empty() {
-        let active_campuses: HashSet<CampusId> =
-            active_teachers.iter().map(|t| t.campus_id).collect();
-        if active_campuses.len() < 2 {
-            errors.push(Diagnostic::new("single_campus"));
-            degenerate = true;
+        let h3_enabled = problem
+            .rule_settings
+            .iter()
+            .find(|s| s.key == RuleKey::H3)
+            .is_none_or(|s| s.enabled);
+        let requires_multi_campus = h3_enabled
+            && problem
+                .effective_subjects()
+                .iter()
+                .any(|s| s.min_campuses >= 2);
+        if requires_multi_campus {
+            let active_campuses: HashSet<CampusId> =
+                active_teachers.iter().map(|t| t.campus_id).collect();
+            if active_campuses.len() < 2 {
+                errors.push(Diagnostic::new("single_campus"));
+                degenerate = true;
+            }
         }
     }
 

@@ -28,6 +28,10 @@ path = "src/bin/phase11_report.rs"
 name = "import_q_data"
 path = "src/bin/import_q_data.rs"
 
+[[bin]]
+name = "task5_comparison"
+path = "src/bin/task5_comparison.rs"
+
 [[test]]
 name = "generate_types"
 path = "tests/generate_types.rs"
