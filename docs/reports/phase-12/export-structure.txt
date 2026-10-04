@@ -1,0 +1,24 @@
+=== Bảng phân công (mẫu tổ) — Calamine Verification ===
+
+Sheet 0 Name: Bảng phân công (mẫu tổ)
+Title: [BẢN NHÁP] BẢNG PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ KIỂM TRA
+Header (6, 0): Kì thi/khối
+
+Per-teacher verification against Q's canonical totals:
+Giáo viên    | Thực tế    | Kỳ vọng    | Khớp    
+-------------+------------+------------+---------
+C Hiền       | 5          | 5          | OK      
+C Lài        | 5          | 5          | OK      
+T Phúc       | 4          | 4          | OK      
+T Lộc        | 4          | 4          | OK      
+C Thư        | 4          | 4          | OK      
+C Na         | 4          | 4          | OK      
+C Bình       | 4          | 4          | OK      
+C Quí        | 6          | 6          | OK      
+C Tú         | 4          | 4          | OK      
+C Như        | 4          | 4          | OK      
+C Lan        | 4          | 4          | OK      
+T Nghĩa      | 12         | 12         | OK      
+-------------+------------+------------+---------
+Tổng cộng    | 60         | 60         | OK      
+Chi tiết: Ra đề = 36 (kỳ vọng 36), Phản biện = 24 (kỳ vọng 24)

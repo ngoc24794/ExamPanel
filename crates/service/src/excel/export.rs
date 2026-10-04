@@ -92,6 +92,21 @@ pub fn export_plan_workbook(
     let campus_map: HashMap<i64, &Campus> = campuses.iter().map(|c| (c.id.value(), c)).collect();
 
     // -------------------------------------------------------------------------
+    // Sheet 0: "Bảng phân công (mẫu tổ)" (Q-Style Grid A4 Landscape)
+    // -------------------------------------------------------------------------
+    write_q_style_sheet(
+        &mut workbook,
+        plan_details,
+        school_year,
+        grades,
+        exams,
+        subjects,
+        teachers,
+        settings,
+        is_draft,
+    )?;
+
+    // -------------------------------------------------------------------------
     // Sheet 1: "Phân công" (Matrix A4 Landscape)
     // -------------------------------------------------------------------------
     let sheet_matrix = workbook.add_worksheet();
@@ -545,4 +560,438 @@ fn rule_key_vietnamese_name(key: &exam_panel_core::domain::RuleKey) -> &'static 
         S9 => "S9 - Hạn chế dồn nhiều nhiệm vụ trong một kỳ thi",
         S10 => "S10 - Phản biện đủ các môn phụ trách",
     }
+}
+
+/// Writes the Q-style assignment grid and attached totals panel (Sheet 0: "Bảng phân công (mẫu tổ)").
+#[allow(clippy::too_many_arguments)]
+fn write_q_style_sheet(
+    workbook: &mut Workbook,
+    plan_details: &PlanDetails,
+    school_year: &SchoolYear,
+    grades: &[Grade],
+    exams: &[Exam],
+    subjects: &[Subject],
+    teachers: &[Teacher],
+    settings: &AppSettings,
+    is_draft: bool,
+) -> Result<(), XlsxError> {
+    let sheet = workbook.add_worksheet();
+    sheet.set_name("Bảng phân công (mẫu tổ)")?;
+
+    sheet.set_paper_size(9); // A4
+    sheet.set_landscape();
+    sheet.set_print_fit_to_pages(1, 0); // 1 page wide
+    sheet.set_repeat_rows(6, 7)?;
+    sheet.set_footer("&RTrang &P / &N");
+
+    // Formatting styles
+    let title_format = Format::new()
+        .set_bold()
+        .set_font_size(14)
+        .set_align(FormatAlign::Center)
+        .set_align(FormatAlign::VerticalCenter);
+
+    let draft_format = Format::new()
+        .set_bold()
+        .set_font_size(14)
+        .set_font_color(Color::RGB(0xDC2626))
+        .set_align(FormatAlign::Center)
+        .set_align(FormatAlign::VerticalCenter);
+
+    let subtitle_format = Format::new()
+        .set_italic()
+        .set_font_size(11)
+        .set_align(FormatAlign::Center);
+
+    let table_header_format = Format::new()
+        .set_bold()
+        .set_font_size(10)
+        .set_align(FormatAlign::Center)
+        .set_align(FormatAlign::VerticalCenter)
+        .set_background_color(Color::RGB(0xE2E8F0)) // slate-200
+        .set_border(FormatBorder::Thin);
+
+    let subject_header_format = Format::new()
+        .set_bold()
+        .set_font_size(10)
+        .set_align(FormatAlign::Center)
+        .set_align(FormatAlign::VerticalCenter)
+        .set_background_color(Color::RGB(0xF1F5F9)) // slate-100
+        .set_border(FormatBorder::Thin);
+
+    let cell_center = Format::new()
+        .set_font_size(10)
+        .set_align(FormatAlign::Center)
+        .set_align(FormatAlign::VerticalCenter)
+        .set_border(FormatBorder::Thin);
+
+    let cell_left = Format::new()
+        .set_font_size(10)
+        .set_align(FormatAlign::Left)
+        .set_align(FormatAlign::VerticalCenter)
+        .set_border(FormatBorder::Thin);
+
+    let bold_center = Format::new()
+        .set_bold()
+        .set_font_size(10)
+        .set_align(FormatAlign::Center)
+        .set_align(FormatAlign::VerticalCenter)
+        .set_border(FormatBorder::Thin);
+
+    let header_bold_left = Format::new()
+        .set_bold()
+        .set_font_size(10)
+        .set_align(FormatAlign::Left);
+
+    let header_center = Format::new()
+        .set_bold()
+        .set_font_size(10)
+        .set_align(FormatAlign::Center);
+
+    let italic_center = Format::new()
+        .set_italic()
+        .set_font_size(10)
+        .set_align(FormatAlign::Center);
+
+    // School info
+    let school_name = settings
+        .school_name
+        .as_deref()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or("TRƯỜNG THPT CHUYÊN")
+        .to_uppercase();
+    let dept_name = settings
+        .department_name
+        .as_deref()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or("TỔ CHUYÊN MÔN TOÁN")
+        .to_uppercase();
+
+    sheet.write_with_format(0, 0, &school_name, &header_bold_left)?;
+    sheet.write_with_format(1, 0, &dept_name, &header_bold_left)?;
+
+    let num_sub = subjects.len().max(1);
+    let grid_cols = 2 + (grades.len() * num_sub) as u16;
+    let spacer_col = grid_cols;
+    let gv_col = spacer_col + 1;
+    let tot_col = gv_col + 1;
+    let de_col = gv_col + 2;
+    let pb_col = gv_col + 3;
+    let last_col = pb_col + exams.len() as u16;
+
+    let motto_col = (last_col.saturating_sub(4)).max(gv_col);
+    sheet.merge_range(
+        0,
+        motto_col,
+        0,
+        last_col,
+        "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+        &header_center,
+    )?;
+    sheet.merge_range(
+        1,
+        motto_col,
+        1,
+        last_col,
+        "Độc lập - Tự do - Hạnh phúc",
+        &italic_center,
+    )?;
+
+    // Title
+    let title_text = if is_draft {
+        "[BẢN NHÁP] BẢNG PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ KIỂM TRA".to_string()
+    } else {
+        "BẢNG PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ KIỂM TRA".to_string()
+    };
+    sheet.merge_range(
+        3,
+        0,
+        3,
+        last_col,
+        &title_text,
+        if is_draft {
+            &draft_format
+        } else {
+            &title_format
+        },
+    )?;
+
+    let subtitle_text = format!(
+        "Năm học: {} — Phương án: {}",
+        school_year.name, plan_details.plan.name
+    );
+    sheet.merge_range(4, 0, 4, last_col, &subtitle_text, &subtitle_format)?;
+
+    // Column widths
+    sheet.set_column_width(0, 10)?; // Kỳ thi
+    sheet.set_column_width(1, 10)?; // Vai trò
+    for c in 2..spacer_col {
+        sheet.set_column_width(c, 14)?;
+    }
+    sheet.set_column_width(spacer_col, 3)?;
+    sheet.set_column_width(gv_col, 15)?;
+    sheet.set_column_width(tot_col, 12)?;
+    sheet.set_column_width(de_col, 8)?;
+    sheet.set_column_width(pb_col, 8)?;
+    for i in 0..exams.len() {
+        sheet.set_column_width(pb_col + 1 + i as u16, 8)?;
+    }
+
+    // Header rows 6 & 7
+    sheet.merge_range(6, 0, 7, 1, "Kì thi/khối", &table_header_format)?;
+
+    for (g_idx, grade) in grades.iter().enumerate() {
+        let start_col = 2 + (g_idx * num_sub) as u16;
+        let end_col = start_col + num_sub as u16 - 1;
+        if num_sub > 1 {
+            sheet.merge_range(6, start_col, 6, end_col, &grade.name, &table_header_format)?;
+            for (s_idx, s) in subjects.iter().enumerate() {
+                let scol = start_col + s_idx as u16;
+                sheet.write_with_format(7, scol, &s.code, &subject_header_format)?;
+            }
+        } else {
+            sheet.merge_range(
+                6,
+                start_col,
+                7,
+                start_col,
+                &grade.name,
+                &table_header_format,
+            )?;
+        }
+    }
+
+    // Totals headers
+    sheet.merge_range(6, gv_col, 7, gv_col, "GV", &table_header_format)?;
+    sheet.merge_range(
+        6,
+        tot_col,
+        7,
+        tot_col,
+        "Tổng lượt n.vụ",
+        &table_header_format,
+    )?;
+    sheet.merge_range(6, de_col, 7, de_col, "Đề", &table_header_format)?;
+    sheet.merge_range(6, pb_col, 7, pb_col, "PB", &table_header_format)?;
+    for (e_idx, e) in exams.iter().enumerate() {
+        let ecol = pb_col + 1 + e_idx as u16;
+        sheet.merge_range(6, ecol, 7, ecol, &e.code, &table_header_format)?;
+    }
+
+    // Data rows
+    let max_setters = subjects.iter().map(|s| s.setters).max().unwrap_or(1);
+    let max_reviewers = subjects.iter().map(|s| s.reviewers).max().unwrap_or(1);
+    let exam_block_size = max_setters + max_reviewers;
+
+    let mut current_grid_row = 8u32;
+    for (e_idx, exam) in exams.iter().enumerate() {
+        let exam_start = current_grid_row;
+        let exam_end = exam_start + exam_block_size as u32 - 1;
+
+        let bg_color = if e_idx % 2 == 0 {
+            Color::RGB(0xFFFFFF)
+        } else {
+            Color::RGB(0xF8FAFC)
+        };
+        let exam_cell_center = Format::new()
+            .set_font_size(10)
+            .set_bold()
+            .set_align(FormatAlign::Center)
+            .set_align(FormatAlign::VerticalCenter)
+            .set_border(FormatBorder::Thin)
+            .set_background_color(bg_color);
+
+        let grid_cell_fmt = Format::new()
+            .set_font_size(10)
+            .set_align(FormatAlign::Center)
+            .set_align(FormatAlign::VerticalCenter)
+            .set_border(FormatBorder::Thin)
+            .set_background_color(bg_color);
+
+        sheet.merge_range(exam_start, 0, exam_end, 0, &exam.code, &exam_cell_center)?;
+
+        for k in 0..max_setters {
+            let r = exam_start + k as u32;
+            sheet.write_with_format(r, 1, "Đề", &exam_cell_center)?;
+            for (g_idx, grade) in grades.iter().enumerate() {
+                for (s_idx, subject) in subjects.iter().enumerate() {
+                    let col = 2 + (g_idx * num_sub + s_idx) as u16;
+                    if k < subject.setters {
+                        let teacher_name = plan_details
+                            .assignments
+                            .iter()
+                            .find(|a| {
+                                a.exam_id == exam.id
+                                    && a.grade_id == grade.id
+                                    && a.subject_id == subject.id
+                                    && a.role == Role::Setter
+                                    && a.position == k as usize
+                            })
+                            .and_then(|a| teachers.iter().find(|t| t.id == a.teacher_id))
+                            .map(|t| {
+                                t.display_name
+                                    .as_deref()
+                                    .filter(|s| !s.trim().is_empty())
+                                    .unwrap_or(&t.full_name)
+                            })
+                            .unwrap_or("-");
+                        sheet.write_with_format(r, col, teacher_name, &grid_cell_fmt)?;
+                    } else {
+                        sheet.write_with_format(r, col, "", &grid_cell_fmt)?;
+                    }
+                }
+            }
+        }
+
+        for m in 0..max_reviewers {
+            let r = exam_start + max_setters as u32 + m as u32;
+            sheet.write_with_format(r, 1, "P.Biện", &exam_cell_center)?;
+            for (g_idx, grade) in grades.iter().enumerate() {
+                for (s_idx, subject) in subjects.iter().enumerate() {
+                    let col = 2 + (g_idx * num_sub + s_idx) as u16;
+                    if m < subject.reviewers {
+                        let teacher_name = plan_details
+                            .assignments
+                            .iter()
+                            .find(|a| {
+                                a.exam_id == exam.id
+                                    && a.grade_id == grade.id
+                                    && a.subject_id == subject.id
+                                    && a.role == Role::Reviewer
+                                    && a.position == m as usize
+                            })
+                            .and_then(|a| teachers.iter().find(|t| t.id == a.teacher_id))
+                            .map(|t| {
+                                t.display_name
+                                    .as_deref()
+                                    .filter(|s| !s.trim().is_empty())
+                                    .unwrap_or(&t.full_name)
+                            })
+                            .unwrap_or("-");
+                        sheet.write_with_format(r, col, teacher_name, &grid_cell_fmt)?;
+                    } else {
+                        sheet.write_with_format(r, col, "", &grid_cell_fmt)?;
+                    }
+                }
+            }
+        }
+
+        current_grid_row += exam_block_size as u32;
+    }
+
+    // Totals rows
+    let mut current_tot_row = 8u32;
+    let mut grand_total = 0;
+    let mut grand_de = 0;
+    let mut grand_pb = 0;
+    let mut grand_exam_totals = vec![0; exams.len()];
+
+    for teacher in teachers {
+        let name = teacher
+            .display_name
+            .as_deref()
+            .filter(|s| !s.trim().is_empty())
+            .unwrap_or(&teacher.full_name);
+        let teacher_assignments: Vec<_> = plan_details
+            .assignments
+            .iter()
+            .filter(|a| a.teacher_id == teacher.id)
+            .collect();
+        let total_count = teacher_assignments.len();
+        let de_count = teacher_assignments
+            .iter()
+            .filter(|a| a.role == Role::Setter)
+            .count();
+        let pb_count = teacher_assignments
+            .iter()
+            .filter(|a| a.role == Role::Reviewer)
+            .count();
+
+        sheet.write_with_format(current_tot_row, gv_col, name, &cell_left)?;
+        sheet.write_with_format(current_tot_row, tot_col, total_count as i64, &cell_center)?;
+        sheet.write_with_format(current_tot_row, de_col, de_count as i64, &cell_center)?;
+        sheet.write_with_format(current_tot_row, pb_col, pb_count as i64, &cell_center)?;
+
+        for (e_idx, exam) in exams.iter().enumerate() {
+            let e_count = teacher_assignments
+                .iter()
+                .filter(|a| a.exam_id == exam.id)
+                .count();
+            sheet.write_with_format(
+                current_tot_row,
+                pb_col + 1 + e_idx as u16,
+                e_count as i64,
+                &cell_center,
+            )?;
+            grand_exam_totals[e_idx] += e_count;
+        }
+
+        grand_total += total_count;
+        grand_de += de_count;
+        grand_pb += pb_count;
+        current_tot_row += 1;
+    }
+
+    // Totals bottom summary row
+    sheet.write_with_format(current_tot_row, gv_col, "Tổng cộng", &bold_center)?;
+    sheet.write_with_format(current_tot_row, tot_col, grand_total as i64, &bold_center)?;
+    sheet.write_with_format(current_tot_row, de_col, grand_de as i64, &bold_center)?;
+    sheet.write_with_format(current_tot_row, pb_col, grand_pb as i64, &bold_center)?;
+    for (e_idx, _) in exams.iter().enumerate() {
+        sheet.write_with_format(
+            current_tot_row,
+            pb_col + 1 + e_idx as u16,
+            grand_exam_totals[e_idx] as i64,
+            &bold_center,
+        )?;
+    }
+    current_tot_row += 1;
+
+    // Signature block
+    let bottom_row = current_grid_row.max(current_tot_row);
+    let sig_row = bottom_row + 2;
+
+    let place = settings
+        .place_name
+        .as_deref()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or("Hà Nội");
+    let title = settings
+        .signer_title
+        .as_deref()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or("Tổ trưởng chuyên môn");
+    let name = settings
+        .signer_name
+        .as_deref()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or("");
+
+    let date_str = format!("{}, ngày ... tháng ... năm 20...", place);
+    sheet.merge_range(
+        sig_row,
+        gv_col,
+        sig_row,
+        last_col,
+        &date_str,
+        &italic_center,
+    )?;
+    sheet.merge_range(
+        sig_row + 1,
+        gv_col,
+        sig_row + 1,
+        last_col,
+        title,
+        &bold_center,
+    )?;
+    sheet.merge_range(
+        sig_row + 5,
+        gv_col,
+        sig_row + 5,
+        last_col,
+        name,
+        &bold_center,
+    )?;
+
+    Ok(())
 }
