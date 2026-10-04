@@ -70,6 +70,7 @@ import {
   useGrades,
   useTeachers,
   useFeasibility,
+  useProblemDetails,
   useCreateTeacher,
   useUpdateTeacher,
   useDeleteTeacher,
@@ -85,8 +86,8 @@ const teacherFormSchema = z.object({
   note: z.string().optional(),
   code: z.string().optional(),
   displayName: z.string().optional(),
-  quotaOverride: z.number().min(0).optional().nullable(),
-  maxTasksPerExamOverride: z.number().min(0).optional().nullable(),
+  quotaOverride: z.union([z.number().min(0), z.nan()]).optional().nullable(),
+  maxTasksPerExamOverride: z.union([z.number().min(0), z.nan()]).optional().nullable(),
 })
 
 type TeacherFormValues = z.infer<typeof teacherFormSchema>
@@ -104,6 +105,17 @@ export const TeachersPage: React.FC = () => {
   const { data: teachersWithGrades = [], isLoading: loadingTeachers } =
     useTeachers(schoolYearId)
   const { data: feasibility } = useFeasibility(schoolYearId)
+  const { data: problemDetails } = useProblemDetails(schoolYearId)
+
+  const forcedMap = React.useMemo(() => {
+    const map = new Map<number, number>()
+    if (problemDetails?.forced) {
+      for (const p of problemDetails.forced) {
+        map.set(p.teacher_id, (map.get(p.teacher_id) ?? 0) + 1)
+      }
+    }
+    return map
+  }, [problemDetails])
 
   // Mutations
   const createTeacherMutation = useCreateTeacher(schoolYearId ?? 0)
@@ -214,6 +226,16 @@ export const TeachersPage: React.FC = () => {
   }
 
   const onSubmit = async (values: TeacherFormValues) => {
+    const quota =
+      typeof values.quotaOverride === 'number' && !Number.isNaN(values.quotaOverride)
+        ? values.quotaOverride
+        : undefined
+    const maxTasks =
+      typeof values.maxTasksPerExamOverride === 'number' &&
+      !Number.isNaN(values.maxTasksPerExamOverride)
+        ? values.maxTasksPerExamOverride
+        : undefined
+
     if (editingTeacher) {
       await updateTeacherMutation.mutateAsync({
         teacher: {
@@ -225,8 +247,8 @@ export const TeachersPage: React.FC = () => {
           note: values.note?.trim() || null,
           code: values.code?.trim() || undefined,
           display_name: values.displayName?.trim() || undefined,
-          quota_override: values.quotaOverride ?? undefined,
-          max_tasks_per_exam_override: values.maxTasksPerExamOverride ?? undefined,
+          quota_override: quota,
+          max_tasks_per_exam_override: maxTasks,
         },
         gradeIds: selectedGradeIds,
       })
@@ -240,8 +262,8 @@ export const TeachersPage: React.FC = () => {
           note: values.note?.trim() || null,
           code: values.code?.trim() || undefined,
           display_name: values.displayName?.trim() || undefined,
-          quota_override: values.quotaOverride ?? undefined,
-          max_tasks_per_exam_override: values.maxTasksPerExamOverride ?? undefined,
+          quota_override: quota,
+          max_tasks_per_exam_override: maxTasks,
         },
         gradeIds: selectedGradeIds,
       })
@@ -586,8 +608,30 @@ export const TeachersPage: React.FC = () => {
                         '—'
                       )}
                     </TableCell>
-                    <TableCell className="font-semibold text-foreground">
-                      {tg.teacher.full_name}
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-foreground">
+                            {tg.teacher.full_name}
+                          </span>
+                          {(forcedMap.get(tg.teacher.id) ?? 0) > 0 && (
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                              data-testid={`forced-seat-badge-${tg.teacher.id}`}
+                            >
+                              {t('teachers.forcedSeatsBadge', {
+                                count: forcedMap.get(tg.teacher.id),
+                              })}
+                            </Badge>
+                          )}
+                        </div>
+                        {tg.teacher.display_name && (
+                          <span className="text-xs text-muted-foreground">
+                            {t('teachers.displayName')}: {tg.teacher.display_name}
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {campus && <CampusChip name={campus.name} color={campus.color} />}
@@ -744,6 +788,17 @@ export const TeachersPage: React.FC = () => {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-foreground">
+                  {t('teachers.displayName')}
+                </label>
+                <Input
+                  {...register('displayName')}
+                  placeholder={t('teachers.displayNamePlaceholder')}
+                  data-testid="teacher-display-name-input"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">
                   {t('teachers.campus')}
                 </label>
                 <Select
@@ -841,6 +896,48 @@ export const TeachersPage: React.FC = () => {
                   {...register('note')}
                   placeholder={t('teachers.notePlaceholder')}
                 />
+              </div>
+
+              {/* Advanced Settings Accordion */}
+              <div className="border-t border-border pt-3">
+                <details className="group text-xs">
+                  <summary className="cursor-pointer font-medium text-muted-foreground hover:text-foreground flex items-center justify-between py-1">
+                    <span>{t('teachers.advancedSettings')}</span>
+                    <span className="text-[10px] group-open:rotate-180 transition-transform">▼</span>
+                  </summary>
+                  <div className="mt-3 space-y-3 pl-1">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-foreground">
+                        {t('teachers.quotaOverride')}
+                      </label>
+                      <Input
+                        type="number"
+                        min="0"
+                        {...register('quotaOverride', { valueAsNumber: true })}
+                        placeholder={t('teachers.quotaOverridePlaceholder')}
+                        data-testid="teacher-quota-override-input"
+                      />
+                      <p className="text-[11px] text-muted-foreground">
+                        {t('teachers.quotaOverrideHelp')}
+                      </p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-foreground">
+                        {t('teachers.maxTasksPerExamOverride')}
+                      </label>
+                      <Input
+                        type="number"
+                        min="0"
+                        {...register('maxTasksPerExamOverride', { valueAsNumber: true })}
+                        placeholder={t('teachers.maxTasksPerExamOverridePlaceholder')}
+                        data-testid="teacher-max-tasks-override-input"
+                      />
+                      <p className="text-[11px] text-muted-foreground">
+                        {t('teachers.maxTasksPerExamOverrideHelp')}
+                      </p>
+                    </div>
+                  </div>
+                </details>
               </div>
             </div>
 

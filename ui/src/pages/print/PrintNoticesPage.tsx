@@ -17,6 +17,7 @@ import {
   useGrades,
   useExams,
   useTeachers,
+  useSubjects,
   useSettings,
 } from '@/lib/query/hooks'
 
@@ -35,6 +36,7 @@ export const PrintNoticesPage: React.FC = () => {
   const schoolYear = schoolYears.find((y) => y.id === planDetails?.plan.school_year_id) || schoolYears[0]
   const { data: exams = [] } = useExams(schoolYear?.id)
   const { data: teachers = [] } = useTeachers(schoolYear?.id)
+  const { data: subjects = [] } = useSubjects(schoolYear?.id)
   const { data: settings } = useSettings()
 
   const teacherMap = React.useMemo(() => {
@@ -44,6 +46,14 @@ export const PrintNoticesPage: React.FC = () => {
     }
     return map
   }, [teachers])
+
+  const subjectMap = React.useMemo(() => {
+    const map = new Map<number, (typeof subjects)[0]>()
+    for (const s of subjects) {
+      map.set(s.id, s)
+    }
+    return map
+  }, [subjects])
 
   const campusMap = React.useMemo(() => {
     const map = new Map<number, (typeof campuses)[0]>()
@@ -262,9 +272,10 @@ export const PrintNoticesPage: React.FC = () => {
                       <thead>
                         <tr className="bg-neutral-100 font-bold text-center">
                           <th className="border border-neutral-400 p-2 w-12">STT</th>
-                          <th className="border border-neutral-400 p-2 w-36">Kỳ thi</th>
-                          <th className="border border-neutral-400 p-2 w-20">Khối</th>
-                          <th className="border border-neutral-400 p-2 w-28">Vai trò</th>
+                          <th className="border border-neutral-400 p-2 w-32">Kỳ thi</th>
+                          <th className="border border-neutral-400 p-2 w-16">Khối</th>
+                          <th className="border border-neutral-400 p-2 w-24">Môn</th>
+                          <th className="border border-neutral-400 p-2 w-24">Vai trò</th>
                           <th className="border border-neutral-400 p-2">Thành viên cùng ban đề</th>
                         </tr>
                       </thead>
@@ -272,6 +283,7 @@ export const PrintNoticesPage: React.FC = () => {
                         {teacherAssignments.map((task, idx) => {
                           const exam = examMap.get(task.exam_id)
                           const grade = gradeMap.get(task.grade_id)
+                          const subject = subjectMap.get(task.subject_id)
                           const roleLabel =
                             task.role === 'setter'
                               ? t('print.roleSetter')
@@ -282,6 +294,7 @@ export const PrintNoticesPage: React.FC = () => {
                             (a) =>
                               a.exam_id === task.exam_id &&
                               a.grade_id === task.grade_id &&
+                              a.subject_id === task.subject_id &&
                               a.teacher_id !== teacher.id,
                           )
 
@@ -304,6 +317,9 @@ export const PrintNoticesPage: React.FC = () => {
                               </td>
                               <td className="border border-neutral-400 p-2 text-center font-semibold">
                                 {grade?.name || `Khối ${task.grade_id}`}
+                              </td>
+                              <td className="border border-neutral-400 p-2 text-center font-medium">
+                                {subject?.name || subject?.code || '-'}
                               </td>
                               <td className="border border-neutral-400 p-2 text-center font-bold">
                                 {roleLabel}

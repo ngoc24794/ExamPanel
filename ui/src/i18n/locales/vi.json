@@ -19,6 +19,7 @@
     "assignments": "Phân công",
     "stats": "Thống kê",
     "subjects": "Môn thi",
+    "competencies": "Chuyên môn",
     "settings": "Cài đặt",
     "dev": "Nhà phát triển",
     "unavailability": "Lịch bận"
@@ -109,7 +110,15 @@
     "coverageTotal": "Tổng",
     "coverageStatusOk": "Đủ điều kiện",
     "coverageStatusTight": "Sát ngưỡng",
-    "coverageStatusInsufficient": "Không khả thi"
+    "coverageStatusInsufficient": "Không khả thi",
+    "displayName": "Cách gọi",
+    "displayNamePlaceholder": "VD: T Nghĩa, C Quí",
+    "advancedFields": "Nâng cao",
+    "quotaOverride": "Chỉ định số lượng nhiệm vụ",
+    "quotaOverridePlaceholder": "Mặc định (tự động)",
+    "maxTasksPerExamOverride": "Giới hạn nhiệm vụ/kỳ",
+    "maxTasksPerExamOverridePlaceholder": "Mặc định (theo quy tắc)",
+    "forcedSeatsBadge": "Cố định: {{count}}"
   },
   "schoolYear": {
     "selector": "Năm học",
@@ -135,7 +144,9 @@
     "step4Desc": "Tự động phân công tối ưu và duyệt phương án",
     "loadDemoBtn": "Nạp dữ liệu mẫu thử nghiệm",
     "goToCampuses": "Đi đến Phân hiệu",
-    "goToTeachers": "Đi đến Giáo viên"
+    "goToTeachers": "Đi đến Giáo viên",
+    "goToRules": "Kiểm tra quy tắc",
+    "goToAssignments": "Đi đến Phân công"
   },
   "exams": {
     "title": "Kỳ thi & Khối lớp",
@@ -176,7 +187,7 @@
     "title": "Quy tắc & Tiêu chuẩn",
     "description": "Cấu hình điều kiện bắt buộc, trọng số mục tiêu ưu tiên và ràng buộc ghim / cấm.",
     "tabHard": "Điều kiện bắt buộc (H1-H7)",
-    "tabSoft": "Tiêu chí ưu tiên (S1-S8)",
+    "tabSoft": "Tiêu chí ưu tiên (S1-S10)",
     "tabQuotas": "Xem trước chỉ tiêu (Quotas)",
     "tabLocks": "Ghim / Cấm phân công",
     "presetsTitle": "Bộ cấu hình mẫu (Presets)",
@@ -195,9 +206,13 @@
     "h2Desc": "Giáo viên chỉ được tham gia ban đề của khối lớp mà mình đang trực tiếp giảng dạy trong năm học.",
     "h3Title": "H3: Đa dạng phân hiệu",
     "h3Desc": "Mỗi ban đề phải có đại diện từ ít nhất 2 phân hiệu khác nhau để đảm bảo tính khách quan.",
-    "h4Title": "H4: Tối đa 1 ban đề trong mỗi kỳ thi",
-    "h4Desc": "Mỗi giáo viên chỉ tham gia tối đa 1 ban đề trong cùng một kỳ thi.",
+    "h4Title": "H4: Giới hạn nhiệm vụ trong mỗi kỳ thi",
+    "h4Desc": "Giới hạn số lượng nhiệm vụ và số lần ra đề của mỗi giáo viên trong cùng một kỳ thi.",
     "h4Warning": "Khi tắt H4, một giáo viên có thể bị phân công nhiều ban đề trong cùng một kỳ thi, gây áp lực công việc cục bộ.",
+    "h4MaxTasks": "Số nhiệm vụ tối đa/kỳ:",
+    "h4MaxSetters": "Số lần ra đề tối đa/kỳ:",
+    "s1Auto": "Tự động (căn cứ theo bài toán)",
+    "s1MaxTasks": "Số nhiệm vụ tối đa mỗi kỳ:",
     "h5Title": "H5: Tuân thủ lịch bận",
     "h5Desc": "Tuyệt đối không phân công giáo viên vào các kỳ thi đã đăng ký vắng.",
     "h6Title": "H6: Tuân thủ ghim và cấm",
@@ -349,7 +364,9 @@
     "grade_not_rotated": "Giáo viên {{teacher}} chỉ được phân công {{assigned}} khối lớp (mục tiêu xoay vòng: {{target}} khối)",
     "load_deviation": "Giáo viên {{teacher}} được giao {{count}} nhiệm vụ, lệch {{deviation}} so với chỉ tiêu {{quota}}",
     "exam_crowding": "Giáo viên {{teacher}} có {{avoidable}} nhiệm vụ dồn kỳ thi có thể tránh được (dồn {{crowding}}, bù trừ tất yếu {{offset}})",
-    "review_subject_missing": "Giáo viên {{teacher}} có chuyên môn phản biện môn {{subject}} nhưng chưa được phân công phản biện môn này lần nào"
+    "review_subject_missing": "Giáo viên {{teacher}} có chuyên môn phản biện môn {{subject}} nhưng chưa được phân công phản biện môn này lần nào",
+    "teacher_no_competency": "Giáo viên {{teacher_name}} chưa được phân công chuyên môn nào",
+    "no_competencies": "Chưa có phân công chuyên môn nào trong năm học"
   },
   "errors": {
     "not_found": "Không tìm thấy dữ liệu yêu cầu",
@@ -742,9 +759,26 @@
     "editTitle": "Phân công chuyên môn",
     "modalTitle": "Phân công chuyên môn",
     "modalDesc": "Chỉ định các môn học và vai trò (ra đề / phản biện) giáo viên có thẩm quyền đảm nhận.",
+    "matrixTitle": "Ma trận phân công chuyên môn",
+    "matrixDesc": "Quản lý thẩm quyền ra đề và phản biện theo từng môn học và phạm vi khối lớp.",
+    "filterSubject": "Lọc môn học",
+    "filterCampus": "Lọc phân hiệu",
+    "searchTeacher": "Tìm giáo viên...",
+    "bulkActions": "Thao tác hàng loạt",
     "bulkAssignTaught": "Gán theo khối đang dạy cho tất cả giáo viên",
+    "bulkAssignAll": "Mở rộng mọi khối cho tất cả",
+    "bulkClear": "Xóa toàn bộ chuyên môn",
     "bulkAssignSuccess": "Đã gán chuyên môn theo khối đang dạy cho toàn bộ giáo viên",
-    "saveSuccess": "Cập nhật phân công chuyên môn thành công"
+    "bulkAssignAllSuccess": "Đã mở rộng chuyên môn mọi khối cho tất cả giáo viên",
+    "bulkClearSuccess": "Đã xóa toàn bộ phân công chuyên môn",
+    "saveSuccess": "Cập nhật phân công chuyên môn thành công",
+    "roleSetter": "Ra đề",
+    "roleReviewer": "Phản biện",
+    "stateOff": "Tắt",
+    "stateTaught": "Theo khối dạy",
+    "stateAll": "Mọi khối",
+    "eligibleFooter": "Thống kê đủ điều kiện",
+    "eligibleCount": "{{setters}} ra đề | {{reviewers}} phản biện"
   },
   "quota": {
     "previewBtn": "Xem chỉ tiêu",

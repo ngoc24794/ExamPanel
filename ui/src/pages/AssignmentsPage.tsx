@@ -707,6 +707,7 @@ export function AssignmentsPage() {
         open={showFeasibilitySheet}
         onOpenChange={setShowFeasibilitySheet}
         report={feasibilityReport?.report}
+        schoolYearId={schoolYearId}
         schoolYearName={currentYear?.name}
       />
     </div>

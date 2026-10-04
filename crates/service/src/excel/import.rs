@@ -199,20 +199,58 @@ pub fn preview_import(
     if let Some(sheet_name) = teacher_sheet_name {
         if let Ok(range) = workbook.worksheet_range(&sheet_name) {
             let mut is_header = true;
+            let mut col_code = 0;
+            let mut col_name = 1;
+            let mut col_display_name: Option<usize> = None;
+            let mut col_campus = 2;
+            let mut col_grades = 3;
+            let mut col_load = 4;
+            let mut col_active = 5;
+            let mut col_note = 6;
+
             for (idx, row) in range.rows().enumerate() {
                 if is_header {
                     is_header = false;
+                    for (c_idx, cell) in row.iter().enumerate() {
+                        let text = cell_to_string(cell).to_lowercase();
+                        if text.contains("mã gv") || text.contains("teacher code") {
+                            col_code = c_idx;
+                        } else if text.contains("họ và tên")
+                            || text.contains("họ tên")
+                            || text.contains("full name")
+                        {
+                            col_name = c_idx;
+                        } else if text.contains("cách gọi")
+                            || text.contains("tên gọi")
+                            || text.contains("display")
+                        {
+                            col_display_name = Some(c_idx);
+                        } else if text.contains("phân hiệu") || text.contains("campus") {
+                            col_campus = c_idx;
+                        } else if text.contains("khối") || text.contains("grade") {
+                            col_grades = c_idx;
+                        } else if text.contains("tải") || text.contains("load") {
+                            col_load = c_idx;
+                        } else if text.contains("đang dạy") || text.contains("active") {
+                            col_active = c_idx;
+                        } else if text.contains("ghi chú") || text.contains("note") {
+                            col_note = c_idx;
+                        }
+                    }
                     continue;
                 }
 
                 let row_number = idx + 1;
-                let raw_code = row.first().map(cell_to_string).unwrap_or_default();
-                let raw_name = row.get(1).map(cell_to_string).unwrap_or_default();
-                let raw_campus = row.get(2).map(cell_to_string).unwrap_or_default();
-                let raw_grades = row.get(3).map(cell_to_string).unwrap_or_default();
-                let raw_load = row.get(4).map(cell_to_string).unwrap_or_default();
-                let raw_active = row.get(5).map(cell_to_string).unwrap_or_default();
-                let raw_note = row.get(6).map(cell_to_string).unwrap_or_default();
+                let raw_code = row.get(col_code).map(cell_to_string).unwrap_or_default();
+                let raw_name = row.get(col_name).map(cell_to_string).unwrap_or_default();
+                let raw_display_name = col_display_name
+                    .and_then(|c| row.get(c))
+                    .map(cell_to_string);
+                let raw_campus = row.get(col_campus).map(cell_to_string).unwrap_or_default();
+                let raw_grades = row.get(col_grades).map(cell_to_string).unwrap_or_default();
+                let raw_load = row.get(col_load).map(cell_to_string).unwrap_or_default();
+                let raw_active = row.get(col_active).map(cell_to_string).unwrap_or_default();
+                let raw_note = row.get(col_note).map(cell_to_string).unwrap_or_default();
 
                 if raw_code.trim().is_empty()
                     && raw_name.trim().is_empty()
@@ -228,6 +266,9 @@ pub fn preview_import(
                     Some(normalize_code(&raw_code))
                 };
                 let full_name = normalize_text(&raw_name);
+                let display_name_opt = raw_display_name
+                    .map(|s| normalize_text(&s))
+                    .filter(|s| !s.is_empty());
                 let campus_code = normalize_code(&raw_campus);
                 let note = if raw_note.trim().is_empty() {
                     None
@@ -419,6 +460,7 @@ pub fn preview_import(
                     status,
                     code: code_opt,
                     full_name,
+                    display_name: display_name_opt,
                     campus_code,
                     grades_str: raw_grades,
                     grade_codes,
@@ -713,7 +755,7 @@ pub fn preview_import(
                         load_weight: t_row.load_weight,
                         active: t_row.active,
                         note: t_row.note.clone(),
-                        display_name: None,
+                        display_name: t_row.display_name.clone(),
                         quota_override: None,
                         max_tasks_per_exam_override: None,
                     });
@@ -863,11 +905,12 @@ pub fn apply_import(
         let tid = match t.status {
             ImportRowStatus::New => {
                 tx.execute(
-                    "INSERT INTO teachers (code, full_name, campus_id, load_weight, active, note)
-                     VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                    "INSERT INTO teachers (code, full_name, display_name, campus_id, load_weight, active, note)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
                     rusqlite::params![
                         t.code,
                         t.full_name,
+                        t.display_name,
                         cid.value(),
                         t.load_weight,
                         if t.active { 1 } else { 0 },
@@ -884,12 +927,13 @@ pub fn apply_import(
                     AppError::internal("Thiếu teacher_id cho dòng cập nhật".to_string())
                 })?;
                 tx.execute(
-                    "UPDATE teachers SET code = ?1, full_name = ?2, campus_id = ?3,
-                     load_weight = ?4, active = ?5, note = ?6, updated_at = datetime('now')
-                     WHERE id = ?7",
+                    "UPDATE teachers SET code = ?1, full_name = ?2, display_name = COALESCE(?3, display_name), campus_id = ?4,
+                     load_weight = ?5, active = ?6, note = ?7, updated_at = datetime('now')
+                     WHERE id = ?8",
                     rusqlite::params![
                         t.code,
                         t.full_name,
+                        t.display_name,
                         cid.value(),
                         t.load_weight,
                         if t.active { 1 } else { 0 },

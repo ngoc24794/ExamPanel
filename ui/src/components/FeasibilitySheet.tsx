@@ -21,11 +21,19 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { Diagnostic, FeasibilityReport, Violation } from '@/lib/api'
+import {
+  useProblemDetails,
+  useTeachers,
+  useExams,
+  useGrades,
+  useSubjects,
+} from '@/lib/query/hooks'
 
 interface FeasibilitySheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   report: FeasibilityReport | undefined
+  schoolYearId?: number
   schoolYearName?: string
 }
 
@@ -37,12 +45,14 @@ function categorizeDiagnostic(code: string): CategoryKey {
     code.startsWith('duplicate_') ||
     code.startsWith('unknown_') ||
     code === 'single_campus' ||
+    code === 'teacher_no_competency' ||
+    code === 'no_competencies' ||
     code === 'load_weight_out_of_range' ||
     code === 'negative_rule_weight'
   ) {
     return 'data'
   }
-  if (code.includes('lock') || code.includes('pin')) {
+  if (code.includes('lock') || code.includes('pin') || code.includes('forced')) {
     return 'locks'
   }
   if (code.includes('capacity') || code.includes('quota') || code.includes('flow')) {
@@ -53,6 +63,12 @@ function categorizeDiagnostic(code: string): CategoryKey {
 
 function getFixTarget(violation: Diagnostic | Violation): { path: string; labelKey: string } {
   const code = violation.code
+  if (code === 'teacher_no_competency' || code === 'no_competencies') {
+    return { path: '/competencies', labelKey: 'competencies.title' }
+  }
+  if (code.includes('forced')) {
+    return { path: '/teachers', labelKey: 'nav.teachers' }
+  }
   if (
     code === 'no_campuses' ||
     code === 'single_campus' ||
@@ -91,10 +107,19 @@ export const FeasibilitySheet: React.FC<FeasibilitySheetProps> = ({
   open,
   onOpenChange,
   report,
+  schoolYearId,
   schoolYearName,
 }) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+
+  const { data: problemDetails } = useProblemDetails(schoolYearId)
+  const { data: teachersWithGrades = [] } = useTeachers(schoolYearId)
+  const { data: exams = [] } = useExams(schoolYearId)
+  const { data: grades = [] } = useGrades()
+  const { data: subjects = [] } = useSubjects(schoolYearId)
+
+  const forcedList = problemDetails?.forced ?? []
 
   const errors = report?.errors ?? []
   const warnings = report?.warnings ?? []
@@ -166,6 +191,50 @@ export const FeasibilitySheet: React.FC<FeasibilitySheetProps> = ({
             )}
           </div>
         </div>
+
+        {/* Forced Placements Info Group */}
+        {forcedList.length > 0 && (
+          <div
+            className="p-3.5 rounded-lg border border-primary/20 bg-primary/5 space-y-2.5"
+            data-testid="forced-placements-info-group"
+          >
+            <div className="flex items-center justify-between border-b border-primary/10 pb-2">
+              <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                <LockIcon className="h-3.5 w-3.5 text-primary" />
+                {t('feasibility.forcedPlacementsTitle') || 'Phân công cố định'}
+              </span>
+              <Badge variant="outline" className="text-[10px] font-mono">
+                {forcedList.length}
+              </Badge>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {t('feasibility.forcedPlacementsDesc') || 'Các nhiệm vụ đã được cố định theo cấu hình. Thuật toán sẽ bảo lưu các vị trí này.'}
+            </p>
+            <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
+              {forcedList.map((fp, i) => {
+                const teacher = teachersWithGrades.find((tg) => tg.teacher.id === fp.teacher_id)?.teacher
+                const exam = exams.find((e) => e.id === fp.panel.exam_id)
+                const grade = grades.find((g) => g.id === fp.panel.grade_id)
+                const subject = subjects.find((s) => s.id === fp.panel.subject_id)
+                const roleLabel = fp.role === 'setter' ? 'Ra đề' : 'Phản biện'
+
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between text-[11px] bg-card px-2 py-1 rounded border border-border/40"
+                  >
+                    <span className="font-medium text-foreground">
+                      {teacher?.full_name || `GV #${fp.teacher_id}`}
+                    </span>
+                    <span className="text-muted-foreground text-[10px]">
+                      {exam?.code || `Kỳ ${fp.panel.exam_id}`} • {grade?.name || `K${fp.panel.grade_id}`} • {subject?.code || 'Chung'} • <span className="font-semibold text-primary">{roleLabel}</span>
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Grouped Diagnostics */}
         <div className="flex-1 space-y-6">

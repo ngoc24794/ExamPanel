@@ -445,6 +445,7 @@ pub struct TeacherImportRow {
     pub status: ImportRowStatus,
     pub code: Option<String>,
     pub full_name: String,
+    pub display_name: Option<String>,
     pub campus_code: String,
     pub grades_str: String,
     pub grade_codes: Vec<i32>,

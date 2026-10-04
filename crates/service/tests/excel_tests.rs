@@ -464,6 +464,7 @@ fn test_export_workbook_calamine_verification() {
         range_teachers.get_value((0, 1)).unwrap().to_string(),
         "Họ và tên"
     );
+    assert_eq!(range_teachers.get_value((0, 3)).unwrap().to_string(), "Môn");
 
     // Check Sheet "Thống kê" has teacher rows
     let range_stats = workbook.worksheet_range("Thống kê").unwrap();
@@ -507,6 +508,7 @@ fn test_transactional_apply_rollback_on_error() {
             status: exam_panel_service::dto::ImportRowStatus::New,
             code: Some("GV_ERR".to_string()),
             full_name: "Teacher Error".to_string(),
+            display_name: None,
             campus_code: "NON_EXISTENT_CAMPUS".to_string(),
             grades_str: "10".to_string(),
             grade_codes: vec![10],

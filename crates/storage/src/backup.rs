@@ -437,4 +437,139 @@ mod tests {
             .unwrap();
         assert_eq!(store.get_teachers().unwrap().len(), 2);
     }
+
+    #[test]
+    fn test_restore_v4_backup_triggers_migration() {
+        use crate::migrations::get_current_version;
+        use exam_panel_core::domain::SchoolYearId;
+
+        let temp_dir = tempfile::tempdir().unwrap();
+        let v4_backup_file = temp_dir.path().join("v4_backup.db");
+        let active_db_file = temp_dir.path().join("active.db");
+
+        // 1. Build a real v4 database file
+        let v4_conn = Connection::open(&v4_backup_file).unwrap();
+        v4_conn
+            .execute_batch(
+                r#"
+            PRAGMA foreign_keys = ON;
+            CREATE TABLE campuses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                code TEXT NOT NULL UNIQUE,
+                name TEXT NOT NULL,
+                color TEXT NOT NULL
+            );
+            CREATE TABLE school_years (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                is_current INTEGER NOT NULL DEFAULT 0
+            );
+            CREATE TABLE grades (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                code INTEGER NOT NULL UNIQUE,
+                name TEXT NOT NULL
+            );
+            CREATE TABLE exams (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                school_year_id INTEGER NOT NULL REFERENCES school_years(id) ON DELETE CASCADE,
+                code TEXT NOT NULL,
+                name TEXT NOT NULL,
+                sort_order INTEGER NOT NULL
+            );
+            CREATE TABLE teachers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                full_name TEXT NOT NULL,
+                campus_id INTEGER NOT NULL REFERENCES campuses(id),
+                load_weight REAL NOT NULL DEFAULT 1.0,
+                active INTEGER NOT NULL DEFAULT 1,
+                note TEXT,
+                code TEXT
+            );
+            CREATE TABLE teacher_grades (
+                school_year_id INTEGER NOT NULL REFERENCES school_years(id) ON DELETE CASCADE,
+                teacher_id INTEGER NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
+                grade_id INTEGER NOT NULL REFERENCES grades(id) ON DELETE CASCADE,
+                PRIMARY KEY (school_year_id, teacher_id, grade_id)
+            );
+            CREATE TABLE rule_settings (
+                school_year_id INTEGER NOT NULL REFERENCES school_years(id) ON DELETE CASCADE,
+                rule_key TEXT NOT NULL,
+                enabled INTEGER NOT NULL DEFAULT 1,
+                weight REAL NOT NULL DEFAULT 1.0,
+                parameters TEXT NOT NULL DEFAULT '{}',
+                PRIMARY KEY (school_year_id, rule_key)
+            );
+            CREATE TABLE plans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                school_year_id INTEGER NOT NULL REFERENCES school_years(id) ON DELETE CASCADE,
+                name TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                seed INTEGER NOT NULL,
+                score REAL,
+                is_final INTEGER NOT NULL DEFAULT 0,
+                rank INTEGER,
+                source TEXT NOT NULL DEFAULT 'optimizer'
+            );
+            CREATE TABLE assignments (
+                plan_id INTEGER NOT NULL REFERENCES plans(id) ON DELETE CASCADE,
+                exam_id INTEGER NOT NULL REFERENCES exams(id),
+                grade_id INTEGER NOT NULL REFERENCES grades(id),
+                teacher_id INTEGER NOT NULL REFERENCES teachers(id),
+                role TEXT NOT NULL,
+                PRIMARY KEY (plan_id, exam_id, grade_id, teacher_id, role)
+            );
+            CREATE TABLE locks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                school_year_id INTEGER NOT NULL REFERENCES school_years(id) ON DELETE CASCADE,
+                exam_id INTEGER NOT NULL REFERENCES exams(id),
+                grade_id INTEGER NOT NULL REFERENCES grades(id),
+                teacher_id INTEGER NOT NULL REFERENCES teachers(id),
+                role TEXT,
+                kind TEXT NOT NULL
+            );
+            CREATE TABLE unavailability (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                school_year_id INTEGER NOT NULL REFERENCES school_years(id) ON DELETE CASCADE,
+                teacher_id INTEGER NOT NULL REFERENCES teachers(id),
+                exam_id INTEGER NOT NULL REFERENCES exams(id),
+                reason TEXT,
+                UNIQUE (school_year_id, teacher_id, exam_id)
+            );
+            CREATE TABLE settings (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+            INSERT INTO campuses (id, code, name, color) VALUES (1, 'PH1', 'Phân hiệu 1', '#3b82f6');
+            INSERT INTO school_years (id, name, is_current) VALUES (1, '2026-2027', 1);
+            INSERT INTO grades (id, code, name) VALUES (1, 10, 'Khối 10');
+            INSERT INTO teachers (id, full_name, campus_id, load_weight, active) VALUES (1, 'Thầy V4', 1, 1.0, 1);
+            INSERT INTO teacher_grades (school_year_id, teacher_id, grade_id) VALUES (1, 1, 1);
+            PRAGMA user_version = 4;
+            "#,
+            )
+            .unwrap();
+        drop(v4_conn);
+
+        // 2. Open active store and restore from v4 backup
+        let mut active_store = Store::open_at(&active_db_file).unwrap();
+        active_store.restore_from(&v4_backup_file).unwrap();
+
+        // 3. Verify user_version is upgraded to 5
+        let ver = get_current_version(active_store.conn()).unwrap();
+        assert_eq!(
+            ver, 5,
+            "Restoring v4 backup must upgrade to schema version 5"
+        );
+
+        // 4. Verify default subject 'CHUNG' and competency created
+        let subjects = active_store.get_subjects(SchoolYearId(1)).unwrap();
+        assert_eq!(subjects.len(), 1);
+        assert_eq!(subjects[0].code, "CHUNG");
+
+        let comps = active_store.get_competencies(SchoolYearId(1)).unwrap();
+        assert!(
+            !comps.is_empty(),
+            "Competencies should be automatically populated for active teachers"
+        );
+    }
 }

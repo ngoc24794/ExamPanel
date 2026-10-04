@@ -10,6 +10,7 @@ import {
   useGrades,
   useExams,
   useTeachers,
+  useSubjects,
   useSettings,
 } from '@/lib/query/hooks'
 
@@ -26,6 +27,7 @@ export const PrintPlanPage: React.FC = () => {
   const schoolYear = schoolYears.find((y) => y.id === planDetails?.plan.school_year_id) || schoolYears[0]
   const { data: exams = [] } = useExams(schoolYear?.id)
   const { data: teachers = [] } = useTeachers(schoolYear?.id)
+  const { data: subjects = [] } = useSubjects(schoolYear?.id)
   const { data: settings } = useSettings()
 
   const teacherMap = React.useMemo(() => {
@@ -157,90 +159,106 @@ export const PrintPlanPage: React.FC = () => {
             <tr className="bg-neutral-100 font-bold text-center">
               <th className="border border-neutral-400 p-2 w-28">Kỳ thi</th>
               <th className="border border-neutral-400 p-2 w-20">Khối</th>
+              <th className="border border-neutral-400 p-2 w-24">Môn</th>
               <th className="border border-neutral-400 p-2">Cán bộ ra đề 1</th>
               <th className="border border-neutral-400 p-2">Cán bộ ra đề 2</th>
               <th className="border border-neutral-400 p-2">Cán bộ phản biện</th>
             </tr>
           </thead>
           <tbody>
-            {exams.map((exam) => {
-              const examGrades = grades
-              return examGrades.map((grade, gradeIdx) => {
-                const setters = assignments.filter(
-                  (a) =>
-                    a.exam_id === exam.id &&
-                    a.grade_id === grade.id &&
-                    a.role === 'setter',
-                )
-                const reviewer = assignments.find(
-                  (a) =>
-                    a.exam_id === exam.id &&
-                    a.grade_id === grade.id &&
-                    a.role === 'reviewer',
-                )
+            {(() => {
+              const effectiveSubjects = subjects.length > 0 ? subjects : [{ id: 1, name: 'Chung', code: 'CHUNG' }]
+              return exams.map((exam) => {
+                const examGrades = grades
+                return examGrades.map((grade, gradeIdx) => {
+                  return effectiveSubjects.map((sub, subIdx) => {
+                    const setters = assignments.filter(
+                      (a) =>
+                        a.exam_id === exam.id &&
+                        a.grade_id === grade.id &&
+                        a.subject_id === sub.id &&
+                        a.role === 'setter',
+                    )
+                    const reviewer = assignments.find(
+                      (a) =>
+                        a.exam_id === exam.id &&
+                        a.grade_id === grade.id &&
+                        a.subject_id === sub.id &&
+                        a.role === 'reviewer',
+                    )
 
-                const s1 = setters[0] ? teacherMap.get(setters[0].teacher_id) : null
-                const s2 = setters[1] ? teacherMap.get(setters[1].teacher_id) : null
-                const rev = reviewer ? teacherMap.get(reviewer.teacher_id) : null
+                    const s1 = setters[0] ? teacherMap.get(setters[0].teacher_id) : null
+                    const s2 = setters[1] ? teacherMap.get(setters[1].teacher_id) : null
+                    const rev = reviewer ? teacherMap.get(reviewer.teacher_id) : null
 
-                const s1Campus = s1 ? campusMap.get(s1.campus_id)?.name : ''
-                const s2Campus = s2 ? campusMap.get(s2.campus_id)?.name : ''
-                const revCampus = rev ? campusMap.get(rev.campus_id)?.name : ''
+                    const s1Campus = s1 ? campusMap.get(s1.campus_id)?.name : ''
+                    const s2Campus = s2 ? campusMap.get(s2.campus_id)?.name : ''
+                    const revCampus = rev ? campusMap.get(rev.campus_id)?.name : ''
 
-                return (
-                  <tr key={`${exam.id}-${grade.id}`} className="hover:bg-neutral-50">
-                    {gradeIdx === 0 && (
-                      <td
-                        rowSpan={examGrades.length}
-                        className="border border-neutral-400 p-2 font-bold text-center align-middle bg-neutral-50/50"
-                      >
-                        {exam.name}
-                        <div className="text-[10px] text-neutral-500 font-mono">({exam.code})</div>
-                      </td>
-                    )}
-                    <td className="border border-neutral-400 p-2 font-semibold text-center align-middle">
-                      {grade.name}
-                    </td>
-                    <td className="border border-neutral-400 p-2">
-                      {s1 ? (
-                        <div>
-                          <span className="font-semibold">{s1.full_name}</span>
-                          <span className="text-[11px] text-neutral-600 block">
-                            {s1.code ? `[${s1.code}] ` : ''}{s1Campus}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-neutral-400">-</span>
-                      )}
-                    </td>
-                    <td className="border border-neutral-400 p-2">
-                      {s2 ? (
-                        <div>
-                          <span className="font-semibold">{s2.full_name}</span>
-                          <span className="text-[11px] text-neutral-600 block">
-                            {s2.code ? `[${s2.code}] ` : ''}{s2Campus}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-neutral-400">-</span>
-                      )}
-                    </td>
-                    <td className="border border-neutral-400 p-2">
-                      {rev ? (
-                        <div>
-                          <span className="font-semibold">{rev.full_name}</span>
-                          <span className="text-[11px] text-neutral-600 block">
-                            {rev.code ? `[${rev.code}] ` : ''}{revCampus}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-neutral-400">-</span>
-                      )}
-                    </td>
-                  </tr>
-                )
+                    return (
+                      <tr key={`${exam.id}-${grade.id}-${sub.id}`} className="hover:bg-neutral-50">
+                        {gradeIdx === 0 && subIdx === 0 && (
+                          <td
+                            rowSpan={examGrades.length * effectiveSubjects.length}
+                            className="border border-neutral-400 p-2 font-bold text-center align-middle bg-neutral-50/50"
+                          >
+                            {exam.name}
+                            <div className="text-[10px] text-neutral-500 font-mono">({exam.code})</div>
+                          </td>
+                        )}
+                        {subIdx === 0 && (
+                          <td
+                            rowSpan={effectiveSubjects.length}
+                            className="border border-neutral-400 p-2 font-semibold text-center align-middle"
+                          >
+                            {grade.name}
+                          </td>
+                        )}
+                        <td className="border border-neutral-400 p-2 font-medium text-center align-middle">
+                          {sub.name} ({sub.code})
+                        </td>
+                        <td className="border border-neutral-400 p-2">
+                          {s1 ? (
+                            <div>
+                              <span className="font-semibold">{s1.full_name}</span>
+                              <span className="text-[11px] text-neutral-600 block">
+                                {s1.code ? `[${s1.code}] ` : ''}{s1Campus}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-neutral-400">-</span>
+                          )}
+                        </td>
+                        <td className="border border-neutral-400 p-2">
+                          {s2 ? (
+                            <div>
+                              <span className="font-semibold">{s2.full_name}</span>
+                              <span className="text-[11px] text-neutral-600 block">
+                                {s2.code ? `[${s2.code}] ` : ''}{s2Campus}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-neutral-400">-</span>
+                          )}
+                        </td>
+                        <td className="border border-neutral-400 p-2">
+                          {rev ? (
+                            <div>
+                              <span className="font-semibold">{rev.full_name}</span>
+                              <span className="text-[11px] text-neutral-600 block">
+                                {rev.code ? `[${rev.code}] ` : ''}{revCampus}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-neutral-400">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })
+                })
               })
-            })}
+            })()}
           </tbody>
         </table>
 

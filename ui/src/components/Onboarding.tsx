@@ -58,13 +58,19 @@ export const Onboarding: React.FC<OnboardingProps> = ({
       id: 3,
       title: t('onboarding.step3'),
       description: t('onboarding.step3Desc'),
-      done: false,
+      done: hasCampuses && hasTeachers,
+      action: () => navigate('/rules'),
+      actionLabel: t('onboarding.goToRules'),
+      icon: <Sparkles className="h-5 w-5" />,
     },
     {
       id: 4,
       title: t('onboarding.step4'),
       description: t('onboarding.step4Desc'),
       done: false,
+      action: () => navigate('/assignments'),
+      actionLabel: t('onboarding.goToAssignments'),
+      icon: <Sparkles className="h-5 w-5" />,
     },
   ]
 

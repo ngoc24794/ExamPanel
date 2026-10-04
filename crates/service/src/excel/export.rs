@@ -1,7 +1,9 @@
 //! Excel plan export implementation using rust_xlsxwriter.
 
 use crate::dto::{AppSettings, PlanDetails};
-use exam_panel_core::domain::{Campus, Exam, Grade, Role, RuleSetting, SchoolYear, Teacher};
+use exam_panel_core::domain::{
+    Campus, Exam, Grade, Role, RuleSetting, SchoolYear, Subject, Teacher,
+};
 use rust_xlsxwriter::{Color, Format, FormatAlign, FormatBorder, Workbook, XlsxError};
 use std::collections::HashMap;
 use std::path::Path;
@@ -32,6 +34,7 @@ pub fn export_plan_workbook(
     campuses: &[Campus],
     grades: &[Grade],
     exams: &[Exam],
+    subjects: &[Subject],
     teachers: &[Teacher],
     settings: &AppSettings,
     rule_settings: &[RuleSetting],
@@ -279,15 +282,17 @@ pub fn export_plan_workbook(
     sheet_by_teacher.set_column_width(0, 12)?; // Mã GV
     sheet_by_teacher.set_column_width(1, 26)?; // Họ tên
     sheet_by_teacher.set_column_width(2, 22)?; // Phân hiệu
-    sheet_by_teacher.set_column_width(3, 14)?; // Kỳ thi
-    sheet_by_teacher.set_column_width(4, 12)?; // Khối
-    sheet_by_teacher.set_column_width(5, 16)?; // Vai trò
-    sheet_by_teacher.set_column_width(6, 35)?; // Cùng ban với
+    sheet_by_teacher.set_column_width(3, 16)?; // Môn
+    sheet_by_teacher.set_column_width(4, 14)?; // Kỳ thi
+    sheet_by_teacher.set_column_width(5, 12)?; // Khối
+    sheet_by_teacher.set_column_width(6, 16)?; // Vai trò
+    sheet_by_teacher.set_column_width(7, 35)?; // Cùng ban với
 
     let teacher_headers = [
         "Mã GV",
         "Họ và tên",
         "Phân hiệu",
+        "Môn",
         "Kỳ thi",
         "Khối",
         "Vai trò",
@@ -316,10 +321,18 @@ pub fn export_plan_workbook(
         let campus = t.and_then(|t| campus_map.get(&t.campus_id.value()));
         let exam = exams.iter().find(|e| e.id == asg.exam_id);
         let grade = grades.iter().find(|g| g.id == asg.grade_id);
+        let subject = subjects.iter().find(|s| s.id == asg.subject_id);
 
         let code_str = t.and_then(|t| t.code.as_deref()).unwrap_or("-");
         let name_str = t.map(|t| t.full_name.as_str()).unwrap_or("-");
         let campus_str = campus.map(|c| c.name.as_str()).unwrap_or("-");
+        let subject_str = subject
+            .map(|s| s.name.as_str())
+            .unwrap_or(if subjects.is_empty() {
+                "Toán"
+            } else {
+                &subjects[0].name
+            });
         let exam_str = exam.map(|e| e.code.as_str()).unwrap_or("-");
         let grade_str = grade.map(|g| g.name.as_str()).unwrap_or("-");
         let role_str = match asg.role {
@@ -352,10 +365,11 @@ pub fn export_plan_workbook(
         sheet_by_teacher.write_with_format(r, 0, code_str, &cell_center)?;
         sheet_by_teacher.write_with_format(r, 1, name_str, &cell_left)?;
         sheet_by_teacher.write_with_format(r, 2, campus_str, &cell_left)?;
-        sheet_by_teacher.write_with_format(r, 3, exam_str, &cell_center)?;
-        sheet_by_teacher.write_with_format(r, 4, grade_str, &cell_center)?;
-        sheet_by_teacher.write_with_format(r, 5, role_str, &cell_center)?;
-        sheet_by_teacher.write_with_format(r, 6, &co_str, &cell_left)?;
+        sheet_by_teacher.write_with_format(r, 3, subject_str, &cell_center)?;
+        sheet_by_teacher.write_with_format(r, 4, exam_str, &cell_center)?;
+        sheet_by_teacher.write_with_format(r, 5, grade_str, &cell_center)?;
+        sheet_by_teacher.write_with_format(r, 6, role_str, &cell_center)?;
+        sheet_by_teacher.write_with_format(r, 7, &co_str, &cell_left)?;
     }
 
     // -------------------------------------------------------------------------

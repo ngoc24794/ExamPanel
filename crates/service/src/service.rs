@@ -1317,6 +1317,7 @@ impl AppService {
         let campuses = store.get_campuses()?;
         let grades = store.get_grades()?;
         let exams = store.get_exams(school_year_id)?;
+        let subjects = store.get_subjects(school_year_id)?;
         let teachers = store.get_teachers()?;
         let rule_settings = store.get_rule_settings(school_year_id)?;
         drop(store);
@@ -1330,6 +1331,7 @@ impl AppService {
             &campuses,
             &grades,
             &exams,
+            &subjects,
             &teachers,
             &settings,
             &rule_settings,

@@ -90,6 +90,14 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
         &instruction_format,
     )?;
     r += 1;
+    guide_sheet.write_with_format(r, 1, "Cách gọi", &header_format)?;
+    guide_sheet.write_with_format(
+        r,
+        2,
+        "Tên thường gọi/hiển thị trong bảng phân công (VD: T An, C Bình). Tùy chọn.",
+        &instruction_format,
+    )?;
+    r += 1;
     guide_sheet.write_with_format(r, 1, "Mã phân hiệu (*)", &header_format)?;
     guide_sheet.write_with_format(
         r,
@@ -179,10 +187,10 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
         }
     } else {
         let default_campuses = [
-            ("CS1", "Phân hiệu 1 - Ba Đình"),
-            ("CS2", "Phân hiệu 2 - Cầu Giấy"),
-            ("CS3", "Phân hiệu 3 - Hà Đông"),
-            ("CS4", "Phân hiệu 4 - Hoàn Kiếm"),
+            ("PH1", "Phân hiệu 1"),
+            ("PH2", "Phân hiệu 2"),
+            ("PH3", "Phân hiệu 3"),
+            ("PH4", "Phân hiệu 4"),
         ];
         for (i, (code, name)) in default_campuses.iter().enumerate() {
             let row = (i + 1) as u32;
@@ -200,26 +208,29 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
     teacher_sheet.set_freeze_panes(1, 0)?;
     teacher_sheet.set_column_width(0, 14)?;
     teacher_sheet.set_column_width(1, 28)?;
-    teacher_sheet.set_column_width(2, 18)?;
-    teacher_sheet.set_column_width(3, 20)?;
-    teacher_sheet.set_column_width(4, 14)?;
-    teacher_sheet.set_column_width(5, 14)?;
-    teacher_sheet.set_column_width(6, 25)?;
+    teacher_sheet.set_column_width(2, 16)?; // Cách gọi
+    teacher_sheet.set_column_width(3, 18)?; // Mã phân hiệu
+    teacher_sheet.set_column_width(4, 20)?; // Khối dạy
+    teacher_sheet.set_column_width(5, 14)?; // Hệ số tải
+    teacher_sheet.set_column_width(6, 14)?; // Đang dạy
+    teacher_sheet.set_column_width(7, 25)?; // Ghi chú
 
     teacher_sheet.write_with_format(0, 0, "Mã GV", &header_format)?;
     teacher_sheet.write_with_format(0, 1, "Họ và tên (*)", &required_header_format)?;
-    teacher_sheet.write_with_format(0, 2, "Mã phân hiệu (*)", &required_header_format)?;
-    teacher_sheet.write_with_format(0, 3, "Khối dạy (*)", &required_header_format)?;
-    teacher_sheet.write_with_format(0, 4, "Hệ số tải", &header_format)?;
-    teacher_sheet.write_with_format(0, 5, "Đang dạy", &header_format)?;
-    teacher_sheet.write_with_format(0, 6, "Ghi chú", &header_format)?;
+    teacher_sheet.write_with_format(0, 2, "Cách gọi", &header_format)?;
+    teacher_sheet.write_with_format(0, 3, "Mã phân hiệu (*)", &required_header_format)?;
+    teacher_sheet.write_with_format(0, 4, "Khối dạy (*)", &required_header_format)?;
+    teacher_sheet.write_with_format(0, 5, "Hệ số tải", &header_format)?;
+    teacher_sheet.write_with_format(0, 6, "Đang dạy", &header_format)?;
+    teacher_sheet.write_with_format(0, 7, "Ghi chú", &header_format)?;
 
     // Sample data rows (18 teachers across campuses for realistic and feasible scheduling)
     let sample_teachers = [
         (
             "GV001",
             "Nguyễn Văn An",
-            "CS1",
+            "T An",
+            "PH1",
             "10, 11",
             "1",
             "Có",
@@ -228,64 +239,203 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
         (
             "GV002",
             "Trần Thị Bình",
-            "CS1",
+            "C Bình",
+            "PH1",
             "10, 12",
             "1",
             "Có",
             "Tổ phó chuyên môn",
         ),
-        ("GV003", "Lê Văn Cường", "CS2", "11, 12", "1", "Có", ""),
-        ("GV004", "Phạm Thị Dung", "CS2", "10, 11", "1", "Có", ""),
-        ("GV005", "Hoàng Văn Em", "CS1", "11, 12", "1", "Có", ""),
-        ("GV006", "Đỗ Thị Giang", "CS2", "10, 12", "1", "Có", ""),
+        (
+            "GV003",
+            "Lê Văn Cường",
+            "T Cường",
+            "PH2",
+            "11, 12",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV004",
+            "Phạm Thị Dung",
+            "C Dung",
+            "PH2",
+            "10, 11",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV005",
+            "Hoàng Văn Em",
+            "T Em",
+            "PH1",
+            "11, 12",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV006",
+            "Đỗ Thị Giang",
+            "C Giang",
+            "PH2",
+            "10, 12",
+            "1",
+            "Có",
+            "",
+        ),
         (
             "GV007",
             "Vũ Hải Hà",
-            "CS1",
+            "T Hà",
+            "PH1",
             "10, 11, 12",
             "0.5",
             "Có",
             "Giảm tải 50%",
         ),
-        ("GV008", "Bùi Văn Hùng", "CS2", "10, 11", "1", "Có", ""),
-        ("GV009", "Ngô Thị Mai", "CS1", "11, 12", "1", "Có", ""),
-        ("GV010", "Đinh Văn Nam", "CS2", "10, 12", "1", "Có", ""),
-        ("GV011", "Lý Thị Nga", "CS1", "10, 11", "1", "Có", ""),
-        ("GV012", "Trương Văn Phúc", "CS2", "11, 12", "1", "Có", ""),
-        ("GV013", "Võ Thị Quỳnh", "CS1", "10, 12", "1", "Có", ""),
-        ("GV014", "Dương Văn Sơn", "CS2", "10, 11", "1", "Có", ""),
-        ("GV015", "Tạ Thị Thảo", "CS1", "11, 12", "1", "Có", ""),
-        ("GV016", "Lương Văn Tuấn", "CS2", "10, 12", "1", "Có", ""),
-        ("GV017", "Hồ Thị Uyên", "CS1", "10, 11, 12", "1", "Có", ""),
-        ("GV018", "Phan Văn Vinh", "CS2", "10, 11, 12", "1", "Có", ""),
+        (
+            "GV008",
+            "Bùi Văn Hùng",
+            "T Hùng",
+            "PH2",
+            "10, 11",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV009",
+            "Ngô Thị Mai",
+            "C Mai",
+            "PH1",
+            "11, 12",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV010",
+            "Đinh Văn Nam",
+            "T Nam",
+            "PH2",
+            "10, 12",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV011",
+            "Lý Thị Nga",
+            "C Nga",
+            "PH1",
+            "10, 11",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV012",
+            "Trương Văn Phúc",
+            "T Phúc",
+            "PH2",
+            "11, 12",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV013",
+            "Võ Thị Quỳnh",
+            "C Quỳnh",
+            "PH1",
+            "10, 12",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV014",
+            "Dương Văn Sơn",
+            "T Sơn",
+            "PH2",
+            "10, 11",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV015",
+            "Tạ Thị Thảo",
+            "C Thảo",
+            "PH1",
+            "11, 12",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV016",
+            "Lương Văn Tuấn",
+            "T Tuấn",
+            "PH2",
+            "10, 12",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV017",
+            "Hồ Thị Uyên",
+            "C Uyên",
+            "PH1",
+            "10, 11, 12",
+            "1",
+            "Có",
+            "",
+        ),
+        (
+            "GV018",
+            "Phan Văn Vinh",
+            "T Vinh",
+            "PH2",
+            "10, 11, 12",
+            "1",
+            "Có",
+            "",
+        ),
     ];
 
-    for (i, (code, name, campus, grades, load, active, note)) in sample_teachers.iter().enumerate()
+    for (i, (code, name, display_name, campus, grades, load, active, note)) in
+        sample_teachers.iter().enumerate()
     {
         let row = (i + 1) as u32;
         teacher_sheet.write_with_format(row, 0, *code, &cell_format)?;
         teacher_sheet.write_with_format(row, 1, *name, &cell_format)?;
-        teacher_sheet.write_with_format(row, 2, *campus, &cell_format)?;
-        teacher_sheet.write_with_format(row, 3, *grades, &cell_format)?;
-        teacher_sheet.write_with_format(row, 4, *load, &cell_format)?;
-        teacher_sheet.write_with_format(row, 5, *active, &cell_format)?;
-        teacher_sheet.write_with_format(row, 6, *note, &cell_format)?;
+        teacher_sheet.write_with_format(row, 2, *display_name, &cell_format)?;
+        teacher_sheet.write_with_format(row, 3, *campus, &cell_format)?;
+        teacher_sheet.write_with_format(row, 4, *grades, &cell_format)?;
+        teacher_sheet.write_with_format(row, 5, *load, &cell_format)?;
+        teacher_sheet.write_with_format(row, 6, *active, &cell_format)?;
+        teacher_sheet.write_with_format(row, 7, *note, &cell_format)?;
     }
 
     // Data validations for Teachers sheet (rows 1 to 500)
-    // Campus code dropdown
+    // Campus code dropdown at column 3
     if !campus_codes.is_empty() {
         let val_campus = DataValidation::new().allow_list_strings(&campus_codes)?;
-        teacher_sheet.add_data_validation(1, 2, 500, 2, &val_campus)?;
+        teacher_sheet.add_data_validation(1, 3, 500, 3, &val_campus)?;
     }
 
-    // Load weight dropdown: 1, 0.75, 0.5, 0.25, 0
+    // Load weight dropdown: 1, 0.75, 0.5, 0.25, 0 at column 5
     let val_load = DataValidation::new().allow_list_strings(&["1", "0.75", "0.5", "0.25", "0"])?;
-    teacher_sheet.add_data_validation(1, 4, 500, 4, &val_load)?;
+    teacher_sheet.add_data_validation(1, 5, 500, 5, &val_load)?;
 
-    // Active dropdown: Có, Không
+    // Active dropdown: Có, Không at column 6
     let val_active = DataValidation::new().allow_list_strings(&["Có", "Không"])?;
-    teacher_sheet.add_data_validation(1, 5, 500, 5, &val_active)?;
+    teacher_sheet.add_data_validation(1, 6, 500, 6, &val_active)?;
 
     // -------------------------------------------------------------------------
     // 4. Sheet "Lịch vắng"

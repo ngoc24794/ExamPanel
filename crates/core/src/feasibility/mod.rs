@@ -424,6 +424,23 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
         }
     }
 
+    // Check teachers without any competencies
+    for teacher in &problem.teachers {
+        if teacher.active && teacher.load_weight > 0.0 {
+            let has_comp = problem
+                .competencies
+                .iter()
+                .any(|c| c.teacher_id == teacher.id);
+            if !has_comp {
+                warnings.push(
+                    Diagnostic::new("teacher_no_competency")
+                        .with_teacher(teacher.id)
+                        .with_param("teacher_name", teacher.full_name.clone()),
+                );
+            }
+        }
+    }
+
     // -------------------------------------------------------------------------
     // F2: Per-panel adequacy
     // -------------------------------------------------------------------------

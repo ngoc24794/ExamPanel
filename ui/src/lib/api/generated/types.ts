@@ -169,7 +169,7 @@ export type ImportCellError = { sheet: string, row: number, column: string, code
 
 export type CampusImportRow = { row_index: number, status: ImportRowStatus, code: string, name: string, errors: Array<ImportCellError>, };
 
-export type TeacherImportRow = { row_index: number, status: ImportRowStatus, code: string | null, full_name: string, campus_code: string, grades_str: string, grade_codes: Array<number>, load_weight: number, active: boolean, note: string | null, matched_teacher_id: bigint | null, errors: Array<ImportCellError>, };
+export type TeacherImportRow = { row_index: number, status: ImportRowStatus, code: string | null, full_name: string, display_name: string | null, campus_code: string, grades_str: string, grade_codes: Array<number>, load_weight: number, active: boolean, note: string | null, matched_teacher_id: bigint | null, errors: Array<ImportCellError>, };
 
 export type UnavailabilityImportRow = { row_index: number, status: ImportRowStatus, teacher_ref: string, exam_code: string, reason: string | null, matched_teacher_id: bigint | null, errors: Array<ImportCellError>, };
 

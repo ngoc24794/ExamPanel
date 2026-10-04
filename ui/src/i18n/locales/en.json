@@ -19,6 +19,7 @@
     "assignments": "Assignments",
     "stats": "Statistics",
     "subjects": "Subjects",
+    "competencies": "Competencies",
     "settings": "Settings",
     "dev": "Developer",
     "unavailability": "Unavailability"
@@ -109,7 +110,15 @@
     "coverageTotal": "Total",
     "coverageStatusOk": "Sufficient",
     "coverageStatusTight": "Tight",
-    "coverageStatusInsufficient": "Insufficient"
+    "coverageStatusInsufficient": "Insufficient",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "e.g. T Nghia, C Qui",
+    "advancedFields": "Advanced",
+    "quotaOverride": "Task Quota Override",
+    "quotaOverridePlaceholder": "Default (automatic)",
+    "maxTasksPerExamOverride": "Max tasks per exam override",
+    "maxTasksPerExamOverridePlaceholder": "Default (per rule)",
+    "forcedSeatsBadge": "Forced: {{count}}"
   },
   "schoolYear": {
     "selector": "School Year",
@@ -135,7 +144,9 @@
     "step4Desc": "Automatically solve, optimize and review panels",
     "loadDemoBtn": "Load Demo Dataset",
     "goToCampuses": "Go to Campuses",
-    "goToTeachers": "Go to Teachers"
+    "goToTeachers": "Go to Teachers",
+    "goToRules": "Check Rules & Feasibility",
+    "goToAssignments": "Go to Assignments"
   },
   "exams": {
     "title": "Exams & Grades",
@@ -176,7 +187,7 @@
     "title": "Rules & Criteria",
     "description": "Configure hard constraints, soft optimization weights, and locks.",
     "tabHard": "Hard Rules (H1-H7)",
-    "tabSoft": "Soft Objectives (S1-S8)",
+    "tabSoft": "Soft Objectives (S1-S10)",
     "tabQuotas": "Quota Preview",
     "tabLocks": "Assignment Locks",
     "presetsTitle": "Configuration Presets",
@@ -195,9 +206,13 @@
     "h2Desc": "Teachers can only be assigned to panels for grades they actively teach.",
     "h3Title": "H3: Multi-campus Diversity",
     "h3Desc": "Each panel must include teachers from at least 2 distinct campuses.",
-    "h4Title": "H4: Single Panel per Exam",
-    "h4Desc": "Each teacher participates in at most 1 panel per exam.",
+    "h4Title": "H4: Task Limits per Exam",
+    "h4Desc": "Limit the number of total tasks and setter assignments per teacher in each exam.",
     "h4Warning": "When H4 is disabled, teachers can be assigned to multiple panels in the same exam, concentrating workload.",
+    "h4MaxTasks": "Max tasks per exam:",
+    "h4MaxSetters": "Max setter tasks per exam:",
+    "s1Auto": "Auto (based on problem context)",
+    "s1MaxTasks": "Max tasks per exam limit:",
     "h5Title": "H5: Respect Unavailability",
     "h5Desc": "Never assign teachers to exams where they have registered unavailability.",
     "h6Title": "H6: Respect Locks",
@@ -349,7 +364,9 @@
     "grade_not_rotated": "Teacher {{teacher}} assigned to only {{assigned}} grade(s) (rotation target: {{target}} grades)",
     "load_deviation": "Teacher {{teacher}} assigned {{count}} tasks, deviating {{deviation}} from target quota {{quota}}",
     "exam_crowding": "Teacher {{teacher}} has {{avoidable}} avoidable crowded task(s) (crowding {{crowding}}, unavoidable offset {{offset}})",
-    "review_subject_missing": "Teacher {{teacher}} is competent to review {{subject}} but is not assigned to review it"
+    "review_subject_missing": "Teacher {{teacher}} is competent to review {{subject}} but is not assigned to review it",
+    "teacher_no_competency": "Teacher {{teacher_name}} has no subject competencies assigned",
+    "no_competencies": "No subject competencies defined in current school year"
   },
   "errors": {
     "not_found": "Requested entity not found",
@@ -742,9 +759,26 @@
     "editTitle": "Subject Competencies",
     "modalTitle": "Subject Competencies",
     "modalDesc": "Specify subjects and roles (setter / reviewer) each teacher is qualified to undertake.",
+    "matrixTitle": "Subject Competency Matrix",
+    "matrixDesc": "Manage setter and reviewer permissions across subjects and grade scopes.",
+    "filterSubject": "Filter subject",
+    "filterCampus": "Filter campus",
+    "searchTeacher": "Search teacher...",
+    "bulkActions": "Bulk Actions",
     "bulkAssignTaught": "Assign taught grades to all teachers",
+    "bulkAssignAll": "Expand to all grades for all",
+    "bulkClear": "Clear all competencies",
     "bulkAssignSuccess": "Assigned competencies matching taught grades to all teachers",
-    "saveSuccess": "Updated teacher competencies successfully"
+    "bulkAssignAllSuccess": "Expanded competencies to all grades for all teachers",
+    "bulkClearSuccess": "Cleared all subject competencies",
+    "saveSuccess": "Updated teacher competencies successfully",
+    "roleSetter": "Setter",
+    "roleReviewer": "Reviewer",
+    "stateOff": "Off",
+    "stateTaught": "Taught grades",
+    "stateAll": "All grades",
+    "eligibleFooter": "Eligible Teachers Summary",
+    "eligibleCount": "{{setters}} setters | {{reviewers}} reviewers"
   },
   "quota": {
     "previewBtn": "View Quotas",
