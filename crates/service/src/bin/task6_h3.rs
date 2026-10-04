@@ -94,10 +94,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 3. Per-Panel Campus Counts for H3 OFF
     // -------------------------------------------------------------------------
     println!("\n### H3 OFF: Per-Panel Campus Counts (Rank 1 Plan)");
-    println!("Total penalty (with S3): {:.2}", plan_off.report.total);
+    let s3_off_pen = plan_off
+        .report
+        .by_rule
+        .iter()
+        .find(|r| r.rule == RuleKey::S3)
+        .map_or(0.0, |r| r.penalty);
+    let s3_off_units = plan_off
+        .report
+        .by_rule
+        .iter()
+        .find(|r| r.rule == RuleKey::S3)
+        .map_or(0.0, |r| r.units);
+    println!("Total score (with S3):    {:.2}", plan_off.report.total);
+    println!(
+        "Total score (without S3): {:.2}",
+        plan_off.report.total - s3_off_pen
+    );
+    println!("S3 units (Campus independence): {:.2} units", s3_off_units);
+
     let mut off_campus_dist: HashMap<usize, usize> = HashMap::new();
     let mut off_mono_panels = Vec::new();
 
+    println!("\nBảng chi tiết 24 ban đề (H3 OFF):");
+    println!("| STT | Kỳ thi | Khối | Môn | Phân công (Cơ sở) | Số phân hiệu phân biệt | Yêu cầu (min_campuses) | Đạt chuẩn (>=2 PH)? |");
+    println!("| :---: | :---: | :---: | :---: | :--- | :---: | :---: | :---: |");
+
+    let mut panel_idx = 1;
     for e in &prob_h3_off.exams {
         for g in &prob_h3_off.grades {
             for s in &prob_h3_off.subjects {
@@ -112,52 +135,87 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .collect();
                 let c_count = distinct_campuses.len();
                 *off_campus_dist.entry(c_count).or_insert(0) += 1;
-                if c_count < 2 {
+
+                let t_details: Vec<String> = panel_assigns
+                    .iter()
+                    .map(|a| {
+                        let t = prob_h3_on
+                            .teachers
+                            .iter()
+                            .find(|t| t.id == a.teacher_id)
+                            .unwrap();
+                        let dname = t.display_name.as_deref().unwrap_or(&t.full_name);
+                        format!(
+                            "{}(PH{})",
+                            dname,
+                            teacher_campus_map.get(&a.teacher_id).unwrap().0
+                        )
+                    })
+                    .collect();
+
+                let is_ok = c_count >= 2;
+                if !is_ok {
                     off_mono_panels.push((e.code.clone(), g.code, s.code.clone(), panel_assigns));
                 }
+
+                println!(
+                    "| {:^3} | {:^6} | {:^4} | {:^3} | {:<42} | {:^22} | {:^22} | {:^19} |",
+                    panel_idx,
+                    e.code,
+                    g.code,
+                    s.code,
+                    t_details.join(", "),
+                    c_count,
+                    2,
+                    if is_ok { "ĐẠT" } else { "KHÔNG ĐẠT" }
+                );
+                panel_idx += 1;
             }
         }
     }
 
-    println!("Distribution of distinct campuses per panel (24 panels total):");
+    println!("\nPhân bố số phân hiệu trên mỗi ban đề (24 ban đề):");
     for k in 1..=4 {
         if let Some(&cnt) = off_campus_dist.get(&k) {
-            println!("  - {k} campus(es): {cnt} panels");
+            println!("  - {k} phân hiệu: {cnt} ban đề");
         }
     }
-    let s3_off_units = plan_off
-        .report
-        .by_rule
-        .iter()
-        .find(|r| r.rule == RuleKey::S3)
-        .map_or(0.0, |r| r.units);
-    println!("S3 units (Campus independence): {:.2} units", s3_off_units);
     println!(
         "Number of panels below min_campuses: {}",
         off_mono_panels.len()
     );
-    for (e, g, s, assigns) in &off_mono_panels {
-        let t_info: Vec<String> = assigns
-            .iter()
-            .map(|a| {
-                format!(
-                    "T{}(PH{})",
-                    a.teacher_id.0,
-                    teacher_campus_map.get(&a.teacher_id).unwrap().0
-                )
-            })
-            .collect();
-        println!("  • Panel {} Khối {} [{}]: {}", e, g, s, t_info.join(", "));
-    }
 
     // -------------------------------------------------------------------------
     // 4. Per-Panel Campus Counts for H3 ON
     // -------------------------------------------------------------------------
     println!("\n### H3 ON: Per-Panel Campus Counts (Rank 1 Plan)");
-    println!("Total penalty (with S3): {:.2}", plan_on.report.total);
+    let s3_on_pen = plan_on
+        .report
+        .by_rule
+        .iter()
+        .find(|r| r.rule == RuleKey::S3)
+        .map_or(0.0, |r| r.penalty);
+    let s3_on_units = plan_on
+        .report
+        .by_rule
+        .iter()
+        .find(|r| r.rule == RuleKey::S3)
+        .map_or(0.0, |r| r.units);
+    println!("Total score (with S3):    {:.2}", plan_on.report.total);
+    println!(
+        "Total score (without S3): {:.2}",
+        plan_on.report.total - s3_on_pen
+    );
+    println!("S3 units (Campus independence): {:.2} units", s3_on_units);
+
     let mut on_campus_dist: HashMap<usize, usize> = HashMap::new();
     let mut on_mono_panels = Vec::new();
 
+    println!("\nBảng chi tiết 24 ban đề (H3 ON):");
+    println!("| STT | Kỳ thi | Khối | Môn | Phân công (Cơ sở) | Số phân hiệu phân biệt | Yêu cầu (min_campuses) | Đạt chuẩn (>=2 PH)? |");
+    println!("| :---: | :---: | :---: | :---: | :--- | :---: | :---: | :---: |");
+
+    panel_idx = 1;
     for e in &prob_h3_on.exams {
         for g in &prob_h3_on.grades {
             for s in &prob_h3_on.subjects {
@@ -172,26 +230,51 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .collect();
                 let c_count = distinct_campuses.len();
                 *on_campus_dist.entry(c_count).or_insert(0) += 1;
-                if c_count < 2 {
+
+                let t_details: Vec<String> = panel_assigns
+                    .iter()
+                    .map(|a| {
+                        let t = prob_h3_on
+                            .teachers
+                            .iter()
+                            .find(|t| t.id == a.teacher_id)
+                            .unwrap();
+                        let dname = t.display_name.as_deref().unwrap_or(&t.full_name);
+                        format!(
+                            "{}(PH{})",
+                            dname,
+                            teacher_campus_map.get(&a.teacher_id).unwrap().0
+                        )
+                    })
+                    .collect();
+
+                let is_ok = c_count >= 2;
+                if !is_ok {
                     on_mono_panels.push((e.code.clone(), g.code, s.code.clone(), panel_assigns));
                 }
+
+                println!(
+                    "| {:^3} | {:^6} | {:^4} | {:^3} | {:<42} | {:^22} | {:^22} | {:^19} |",
+                    panel_idx,
+                    e.code,
+                    g.code,
+                    s.code,
+                    t_details.join(", "),
+                    c_count,
+                    2,
+                    if is_ok { "ĐẠT" } else { "KHÔNG ĐẠT" }
+                );
+                panel_idx += 1;
             }
         }
     }
 
-    println!("Distribution of distinct campuses per panel (24 panels total):");
+    println!("\nPhân bố số phân hiệu trên mỗi ban đề (24 ban đề):");
     for k in 1..=4 {
         if let Some(&cnt) = on_campus_dist.get(&k) {
-            println!("  - {k} campus(es): {cnt} panels");
+            println!("  - {k} phân hiệu: {cnt} ban đề");
         }
     }
-    let s3_on_units = plan_on
-        .report
-        .by_rule
-        .iter()
-        .find(|r| r.rule == RuleKey::S3)
-        .map_or(0.0, |r| r.units);
-    println!("S3 units (Campus independence): {:.2} units", s3_on_units);
     println!(
         "Number of panels below min_campuses: {}",
         on_mono_panels.len()
