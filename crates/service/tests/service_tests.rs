@@ -481,10 +481,11 @@ fn test_rule_presets_and_quota_preview() {
 
     // Rule presets
     let presets = service.get_rule_presets();
-    assert_eq!(presets.len(), 3);
+    assert_eq!(presets.len(), 4);
     assert_eq!(presets[0].id, "balanced");
     assert_eq!(presets[1].id, "workload_fairness");
     assert_eq!(presets[2].id, "team_diversity");
+    assert_eq!(presets[3].id, "allow_task_crowding");
 
     // Preview quotas under default settings
     let default_settings = service.get_rule_settings(sy_id).expect("rule settings");

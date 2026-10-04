@@ -13,7 +13,7 @@ Tài liệu này cung cấp các kịch bản kiểm thử toàn diện trên �
 
 | Phần | Nội dung chính | Trạng thái | Minh chứng / Thao tác kiểm thử |
 | :--- | :--- | :---: | :--- |
-| **Part A** | Xử lý tồn đọng Phase 11.1 & Hạ tầng | [x] Đạt | Script `scripts/test-inventory.sh`, Cận dưới S6 đa môn, Cảnh báo H3 `h3_reviewer_pool_reduced`, Warm vs Cold audit |
+| **Part A** | Xử lý tồn đọng Phase 11.1 & Hạ tầng | [x] Đạt | Script `scripts/test-inventory.mjs`, Cận dưới S6 đa môn, Cảnh báo H3 `h3_reviewer_pool_reduced`, Warm vs Cold audit |
 | **Part B** | Giao diện Lưới mẫu tổ (Q-Style Grid) | [x] Đạt | Chuyển đổi "Bảng tổ" / "Chi tiết", Bảng tổng hợp bên phải, Hover làm nổi bật, Thao tác chỉnh sửa đầy đủ |
 | **Part C** | Xuất Excel và Trang in mẫu tổ | [x] Đạt | Sheet "Bảng phân công (mẫu tổ)", Route `/print/plan/:id`, Khớp calamine golden, Xuất PDF A4 nằm ngang |
 | **Part D** | Trình nhập bảng phân công có sẵn | [x] Đạt | Nhập file .xlsx mẫu tổ & dán TSV, So khớp tên không dấu NFC/NFD, Xem trước vi phạm/điểm số, Nguồn 'manual' |
@@ -123,7 +123,7 @@ Tài liệu này cung cấp các kịch bản kiểm thử toàn diện trên �
   pnpm check-all
 
   # 2. Kiểm kê số lượng bài kiểm thử
-  bash scripts/test-inventory.sh
+  node scripts/test-inventory.mjs
 
   # 3. Đo lường hiệu năng và so sánh giải thuật
   cargo test -p exam_panel_service --test phase12_real_data_validation -- --nocapture

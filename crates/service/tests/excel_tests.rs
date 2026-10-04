@@ -783,7 +783,7 @@ fn test_q_sample_template_v2_generation_and_import() {
     let report_dir =
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/reports/phase-12");
     std::fs::create_dir_all(&report_dir).unwrap();
-    let sample_xlsx = report_dir.join("template-v2-q-sample.xlsx");
+    let sample_xlsx = report_dir.join("import-template-v2.xlsx");
 
     // 1. Generate Q sample template v2
     service
