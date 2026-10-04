@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Tiếng Việt (Vietnamese)
+
+#### Tính năng mới & Sửa lỗi (Added & Fixed)
+- **Quy tắc phân công & Tối ưu hóa (Phase 11.1):**
+  - Cập nhật công thức chuẩn cho tiêu chí S9 (Tránh dồn lịch thi): $\text{avoidable}_t = \max(0, \text{crowding}_t - \max(0, c_t - m_t))$, loại bỏ trừ phạt không công bằng do giới hạn cơ học số kỳ thi.
+  - Tích hợp tiêu chí S10 (Đa dạng môn duyệt phản biện) và chế độ S1 Auto-Max cho ngưỡng phản biện.
+  - Tùy biến giới hạn H4 qua hai tham số `max_tasks_per_exam` và `max_setter_per_exam`.
+  - Nâng cấp bộ di chuyển cục bộ cho SA (Simulated Annealing) bao gồm role-swap, multi-subject candidate swaps và điều chuẩn nhiệt độ làm lạnh, đảm bảo optimizer đạt tối ưu toàn diện từ điểm xuất phát trắng (Cold Start).
+  - Khôi phục bộ kiểm thử toàn vẹn (124 Rust tests), kiểm tra chéo đa môn $\ge 300$ trường hợp, kiểm tra tính bằng nhau giữa cập nhật điểm gia tăng và tính toán toàn phần sau $\ge 10,000$ bước.
+- **Giao diện & Trải nghiệm người dùng:**
+  - Trang ma trận năng lực chuyên môn (`/competencies`) hỗ trợ 3 trạng thái chuyển đổi (tắt, theo khối dạy, mọi khối), lọc theo môn/khối và thao tác hàng loạt.
+  - Cập nhật ma trận phân công hiển thị trực quan theo khối môn ("Đề"/"PB") kèm huy hiệu phân hiệu làm việc.
+  - Trang giáo viên bổ sung trường "Cách gọi" (`display_name`), huy hiệu số lượng chỗ cố định và cài đặt nâng cao.
+  - Trang thiết lập quy tắc hỗ trợ bật/tắt H3 kèm cảnh báo, cấu hình giới hạn H4, S1 Auto và cấu hình trọng số S9, S10.
+  - Hỗ trợ nhập và xuất Excel với cột "Cách gọi", cảnh báo giáo viên chưa gán môn chuyên môn.
+  - Tự động di trú cơ sở dữ liệu từ bản sao lưu v4 sang v5 và khôi phục năng lực chuyên môn.
+- **Tài liệu & Kiến trúc:**
+  - Bổ sung 6 bản ghi quyết định kiến trúc từ ADR-0037 đến ADR-0042.
+
+### English
+
+#### Added & Fixed
+- **Scheduling Rules & Optimization Core (Phase 11.1):**
+  - Corrected S9 avoidable crowding penalty formula: $\text{avoidable}_t = \max(0, \text{crowding}_t - \max(0, c_t - m_t))$, eliminating structural overflow penalties.
+  - Integrated S10 review subject diversity penalty and dynamic S1 Auto-Max pacing mode.
+  - Configurable H4 limits via `max_tasks_per_exam` and `max_setter_per_exam`.
+  - Enhanced Simulated Annealing move operator repertoire (role swaps, multi-subject candidate swaps) and cooling calibration, guaranteeing cold-start plans dominate manual plans across all metrics.
+  - Complete test integrity recovery (124 Rust tests), multi-subject exhaustive cross-check on $\ge 300$ instances, and incremental score verification over $\ge 10,000$ accepted moves.
+- **UI & Interaction:**
+  - New Subject Competencies matrix screen (`/competencies`) with 3-state cycling toggles (`off` -> `taught` -> `any`), filters, and bulk actions.
+  - Assignment matrix with per-cell subject blocks ("Đề"/"PB") and campus indicators.
+  - Teacher view with "Display Name" (`display_name`), forced placement badges, and advanced settings accordion.
+  - Rules view with H3 multi-campus toggle and warning box, H4 configurable limits, S1 Auto, and S9/S10 soft rule cards.
+  - Excel import/export template support for Display Name and unassigned competency warnings.
+  - Automatic v4-to-v5 database migration upon backup restore with auto-populated competencies.
+- **Architecture & Documentation:**
+  - Added sequential architecture decision records ADR-0037 through ADR-0042.
+
+---
+
 ## [0.1.0] - 2026-10-02
 
 ### Tiếng Việt (Vietnamese)

@@ -243,4 +243,58 @@
   5. Add soft rules S9 (Exam Crowding Relief: penalizing teachers holding > 1 task in a single exam when unnecessary) and S10 (Review Subject Coverage: encouraging reviewer-qualified teachers to review every competent subject at least once).
 - **Consequences:** Mathematically sound quota balancing that perfectly absorbs forced workloads, honors capacity limits and overrides, preserves exact backward compatibility with single-subject legacy databases, and optimizes cross-subject fairness.
 
+## ADR-0037: Configurable Per-Exam and Per-Setter Task Limits (H4 Redefinition)
+- **Status:** Accepted
+- **Context:** Prior to Phase 11, hard constraint H4 strictly prohibited any teacher from serving on more than 1 panel in the same exam period. In multi-subject departments or specialized schools where some faculty members hold dual competencies (e.g. Physics and Technology), teachers must occasionally handle 2 assignments within one exam term (e.g. authoring a Physics paper and reviewing a Technology paper). A rigid binary cap rendered multi-subject instances infeasible.
+- **Decision:** Redefine Rule H4 with configurable global parameters:
+  - `max_tasks_per_exam` (default: 2, system upper limit per exam term).
+  - `max_setter_per_exam` (default: 1, ensuring no teacher authors more than 1 paper per term).
+  - Support per-teacher override `max_tasks_per_exam_override` in the database to accommodate specialized faculty (or medical/administrative restrictions).
+- **Consequences:** Enables realistic multi-subject scheduling, guarantees authoring sanity by preventing multi-paper authoring in the same term, and gives coordinators granular per-teacher control.
+
+## ADR-0038: S9 Avoidable Crowding Penalty with Teacher Unavoidable Offset
+- **Status:** Accepted
+- **Context:** Teachers whose total quota $c_t$ exceeds their available exam count $m_t$ (e.g. $c_t = 5$ tasks across $m_t = 4$ exams) must unavoidably hold at least $c_t - m_t$ doubled-up tasks in some exam. Penalizing gross crowding without accounting for this structural lower bound penalizes the optimizer for unavoidable reality, distorting objective function trade-offs against Coordinator Q's manual schedule.
+- **Decision:** Formulate the S9 soft constraint strictly around avoidable crowding:
+  $$\text{avoidable}_t = \max(0, \text{crowding}_t - \max(0, c_t - m_t))$$
+  where $\text{crowding}_t = \sum_{e \in E} \max(0, \text{tasks}_{t, e} - 1)$.
+  Total S9 penalty is $W_{S9} \sum_t \text{avoidable}_t$. When a plan achieves the theoretical minimum crowding for all teachers, S9 evaluates to exactly 0.0. Maintain $O(1)$ incremental state updates during local search.
+- **Consequences:** Fair multi-objective optimization, correct assessment of Coordinator Q's manual plan (13 gross crowding, 4 offset, 9 avoidable units = 45.00 penalty), and 0.0 score when local search attains the structural minimum.
+
+## ADR-0039: S10 Review Subject Diversity Penalty
+- **Status:** Accepted
+- **Context:** In departments managing multiple subjects, reviewer oversight should promote cross-disciplinary perspective and prevent siloed peer reviews. If a teacher qualified to review both Physics and Technology is only assigned to Physics reviews, the department loses cross-subject review balance.
+- **Decision:** Introduce soft constraint S10 (`review_subject_coverage`):
+  For each active teacher $t$ with reviewer competency in two or more subjects, penalize $W_{S10}$ for each competent subject in which teacher $t$ is assigned 0 review tasks across the academic year:
+  $$\text{S10 penalty} = W_{S10} \sum_{t \in T_{\text{multi}}} \sum_{s \in \text{CompRev}(t)} [\text{reviews}_{t, s} == 0]$$
+- **Consequences:** The provable lower bound is 0.0 whenever task counts allow each multi-competent teacher at least one review per subject. Drives simulated annealing to balance review distribution across disciplines.
+
+## ADR-0040: Dynamic S1 Auto-Max Pacing Mode
+- **Status:** Accepted
+- **Context:** Rule S1 penalizes assignment concentration above an ideal threshold. In single-subject schools with 4 exams, 1 task per exam was the obvious target. In multi-subject schedules where average quota is 4.36 tasks, setting a hardcoded threshold of 1 or 2 either causes universal penalties or provides zero gradient.
+- **Decision:** Support an "Auto" mode for Rule S1:
+  - When `max_tasks_per_exam` is unset (default/Auto), the pacing threshold is dynamically calculated as $\lceil q_t \rceil$, penalizing only assignments that exceed the teacher's individual quota-paced expectation.
+  - When an explicit integer is configured by the user, S1 penalizes assignments exceeding that specific integer.
+- **Consequences:** Smooth, adaptive pacing across any faculty size, exam schedule, or multi-subject workload density without manual parameter recalibration.
+
+## ADR-0041: Database Migration 0005 and Zero-Drift Legacy Equivalence
+- **Status:** Accepted
+- **Context:** Upgrading ExamPanel to support multiple subjects, competencies, teacher display names, and quota overrides required altering the SQLite schema. Existing v1–v4 databases and automated backup files must upgrade deterministically on startup or restore, and historical plans must maintain identical validity and score before and after migration.
+- **Decision:** Create migration `0005_subjects_and_competencies.sql`:
+  1. Add `subjects` table and create default record `"CHUNG"` (`setters=2, reviewers=1, min_campuses=2`).
+  2. Add `competencies` table and auto-populate active teachers with `"CHUNG"` competency (`grade_scope='taught'`).
+  3. Add `display_name`, `quota_override`, and `max_tasks_per_exam_override` to `teachers`.
+  4. Add `subject_id` references to `assignments`, `locks`, and `unavailabilities`, backfilled to `"CHUNG"`.
+  5. Enforce legacy equivalence via automated tests verifying that all historical plans have identical hard violations and penalty scores before and after applying migration 0005.
+- **Consequences:** 100% backward compatibility, zero schema drift, and safe automated restoration of legacy backup archives.
+
+## ADR-0042: Canonical Test Fixture Variants (`nocampus` and `synthetic_campuses`)
+- **Status:** Accepted
+- **Context:** Phase 11 previously introduced invented campuses with non-standard names ("Cơ sở 1/2"), conflicting with official school terminology (the school operates 4 phân hiệu). Furthermore, the actual academic schedule constructed by Coordinator Q operates in a unified setting without campus boundaries, while multi-campus constraint H3 requires deterministic synthetic distribution for testing.
+- **Decision:** Establish two canonical dataset variants:
+  1. `nocampus`: Single placeholder campus `"Chưa phân hiệu"`, Rule H3 disabled. Represents the authentic baseline for Coordinator Q's manual plan comparison.
+  2. `synthetic_campuses`: Four campuses `"Phân hiệu 1"`, `"Phân hiệu 2"`, `"Phân hiệu 3"`, `"Phân hiệu 4"` (labeled `(giả lập)`), with deterministic assignment spread and Teacher Nghĩa in Phân hiệu 1. Used for H3 multi-campus verification and spatial diversity benchmarks.
+  3. Permanently remove all "Cơ sở" terminology across code, fixtures, and tests, enforced by automated scanning in `test_no_forbidden_terms_in_fixtures_and_seeds`.
+- **Consequences:** Consistent, reproducible benchmark environments matching authentic institutional structures, and strict adherence to prohibited term policies.
+
 
