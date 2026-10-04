@@ -52,10 +52,25 @@ describe('AssignmentsPage Component Tests', () => {
     expect(screen.getByTestId('run-optimizer-button')).toBeInTheDocument()
     expect(screen.getByTestId('compare-plans-button')).toBeInTheDocument()
     expect(screen.getByTestId('history-plans-button')).toBeInTheDocument()
+    expect(screen.getByTestId('view-toggle-grid')).toBeInTheDocument()
+    expect(screen.getByTestId('view-toggle-detail')).toBeInTheDocument()
 
-    // Matrix view should be displayed
+    // Q-style grid view should be displayed by default
+    await waitFor(() => {
+      expect(screen.getByTestId('q-plan-grid-root')).toBeInTheDocument()
+      expect(screen.getByTestId('q-plan-totals-panel')).toBeInTheDocument()
+    })
+
+    // Switch to detail view
+    fireEvent.click(screen.getByTestId('view-toggle-detail'))
     await waitFor(() => {
       expect(screen.getByTestId('plan-matrix-view')).toBeInTheDocument()
+    })
+
+    // Switch back to grid view
+    fireEvent.click(screen.getByTestId('view-toggle-grid'))
+    await waitFor(() => {
+      expect(screen.getByTestId('q-plan-grid-root')).toBeInTheDocument()
     })
   })
 
@@ -100,8 +115,14 @@ describe('AssignmentsPage Component Tests', () => {
     expect(historyList).toHaveTextContent(/Phương án #1/i)
   })
 
-  it('focuses on teacher when chip or teacher row is clicked', async () => {
+  it('focuses on teacher when chip or teacher row is clicked in detail view', async () => {
     renderWithClient(<AssignmentsPage />)
+
+    // Switch to detail view
+    await waitFor(() => {
+      expect(screen.getByTestId('view-toggle-detail')).toBeInTheDocument()
+    })
+    fireEvent.click(screen.getByTestId('view-toggle-detail'))
 
     await waitFor(() => {
       expect(screen.getByTestId('plan-matrix-view')).toBeInTheDocument()
@@ -141,7 +162,7 @@ describe('AssignmentsPage Component Tests', () => {
     renderWithClient(<AssignmentsPage />)
 
     await waitFor(() => {
-      expect(screen.getByTestId('plan-matrix-view')).toBeInTheDocument()
+      expect(screen.getByTestId('q-plan-grid-root')).toBeInTheDocument()
     })
 
     // Wait for create-edit-copy-button to appear
@@ -163,6 +184,27 @@ describe('AssignmentsPage Component Tests', () => {
     await waitFor(() => {
       // Editable draft undo/redo buttons are no longer present
       expect(screen.queryByTitle(i18n.t('assignments.undo'))).not.toBeInTheDocument()
+    })
+  })
+
+  it('renders Q-style grid with attached totals, task markers, and search filter', async () => {
+    renderWithClient(<AssignmentsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('q-plan-grid-root')).toBeInTheDocument()
+      expect(screen.getByTestId('q-plan-grid-table')).toBeInTheDocument()
+      expect(screen.getByTestId('q-plan-totals-panel')).toBeInTheDocument()
+      expect(screen.getByTestId('q-grid-summary-bar')).toBeInTheDocument()
+    })
+
+    // Check totals table contains teacher rows and filter input
+    const filterInput = screen.getByTestId('q-totals-filter-input')
+    expect(filterInput).toBeInTheDocument()
+
+    // Filter by name
+    fireEvent.change(filterInput, { target: { value: 'Nguyễn Văn An' } })
+    await waitFor(() => {
+      expect(screen.getByTestId('q-totals-row-1')).toBeInTheDocument()
     })
   })
 })
