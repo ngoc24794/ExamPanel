@@ -52,9 +52,14 @@ export function QuotaPreviewModal({
     }
   }
 
-  const teacherMap = new Map(teachersWithGrades.map((twg) => [twg.teacher.id, twg.teacher]))
+  const teacherMap = new Map(
+    teachersWithGrades.map((twg) => [twg.teacher.id, twg.teacher]),
+  )
 
-  const totalQuota = quotaItems.reduce((acc: number, it: QuotaPreviewItem) => acc + it.quota, 0)
+  const totalQuota = quotaItems.reduce(
+    (acc: number, it: QuotaPreviewItem) => acc + it.quota,
+    0,
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -100,7 +105,9 @@ export function QuotaPreviewModal({
                 </div>
                 <div>
                   <span className="text-muted-foreground">Tổng chỉ tiêu phân bổ: </span>
-                  <span className="font-bold text-foreground">{totalQuota.toFixed(2)}</span>
+                  <span className="font-bold text-foreground">
+                    {totalQuota.toFixed(2)}
+                  </span>
                 </div>
               </div>
 
@@ -113,7 +120,9 @@ export function QuotaPreviewModal({
                     <TableHead className="text-center">Kỳ khả dụng</TableHead>
                     <TableHead className="text-center">Nhiệm vụ cố định</TableHead>
                     <TableHead className="text-right">Chỉ tiêu mục tiêu (q)</TableHead>
-                    <TableHead className="text-center">Khoảng cho phép [lo, hi]</TableHead>
+                    <TableHead className="text-center">
+                      Khoảng cho phép [lo, hi]
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -127,17 +136,25 @@ export function QuotaPreviewModal({
                         key={item.teacher_id}
                         className={isForced ? 'bg-amber-500/5 hover:bg-amber-500/10' : ''}
                       >
-                        <TableCell className="text-center text-muted-foreground">{idx + 1}</TableCell>
+                        <TableCell className="text-center text-muted-foreground">
+                          {idx + 1}
+                        </TableCell>
                         <TableCell>
-                          <div className="font-medium text-foreground">{item.teacher_name}</div>
+                          <div className="font-medium text-foreground">
+                            {item.teacher_name}
+                          </div>
                           {teacherRec?.display_name && (
                             <div className="text-[11px] text-muted-foreground">
                               {teacherRec.display_name}
                             </div>
                           )}
                         </TableCell>
-                        <TableCell className="text-center">{item.load_weight.toFixed(2)}</TableCell>
-                        <TableCell className="text-center">{item.available_exams}</TableCell>
+                        <TableCell className="text-center">
+                          {item.load_weight.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {item.available_exams}
+                        </TableCell>
                         <TableCell className="text-center">
                           {isForced ? (
                             <Badge

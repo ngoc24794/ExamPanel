@@ -250,3 +250,167 @@ fn test_plan_import_golden_q_table() {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/reports/phase-12/import-golden.txt");
     fs::write(&output_path, report).expect("write golden report");
 }
+
+#[test]
+fn test_plan_import_nfc_nfd_names() {
+    let problem = make_canonical_q_problem(QVariant::SyntheticCampuses);
+    use unicode_normalization::UnicodeNormalization;
+
+    // "C Hiền" in NFD: "C Hie\u{300}\u{302}n" or decomposed
+    let nfd_name: String = "C Hiền".nfd().collect();
+    // Verify it is decomposed
+    assert_ne!(nfd_name.as_bytes(), "C Hiền".as_bytes());
+
+    let found = exam_panel_service::excel::plan_import::find_teacher(&nfd_name, &problem.teachers);
+    assert!(found.is_ok(), "Should find teacher with NFD input");
+    let t = found.unwrap().expect("matched teacher");
+    assert_eq!(t.display_name.as_deref(), Some("C Hiền"));
+}
+
+#[test]
+fn test_plan_import_accent_insensitive_unique_match() {
+    let problem = make_canonical_q_problem(QVariant::SyntheticCampuses);
+
+    // "C Hien" without accents matches "C Hiền" uniquely
+    let found = exam_panel_service::excel::plan_import::find_teacher("C Hien", &problem.teachers);
+    assert!(
+        found.is_ok(),
+        "Should find unique teacher with accent-stripped input"
+    );
+    let t = found.unwrap().expect("matched teacher");
+    assert_eq!(t.display_name.as_deref(), Some("C Hiền"));
+
+    // "T Nghia" without accents matches "T Nghĩa" uniquely
+    let found2 = exam_panel_service::excel::plan_import::find_teacher("T Nghia", &problem.teachers);
+    assert!(found2.is_ok());
+    assert_eq!(
+        found2.unwrap().unwrap().display_name.as_deref(),
+        Some("T Nghĩa")
+    );
+}
+
+#[test]
+fn test_plan_import_ambiguity_error() {
+    use exam_panel_core::domain::{Teacher, TeacherId};
+    let mut teachers = Vec::new();
+    teachers.push(Teacher {
+        id: TeacherId(1),
+        code: Some("GV01".to_string()),
+        full_name: "Nguyễn Văn An".to_string(),
+        display_name: Some("T An".to_string()),
+        campus_id: exam_panel_core::domain::CampusId(1),
+        load_weight: 1.0,
+        active: true,
+        note: None,
+        quota_override: None,
+        max_tasks_per_exam_override: None,
+    });
+    teachers.push(Teacher {
+        id: TeacherId(2),
+        code: Some("GV02".to_string()),
+        full_name: "Nguyễn Văn Ân".to_string(),
+        display_name: Some("T Ân".to_string()),
+        campus_id: exam_panel_core::domain::CampusId(1),
+        load_weight: 1.0,
+        active: true,
+        note: None,
+        quota_override: None,
+        max_tasks_per_exam_override: None,
+    });
+
+    // Searching accent-insensitive "Nguyen Van An" matches both "Nguyễn Văn An" and "Nguyễn Văn Ân"
+    let res = exam_panel_service::excel::plan_import::find_teacher("Nguyen Van An", &teachers);
+    assert_eq!(res, Err("ambiguous_teacher"));
+}
+
+#[test]
+fn test_plan_import_missing_seat() {
+    let problem = make_canonical_q_problem(QVariant::SyntheticCampuses);
+
+    // Leave a seat blank
+    let tsv_text = "Kì thi/khối\t\tKhối 10\t\tKhối 11\t\tKhối 12\t\n\
+                    \t\tVL\tCN\tVL\tCN\tVL\tCN\n\
+                    GK1\tĐề\t\tT Nghĩa\tT Lộc\tT Nghĩa\tC Bình\tT Nghĩa\n\
+                    \tĐề\tC Lài\t\tC Thư\t\tT Phúc\t\n\
+                    \tP.Biện\tT Phúc\tC Hiền\tC Na\tC Lài\tC Quí\tT Lộc";
+
+    let preview = preview_plan_import(&problem, None, Some(tsv_text)).expect("preview TSV");
+    assert!(!preview.can_apply);
+    assert!(preview.errors.iter().any(|e| e.code == "missing_seat"));
+}
+
+#[test]
+fn test_plan_import_totals_column_mismatch_warning() {
+    let problem = make_canonical_q_problem(QVariant::SyntheticCampuses);
+
+    // Grid with totals column: GV | Tổng where C Hiền has 99 instead of actual
+    let tsv_text = "Kì thi/khối\t\tKhối 10\t\tKhối 11\t\tKhối 12\t\tGV\tTổng\n\
+                    \t\tVL\tCN\tVL\tCN\tVL\tCN\t\t\n\
+                    GK1\tĐề\tC Hiền\tT Nghĩa\tT Lộc\tT Nghĩa\tC Bình\tT Nghĩa\tC Hiền\t99\n\
+                    \tĐề\tC Lài\t\tC Thư\t\tT Phúc\t\t\t\n\
+                    \tP.Biện\tT Phúc\tC Hiền\tC Na\tC Lài\tC Quí\tT Lộc\t\t";
+
+    let preview = preview_plan_import(&problem, None, Some(tsv_text)).expect("preview TSV");
+    assert!(preview
+        .warnings
+        .iter()
+        .any(|w| w.contains("99") && w.contains("C Hiền")));
+}
+
+#[test]
+fn test_plan_import_tsv_parse_grid_region() {
+    let problem = make_canonical_q_problem(QVariant::SyntheticCampuses);
+
+    let tsv_text = "Kì thi/khối\t\tKhối 10\t\tKhối 11\t\tKhối 12\t\n\
+                    \t\tVL\tCN\tVL\tCN\tVL\tCN\n\
+                    GK1\tĐề\tC Hiền\tT Nghĩa\tT Lộc\tT Nghĩa\tC Bình\tT Nghĩa\n\
+                    \tĐề\tC Lài\t\tC Thư\t\tT Phúc\t\n\
+                    \tP.Biện\tT Phúc\tC Hiền\tC Na\tC Lài\tC Quí\tT Lộc\n\
+                    CK1\tĐề\tC Hiền\tT Nghĩa\tC Lài\tT Nghĩa\tC Lan\tT Nghĩa\n\
+                    \tĐề\tC Bình\t\tC Thư\t\tC Quí\t\n\
+                    \tP.Biện\tC Như\tC Tú\tC Thư\tC Lan\tC Lài\tC Bình";
+
+    let preview = preview_plan_import(&problem, None, Some(tsv_text)).expect("preview TSV");
+    assert_eq!(preview.assignments.len(), 30);
+    assert_eq!(preview.errors.len(), 0);
+}
+
+#[test]
+fn test_plan_import_apply_manual_origin_import() {
+    let problem = make_canonical_q_problem(QVariant::SyntheticCampuses);
+    let service = AppService::open_in_memory().unwrap();
+    service.seed_demo().expect("seed demo");
+
+    let tsv_text = "Kì thi/khối\t\tKhối 10\t\tKhối 11\t\tKhối 12\t\n\
+                    \t\tVL\tCN\tVL\tCN\tVL\tCN\n\
+                    GK1\tĐề\tC Hiền\tT Nghĩa\tT Lộc\tT Nghĩa\tC Bình\tT Nghĩa\n\
+                    \tĐề\tC Lài\t\tC Thư\t\tT Phúc\t\n\
+                    \tP.Biện\tT Phúc\tC Hiền\tC Na\tC Lài\tC Quí\tT Lộc\n\
+                    CK1\tĐề\tC Hiền\tT Nghĩa\tC Lài\tT Nghĩa\tC Lan\tT Nghĩa\n\
+                    \tĐề\tC Tú\t\tC Bình\t\tC Quí\t\n\
+                    \tP.Biện\tC Như\tC Tú\tC Thư\tC Lan\tC Lài\tC Bình\n\
+                    GK2\tĐề\tC Tú\tT Nghĩa\tC Na\tT Nghĩa\tC Lan\tT Nghĩa\n\
+                    \tĐề\tC Như\t\tC Thư\t\tC Lài\t\n\
+                    \tP.Biện\tT Lộc\tC Như\tC Hiền\tC Thư\tC Quí\tT Phúc\n\
+                    CK2\tĐề\tC Na\tT Nghĩa\tT Lộc\tT Nghĩa\tT Phúc\tT Nghĩa\n\
+                    \tĐề\tC Như\t\tC Quí\t\tC Hiền\t\n\
+                    \tP.Biện\tC Tú\tC Quí\tC Bình\tC Na\tC Lan\tC Quí";
+
+    let preview = preview_plan_import(&problem, None, Some(tsv_text)).expect("preview TSV");
+    assert!(preview.can_apply);
+
+    let plan_id = service
+        .apply_imported_plan(ApplyPlanImportInput {
+            school_year_id: SchoolYearId(1),
+            plan_name: Some("Kế hoạch nhập từ TSV".to_string()),
+            assignments: preview.assignments,
+        })
+        .expect("apply plan");
+
+    let details = service.get_plan(plan_id).expect("get plan");
+    assert_eq!(details.plan.source, "manual");
+    assert_eq!(details.plan.name, "Kế hoạch nhập từ TSV");
+    let run_params: serde_json::Value =
+        serde_json::from_str(&details.plan.run_params_json.unwrap()).unwrap();
+    assert_eq!(run_params["origin"], "import");
+}

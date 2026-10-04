@@ -33,7 +33,8 @@ export const PrintNoticesPage: React.FC = () => {
   const { data: schoolYears = [] } = useSchoolYears()
   const { data: campuses = [] } = useCampuses()
   const { data: grades = [] } = useGrades()
-  const schoolYear = schoolYears.find((y) => y.id === planDetails?.plan.school_year_id) || schoolYears[0]
+  const schoolYear =
+    schoolYears.find((y) => y.id === planDetails?.plan.school_year_id) || schoolYears[0]
   const { data: exams = [] } = useExams(schoolYear?.id)
   const { data: teachers = [] } = useTeachers(schoolYear?.id)
   const { data: subjects = [] } = useSubjects(schoolYear?.id)
@@ -228,15 +229,20 @@ export const PrintNoticesPage: React.FC = () => {
                     <p className="font-bold underline">{deptName}</p>
                   </div>
                   <div className="text-center font-semibold text-xs leading-relaxed">
-                    <p className="uppercase font-bold">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
-                    <p className="font-medium underline italic">Độc lập - Tự do - Hạnh phúc</p>
+                    <p className="uppercase font-bold">
+                      CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+                    </p>
+                    <p className="font-medium underline italic">
+                      Độc lập - Tự do - Hạnh phúc
+                    </p>
                   </div>
                 </div>
 
                 {/* Title */}
                 <div className="text-center mb-6">
                   <h1 className="text-base font-bold uppercase tracking-wide">
-                    {isDraft && '[BẢN NHÁP] '}THÔNG BÁO PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ KIỂM TRA
+                    {isDraft && '[BẢN NHÁP] '}THÔNG BÁO PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ
+                    KIỂM TRA
                   </h1>
                   <p className="text-xs italic mt-1 font-medium">
                     Năm học: {schoolYear?.name}
@@ -247,9 +253,13 @@ export const PrintNoticesPage: React.FC = () => {
                 <div className="bg-neutral-50 p-4 rounded border border-neutral-300 mb-6 text-xs leading-relaxed">
                   <p>
                     <span className="font-semibold">{t('print.teacherLabel')}</span>{' '}
-                    <span className="font-bold text-sm text-neutral-900">{teacher.full_name}</span>
+                    <span className="font-bold text-sm text-neutral-900">
+                      {teacher.full_name}
+                    </span>
                     {teacher.code && (
-                      <span className="ml-2 font-mono text-neutral-600">[{teacher.code}]</span>
+                      <span className="ml-2 font-mono text-neutral-600">
+                        [{teacher.code}]
+                      </span>
                     )}
                   </p>
                   <p className="mt-1">
@@ -276,7 +286,9 @@ export const PrintNoticesPage: React.FC = () => {
                           <th className="border border-neutral-400 p-2 w-16">Khối</th>
                           <th className="border border-neutral-400 p-2 w-24">Môn</th>
                           <th className="border border-neutral-400 p-2 w-24">Vai trò</th>
-                          <th className="border border-neutral-400 p-2">Thành viên cùng ban đề</th>
+                          <th className="border border-neutral-400 p-2">
+                            Thành viên cùng ban đề
+                          </th>
                         </tr>
                       </thead>
                       <tbody>

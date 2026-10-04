@@ -95,8 +95,14 @@ export function PlanCompareModal({
         )
 
         // Compare setters
-        const settersA = assignA.filter((a) => a.role === 'setter').map((a) => a.teacher_id).sort()
-        const settersB = assignB.filter((a) => a.role === 'setter').map((a) => a.teacher_id).sort()
+        const settersA = assignA
+          .filter((a) => a.role === 'setter')
+          .map((a) => a.teacher_id)
+          .sort()
+        const settersB = assignB
+          .filter((a) => a.role === 'setter')
+          .map((a) => a.teacher_id)
+          .sort()
         const reviewerA = assignA.find((a) => a.role === 'reviewer')?.teacher_id
         const reviewerB = assignB.find((a) => a.role === 'reviewer')?.teacher_id
 
@@ -207,12 +213,16 @@ export function PlanCompareModal({
                 Chênh lệch (B - A):{' '}
                 <strong
                   className={
-                    (detailsB.score_report?.total ?? 0) < (detailsA.score_report?.total ?? 0)
+                    (detailsB.score_report?.total ?? 0) <
+                    (detailsA.score_report?.total ?? 0)
                       ? 'text-emerald-600'
                       : 'text-amber-600'
                   }
                 >
-                  {((detailsB.score_report?.total ?? 0) - (detailsA.score_report?.total ?? 0)).toFixed(2)}
+                  {(
+                    (detailsB.score_report?.total ?? 0) -
+                    (detailsA.score_report?.total ?? 0)
+                  ).toFixed(2)}
                 </strong>
               </span>
             </div>
@@ -223,7 +233,8 @@ export function PlanCompareModal({
         {detailsA && detailsB && comparison && (
           <div className="space-y-4">
             <h4 className="text-sm font-semibold text-foreground">
-              {t('assignments.diffHighlight')} ({comparison.diffSlots.size} ban đề có thay đổi)
+              {t('assignments.diffHighlight')} ({comparison.diffSlots.size} ban đề có thay
+              đổi)
             </h4>
 
             {/* Matrix comparison */}
@@ -231,9 +242,14 @@ export function PlanCompareModal({
               <table className="w-full border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
-                    <th className="p-2 text-left text-muted-foreground w-28">Kỳ / Khối</th>
+                    <th className="p-2 text-left text-muted-foreground w-28">
+                      Kỳ / Khối
+                    </th>
                     {grades.map((g) => (
-                      <th key={g.id} className="p-2 text-center text-foreground border-l border-border">
+                      <th
+                        key={g.id}
+                        className="p-2 text-center text-foreground border-l border-border"
+                      >
                         {g.name}
                       </th>
                     ))}
@@ -255,11 +271,16 @@ export function PlanCompareModal({
                         const getTeacherNames = (arr: typeof assignA) => {
                           const setters = arr
                             .filter((a) => a.role === 'setter')
-                            .map((a) => teachers.find((t) => t.teacher.id === a.teacher_id)?.teacher.full_name)
+                            .map(
+                              (a) =>
+                                teachers.find((t) => t.teacher.id === a.teacher_id)
+                                  ?.teacher.full_name,
+                            )
                             .join(', ')
                           const reviewer = teachers.find(
                             (t) =>
-                              t.teacher.id === arr.find((a) => a.role === 'reviewer')?.teacher_id,
+                              t.teacher.id ===
+                              arr.find((a) => a.role === 'reviewer')?.teacher_id,
                           )?.teacher.full_name
                           return { setters, reviewer }
                         }
@@ -277,10 +298,16 @@ export function PlanCompareModal({
                             {isDiff ? (
                               <div className="space-y-1">
                                 <div className="text-[10px] text-muted-foreground">
-                                  <span className="font-semibold text-foreground">A:</span> {tA.setters} | PB: {tA.reviewer}
+                                  <span className="font-semibold text-foreground">
+                                    A:
+                                  </span>{' '}
+                                  {tA.setters} | PB: {tA.reviewer}
                                 </div>
                                 <div className="text-[10px] text-primary font-medium">
-                                  <span className="font-semibold text-foreground">B:</span> {tB.setters} | PB: {tB.reviewer}
+                                  <span className="font-semibold text-foreground">
+                                    B:
+                                  </span>{' '}
+                                  {tB.setters} | PB: {tB.reviewer}
                                 </div>
                               </div>
                             ) : (
@@ -305,7 +332,9 @@ export function PlanCompareModal({
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                   {detailsA.score_report.by_rule.map((rA) => {
-                    const rB = detailsB.score_report?.by_rule.find((r) => r.rule === rA.rule)
+                    const rB = detailsB.score_report?.by_rule.find(
+                      (r) => r.rule === rA.rule,
+                    )
                     const delta = (rB?.penalty ?? 0) - rA.penalty
                     return (
                       <div
@@ -322,8 +351,8 @@ export function PlanCompareModal({
                               delta < 0
                                 ? 'text-emerald-600'
                                 : delta > 0
-                                ? 'text-amber-600'
-                                : 'text-muted-foreground'
+                                  ? 'text-amber-600'
+                                  : 'text-muted-foreground'
                             }`}
                           >
                             {delta > 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1)}

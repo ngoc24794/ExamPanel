@@ -86,8 +86,14 @@ const teacherFormSchema = z.object({
   note: z.string().optional(),
   code: z.string().optional(),
   displayName: z.string().optional(),
-  quotaOverride: z.union([z.number().min(0), z.nan()]).optional().nullable(),
-  maxTasksPerExamOverride: z.union([z.number().min(0), z.nan()]).optional().nullable(),
+  quotaOverride: z
+    .union([z.number().min(0), z.nan()])
+    .optional()
+    .nullable(),
+  maxTasksPerExamOverride: z
+    .union([z.number().min(0), z.nan()])
+    .optional()
+    .nullable(),
 })
 
 type TeacherFormValues = z.infer<typeof teacherFormSchema>
@@ -140,7 +146,9 @@ export const TeachersPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [editingTeacher, setEditingTeacher] = React.useState<Teacher | null>(null)
   const [selectedGradeIds, setSelectedGradeIds] = React.useState<number[]>([])
-  const [competenciesTeacher, setCompetenciesTeacher] = React.useState<Teacher | null>(null)
+  const [competenciesTeacher, setCompetenciesTeacher] = React.useState<Teacher | null>(
+    null,
+  )
   const [quotaPreviewOpen, setQuotaPreviewOpen] = React.useState(false)
 
   const handleDownloadTemplate = async () => {
@@ -903,7 +911,9 @@ export const TeachersPage: React.FC = () => {
                 <details className="group text-xs">
                   <summary className="cursor-pointer font-medium text-muted-foreground hover:text-foreground flex items-center justify-between py-1">
                     <span>{t('teachers.advancedSettings')}</span>
-                    <span className="text-[10px] group-open:rotate-180 transition-transform">▼</span>
+                    <span className="text-[10px] group-open:rotate-180 transition-transform">
+                      ▼
+                    </span>
                   </summary>
                   <div className="mt-3 space-y-3 pl-1">
                     <div className="space-y-1.5">

@@ -150,7 +150,10 @@ export function AssignmentsPage() {
 
   // View mode toggle: 'grid' (Bảng tổ) | 'detail' (Chi tiết)
   const [viewMode, setViewMode] = React.useState<'grid' | 'detail'>(() => {
-    return (localStorage.getItem('exam_panel_assignment_view_mode') as 'grid' | 'detail') || 'grid'
+    return (
+      (localStorage.getItem('exam_panel_assignment_view_mode') as 'grid' | 'detail') ||
+      'grid'
+    )
   })
 
   const handleViewModeChange = (mode: 'grid' | 'detail') => {
@@ -175,7 +178,9 @@ export function AssignmentsPage() {
   }, [loadedPlanDetails])
 
   const activePlan = plans.find((p) => p.id === selectedPlanId)
-  const isEditable = activePlan ? ['manual', 'duplicate'].includes(activePlan.source) && !activePlan.is_final : false
+  const isEditable = activePlan
+    ? ['manual', 'duplicate'].includes(activePlan.source) && !activePlan.is_final
+    : false
 
   // Apply assignment changes with undo/redo recording
   const handleUpdateAssignments = (newAssignments: Assignment[]) => {
@@ -278,7 +283,11 @@ export function AssignmentsPage() {
     })
   }
 
-  const handleCreateLock = async (slot: SlotRef, teacherId: number, kind: 'pin' | 'forbid') => {
+  const handleCreateLock = async (
+    slot: SlotRef,
+    teacherId: number,
+    kind: 'pin' | 'forbid',
+  ) => {
     await createLockMutation.mutateAsync({
       exam_id: slot.exam_id,
       grade_id: slot.grade_id,
@@ -288,7 +297,9 @@ export function AssignmentsPage() {
       kind,
     })
     toast.success(
-      kind === 'pin' ? t('assignments.pinTeacherSlot') : t('assignments.forbidTeacherSlot'),
+      kind === 'pin'
+        ? t('assignments.pinTeacherSlot')
+        : t('assignments.forbidTeacherSlot'),
     )
   }
 
@@ -466,157 +477,163 @@ export function AssignmentsPage() {
         <div className="space-y-4">
           {/* Active Plan Header & Controls */}
           {activePlan && (
-              <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-bold text-base text-foreground">
-                    {activePlan.name}
-                  </span>
-                  {activePlan.is_final && (
-                    <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs">
-                      <Star className="h-3 w-3 fill-current" />
-                      {t('assignments.finalBadge')}
-                    </Badge>
-                  )}
-                  {activePlan.is_stale && (
-                    <Badge variant="destructive" className="gap-1 text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40">
-                      <AlertTriangle className="h-3 w-3" />
-                      {t('assignments.staleBadge')}
-                    </Badge>
-                  )}
-                  <Badge variant="secondary" className="text-xs">
-                    {activePlan.source === 'optimizer'
-                      ? t('assignments.sourceOptimizer')
-                      : activePlan.source === 'duplicate'
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-bold text-base text-foreground">
+                  {activePlan.name}
+                </span>
+                {activePlan.is_final && (
+                  <Badge
+                    variant="default"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs"
+                  >
+                    <Star className="h-3 w-3 fill-current" />
+                    {t('assignments.finalBadge')}
+                  </Badge>
+                )}
+                {activePlan.is_stale && (
+                  <Badge
+                    variant="destructive"
+                    className="gap-1 text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40"
+                  >
+                    <AlertTriangle className="h-3 w-3" />
+                    {t('assignments.staleBadge')}
+                  </Badge>
+                )}
+                <Badge variant="secondary" className="text-xs">
+                  {activePlan.source === 'optimizer'
+                    ? t('assignments.sourceOptimizer')
+                    : activePlan.source === 'duplicate'
                       ? t('assignments.sourceDuplicate')
                       : t('assignments.sourceManual')}
-                  </Badge>
-                </div>
+                </Badge>
+              </div>
 
-                {/* Edit Mode & Actions */}
-                <div className="flex items-center gap-2">
-                  {/* Optimizer plans: Show "Tạo bản chỉnh sửa" */}
-                  {activePlan.source === 'optimizer' && (
+              {/* Edit Mode & Actions */}
+              <div className="flex items-center gap-2">
+                {/* Optimizer plans: Show "Tạo bản chỉnh sửa" */}
+                {activePlan.source === 'optimizer' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCreateEditableCopy}
+                    className="gap-1.5 text-xs"
+                    data-testid="create-edit-copy-button"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    {t('assignments.createEditCopy')}
+                  </Button>
+                )}
+
+                {/* Manual/Duplicate plans: Show Edit controls */}
+                {isEditable && (
+                  <>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handleCreateEditableCopy}
-                      className="gap-1.5 text-xs"
-                      data-testid="create-edit-copy-button"
+                      onClick={handleUndo}
+                      disabled={undoStack.length === 0}
+                      title={t('assignments.undo')}
+                      className="h-8 w-8 p-0"
                     >
-                      <Copy className="h-3.5 w-3.5" />
-                      {t('assignments.createEditCopy')}
+                      <Undo2 className="h-4 w-4" />
                     </Button>
-                  )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRedo}
+                      disabled={redoStack.length === 0}
+                      title={t('assignments.redo')}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Redo2 className="h-4 w-4" />
+                    </Button>
 
-                  {/* Manual/Duplicate plans: Show Edit controls */}
-                  {isEditable && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleUndo}
-                        disabled={undoStack.length === 0}
-                        title={t('assignments.undo')}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Undo2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRedo}
-                        disabled={redoStack.length === 0}
-                        title={t('assignments.redo')}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Redo2 className="h-4 w-4" />
-                      </Button>
+                    {isDirty && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleDiscard}
+                          className="text-xs text-muted-foreground"
+                        >
+                          {t('assignments.discard')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleSave}
+                          className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                          data-testid="save-plan-assignments-button"
+                        >
+                          <Save className="h-3.5 w-3.5" />
+                          {t('assignments.save')}
+                        </Button>
+                      </>
+                    )}
+                  </>
+                )}
 
-                      {isDirty && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleDiscard}
-                            className="text-xs text-muted-foreground"
-                          >
-                            {t('assignments.discard')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={handleSave}
-                            className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
-                            data-testid="save-plan-assignments-button"
-                          >
-                            <Save className="h-3.5 w-3.5" />
-                            {t('assignments.save')}
-                          </Button>
-                        </>
-                      )}
-                    </>
-                  )}
+                {/* Export Excel Button */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleExportExcel}
+                          disabled={!isTauri}
+                          className="gap-1.5 text-xs"
+                          data-testid="export-excel-button"
+                        >
+                          <FileSpreadsheet className="h-3.5 w-3.5" />
+                          {t('export.exportExcel')}
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {!isTauri && (
+                      <TooltipContent>
+                        <p className="text-xs">{t('export.exportMockDisabled')}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
 
-                  {/* Export Excel Button */}
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleExportExcel}
-                            disabled={!isTauri}
-                            className="gap-1.5 text-xs"
-                            data-testid="export-excel-button"
-                          >
-                            <FileSpreadsheet className="h-3.5 w-3.5" />
-                            {t('export.exportExcel')}
-                          </Button>
-                        </span>
-                      </TooltipTrigger>
-                      {!isTauri && (
-                        <TooltipContent>
-                          <p className="text-xs">{t('export.exportMockDisabled')}</p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  {/* Print Dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 text-xs"
-                        data-testid="print-menu-button"
-                      >
-                        <Printer className="h-3.5 w-3.5" />
-                        {t('print.printBtn')}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        data-testid="print-plan-item"
-                        onClick={() => navigate(`/print/plan/${activePlan.id}`)}
-                        className="gap-2 cursor-pointer text-xs"
-                      >
-                        <Printer className="h-3.5 w-3.5" />
-                        {t('print.printPlan')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        data-testid="print-notices-item"
-                        onClick={() => navigate(`/print/notices/${activePlan.id}`)}
-                        className="gap-2 cursor-pointer text-xs"
-                      >
-                        <Printer className="h-3.5 w-3.5" />
-                        {t('print.printNotices')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                {/* Print Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      data-testid="print-menu-button"
+                    >
+                      <Printer className="h-3.5 w-3.5" />
+                      {t('print.printBtn')}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      data-testid="print-plan-item"
+                      onClick={() => navigate(`/print/plan/${activePlan.id}`)}
+                      className="gap-2 cursor-pointer text-xs"
+                    >
+                      <Printer className="h-3.5 w-3.5" />
+                      {t('print.printPlan')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      data-testid="print-notices-item"
+                      onClick={() => navigate(`/print/notices/${activePlan.id}`)}
+                      className="gap-2 cursor-pointer text-xs"
+                    >
+                      <Printer className="h-3.5 w-3.5" />
+                      {t('print.printNotices')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            )}
+            </div>
+          )}
 
           {/* Conditional View: Q-Style Grid (Bảng tổ) vs Detailed Matrix (Chi tiết) */}
           {viewMode === 'grid' ? (
@@ -683,10 +700,13 @@ export function AssignmentsPage() {
                   <div className="p-4 rounded-lg border border-border bg-card shadow-sm space-y-3 text-xs">
                     <h4 className="font-semibold text-foreground text-sm flex items-center gap-1.5">
                       <span>Danh sách giáo viên</span>
-                      <Badge variant="outline" className="text-xs">{teachers.length}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {teachers.length}
+                      </Badge>
                     </h4>
                     <p className="text-muted-foreground">
-                      Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được phân công trên ma trận.
+                      Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được
+                      phân công trên ma trận.
                     </p>
                     <div className="max-h-[500px] overflow-y-auto space-y-1 pr-1">
                       {teachers.map((twg) => {
@@ -705,7 +725,9 @@ export function AssignmentsPage() {
                             <div className="flex items-center gap-1.5 min-w-0">
                               <div
                                 className="w-2.5 h-2.5 rounded-full shrink-0"
-                                style={{ backgroundColor: getCampusDotColor(campus?.color) }}
+                                style={{
+                                  backgroundColor: getCampusDotColor(campus?.color),
+                                }}
                               />
                               <span className="font-medium text-foreground truncate">
                                 {tRec.full_name}

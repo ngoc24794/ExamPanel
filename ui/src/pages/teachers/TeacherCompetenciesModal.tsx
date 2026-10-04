@@ -66,7 +66,9 @@ export function TeacherCompetenciesModal({
 
   // Local state for the current teacher's competencies:
   // subject_id -> { setter: { enabled, grade_scope }, reviewer: { enabled, grade_scope } }
-  const [configs, setConfigs] = React.useState<Record<number, { setter: RoleConfig; reviewer: RoleConfig }>>({})
+  const [configs, setConfigs] = React.useState<
+    Record<number, { setter: RoleConfig; reviewer: RoleConfig }>
+  >({})
 
   React.useEffect(() => {
     if (!open || !teacher) return
@@ -102,7 +104,11 @@ export function TeacherCompetenciesModal({
     setConfigs(initial)
   }, [open, teacher, currentCompetencies, subjects])
 
-  const handleToggle = (subjectId: number, role: 'setter' | 'reviewer', checked: boolean) => {
+  const handleToggle = (
+    subjectId: number,
+    role: 'setter' | 'reviewer',
+    checked: boolean,
+  ) => {
     setConfigs((prev) => ({
       ...prev,
       [subjectId]: {
@@ -115,7 +121,11 @@ export function TeacherCompetenciesModal({
     }))
   }
 
-  const handleScopeChange = (subjectId: number, role: 'setter' | 'reviewer', scope: GradeScope) => {
+  const handleScopeChange = (
+    subjectId: number,
+    role: 'setter' | 'reviewer',
+    scope: GradeScope,
+  ) => {
     setConfigs((prev) => ({
       ...prev,
       [subjectId]: {
@@ -158,7 +168,9 @@ export function TeacherCompetenciesModal({
         school_year_id: schoolYearId,
         competencies,
       })
-      toast.success(t('competencies.saveSuccess') || 'Cập nhật phân công chuyên môn thành công')
+      toast.success(
+        t('competencies.saveSuccess') || 'Cập nhật phân công chuyên môn thành công',
+      )
       onOpenChange(false)
     } catch {
       // Error handled by mutation hook
@@ -214,7 +226,8 @@ export function TeacherCompetenciesModal({
                 {t('competencies.modalTitle') || 'Phân công chuyên môn'}
                 {teacher && (
                   <span className="text-primary ml-1.5 font-normal">
-                    - {teacher.full_name} {teacher.display_name ? `(${teacher.display_name})` : ''}
+                    - {teacher.full_name}{' '}
+                    {teacher.display_name ? `(${teacher.display_name})` : ''}
                   </span>
                 )}
               </DialogTitle>
@@ -238,7 +251,8 @@ export function TeacherCompetenciesModal({
             data-testid="bulk-assign-competencies-btn"
           >
             <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-            {t('competencies.bulkAssignTaught') || 'Gán theo khối đang dạy cho tất cả giáo viên'}
+            {t('competencies.bulkAssignTaught') ||
+              'Gán theo khối đang dạy cho tất cả giáo viên'}
           </Button>
         </div>
 
@@ -271,7 +285,10 @@ export function TeacherCompetenciesModal({
                     <TableRow key={s.id}>
                       <TableCell className="font-semibold text-foreground">
                         <div className="flex items-center gap-1.5">
-                          <Badge variant="outline" className="font-bold text-[10px] uppercase">
+                          <Badge
+                            variant="outline"
+                            className="font-bold text-[10px] uppercase"
+                          >
                             {s.code}
                           </Badge>
                           <span>{s.name}</span>

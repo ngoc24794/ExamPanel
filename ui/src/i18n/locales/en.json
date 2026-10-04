@@ -200,6 +200,7 @@
     "presetBalanced": "Balanced (Default)",
     "presetWorkloadFairness": "Prioritize Workload Fairness",
     "presetTeamDiversity": "Prioritize Team Diversity",
+    "presetAllowTaskCrowding": "Allow Task Crowding in Single Exam",
     "applyPreset": "Apply Preset",
     "resetDefaults": "Reset to Defaults",
     "resetConfirm": "Reset all rules to default settings?",

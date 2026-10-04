@@ -132,4 +132,3 @@ describe('i18n locales parity', () => {
     expect(rawVi.includes('ràng buộc mềm')).toBe(false)
   })
 })
-

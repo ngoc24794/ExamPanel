@@ -61,7 +61,10 @@ function categorizeDiagnostic(code: string): CategoryKey {
   return 'panels'
 }
 
-function getFixTarget(violation: Diagnostic | Violation): { path: string; labelKey: string } {
+function getFixTarget(violation: Diagnostic | Violation): {
+  path: string
+  labelKey: string
+} {
   const code = violation.code
   if (code === 'teacher_no_competency' || code === 'no_competencies') {
     return { path: '/competencies', labelKey: 'competencies.title' }
@@ -208,11 +211,14 @@ export const FeasibilitySheet: React.FC<FeasibilitySheetProps> = ({
               </Badge>
             </div>
             <p className="text-[11px] text-muted-foreground">
-              {t('feasibility.forcedPlacementsDesc') || 'Các nhiệm vụ đã được cố định theo cấu hình. Thuật toán sẽ bảo lưu các vị trí này.'}
+              {t('feasibility.forcedPlacementsDesc') ||
+                'Các nhiệm vụ đã được cố định theo cấu hình. Thuật toán sẽ bảo lưu các vị trí này.'}
             </p>
             <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
               {forcedList.map((fp, i) => {
-                const teacher = teachersWithGrades.find((tg) => tg.teacher.id === fp.teacher_id)?.teacher
+                const teacher = teachersWithGrades.find(
+                  (tg) => tg.teacher.id === fp.teacher_id,
+                )?.teacher
                 const exam = exams.find((e) => e.id === fp.panel.exam_id)
                 const grade = grades.find((g) => g.id === fp.panel.grade_id)
                 const subject = subjects.find((s) => s.id === fp.panel.subject_id)
@@ -227,7 +233,10 @@ export const FeasibilitySheet: React.FC<FeasibilitySheetProps> = ({
                       {teacher?.full_name || `GV #${fp.teacher_id}`}
                     </span>
                     <span className="text-muted-foreground text-[10px]">
-                      {exam?.code || `Kỳ ${fp.panel.exam_id}`} • {grade?.name || `K${fp.panel.grade_id}`} • {subject?.code || 'Chung'} • <span className="font-semibold text-primary">{roleLabel}</span>
+                      {exam?.code || `Kỳ ${fp.panel.exam_id}`} •{' '}
+                      {grade?.name || `K${fp.panel.grade_id}`} •{' '}
+                      {subject?.code || 'Chung'} •{' '}
+                      <span className="font-semibold text-primary">{roleLabel}</span>
                     </span>
                   </div>
                 )

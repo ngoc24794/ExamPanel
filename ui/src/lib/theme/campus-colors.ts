@@ -71,4 +71,3 @@ export function getCampusDotColor(color: string | undefined | null): string {
   const opt = CAMPUS_PALETTE_OPTIONS.find((o) => o.key === key)
   return opt ? opt.previewColor : '#3b82f6'
 }
-

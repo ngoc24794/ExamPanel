@@ -200,6 +200,7 @@
     "presetBalanced": "Cân bằng (mặc định)",
     "presetWorkloadFairness": "Ưu tiên công bằng khối lượng",
     "presetTeamDiversity": "Ưu tiên đa dạng ê-kíp",
+    "presetAllowTaskCrowding": "Cho phép dồn việc trong một kỳ",
     "applyPreset": "Áp dụng cấu hình",
     "resetDefaults": "Khôi phục mặc định",
     "resetConfirm": "Khôi phục toàn bộ quy tắc về mặc định ban đầu?",

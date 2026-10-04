@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import {
   AlertOctagon,
   AlertTriangle,
+  ArrowRightLeft,
   Check,
   CheckCircle2,
   Lock as LockIcon,
@@ -150,7 +151,10 @@ export const RulesPage: React.FC = () => {
     setDraftSettings((prev) => {
       const idx = prev.findIndex((s) => s.key === key)
       if (idx === -1) {
-        return [...prev, { key: key as RuleKey, enabled: true, weight: 100, params: {}, ...updates }]
+        return [
+          ...prev,
+          { key: key as RuleKey, enabled: true, weight: 100, params: {}, ...updates },
+        ]
       }
       const copy = [...prev]
       copy[idx] = { ...copy[idx], ...updates }
@@ -509,7 +513,10 @@ export const RulesPage: React.FC = () => {
                     data-testid="h3-warning-box"
                   >
                     <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-                    <span>{t('rules.h3Warning') || 'Tắt H3 cho phép các hội đồng chỉ gồm giáo viên cùng một phân hiệu.'}</span>
+                    <span>
+                      {t('rules.h3Warning') ||
+                        'Tắt H3 cho phép các hội đồng chỉ gồm giáo viên cùng một phân hiệu.'}
+                    </span>
                   </div>
                 )}
               </CardContent>
@@ -674,6 +681,16 @@ export const RulesPage: React.FC = () => {
                   <Sparkles className="h-3 w-3 text-primary" />
                   <span>{t('rules.presetTeamDiversity')}</span>
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleApplyPreset('allow_task_crowding')}
+                  className="h-8 text-xs gap-1.5"
+                  data-testid="preset-crowding-btn"
+                >
+                  <ArrowRightLeft className="h-3 w-3 text-primary" />
+                  <span>{t('rules.presetAllowTaskCrowding')}</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -825,9 +842,13 @@ export const RulesPage: React.FC = () => {
                               min="1"
                               max="5"
                               placeholder="Số"
-                              value={(rule?.params?.max_tasks_per_exam as number | undefined) ?? ''}
+                              value={
+                                (rule?.params?.max_tasks_per_exam as
+                                  number | undefined) ?? ''
+                              }
                               onChange={(e) => {
-                                const val = e.target.value === '' ? null : Number(e.target.value)
+                                const val =
+                                  e.target.value === '' ? null : Number(e.target.value)
                                 updateRule('s1', {
                                   params: { ...rule?.params, max_tasks_per_exam: val },
                                 })

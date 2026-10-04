@@ -149,7 +149,7 @@ To inform human coordinators when schedule quality cannot be improved further, p
 - **S2, S3, S4, S5, S7:** 0.0 unless proved otherwise by instance-specific constraints.
 
 ### 3.4 Rule Presets
-ExamPanel defines three canonical rule weight presets in `crates/core` as the single source of truth:
+ExamPanel defines four canonical rule weight presets in `crates/core` as the single source of truth:
 1. **Cân bằng (mặc định) / Balanced (Default):**
    Standard production balance between workload equality, team variety, and role health.
    - S1: `10.0`, S2: `3.0`, S3: `4.0`, S4: `6.0`, S5: `6.0`, S6: `2.0`, S7: `1.0`, S8: `8.0`, S9: `5.0`, S10: `4.0`.
@@ -162,6 +162,8 @@ ExamPanel defines three canonical rule weight presets in `crates/core` as the si
    Raises S4, S5, S3, and S10 weights to eliminate repeated authoring pairings, repeated oversight relations, and broaden subject review coverage.
    - S1: `10.0`, S2: `3.0`, S3: `8.0`, S4: `12.0`, S5: `12.0`, S6: `2.0`, S7: `1.0`, S8: `6.0`, S9: `5.0`, S10: `6.0`.
    - H4 enabled (`100.0`), H7 tolerance = `1` (`100.0`).
+4. **Cho phép dồn việc trong một kỳ / Allow Task Crowding:**
+   Disables S9 Avoidable Exam Crowding (`enabled = false`, `weight = 0.0`) while retaining all other default weights and hard constraints from Balanced. Allows teachers to freely take multiple assignments within the same exam period without soft penalty.
 
 ---
 

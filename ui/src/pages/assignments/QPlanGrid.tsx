@@ -104,7 +104,24 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
     teacherId: number
   } | null>(null)
 
-  const assignments = planDetails.assignments
+  const assignments = React.useMemo(() => {
+    const counts = new Map<string, number>()
+    return planDetails.assignments.map((a) => {
+      const subjectId = a.subject_id ?? 1
+      let pos = a.position
+      if (pos === undefined) {
+        const key = `${a.exam_id}-${a.grade_id}-${subjectId}-${a.role}`
+        const curr = counts.get(key) ?? 0
+        pos = curr
+        counts.set(key, curr + 1)
+      }
+      return {
+        ...a,
+        subject_id: subjectId,
+        position: pos,
+      }
+    })
+  }, [planDetails.assignments])
   const scoreReport = planDetails.score_report
 
   // Forced placements lookup
@@ -117,7 +134,13 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
   }, [forcedPlacements])
 
   const isSlotForced = React.useCallback(
-    (examId: number, gradeId: number, subjectId: number, role: Role, position: number) => {
+    (
+      examId: number,
+      gradeId: number,
+      subjectId: number,
+      role: Role,
+      position: number,
+    ) => {
       return forcedPlacements.some(
         (fp) =>
           fp.panel.exam_id === examId &&
@@ -145,7 +168,13 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
   )
 
   const isSlotKept = React.useCallback(
-    (examId: number, gradeId: number, subjectId: number, role: Role, position: number) => {
+    (
+      examId: number,
+      gradeId: number,
+      subjectId: number,
+      role: Role,
+      position: number,
+    ) => {
       return keptSlots.some(
         (s) =>
           s.exam_id === examId &&
@@ -360,11 +389,15 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
       >
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-1.5 font-bold text-sm text-foreground">
-            <span>{t('assignments.summaryTotalScore', { score: scoreReport ? scoreReport.total.toFixed(2) : '0' })}</span>
+            <span>
+              {t('assignments.summaryTotalScore', {
+                score: scoreReport ? scoreReport.total.toFixed(2) : '0',
+              })}
+            </span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            {(!planStatus || planStatus.hard_violations_now.length === 0) ? (
+            {!planStatus || planStatus.hard_violations_now.length === 0 ? (
               <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
                 <CheckCircle2 className="h-4 w-4" />
                 {t('assignments.hardValid')}
@@ -372,7 +405,9 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
             ) : (
               <span className="flex items-center gap-1 text-rose-600 dark:text-rose-400 font-medium">
                 <AlertOctagon className="h-4 w-4" />
-                {t('assignments.hardInvalid', { count: planStatus.hard_violations_now.length })}
+                {t('assignments.hardInvalid', {
+                  count: planStatus.hard_violations_now.length,
+                })}
               </span>
             )}
           </div>
@@ -395,13 +430,15 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                         rb.units === 0
                           ? 'border-border text-muted-foreground bg-muted/20'
                           : isAtLowerBound
-                          ? 'border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
-                          : 'border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10'
+                            ? 'border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
+                            : 'border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10'
                       }`}
                     >
                       <span className="font-bold uppercase">{rb.rule}</span>: {rb.units}
                       {isAtLowerBound && rb.units > 0 && (
-                        <span className="text-[9px] font-sans">({t('assignments.atLowerBound')})</span>
+                        <span className="text-[9px] font-sans">
+                          ({t('assignments.atLowerBound')})
+                        </span>
                       )}
                     </span>
                   </TooltipTrigger>
@@ -460,7 +497,10 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                       key={`${grade.id}-${sub.id}`}
                       className="px-2 py-1 border-r border-border font-bold text-[11px] text-center"
                       style={{
-                        backgroundColor: sub.color === 'palette-1' ? 'rgba(59, 130, 246, 0.08)' : 'rgba(16, 185, 129, 0.08)',
+                        backgroundColor:
+                          sub.color === 'palette-1'
+                            ? 'rgba(59, 130, 246, 0.08)'
+                            : 'rgba(16, 185, 129, 0.08)',
                       }}
                     >
                       <span className="font-mono">{sub.code}</span>
@@ -472,8 +512,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
 
             <tbody>
               {exams.map((exam, examIdx) => {
-                const examBg =
-                  examIdx % 2 === 0 ? 'bg-card' : 'bg-muted/20'
+                const examBg = examIdx % 2 === 0 ? 'bg-card' : 'bg-muted/20'
 
                 // Build row definitions for this exam:
                 // Setters: maxSetters rows labelled "Đề"
@@ -588,16 +627,19 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                           teacher.id === activeHighlightedTeacherId
 
                         // Relevant soft violations for this panel
-                        const panelViolations = scoreReport?.violations.filter(
-                          (v) =>
-                            v.panel &&
-                            v.panel.exam_id === exam.id &&
-                            v.panel.grade_id === grade.id &&
-                            v.panel.subject_id === subject.id,
-                        ) || []
+                        const panelViolations =
+                          scoreReport?.violations.filter(
+                            (v) =>
+                              v.panel &&
+                              v.panel.exam_id === exam.id &&
+                              v.panel.grade_id === grade.id &&
+                              v.panel.subject_id === subject.id,
+                          ) || []
 
                         const teacherStat = teacher ? teacherStats.get(teacher.id) : null
-                        const teacherQuota = teacher ? teacherQuotas.get(teacher.id) ?? teacher.load_weight * 4 : 0
+                        const teacherQuota = teacher
+                          ? (teacherQuotas.get(teacher.id) ?? teacher.load_weight * 4)
+                          : 0
 
                         return (
                           <td
@@ -624,7 +666,10 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                             onDragStart={(e) => {
                               if (!isEditable || isForced || !teacher) return
                               setDraggedSlot({ slot: slotRef, teacherId: teacher.id })
-                              e.dataTransfer.setData('text/plain', JSON.stringify(slotRef))
+                              e.dataTransfer.setData(
+                                'text/plain',
+                                JSON.stringify(slotRef),
+                              )
                             }}
                             onDragOver={(e) => {
                               if (isEditable && !isForced) {
@@ -709,7 +754,9 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                                                 className="gap-2"
                                               >
                                                 <ArrowRightLeft className="h-3.5 w-3.5" />
-                                                <span>{t('assignments.replaceModalTitle')}</span>
+                                                <span>
+                                                  {t('assignments.replaceModalTitle')}
+                                                </span>
                                               </DropdownMenuItem>
                                               <DropdownMenuSeparator />
                                             </>
@@ -724,16 +771,24 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                                                 className="gap-2"
                                               >
                                                 <Pin className="h-3.5 w-3.5 text-primary" />
-                                                <span>{t('assignments.pinTeacherSlot')}</span>
+                                                <span>
+                                                  {t('assignments.pinTeacherSlot')}
+                                                </span>
                                               </DropdownMenuItem>
                                               <DropdownMenuItem
                                                 onClick={() =>
-                                                  onCreateLock(slotRef, teacher.id, 'forbid')
+                                                  onCreateLock(
+                                                    slotRef,
+                                                    teacher.id,
+                                                    'forbid',
+                                                  )
                                                 }
                                                 className="gap-2 text-destructive"
                                               >
                                                 <Ban className="h-3.5 w-3.5" />
-                                                <span>{t('assignments.forbidTeacherSlot')}</span>
+                                                <span>
+                                                  {t('assignments.forbidTeacherSlot')}
+                                                </span>
                                               </DropdownMenuItem>
                                               <DropdownMenuSeparator />
                                             </>
@@ -768,7 +823,9 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                                     <>
                                       <p className="font-bold">
                                         {teacher.full_name}
-                                        {teacher.display_name ? ` (${teacher.display_name})` : ''}
+                                        {teacher.display_name
+                                          ? ` (${teacher.display_name})`
+                                          : ''}
                                       </p>
                                       <p className="text-muted-foreground">
                                         {t('assignments.teacherQuotaCount', {
@@ -784,7 +841,10 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                                       </p>
                                       <p>
                                         {t('assignments.teacherExams', {
-                                          exams: Array.from(teacherStat?.examNames ?? []).join(', ') || 'Chưa có',
+                                          exams:
+                                            Array.from(teacherStat?.examNames ?? []).join(
+                                              ', ',
+                                            ) || 'Chưa có',
                                         })}
                                       </p>
                                       {isForced && (
@@ -834,7 +894,13 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                 }}
               >
                 <ArrowUpDown className="h-3 w-3" />
-                <span>{totalsSortField === 'total' ? (totalsSortAsc ? 'Tăng' : 'Giảm') : 'Tổng'}</span>
+                <span>
+                  {totalsSortField === 'total'
+                    ? totalsSortAsc
+                      ? 'Tăng'
+                      : 'Giảm'
+                    : 'Tổng'}
+                </span>
               </Button>
             </div>
           </div>
@@ -845,7 +911,9 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
             <Input
               value={totalsSearch}
               onChange={(e) => setTotalsSearch(e.target.value)}
-              placeholder={t('assignments.teacherSearchPlaceholder') || 'Lọc giáo viên...'}
+              placeholder={
+                t('assignments.teacherSearchPlaceholder') || 'Lọc giáo viên...'
+              }
               className="h-7 text-xs pl-8 bg-background"
               data-testid="q-totals-filter-input"
             />
@@ -856,10 +924,18 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
             <table className="w-full border-collapse text-xs select-none">
               <thead className="bg-muted/50 sticky top-0 border-b border-border text-[11px] font-bold">
                 <tr>
-                  <th className="p-1.5 text-left font-semibold">{t('assignments.totalsTeacher') || 'GV'}</th>
-                  <th className="p-1.5 text-center font-bold text-primary">{t('assignments.totalsTotal') || 'Tổng'}</th>
-                  <th className="p-1.5 text-center text-muted-foreground">{t('assignments.totalsSetter') || 'Đề'}</th>
-                  <th className="p-1.5 text-center text-muted-foreground">{t('assignments.totalsReviewer') || 'PB'}</th>
+                  <th className="p-1.5 text-left font-semibold">
+                    {t('assignments.totalsTeacher') || 'GV'}
+                  </th>
+                  <th className="p-1.5 text-center font-bold text-primary">
+                    {t('assignments.totalsTotal') || 'Tổng'}
+                  </th>
+                  <th className="p-1.5 text-center text-muted-foreground">
+                    {t('assignments.totalsSetter') || 'Đề'}
+                  </th>
+                  <th className="p-1.5 text-center text-muted-foreground">
+                    {t('assignments.totalsReviewer') || 'PB'}
+                  </th>
                   {exams.map((ex) => (
                     <th key={ex.id} className="p-1.5 text-center font-mono text-[10px]">
                       {ex.name}
@@ -967,13 +1043,22 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                 <tr>
                   <td className="p-1.5 text-foreground">Tổng cộng</td>
                   <td className="p-1.5 text-center text-primary font-bold">
-                    {Array.from(teacherStats.values()).reduce((sum, s) => sum + s.total, 0)}
+                    {Array.from(teacherStats.values()).reduce(
+                      (sum, s) => sum + s.total,
+                      0,
+                    )}
                   </td>
                   <td className="p-1.5 text-center text-muted-foreground">
-                    {Array.from(teacherStats.values()).reduce((sum, s) => sum + s.setters, 0)}
+                    {Array.from(teacherStats.values()).reduce(
+                      (sum, s) => sum + s.setters,
+                      0,
+                    )}
                   </td>
                   <td className="p-1.5 text-center text-muted-foreground">
-                    {Array.from(teacherStats.values()).reduce((sum, s) => sum + s.reviewers, 0)}
+                    {Array.from(teacherStats.values()).reduce(
+                      (sum, s) => sum + s.reviewers,
+                      0,
+                    )}
                   </td>
                   {exams.map((ex) => {
                     const examTotal = Array.from(teacherStats.values()).reduce(

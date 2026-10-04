@@ -567,12 +567,18 @@ pub enum RulePreset {
     Balanced,
     WorkloadFairness,
     TeamDiversity,
+    AllowTaskCrowding,
 }
 
 impl RulePreset {
     #[must_use]
-    pub fn all() -> [Self; 3] {
-        [Self::Balanced, Self::WorkloadFairness, Self::TeamDiversity]
+    pub fn all() -> [Self; 4] {
+        [
+            Self::Balanced,
+            Self::WorkloadFairness,
+            Self::TeamDiversity,
+            Self::AllowTaskCrowding,
+        ]
     }
 
     #[must_use]
@@ -581,6 +587,7 @@ impl RulePreset {
             Self::Balanced => "balanced",
             Self::WorkloadFairness => "workload_fairness",
             Self::TeamDiversity => "team_diversity",
+            Self::AllowTaskCrowding => "allow_task_crowding",
         }
     }
 
@@ -610,6 +617,16 @@ impl RulePreset {
                         RuleKey::S8 => rule.weight = 6.0,
                         RuleKey::S10 => rule.weight = 6.0,
                         _ => {}
+                    }
+                }
+                s
+            }
+            Self::AllowTaskCrowding => {
+                let mut s = RuleSetting::default_settings();
+                for rule in &mut s {
+                    if rule.key == RuleKey::S9 {
+                        rule.enabled = false;
+                        rule.weight = 0.0;
                     }
                 }
                 s
@@ -831,11 +848,12 @@ mod tests {
     #[test]
     fn test_rule_presets() {
         let presets = RulePreset::all();
-        assert_eq!(presets.len(), 3);
+        assert_eq!(presets.len(), 4);
 
         let balanced = RulePreset::Balanced.settings();
         let fairness = RulePreset::WorkloadFairness.settings();
         let diversity = RulePreset::TeamDiversity.settings();
+        let crowding = RulePreset::AllowTaskCrowding.settings();
 
         let find_weight = |settings: &[RuleSetting], key: RuleKey| {
             settings.iter().find(|s| s.key == key).unwrap().weight
@@ -843,6 +861,14 @@ mod tests {
 
         // Balanced defaults
         assert_eq!(find_weight(&balanced, RuleKey::S8), 8.0);
+        assert_eq!(find_weight(&crowding, RuleKey::S9), 0.0);
+        assert!(
+            !crowding
+                .iter()
+                .find(|s| s.key == RuleKey::S9)
+                .unwrap()
+                .enabled
+        );
         assert_eq!(find_weight(&balanced, RuleKey::S1), 10.0);
         assert_eq!(find_weight(&balanced, RuleKey::S4), 6.0);
 

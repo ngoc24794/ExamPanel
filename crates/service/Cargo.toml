@@ -40,6 +40,10 @@ path = "src/bin/task6_h3.rs"
 name = "task7_perf"
 path = "src/bin/task7_perf.rs"
 
+[[bin]]
+name = "generate_presets_report"
+path = "src/bin/generate_presets_report.rs"
+
 [[test]]
 name = "generate_types"
 path = "tests/generate_types.rs"

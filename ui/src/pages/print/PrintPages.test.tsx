@@ -30,7 +30,9 @@ describe('Print Pages Component Tests', () => {
     )
 
     expect(await screen.findByTestId('print-btn')).toBeInTheDocument()
-    expect(screen.getByText(/BẢNG PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ KIỂM TRA/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/BẢNG PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ KIỂM TRA/i),
+    ).toBeInTheDocument()
     expect(screen.getByText('Kì thi/khối')).toBeInTheDocument()
     expect(screen.getByText('Tổng lượt n.vụ')).toBeInTheDocument()
     expect(screen.getAllByText('P.Biện').length).toBeGreaterThan(0)
@@ -48,8 +50,12 @@ describe('Print Pages Component Tests', () => {
     )
 
     expect(await screen.findByTestId('print-btn')).toBeInTheDocument()
-    expect(screen.getAllByText(/THÔNG BÁO PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ KIỂM TRA/i).length).toBeGreaterThan(0)
+    expect(
+      screen.getAllByText(/THÔNG BÁO PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ KIỂM TRA/i).length,
+    ).toBeGreaterThan(0)
     expect(screen.getAllByText(/Kính gửi Thầy\/Cô:/i).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/Danh sách nhiệm vụ được phân công:/i).length).toBeGreaterThan(0)
+    expect(
+      screen.getAllByText(/Danh sách nhiệm vụ được phân công:/i).length,
+    ).toBeGreaterThan(0)
   })
 })

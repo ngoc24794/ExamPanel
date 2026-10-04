@@ -84,7 +84,9 @@ export const CompetenciesPage: React.FC = () => {
       if (
         searchTerm.trim() &&
         !tg.teacher.full_name.toLowerCase().includes(searchTerm.toLowerCase().trim()) &&
-        !tg.teacher.display_name?.toLowerCase().includes(searchTerm.toLowerCase().trim()) &&
+        !tg.teacher.display_name
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase().trim()) &&
         !tg.teacher.code?.toLowerCase().includes(searchTerm.toLowerCase().trim())
       ) {
         return false
@@ -106,11 +108,7 @@ export const CompetenciesPage: React.FC = () => {
   }, [subjects, subjectFilter])
 
   // Cycle toggle: off -> taught -> all -> off
-  const handleCycleRole = async (
-    teacherId: number,
-    subjectId: number,
-    role: Role,
-  ) => {
+  const handleCycleRole = async (teacherId: number, subjectId: number, role: Role) => {
     const currentScope = compMap.get(`${teacherId}_${subjectId}_${role}`)
     if (!currentScope) {
       // Off -> Taught
@@ -404,7 +402,10 @@ export const CompetenciesPage: React.FC = () => {
                           </span>
                         )}
                         {tg.teacher.code && (
-                          <Badge variant="outline" className="font-mono text-[10px] px-1 py-0 ml-1">
+                          <Badge
+                            variant="outline"
+                            className="font-mono text-[10px] px-1 py-0 ml-1"
+                          >
                             {tg.teacher.code}
                           </Badge>
                         )}
@@ -417,9 +418,7 @@ export const CompetenciesPage: React.FC = () => {
 
                     {/* Competency Toggles per Subject */}
                     {displayedSubjects.map((sub) => {
-                      const setterScope = compMap.get(
-                        `${tg.teacher.id}_${sub.id}_setter`,
-                      )
+                      const setterScope = compMap.get(`${tg.teacher.id}_${sub.id}_setter`)
                       const reviewerScope = compMap.get(
                         `${tg.teacher.id}_${sub.id}_reviewer`,
                       )
@@ -433,20 +432,22 @@ export const CompetenciesPage: React.FC = () => {
                             {/* Setter Toggle Chip */}
                             <button
                               type="button"
-                              onClick={() => handleCycleRole(tg.teacher.id, sub.id, 'setter')}
+                              onClick={() =>
+                                handleCycleRole(tg.teacher.id, sub.id, 'setter')
+                              }
                               className={`px-2 py-1 rounded text-[11px] font-semibold transition-all border flex items-center gap-1 ${
                                 setterScope === 'any'
                                   ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/40 shadow-xs'
                                   : setterScope === 'taught'
-                                  ? 'bg-primary/20 text-primary border-primary/40 shadow-xs'
-                                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted'
+                                    ? 'bg-primary/20 text-primary border-primary/40 shadow-xs'
+                                    : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted'
                               }`}
                               title={`Ra đề: ${
                                 setterScope === 'any'
                                   ? t('competencies.stateAll')
                                   : setterScope === 'taught'
-                                  ? t('competencies.stateTaught')
-                                  : t('competencies.stateOff')
+                                    ? t('competencies.stateTaught')
+                                    : t('competencies.stateOff')
                               }`}
                               data-testid={`competency-toggle-${tg.teacher.id}-${sub.id}-setter`}
                             >
@@ -455,28 +456,30 @@ export const CompetenciesPage: React.FC = () => {
                                 {setterScope === 'any'
                                   ? t('competencies.stateAll')
                                   : setterScope === 'taught'
-                                  ? t('competencies.stateTaught')
-                                  : t('competencies.stateOff')}
+                                    ? t('competencies.stateTaught')
+                                    : t('competencies.stateOff')}
                               </span>
                             </button>
 
                             {/* Reviewer Toggle Chip */}
                             <button
                               type="button"
-                              onClick={() => handleCycleRole(tg.teacher.id, sub.id, 'reviewer')}
+                              onClick={() =>
+                                handleCycleRole(tg.teacher.id, sub.id, 'reviewer')
+                              }
                               className={`px-2 py-1 rounded text-[11px] font-semibold transition-all border flex items-center gap-1 ${
                                 reviewerScope === 'any'
                                   ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/40 shadow-xs'
                                   : reviewerScope === 'taught'
-                                  ? 'bg-primary/20 text-primary border-primary/40 shadow-xs'
-                                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted'
+                                    ? 'bg-primary/20 text-primary border-primary/40 shadow-xs'
+                                    : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted'
                               }`}
                               title={`Phản biện: ${
                                 reviewerScope === 'any'
                                   ? t('competencies.stateAll')
                                   : reviewerScope === 'taught'
-                                  ? t('competencies.stateTaught')
-                                  : t('competencies.stateOff')
+                                    ? t('competencies.stateTaught')
+                                    : t('competencies.stateOff')
                               }`}
                               data-testid={`competency-toggle-${tg.teacher.id}-${sub.id}-reviewer`}
                             >
@@ -485,8 +488,8 @@ export const CompetenciesPage: React.FC = () => {
                                 {reviewerScope === 'any'
                                   ? t('competencies.stateAll')
                                   : reviewerScope === 'taught'
-                                  ? t('competencies.stateTaught')
-                                  : t('competencies.stateOff')}
+                                    ? t('competencies.stateTaught')
+                                    : t('competencies.stateOff')}
                               </span>
                             </button>
                           </div>

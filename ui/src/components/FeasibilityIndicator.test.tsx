@@ -136,7 +136,9 @@ describe('FeasibilityIndicator & FeasibilitySheet', () => {
     await waitFor(() => {
       expect(screen.getByTestId('feasibility-sheet')).toBeInTheDocument()
       expect(screen.getByTestId('forced-placements-info-group')).toBeInTheDocument()
-      expect(screen.getByText(/h3_reviewer_pool_reduced|chỉ còn|eligible/i)).toBeInTheDocument()
+      expect(
+        screen.getByText(/h3_reviewer_pool_reduced|chỉ còn|eligible/i),
+      ).toBeInTheDocument()
     })
 
     api.getProblemDetails = originalGetProblemDetails

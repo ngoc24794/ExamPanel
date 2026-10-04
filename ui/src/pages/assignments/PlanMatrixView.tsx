@@ -98,7 +98,9 @@ export function PlanMatrixView({
     min_campuses: 2,
   }
   const effectiveSubjects = subjects.length > 0 ? subjects : [defaultSubject]
-  const [selectedSubjectFilter, setSelectedSubjectFilter] = React.useState<number | 'all'>('all')
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = React.useState<
+    number | 'all'
+  >('all')
   const displayedSubjects =
     selectedSubjectFilter === 'all'
       ? effectiveSubjects
@@ -264,13 +266,17 @@ export function PlanMatrixView({
           {planStatus.hard_violations_now.length > 0 ? (
             <div className="text-xs space-y-1 pl-7">
               <p className="font-semibold text-destructive">
-                {t('assignments.staleCurrentViolations')} ({planStatus.hard_violations_now.length})
+                {t('assignments.staleCurrentViolations')} (
+                {planStatus.hard_violations_now.length})
               </p>
               <ul className="list-disc pl-4 space-y-0.5">
                 {planStatus.hard_violations_now.map((v, i) => (
                   <li key={i}>
                     <strong className="uppercase">{v.rule}</strong>: {v.code} (
-                    {Object.entries(v.params).map(([k, val]) => `${k}=${val}`).join(', ')})
+                    {Object.entries(v.params)
+                      .map(([k, val]) => `${k}=${val}`)
+                      .join(', ')}
+                    )
                   </li>
                 ))}
               </ul>
@@ -297,7 +303,9 @@ export function PlanMatrixView({
           <div className="flex items-center gap-4">
             <div>
               <span className="text-xs text-muted-foreground block">
-                {t('assignments.summaryTotalScore', { score: scoreReport.total.toFixed(2) })}
+                {t('assignments.summaryTotalScore', {
+                  score: scoreReport.total.toFixed(2),
+                })}
               </span>
               <span className="text-2xl font-bold text-foreground">
                 {scoreReport.total.toFixed(2)}
@@ -311,10 +319,15 @@ export function PlanMatrixView({
               {planStatus && planStatus.hard_violations_now.length > 0 ? (
                 <Badge variant="destructive" className="gap-1">
                   <ShieldAlert className="h-3.5 w-3.5" />
-                  {t('assignments.hardInvalid', { count: planStatus.hard_violations_now.length })}
+                  {t('assignments.hardInvalid', {
+                    count: planStatus.hard_violations_now.length,
+                  })}
                 </Badge>
               ) : (
-                <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
+                <Badge
+                  variant="default"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
+                >
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   {t('assignments.hardValid')}
                 </Badge>
@@ -339,18 +352,24 @@ export function PlanMatrixView({
                       >
                         <span className="font-semibold uppercase">{r.rule}</span>
                         <span>{r.penalty.toFixed(1)}</span>
-                        {atBound && (
-                          <Sparkles className="h-3 w-3 text-emerald-500" />
-                        )}
+                        {atBound && <Sparkles className="h-3 w-3 text-emerald-500" />}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="text-xs space-y-1 bg-popover text-popover-foreground border-border">
                       <p className="font-bold uppercase">Tiêu chí {r.rule}</p>
-                      <p>Hệ số: {r.weight} | Đơn vị vi phạm: {r.units}</p>
+                      <p>
+                        Hệ số: {r.weight} | Đơn vị vi phạm: {r.units}
+                      </p>
                       <p>Điểm phạt: {r.penalty.toFixed(2)}</p>
-                      <p>{t('assignments.lowerBoundLabel', { bound: r.lower_bound.toFixed(2) })}</p>
+                      <p>
+                        {t('assignments.lowerBoundLabel', {
+                          bound: r.lower_bound.toFixed(2),
+                        })}
+                      </p>
                       {atBound && (
-                        <p className="text-emerald-500 font-semibold">{t('assignments.atLowerBound')}</p>
+                        <p className="text-emerald-500 font-semibold">
+                          {t('assignments.atLowerBound')}
+                        </p>
                       )}
                     </TooltipContent>
                   </Tooltip>
@@ -364,7 +383,9 @@ export function PlanMatrixView({
       {/* Subject Filter Tabs */}
       {effectiveSubjects.length > 1 && (
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-muted-foreground">{t('subjects.subject') || 'Môn học'}:</span>
+          <span className="text-xs font-medium text-muted-foreground">
+            {t('subjects.subject') || 'Môn học'}:
+          </span>
           <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-lg border border-border">
             <Button
               variant={selectedSubjectFilter === 'all' ? 'default' : 'ghost'}
@@ -409,7 +430,10 @@ export function PlanMatrixView({
           </thead>
           <tbody>
             {exams.map((exam) => (
-              <tr key={exam.id} className="border-b border-border last:border-0 hover:bg-muted/10 transition-colors">
+              <tr
+                key={exam.id}
+                className="border-b border-border last:border-0 hover:bg-muted/10 transition-colors"
+              >
                 <td className="p-3 font-medium text-foreground bg-muted/10">
                   <div className="font-semibold">{exam.name}</div>
                   <span className="text-xs text-muted-foreground">{exam.code}</span>
@@ -423,17 +447,32 @@ export function PlanMatrixView({
                     >
                       <div className="space-y-3">
                         {displayedSubjects.map((sub) => {
-                          const { setters, reviewers } = getPanelAssignments(exam.id, grade.id, sub.id)
-                          const panelViolations = getPanelViolations(exam.id, grade.id, sub.id)
+                          const { setters, reviewers } = getPanelAssignments(
+                            exam.id,
+                            grade.id,
+                            sub.id,
+                          )
+                          const panelViolations = getPanelViolations(
+                            exam.id,
+                            grade.id,
+                            sub.id,
+                          )
                           const numSetters = sub.setters || 2
                           const numReviewers = sub.reviewers || 1
 
                           return (
-                            <div key={sub.id} className="space-y-1.5 p-1.5 rounded bg-muted/20 border border-border/50">
+                            <div
+                              key={sub.id}
+                              className="space-y-1.5 p-1.5 rounded bg-muted/20 border border-border/50"
+                            >
                               {displayedSubjects.length > 1 && (
                                 <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground pb-0.5 border-b border-border/40">
-                                  <span>{sub.code} ({sub.name})</span>
-                                  <span className="text-[10px] font-normal">{sub.setters}+{sub.reviewers}</span>
+                                  <span>
+                                    {sub.code} ({sub.name})
+                                  </span>
+                                  <span className="text-[10px] font-normal">
+                                    {sub.setters}+{sub.reviewers}
+                                  </span>
                                 </div>
                               )}
 
@@ -452,8 +491,14 @@ export function PlanMatrixView({
                                           </Badge>
                                         </TooltipTrigger>
                                         <TooltipContent className="text-xs bg-popover text-popover-foreground border-border">
-                                          <p className="font-bold">{v.rule.toUpperCase()}: {v.code}</p>
-                                          <p>{Object.entries(v.params).map(([k, val]) => `${k}: ${val}`).join(', ')}</p>
+                                          <p className="font-bold">
+                                            {v.rule.toUpperCase()}: {v.code}
+                                          </p>
+                                          <p>
+                                            {Object.entries(v.params)
+                                              .map(([k, val]) => `${k}: ${val}`)
+                                              .join(', ')}
+                                          </p>
                                         </TooltipContent>
                                       </Tooltip>
                                     </TooltipProvider>
@@ -470,7 +515,9 @@ export function PlanMatrixView({
                                     ? teachers.find((t) => t.teacher.id === teacherId)
                                     : null
                                   const campus = teacherRec
-                                    ? campuses.find((c) => c.id === teacherRec.teacher.campus_id)
+                                    ? campuses.find(
+                                        (c) => c.id === teacherRec.teacher.campus_id,
+                                      )
                                     : null
 
                                   const slotRef: SlotRef = {
@@ -480,7 +527,13 @@ export function PlanMatrixView({
                                     role: 'setter',
                                     position: pos,
                                   }
-                                  const isKept = isSlotKept(exam.id, grade.id, sub.id, 'setter', pos)
+                                  const isKept = isSlotKept(
+                                    exam.id,
+                                    grade.id,
+                                    sub.id,
+                                    'setter',
+                                    pos,
+                                  )
                                   const isLocked = teacherId
                                     ? isSlotLocked(exam.id, grade.id, sub.id, teacherId)
                                     : false
@@ -500,7 +553,9 @@ export function PlanMatrixView({
                                       onFocus={() =>
                                         teacherId &&
                                         onSelectTeacherFocus(
-                                          focusedTeacherId === teacherId ? null : teacherId,
+                                          focusedTeacherId === teacherId
+                                            ? null
+                                            : teacherId,
                                         )
                                       }
                                       onReplace={() =>
@@ -511,8 +566,14 @@ export function PlanMatrixView({
                                         })
                                       }
                                       onToggleKeep={() => onToggleKeepSlot(slotRef)}
-                                      onPin={() => teacherId && onCreateLock(slotRef, teacherId, 'pin')}
-                                      onForbid={() => teacherId && onCreateLock(slotRef, teacherId, 'forbid')}
+                                      onPin={() =>
+                                        teacherId &&
+                                        onCreateLock(slotRef, teacherId, 'pin')
+                                      }
+                                      onForbid={() =>
+                                        teacherId &&
+                                        onCreateLock(slotRef, teacherId, 'forbid')
+                                      }
                                       onReoptimize={onReoptimizeRemaining}
                                       onDragStart={() =>
                                         teacherId &&
@@ -539,7 +600,9 @@ export function PlanMatrixView({
                                       ? teachers.find((t) => t.teacher.id === teacherId)
                                       : null
                                     const campus = teacherRec
-                                      ? campuses.find((c) => c.id === teacherRec.teacher.campus_id)
+                                      ? campuses.find(
+                                          (c) => c.id === teacherRec.teacher.campus_id,
+                                        )
                                       : null
 
                                     const slotRef: SlotRef = {
@@ -549,10 +612,16 @@ export function PlanMatrixView({
                                       role: 'reviewer',
                                       position: pos,
                                     }
-                                    const isKept = isSlotKept(exam.id, grade.id, sub.id, 'reviewer', pos)
+                                    const isKept = isSlotKept(
+                                      exam.id,
+                                      grade.id,
+                                      sub.id,
+                                      'reviewer',
+                                      pos,
+                                    )
                                     const isLocked = teacherId
-                                    ? isSlotLocked(exam.id, grade.id, sub.id, teacherId)
-                                    : false
+                                      ? isSlotLocked(exam.id, grade.id, sub.id, teacherId)
+                                      : false
                                     const isFocused = teacherId === focusedTeacherId
 
                                     return (
@@ -570,7 +639,9 @@ export function PlanMatrixView({
                                         onFocus={() =>
                                           teacherId &&
                                           onSelectTeacherFocus(
-                                            focusedTeacherId === teacherId ? null : teacherId,
+                                            focusedTeacherId === teacherId
+                                              ? null
+                                              : teacherId,
                                           )
                                         }
                                         onReplace={() =>
@@ -581,8 +652,14 @@ export function PlanMatrixView({
                                           })
                                         }
                                         onToggleKeep={() => onToggleKeepSlot(slotRef)}
-                                        onPin={() => teacherId && onCreateLock(slotRef, teacherId, 'pin')}
-                                        onForbid={() => teacherId && onCreateLock(slotRef, teacherId, 'forbid')}
+                                        onPin={() =>
+                                          teacherId &&
+                                          onCreateLock(slotRef, teacherId, 'pin')
+                                        }
+                                        onForbid={() =>
+                                          teacherId &&
+                                          onCreateLock(slotRef, teacherId, 'forbid')
+                                        }
                                         onReoptimize={onReoptimizeRemaining}
                                         onDragStart={() =>
                                           teacherId &&
@@ -699,8 +776,8 @@ function SlotChip({
         isFocused
           ? 'bg-primary/20 border-primary ring-2 ring-primary ring-offset-1'
           : isKept
-          ? 'bg-amber-500/10 border-amber-500/50'
-          : 'bg-card hover:bg-accent/40 border-border'
+            ? 'bg-amber-500/10 border-amber-500/50'
+            : 'bg-card hover:bg-accent/40 border-border'
       } ${isEditable ? 'cursor-pointer' : 'cursor-default'}`}
     >
       <div className="flex items-center gap-1.5 min-w-0">
@@ -715,16 +792,30 @@ function SlotChip({
               : 'bg-muted text-muted-foreground border-border'
           }`}
         >
-          {isReviewer ? <Eye className="h-2.5 w-2.5" /> : <FileEdit className="h-2.5 w-2.5" />}
+          {isReviewer ? (
+            <Eye className="h-2.5 w-2.5" />
+          ) : (
+            <FileEdit className="h-2.5 w-2.5" />
+          )}
           {isReviewer ? 'PB' : 'Đề'}
         </span>
         <span
           className={`font-medium truncate ${
             isReviewer ? 'text-primary font-semibold' : 'text-foreground'
           }`}
-          title={teacher ? (teacher.display_name ? `${teacher.full_name} (${teacher.display_name})` : teacher.full_name) : undefined}
+          title={
+            teacher
+              ? teacher.display_name
+                ? `${teacher.full_name} (${teacher.display_name})`
+                : teacher.full_name
+              : undefined
+          }
         >
-          {teacher ? (teacher.display_name || teacher.full_name) : <span className="text-muted-foreground italic">Trống</span>}
+          {teacher ? (
+            teacher.display_name || teacher.full_name
+          ) : (
+            <span className="text-muted-foreground italic">Trống</span>
+          )}
         </span>
       </div>
 
@@ -736,7 +827,9 @@ function SlotChip({
               <TooltipTrigger asChild>
                 <Pin className="h-3 w-3 text-primary fill-current" />
               </TooltipTrigger>
-              <TooltipContent className="text-xs">{t('assignments.pinned')}</TooltipContent>
+              <TooltipContent className="text-xs">
+                {t('assignments.pinned')}
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}
@@ -747,7 +840,9 @@ function SlotChip({
               <TooltipTrigger asChild>
                 <BookmarkCheck className="h-3 w-3 text-amber-500" />
               </TooltipTrigger>
-              <TooltipContent className="text-xs">{t('assignments.keptForReoptimize')}</TooltipContent>
+              <TooltipContent className="text-xs">
+                {t('assignments.keptForReoptimize')}
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}
@@ -791,7 +886,11 @@ function SlotChip({
 
             <DropdownMenuItem onClick={onToggleKeep} className="gap-2">
               <BookmarkCheck className="h-3.5 w-3.5 text-amber-500" />
-              <span>{isKept ? t('assignments.unkeepSlot') : t('assignments.keepSlotReoptimize')}</span>
+              <span>
+                {isKept
+                  ? t('assignments.unkeepSlot')
+                  : t('assignments.keepSlotReoptimize')}
+              </span>
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={onReoptimize} className="gap-2">

@@ -82,8 +82,24 @@ export class MockExamPanelApi implements ExamPanelApi {
   private plans: PlanSummary[] = JSON.parse(JSON.stringify(demoPlans))
   private planDetailsMap: Map<number, PlanDetails> = new Map([
     [1, JSON.parse(JSON.stringify(demoPlanDetails))],
-    [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Phương án #2', rank: 2 } }))],
-    [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Phương án #3', rank: 3 } }))],
+    [
+      2,
+      JSON.parse(
+        JSON.stringify({
+          ...demoPlanDetails,
+          plan: { ...demoPlanDetails.plan, id: 2, name: 'Phương án #2', rank: 2 },
+        }),
+      ),
+    ],
+    [
+      3,
+      JSON.parse(
+        JSON.stringify({
+          ...demoPlanDetails,
+          plan: { ...demoPlanDetails.plan, id: 3, name: 'Phương án #3', rank: 3 },
+        }),
+      ),
+    ],
   ])
   private teacherGradesMap: Map<number, number[]> = new Map([
     [1, [1, 2]],
@@ -594,9 +610,7 @@ export class MockExamPanelApi implements ExamPanelApi {
     input: ReplaceTeacherCompetenciesInput,
   ): Promise<void> {
     this.ensureCompetencies()
-    this.competencies = this.competencies.filter(
-      (c) => c.teacher_id !== input.teacher_id,
-    )
+    this.competencies = this.competencies.filter((c) => c.teacher_id !== input.teacher_id)
     for (const c of input.competencies) {
       this.competencies.push({ ...c })
     }
@@ -718,6 +732,20 @@ export class MockExamPanelApi implements ExamPanelApi {
           s7: 8,
           s8: 10,
         }),
+      },
+      {
+        id: 'allow_task_crowding',
+        name: 'Cho phép dồn việc trong một kỳ',
+        settings: (() => {
+          const s = makeSettings({})
+          for (const r of s) {
+            if (r.key === 's9') {
+              r.enabled = false
+              r.weight = 0
+            }
+          }
+          return s
+        })(),
       },
     ]
   }
@@ -1268,7 +1296,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h1',
           code: 'duplicate_teacher_in_panel',
-          params: { teacher_id: a.teacher_id.toString(), exam_id: a.exam_id.toString(), grade_id: a.grade_id.toString() },
+          params: {
+            teacher_id: a.teacher_id.toString(),
+            exam_id: a.exam_id.toString(),
+            grade_id: a.grade_id.toString(),
+          },
         })
       }
     }
@@ -1289,7 +1321,10 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h2',
           code: 'unqualified_grade',
-          params: { teacher_id: a.teacher_id.toString(), grade_id: a.grade_id.toString() },
+          params: {
+            teacher_id: a.teacher_id.toString(),
+            grade_id: a.grade_id.toString(),
+          },
         })
       }
     }
@@ -1501,13 +1536,21 @@ export class MockExamPanelApi implements ExamPanelApi {
     let sCountA = 0
     let sCountB = 0
     for (const a of assignments) {
-      if (a.exam_id === slotA.exam_id && a.grade_id === slotA.grade_id && a.role === slotA.role) {
+      if (
+        a.exam_id === slotA.exam_id &&
+        a.grade_id === slotA.grade_id &&
+        a.role === slotA.role
+      ) {
         if (slotA.role === 'reviewer' || sCountA === slotA.position) {
           tA = a.teacher_id
         }
         sCountA += 1
       }
-      if (a.exam_id === slotB.exam_id && a.grade_id === slotB.grade_id && a.role === slotB.role) {
+      if (
+        a.exam_id === slotB.exam_id &&
+        a.grade_id === slotB.grade_id &&
+        a.role === slotB.role
+      ) {
         if (slotB.role === 'reviewer' || sCountB === slotB.position) {
           tB = a.teacher_id
         }
@@ -1518,13 +1561,23 @@ export class MockExamPanelApi implements ExamPanelApi {
     const simAssignments = assignments.map((a) => ({ ...a }))
     if (tA !== undefined && tB !== undefined) {
       for (const a of simAssignments) {
-        if (a.exam_id === slotA.exam_id && a.grade_id === slotA.grade_id && a.role === slotA.role && a.teacher_id === tA) {
+        if (
+          a.exam_id === slotA.exam_id &&
+          a.grade_id === slotA.grade_id &&
+          a.role === slotA.role &&
+          a.teacher_id === tA
+        ) {
           a.teacher_id = tB
           break
         }
       }
       for (const a of simAssignments) {
-        if (a.exam_id === slotB.exam_id && a.grade_id === slotB.grade_id && a.role === slotB.role && a.teacher_id === tB) {
+        if (
+          a.exam_id === slotB.exam_id &&
+          a.grade_id === slotB.grade_id &&
+          a.role === slotB.role &&
+          a.teacher_id === tB
+        ) {
           a.teacher_id = tA
           break
         }
@@ -1806,8 +1859,7 @@ export class MockExamPanelApi implements ExamPanelApi {
   }
 
   async applyImportedPlan(input: ApplyPlanImportInput): Promise<number> {
-    const nextId =
-      this.plans.reduce((max, pl) => Math.max(max, pl.id), 0) + 1
+    const nextId = this.plans.reduce((max, pl) => Math.max(max, pl.id), 0) + 1
     const summary: PlanSummary = {
       id: nextId,
       name: input.plan_name?.trim() || 'Nhập từ bảng của tổ',
@@ -1908,8 +1960,24 @@ export class MockExamPanelApi implements ExamPanelApi {
     this.plans = JSON.parse(JSON.stringify(demoPlans))
     this.planDetailsMap = new Map([
       [1, JSON.parse(JSON.stringify(demoPlanDetails))],
-      [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Phương án #2', rank: 2 } }))],
-      [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Phương án #3', rank: 3 } }))],
+      [
+        2,
+        JSON.parse(
+          JSON.stringify({
+            ...demoPlanDetails,
+            plan: { ...demoPlanDetails.plan, id: 2, name: 'Phương án #2', rank: 2 },
+          }),
+        ),
+      ],
+      [
+        3,
+        JSON.parse(
+          JSON.stringify({
+            ...demoPlanDetails,
+            plan: { ...demoPlanDetails.plan, id: 3, name: 'Phương án #3', rank: 3 },
+          }),
+        ),
+      ],
     ])
     this.subjects = [
       {

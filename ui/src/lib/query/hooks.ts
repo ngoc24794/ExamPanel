@@ -639,8 +639,7 @@ export function useUpdatePlanAssignments(schoolYearId: number) {
 export function useSubjects(schoolYearId: number | undefined) {
   return useQuery({
     queryKey: queryKeys.subjects(schoolYearId ?? 0),
-    queryFn: () =>
-      schoolYearId ? api.listSubjects(schoolYearId) : Promise.resolve([]),
+    queryFn: () => (schoolYearId ? api.listSubjects(schoolYearId) : Promise.resolve([])),
     enabled: typeof schoolYearId === 'number' && schoolYearId > 0,
   })
 }

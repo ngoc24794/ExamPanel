@@ -793,6 +793,11 @@ impl AppService {
                 name: "Ưu tiên đa dạng ê-kíp".to_string(),
                 settings: RulePreset::TeamDiversity.settings(),
             },
+            RulePresetItem {
+                id: "allow_task_crowding".to_string(),
+                name: "Cho phép dồn việc trong một kỳ".to_string(),
+                settings: RulePreset::AllowTaskCrowding.settings(),
+            },
         ]
     }
 

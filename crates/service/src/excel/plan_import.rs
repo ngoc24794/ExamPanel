@@ -61,7 +61,8 @@ fn normalize_name(s: &str) -> String {
 /// 1. Exact match on display_name (cách gọi)
 /// 2. Exact match on full_name
 /// 3. NFC-normalized case-insensitive match
-fn find_teacher<'a>(
+/// 4. Accent-insensitive match (strip diacritics)
+pub fn find_teacher<'a>(
     raw: &str,
     teachers: &'a [Teacher],
 ) -> Result<Option<&'a Teacher>, &'static str> {
@@ -82,6 +83,8 @@ fn find_teacher<'a>(
         .collect();
     if exact_dn.len() == 1 {
         return Ok(Some(exact_dn[0]));
+    } else if exact_dn.len() > 1 {
+        return Err("ambiguous_teacher");
     }
 
     // 2. Exact match on full_name
@@ -91,6 +94,8 @@ fn find_teacher<'a>(
         .collect();
     if exact_fn.len() == 1 {
         return Ok(Some(exact_fn[0]));
+    } else if exact_fn.len() > 1 {
+        return Err("ambiguous_teacher");
     }
 
     // 3. NFC normalized match
@@ -109,8 +114,29 @@ fn find_teacher<'a>(
         .collect();
 
     if norm_matches.len() == 1 {
-        Ok(Some(norm_matches[0]))
+        return Ok(Some(norm_matches[0]));
     } else if norm_matches.len() > 1 {
+        return Err("ambiguous_teacher");
+    }
+
+    // 4. Accent-insensitive match
+    let q_stripped = crate::excel::normalize::strip_diacritics(trimmed);
+    let stripped_matches: Vec<_> = teachers
+        .iter()
+        .filter(|t| {
+            let dn = t
+                .display_name
+                .as_deref()
+                .map(crate::excel::normalize::strip_diacritics)
+                .unwrap_or_default();
+            let fn_stripped = crate::excel::normalize::strip_diacritics(&t.full_name);
+            q_stripped == dn || q_stripped == fn_stripped
+        })
+        .collect();
+
+    if stripped_matches.len() == 1 {
+        Ok(Some(stripped_matches[0]))
+    } else if stripped_matches.len() > 1 {
         Err("ambiguous_teacher")
     } else {
         Err("unknown_teacher")

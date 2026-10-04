@@ -22,7 +22,8 @@ export const PrintPlanPage: React.FC = () => {
   const { data: planDetails, isLoading } = usePlanDetails(planId)
   const { data: schoolYears = [] } = useSchoolYears()
   const { data: grades = [] } = useGrades()
-  const schoolYear = schoolYears.find((y) => y.id === planDetails?.plan.school_year_id) || schoolYears[0]
+  const schoolYear =
+    schoolYears.find((y) => y.id === planDetails?.plan.school_year_id) || schoolYears[0]
   const { data: exams = [] } = useExams(schoolYear?.id)
   const { data: teachers = [] } = useTeachers(schoolYear?.id)
   const { data: subjects = [] } = useSubjects(schoolYear?.id)
@@ -57,7 +58,10 @@ export const PrintPlanPage: React.FC = () => {
   const currentDate = new Date()
   const dateStr = `${placeName}, ngày ${currentDate.getDate()} tháng ${currentDate.getMonth() + 1} năm ${currentDate.getFullYear()}`
 
-  const effectiveSubjects = subjects.length > 0 ? subjects : [{ id: 1, name: 'Chung', code: 'CHUNG', setters: 2, reviewers: 1 }]
+  const effectiveSubjects =
+    subjects.length > 0
+      ? subjects
+      : [{ id: 1, name: 'Chung', code: 'CHUNG', setters: 2, reviewers: 1 }]
   const maxSetters = Math.max(...effectiveSubjects.map((s) => s.setters || 1), 1)
   const maxReviewers = Math.max(...effectiveSubjects.map((s) => s.reviewers || 1), 1)
 
@@ -67,7 +71,9 @@ export const PrintPlanPage: React.FC = () => {
     const total = tAssignments.length
     const de = tAssignments.filter((a) => a.role === 'setter').length
     const pb = tAssignments.filter((a) => a.role === 'reviewer').length
-    const perExam = exams.map((e) => tAssignments.filter((a) => a.exam_id === e.id).length)
+    const perExam = exams.map(
+      (e) => tAssignments.filter((a) => a.exam_id === e.id).length,
+    )
     return {
       teacher: t,
       displayName: t.display_name?.trim() || t.full_name,
@@ -176,7 +182,11 @@ export const PrintPlanPage: React.FC = () => {
           <table className="w-full border-collapse border border-neutral-700 text-[11px] leading-tight text-center">
             <thead>
               <tr className="bg-neutral-200 font-bold">
-                <th rowSpan={effectiveSubjects.length > 1 ? 2 : 1} colSpan={2} className="border border-neutral-600 p-1.5 w-24">
+                <th
+                  rowSpan={effectiveSubjects.length > 1 ? 2 : 1}
+                  colSpan={2}
+                  className="border border-neutral-600 p-1.5 w-24"
+                >
                   Kì thi/khối
                 </th>
                 {grades.map((grade) => (
@@ -188,21 +198,40 @@ export const PrintPlanPage: React.FC = () => {
                     {grade.name}
                   </th>
                 ))}
-                <th rowSpan={effectiveSubjects.length > 1 ? 2 : 1} className="w-2 border-y-0 border-neutral-300 bg-white p-0"></th>
-                <th rowSpan={effectiveSubjects.length > 1 ? 2 : 1} className="border border-neutral-600 p-1.5 w-24 text-left">
+                <th
+                  rowSpan={effectiveSubjects.length > 1 ? 2 : 1}
+                  className="w-2 border-y-0 border-neutral-300 bg-white p-0"
+                ></th>
+                <th
+                  rowSpan={effectiveSubjects.length > 1 ? 2 : 1}
+                  className="border border-neutral-600 p-1.5 w-24 text-left"
+                >
                   GV
                 </th>
-                <th rowSpan={effectiveSubjects.length > 1 ? 2 : 1} className="border border-neutral-600 p-1.5 w-16">
+                <th
+                  rowSpan={effectiveSubjects.length > 1 ? 2 : 1}
+                  className="border border-neutral-600 p-1.5 w-16"
+                >
                   Tổng lượt n.vụ
                 </th>
-                <th rowSpan={effectiveSubjects.length > 1 ? 2 : 1} className="border border-neutral-600 p-1.5 w-10">
+                <th
+                  rowSpan={effectiveSubjects.length > 1 ? 2 : 1}
+                  className="border border-neutral-600 p-1.5 w-10"
+                >
                   Đề
                 </th>
-                <th rowSpan={effectiveSubjects.length > 1 ? 2 : 1} className="border border-neutral-600 p-1.5 w-10">
+                <th
+                  rowSpan={effectiveSubjects.length > 1 ? 2 : 1}
+                  className="border border-neutral-600 p-1.5 w-10"
+                >
                   PB
                 </th>
                 {exams.map((exam) => (
-                  <th key={exam.id} rowSpan={effectiveSubjects.length > 1 ? 2 : 1} className="border border-neutral-600 p-1.5 w-10">
+                  <th
+                    key={exam.id}
+                    rowSpan={effectiveSubjects.length > 1 ? 2 : 1}
+                    className="border border-neutral-600 p-1.5 w-10"
+                  >
                     {exam.code}
                   </th>
                 ))}
@@ -211,7 +240,10 @@ export const PrintPlanPage: React.FC = () => {
                 <tr className="bg-neutral-100 font-semibold">
                   {grades.map((grade) =>
                     effectiveSubjects.map((sub) => (
-                      <th key={`${grade.id}-${sub.id}`} className="border border-neutral-600 p-1">
+                      <th
+                        key={`${grade.id}-${sub.id}`}
+                        className="border border-neutral-600 p-1"
+                      >
                         {sub.code}
                       </th>
                     )),
@@ -265,24 +297,23 @@ export const PrintPlanPage: React.FC = () => {
                   rows.push(
                     <tr key={`row-${r}`} className={gridRow?.bgClass || 'bg-white'}>
                       {/* Grid: Exam cell */}
-                      {gridRow ? (
-                        gridRow.isFirstInExam && (
-                          <td
-                            rowSpan={gridRow.totalExamRows}
-                            className="border border-neutral-600 p-1 font-bold text-center align-middle bg-neutral-100"
-                          >
-                            {gridRow.exam.code}
-                          </td>
-                        )
-                      ) : (
-                        r >= examRows.length && r === examRows.length && (
-                          <td
-                            colSpan={2 + grades.length * effectiveSubjects.length}
-                            rowSpan={totalRows - examRows.length}
-                            className="border border-neutral-300 bg-neutral-50/30"
-                          ></td>
-                        )
-                      )}
+                      {gridRow
+                        ? gridRow.isFirstInExam && (
+                            <td
+                              rowSpan={gridRow.totalExamRows}
+                              className="border border-neutral-600 p-1 font-bold text-center align-middle bg-neutral-100"
+                            >
+                              {gridRow.exam.code}
+                            </td>
+                          )
+                        : r >= examRows.length &&
+                          r === examRows.length && (
+                            <td
+                              colSpan={2 + grades.length * effectiveSubjects.length}
+                              rowSpan={totalRows - examRows.length}
+                              className="border border-neutral-300 bg-neutral-50/30"
+                            ></td>
+                          )}
 
                       {/* Grid: Role label & Subject cells */}
                       {gridRow && (
@@ -316,8 +347,12 @@ export const PrintPlanPage: React.FC = () => {
                                   a.role === gridRow.role &&
                                   a.position === gridRow.position,
                               )
-                              const t = assignment ? teacherMap.get(assignment.teacher_id) : null
-                              const displayName = t ? t.display_name?.trim() || t.full_name : '-'
+                              const t = assignment
+                                ? teacherMap.get(assignment.teacher_id)
+                                : null
+                              const displayName = t
+                                ? t.display_name?.trim() || t.full_name
+                                : '-'
 
                               return (
                                 <td
@@ -344,8 +379,12 @@ export const PrintPlanPage: React.FC = () => {
                           <td className="border border-neutral-600 p-1 font-bold">
                             {teacherRow.total}
                           </td>
-                          <td className="border border-neutral-600 p-1">{teacherRow.de}</td>
-                          <td className="border border-neutral-600 p-1">{teacherRow.pb}</td>
+                          <td className="border border-neutral-600 p-1">
+                            {teacherRow.de}
+                          </td>
+                          <td className="border border-neutral-600 p-1">
+                            {teacherRow.pb}
+                          </td>
                           {exams.map((exam, eIdx) => (
                             <td key={exam.id} className="border border-neutral-600 p-1">
                               {teacherRow.perExam[eIdx] || 0}
@@ -367,13 +406,19 @@ export const PrintPlanPage: React.FC = () => {
                             {grandPb}
                           </td>
                           {exams.map((exam, eIdx) => (
-                            <td key={exam.id} className="border border-neutral-600 p-1 font-bold bg-neutral-200">
+                            <td
+                              key={exam.id}
+                              className="border border-neutral-600 p-1 font-bold bg-neutral-200"
+                            >
                               {grandPerExam[eIdx]}
                             </td>
                           ))}
                         </>
                       ) : (
-                        <td colSpan={4 + exams.length} className="border border-neutral-300 bg-neutral-50/20"></td>
+                        <td
+                          colSpan={4 + exams.length}
+                          className="border border-neutral-300 bg-neutral-50/20"
+                        ></td>
                       )}
                     </tr>,
                   )
@@ -389,7 +434,8 @@ export const PrintPlanPage: React.FC = () => {
         <div className="grid grid-cols-2 gap-8 text-xs relative z-10 break-inside-avoid">
           <div>
             <p className="italic text-neutral-500 mb-1">
-              * Lưu ý: Mọi cán bộ được phân công có trách nhiệm bảo mật đề thi và thực hiện đúng tiến độ.
+              * Lưu ý: Mọi cán bộ được phân công có trách nhiệm bảo mật đề thi và thực
+              hiện đúng tiến độ.
             </p>
           </div>
           <div className="text-center font-medium ml-auto w-72">

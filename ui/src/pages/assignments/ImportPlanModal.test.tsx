@@ -68,7 +68,10 @@ describe('ImportPlanModal Component Tests (Part D)', () => {
 
     // Enter simple TSV sample
     fireEvent.change(textarea, {
-      target: { value: 'Kì thi/khối\t\tKhối 10\t\tKhối 11\t\tKhối 12\nGK1\tĐề\tC Hiền\tT Nghĩa\tC Lài\tT Nghĩa\tT Phúc\tT Nghĩa' },
+      target: {
+        value:
+          'Kì thi/khối\t\tKhối 10\t\tKhối 11\t\tKhối 12\nGK1\tĐề\tC Hiền\tT Nghĩa\tC Lài\tT Nghĩa\tT Phúc\tT Nghĩa',
+      },
     })
 
     // Click Preview

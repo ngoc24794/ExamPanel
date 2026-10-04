@@ -434,7 +434,10 @@ export const SettingsPage: React.FC = () => {
                 <span>{t('trial.section_title')}</span>
               </div>
               {appInfo?.in_trial_mode && (
-                <Badge variant="outline" className="border-amber-500/50 text-amber-600 dark:text-amber-400 text-xs">
+                <Badge
+                  variant="outline"
+                  className="border-amber-500/50 text-amber-600 dark:text-amber-400 text-xs"
+                >
                   {t('trial.badge')}
                 </Badge>
               )}
@@ -483,7 +486,10 @@ export const SettingsPage: React.FC = () => {
           <CardContent className="space-y-3 pt-2 text-xs">
             <div className="flex items-center justify-between pb-2 border-b border-border">
               <span className="text-muted-foreground">{t('settings.version')}</span>
-              <span className="font-mono font-semibold text-foreground" data-testid="about-version">
+              <span
+                className="font-mono font-semibold text-foreground"
+                data-testid="about-version"
+              >
                 v{appInfo?.version || '0.1.0'}
               </span>
             </div>
@@ -501,8 +507,13 @@ export const SettingsPage: React.FC = () => {
             </div>
             <div className="flex items-center justify-between pb-2 border-b border-border">
               <span className="text-muted-foreground">{t('settings.storageMode')}</span>
-              <Badge variant={appInfo?.is_portable ? 'default' : 'secondary'} className="text-[10px]">
-                {appInfo?.is_portable ? t('settings.portableMode') : t('settings.installedMode')}
+              <Badge
+                variant={appInfo?.is_portable ? 'default' : 'secondary'}
+                className="text-[10px]"
+              >
+                {appInfo?.is_portable
+                  ? t('settings.portableMode')
+                  : t('settings.installedMode')}
               </Badge>
             </div>
             <div className="flex flex-col gap-1 pb-2 border-b border-border">
@@ -512,7 +523,9 @@ export const SettingsPage: React.FC = () => {
               </span>
             </div>
             <div className="flex items-center justify-between pb-2 border-b border-border">
-              <span className="text-muted-foreground">{t('settings.thirdPartyLicenses')}</span>
+              <span className="text-muted-foreground">
+                {t('settings.thirdPartyLicenses')}
+              </span>
               <Dialog>
                 <DialogTrigger asChild>
                   <Button
@@ -532,13 +545,21 @@ export const SettingsPage: React.FC = () => {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="flex-1 overflow-y-auto p-3 bg-muted/40 rounded-md border border-border text-xs space-y-2">
-                    <p className="font-semibold text-foreground">Rust & JavaScript Components</p>
-                    <p className="text-muted-foreground">
-                      ExamPanel v0.1.0 builds upon open-source software libraries licensed under permissive terms:
-                      MIT, Apache-2.0, BSD-3-Clause, Unicode-3.0, Zlib, and ISC.
+                    <p className="font-semibold text-foreground">
+                      Rust & JavaScript Components
                     </p>
                     <p className="text-muted-foreground">
-                      The complete notices and copyright statements are preserved in the bundled <code className="font-mono bg-muted px-1 rounded">THIRD_PARTY_NOTICES</code> document included with every installation and release package.
+                      ExamPanel v0.1.0 builds upon open-source software libraries licensed
+                      under permissive terms: MIT, Apache-2.0, BSD-3-Clause, Unicode-3.0,
+                      Zlib, and ISC.
+                    </p>
+                    <p className="text-muted-foreground">
+                      The complete notices and copyright statements are preserved in the
+                      bundled{' '}
+                      <code className="font-mono bg-muted px-1 rounded">
+                        THIRD_PARTY_NOTICES
+                      </code>{' '}
+                      document included with every installation and release package.
                     </p>
                   </div>
                 </DialogContent>

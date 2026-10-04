@@ -57,7 +57,9 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
   const [loading, setLoading] = React.useState(false)
   const [applying, setApplying] = React.useState(false)
   const [preview, setPreview] = React.useState<PlanImportPreview | null>(null)
-  const [previewTab, setPreviewTab] = React.useState<'totals' | 'issues' | 'assignments'>('totals')
+  const [previewTab, setPreviewTab] = React.useState<'totals' | 'issues' | 'assignments'>(
+    'totals',
+  )
 
   // Reset when dialog opens
   React.useEffect(() => {
@@ -143,7 +145,9 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
       onSuccess(planId)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      toast.error(t('planImport.importError', { error: msg }) || `Lỗi khi lưu phương án: ${msg}`)
+      toast.error(
+        t('planImport.importError', { error: msg }) || `Lỗi khi lưu phương án: ${msg}`,
+      )
     } finally {
       setApplying(false)
     }
@@ -161,7 +165,10 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-6 overflow-hidden" data-testid="import-plan-modal">
+      <DialogContent
+        className="max-w-4xl max-h-[90vh] flex flex-col p-6 overflow-hidden"
+        data-testid="import-plan-modal"
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <FileSpreadsheet className="h-5 w-5 text-primary" />
@@ -214,7 +221,9 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                   <Input
                     value={filePath}
                     onChange={(e) => setFilePath(e.target.value)}
-                    placeholder={t('planImport.excelPlaceholder') || 'Đường dẫn tệp Excel...'}
+                    placeholder={
+                      t('planImport.excelPlaceholder') || 'Đường dẫn tệp Excel...'
+                    }
                     className="font-mono text-xs"
                     data-testid="input-plan-file-path"
                   />
@@ -229,13 +238,15 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                   </Button>
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  Hỗ trợ tệp xuất từ phần mềm (&ldquo;Bảng phân công (mẫu tổ)&rdquo;) hoặc mẫu bảng gốc của cô Q.
+                  Hỗ trợ tệp xuất từ phần mềm (&ldquo;Bảng phân công (mẫu tổ)&rdquo;) hoặc
+                  mẫu bảng gốc của cô Q.
                 </p>
               </div>
             ) : (
               <div className="space-y-2 pt-2">
                 <label className="text-xs font-semibold text-foreground">
-                  {t('planImport.tsvLabel') || 'Nội dung bảng (sao chép và dán từ Excel hoặc Google Sheets)'}
+                  {t('planImport.tsvLabel') ||
+                    'Nội dung bảng (sao chép và dán từ Excel hoặc Google Sheets)'}
                 </label>
                 <textarea
                   value={tsvContent}
@@ -248,7 +259,8 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                   data-testid="textarea-plan-tsv"
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  Sao chép toàn bộ khối bảng phân công bắt đầu từ góc &ldquo;Kì thi/khối&rdquo; và dán trực tiếp.
+                  Sao chép toàn bộ khối bảng phân công bắt đầu từ góc &ldquo;Kì
+                  thi/khối&rdquo; và dán trực tiếp.
                 </p>
               </div>
             )}
@@ -261,7 +273,10 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
             <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card">
               <div className="flex items-center gap-3">
                 {preview.can_apply ? (
-                  <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs">
+                  <Badge
+                    variant="default"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs"
+                  >
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     {t('planImport.validStatus') || 'Hợp lệ'}
                   </Badge>
@@ -329,8 +344,9 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
               >
                 <FileSpreadsheet className="h-4 w-4" />
                 <span>
-                  {t('planImport.tabAssignments', { count: preview.assignments.length }) ||
-                    `Danh sách phân công (${preview.assignments.length})`}
+                  {t('planImport.tabAssignments', {
+                    count: preview.assignments.length,
+                  }) || `Danh sách phân công (${preview.assignments.length})`}
                 </span>
               </button>
             </div>
@@ -342,12 +358,24 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                   <TableHeader className="bg-muted/50 sticky top-0">
                     <TableRow>
                       <TableHead>{t('planImport.colTeacher') || 'Giáo viên'}</TableHead>
-                      <TableHead>{t('planImport.colDisplayName') || 'Cách gọi'}</TableHead>
-                      <TableHead className="text-center">{t('planImport.colDetected') || 'Số lượt nạp'}</TableHead>
-                      <TableHead className="text-center">{t('planImport.colFileTotal') || 'Số trong tệp'}</TableHead>
-                      <TableHead className="text-center">{t('planImport.colSetters') || 'Ra đề'}</TableHead>
-                      <TableHead className="text-center">{t('planImport.colReviewers') || 'Phản biện'}</TableHead>
-                      <TableHead className="text-center">{t('planImport.colStatus') || 'Trạng thái'}</TableHead>
+                      <TableHead>
+                        {t('planImport.colDisplayName') || 'Cách gọi'}
+                      </TableHead>
+                      <TableHead className="text-center">
+                        {t('planImport.colDetected') || 'Số lượt nạp'}
+                      </TableHead>
+                      <TableHead className="text-center">
+                        {t('planImport.colFileTotal') || 'Số trong tệp'}
+                      </TableHead>
+                      <TableHead className="text-center">
+                        {t('planImport.colSetters') || 'Ra đề'}
+                      </TableHead>
+                      <TableHead className="text-center">
+                        {t('planImport.colReviewers') || 'Phản biện'}
+                      </TableHead>
+                      <TableHead className="text-center">
+                        {t('planImport.colStatus') || 'Trạng thái'}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -357,18 +385,36 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                         tRow.file_total === undefined ||
                         Number(tRow.file_total) === Number(tRow.computed_total)
                       return (
-                        <TableRow key={tRow.teacher_id} className={!isMatched ? 'bg-amber-500/10' : undefined}>
-                          <TableCell className="font-medium text-foreground">{tRow.teacher_name}</TableCell>
-                          <TableCell className="text-muted-foreground">{tRow.display_name || '-'}</TableCell>
-                          <TableCell className="text-center font-bold">{Number(tRow.computed_total)}</TableCell>
-                          <TableCell className="text-center text-muted-foreground">
-                            {tRow.file_total !== null && tRow.file_total !== undefined ? Number(tRow.file_total) : '-'}
+                        <TableRow
+                          key={tRow.teacher_id}
+                          className={!isMatched ? 'bg-amber-500/10' : undefined}
+                        >
+                          <TableCell className="font-medium text-foreground">
+                            {tRow.teacher_name}
                           </TableCell>
-                          <TableCell className="text-center">{Number(tRow.setter_count)}</TableCell>
-                          <TableCell className="text-center">{Number(tRow.reviewer_count)}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {tRow.display_name || '-'}
+                          </TableCell>
+                          <TableCell className="text-center font-bold">
+                            {Number(tRow.computed_total)}
+                          </TableCell>
+                          <TableCell className="text-center text-muted-foreground">
+                            {tRow.file_total !== null && tRow.file_total !== undefined
+                              ? Number(tRow.file_total)
+                              : '-'}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {Number(tRow.setter_count)}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {Number(tRow.reviewer_count)}
+                          </TableCell>
                           <TableCell className="text-center">
                             {isMatched ? (
-                              <Badge variant="outline" className="text-[10px] text-emerald-600 border-emerald-500/30">
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] text-emerald-600 border-emerald-500/30"
+                              >
                                 {t('planImport.statusMatched') || 'Khớp'}
                               </Badge>
                             ) : (
@@ -400,7 +446,10 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                         className="flex items-start gap-2 p-2.5 rounded bg-destructive/10 text-destructive text-xs border border-destructive/20"
                       >
                         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-                        <span>{err.message || `${err.sheet} [${err.column}${err.row}]: ${err.code}`}</span>
+                        <span>
+                          {err.message ||
+                            `${err.sheet} [${err.column}${err.row}]: ${err.code}`}
+                        </span>
                       </div>
                     ))}
                     {preview.hard_violations.map((viol, i) => (
@@ -409,7 +458,9 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                         className="flex items-start gap-2 p-2.5 rounded bg-destructive/10 text-destructive text-xs border border-destructive/20"
                       >
                         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-                        <span>{viol.code ? `${viol.rule}: ${viol.code}` : viol.rule}</span>
+                        <span>
+                          {viol.code ? `${viol.rule}: ${viol.code}` : viol.rule}
+                        </span>
                       </div>
                     ))}
                     {preview.warnings.map((warn, i) => (
@@ -447,7 +498,10 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                         <TableCell>{asgn.grade_id}</TableCell>
                         <TableCell>{asgn.subject_id}</TableCell>
                         <TableCell>
-                          <Badge variant={asgn.role === 'setter' ? 'default' : 'secondary'} className="text-[10px]">
+                          <Badge
+                            variant={asgn.role === 'setter' ? 'default' : 'secondary'}
+                            className="text-[10px]"
+                          >
                             {asgn.role === 'setter' ? 'Ra đề' : 'Phản biện'}
                           </Badge>
                         </TableCell>
@@ -506,7 +560,9 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                 className="gap-1.5"
                 data-testid="btn-plan-import-preview"
               >
-                {loading ? 'Đang đọc...' : t('planImport.previewBtn') || 'Xem trước phân công'}
+                {loading
+                  ? 'Đang đọc...'
+                  : t('planImport.previewBtn') || 'Xem trước phân công'}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </>
