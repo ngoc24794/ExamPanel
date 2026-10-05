@@ -55,13 +55,24 @@ impl AppService {
 
     /// Initializes a service opening a database at the specified path.
     pub fn open_at<P: AsRef<Path>>(path: P) -> Result<Self, AppError> {
+        let path = path.as_ref();
         let store = Store::open_at(path)?;
+        log::info!(
+            "database opened: {} (schema v{})",
+            path.display(),
+            exam_panel_storage::latest_version()
+        );
         Ok(Self::new(store))
     }
 
     /// Initializes a service opening the default portable/app-data database.
     pub fn open_default() -> Result<Self, AppError> {
         let store = Store::open_default()?;
+        log::info!(
+            "database opened: {} (schema v{})",
+            exam_panel_storage::paths::resolve_database_path().display(),
+            exam_panel_storage::latest_version()
+        );
         let service = Self::new(store);
         service.ensure_default_school_year()?;
         Ok(service)
@@ -1378,7 +1389,15 @@ impl AppService {
             &settings,
             &rule_settings,
         )
-        .map_err(|e| AppError::internal(format!("Lỗi xuất phương án Excel: {e}")))?;
+        .map_err(|e| {
+            log::error!("excel export to {} failed: {e}", target_path.display());
+            AppError::internal(format!("Lỗi xuất phương án Excel: {e}"))
+        })?;
+        log::info!(
+            "plan {} exported to {}",
+            plan_id.value(),
+            target_path.display()
+        );
 
         Ok(())
     }
@@ -1440,9 +1459,11 @@ impl AppService {
             .store
             .lock()
             .map_err(|_| AppError::new("lock_poisoned"))?;
-        store
-            .backup_to(target_path)
-            .map_err(|e| AppError::internal(format!("Lỗi sao lưu cơ sở dữ liệu: {e}")))?;
+        store.backup_to(target_path).map_err(|e| {
+            log::error!("backup to {} failed: {e}", target_path.display());
+            AppError::internal(format!("Lỗi sao lưu cơ sở dữ liệu: {e}"))
+        })?;
+        log::info!("backup created: {}", target_path.display());
         Ok(())
     }
 
@@ -1451,9 +1472,11 @@ impl AppService {
             .store
             .lock()
             .map_err(|_| AppError::new("lock_poisoned"))?;
-        store
-            .restore_from(source_path)
-            .map_err(|e| AppError::internal(format!("Lỗi khôi phục cơ sở dữ liệu: {e}")))?;
+        store.restore_from(source_path).map_err(|e| {
+            log::error!("restore from {} failed: {e}", source_path.display());
+            AppError::internal(format!("Lỗi khôi phục cơ sở dữ liệu: {e}"))
+        })?;
+        log::info!("database restored from {}", source_path.display());
         Ok(())
     }
 

@@ -1,0 +1,36 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/assignments/PlansHistoryList.test.tsx (2 tests | 1 failed) 66ms
+   ✓ plan creation date (RA-024) > normalises SQLite timestamps to ISO 8601 UTC 2ms
+   × plan creation date (RA-024) > history list shows a real date, never "Invalid Date", on a strict (WebKit-like) engine 63ms
+     → [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <span>
+  Invalid Date
+</span> instead[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/assignments/PlansHistoryList.test.tsx > plan creation date (RA-024) > history list shows a real date, never "Invalid Date", on a strict (WebKit-like) engine
+Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <span>
+  Invalid Date
+</span> instead[39m
+ ❯ src/pages/assignments/PlansHistoryList.test.tsx:58:52
+     56|       </QueryClientProvider>,
+     57|     )
+     58|     expect(screen.queryByText(/Invalid Date/)).not.toBeInTheDocument()
+       |                                                    ^
+     59|     expect(screen.getByText(/2026/)).toBeInTheDocument()
+     60|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  08:16:09
+   Duration  1.95s (transform 369ms, setup 111ms, collect 1.02s, tests 66ms, environment 374ms, prepare 107ms)
+

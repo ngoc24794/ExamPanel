@@ -29,3 +29,4 @@ exam-panel-service = { path = "crates/service" }
 calamine = "0.26"
 rust_xlsxwriter = "0.99"
 unicode-normalization = "0.1"
+log = "0.4"

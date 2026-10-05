@@ -1,0 +1,10 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/logging_tests.rs (target/debug/deps/logging_tests-7cb60b58c0716a38)
+
+running 3 tests
+test backup_and_restore_are_logged ... ok
+test opening_a_database_logs_path_and_schema_version ... ok
+test a_rejected_duplicate_write_is_logged_with_its_error_code ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+

@@ -37,6 +37,7 @@ import {
 } from '@/lib/query/hooks'
 import { toast } from 'sonner'
 import { getErrorMessage } from '@/lib/query/query-client'
+import { formatDbDateTime } from '@/lib/dates'
 
 interface PlansHistoryListProps {
   plans: PlanSummary[]
@@ -51,7 +52,7 @@ export function PlansHistoryList({
   schoolYearId,
   onSelectPlan,
 }: PlansHistoryListProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const renameMutation = useRenamePlan(schoolYearId)
   const deleteMutation = useDeletePlan(schoolYearId)
   const markFinalMutation = useMarkFinal(schoolYearId)
@@ -186,7 +187,7 @@ export function PlansHistoryList({
                       : '--'}
                   </strong>
                 </span>
-                <span>{new Date(plan.created_at).toLocaleString()}</span>
+                <span>{formatDbDateTime(plan.created_at, i18n.language)}</span>
               </div>
             </div>
 
