@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test'
+import { artifactDir } from './artifact-dir'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const screenshotsDir = path.resolve(__dirname, '../../docs/screenshots/phase-12')
+const screenshotsDir = artifactDir('screenshots', 'phase-12')
 
 const qTableTsv =
   "Kì thi/khối\t\tKhối 10\t\tKhối 11\t\tKhối 12\t\n" +
