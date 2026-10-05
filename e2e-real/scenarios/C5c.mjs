@@ -14,7 +14,7 @@ await withApp({ scenario: 'C5c', run }, async (app) => {
   log.before = await hdr(app);
   await (await tid(app.b, 'q-grid-cell-1-1-VL-setter-0')).click(); await sleep(1500);
   const dtext = await app.b.execute(() => document.querySelector('[role="dialog"]').innerText); const m = dtext.match(/Thầy Phúc[\s\S]*?\+(\d+\.\d)\s*Tổng: ([\d.]+)/); log.ui_candidate_Phuc = m && { delta: m[1], total: m[2] };
-  await app.b.keys('ArrowDown'); await app.b.keys('ArrowDown'); await app.b.keys('Enter'); await sleep(1500);
+  await (await app.b.$('//*[starts-with(@data-testid,"candidate-item")][contains(.,"Thầy Phúc")]')).click(); await sleep(1500); // pick by name: the list order changed when RA-019 fixed the deltas
   log.after_replace_before_save = await hdr(app); log.cell = await app.b.execute(() => document.querySelector('[data-testid="q-grid-cell-1-1-VL-setter-0"]').textContent.trim());
   // what does the engine say for the current in-memory edit? (replace in DB-state copy)
   const gp = (await app.invoke('get_plan', { id: pid })).v.assignments; const tmap = (await app.invoke('list_teachers', {})).v; const phuc = tmap.find((t) => t.full_name === 'Thầy Phúc').id;

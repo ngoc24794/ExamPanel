@@ -6,7 +6,7 @@ const R = recorder('D3');
 const run = prepareRunDir('D3b', { portable: true, seedDb: path.resolve('../.tools/golden/q-plans.db') });
 const db = path.join(run.dataDir, 'exam-panel.db'); const bdir = path.join(run.dataDir, 'backups');
 const tmpl = path.join(run.dir, 'out/q-filled.xlsx'); fs.copyFileSync(path.join(OUT_ABS, 'extracts/B2-q-filled.xlsx'), tmpl); execSync(`chown -R qauser:qauser ${run.dir}`);
-const list = () => (fs.existsSync(bdir) ? fs.readdirSync(bdir) : []).map((f) => ({ f, ts: +f.match(/(\d+)\.db$/)[1], reason: f.match(/backup-(.*)-\d+\.db/)[1] }));
+const list = () => (fs.existsSync(bdir) ? fs.readdirSync(bdir) : []).map((f) => ({ f, ts: +f.match(/(\d+)(?:_\d+)?\.db$/)[1], reason: f.match(/backup-(.*)-\d+(?:_\d+)?\.db/)[1] }));
 const log = [];
 await withApp({ scenario: 'D3b', run }, async (app) => {
   const snap = path.join(run.dir, 'out/snap.db'); const r0 = await app.invoke('backup_database', { targetPath: snap }); if (!r0.ok) throw new Error('backup ' + JSON.stringify(r0.e));
