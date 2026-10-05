@@ -115,6 +115,21 @@ mod export {
     use std::collections::BTreeSet;
 
     fn export_q_plan() -> (std::path::PathBuf, tempfile::TempDir, PlanDetails) {
+        export_q_plan_with(AppSettings {
+            theme: "light".into(),
+            language: "vi".into(),
+            current_school_year_id: Some(SchoolYearId(1)),
+            school_name: Some("Trường".into()),
+            department_name: Some("Tổ".into()),
+            signer_title: Some("TT".into()),
+            signer_name: Some("A".into()),
+            place_name: Some("HN".into()),
+        })
+    }
+
+    fn export_q_plan_with(
+        settings: AppSettings,
+    ) -> (std::path::PathBuf, tempfile::TempDir, PlanDetails) {
         let problem = make_canonical_q_problem(QVariant::SyntheticCampuses);
         let assignments = make_q_assignments();
         let report = evaluate(&problem, &assignments);
@@ -139,16 +154,6 @@ mod export {
         };
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("q.xlsx");
-        let settings = AppSettings {
-            theme: "light".into(),
-            language: "vi".into(),
-            current_school_year_id: Some(SchoolYearId(1)),
-            school_name: Some("Trường".into()),
-            department_name: Some("Tổ".into()),
-            signer_title: Some("TT".into()),
-            signer_name: Some("A".into()),
-            place_name: Some("HN".into()),
-        };
         export_plan_workbook(
             &path,
             &details,
@@ -170,6 +175,43 @@ mod export {
             Data::Empty => String::new(),
             other => other.to_string(),
         }
+    }
+
+    /// RA-029: with no organisation info nothing invented may be printed.
+    #[test]
+    fn ra029_empty_organisation_settings_print_no_invented_text() {
+        let (path, _dir, _) = export_q_plan_with(AppSettings {
+            theme: "light".into(),
+            language: "vi".into(),
+            current_school_year_id: Some(SchoolYearId(1)),
+            school_name: None,
+            department_name: Some("   ".into()),
+            signer_title: None,
+            signer_name: None,
+            place_name: None,
+        });
+        let mut wb = open_workbook_auto(&path).unwrap();
+        let mut all = String::new();
+        for name in wb.sheet_names().clone() {
+            let range = wb.worksheet_range(&name).unwrap();
+            for row in range.rows() {
+                for c in row {
+                    all.push_str(&text(c));
+                    all.push('\n');
+                }
+            }
+        }
+        for forbidden in ["THPT", "CHUYÊN MÔN TOÁN", "Hà Nội", "Nguyễn Văn A"] {
+            assert!(
+                !all.contains(forbidden),
+                "invented text {forbidden:?} found"
+            );
+        }
+        // the date line is still printable by hand
+        assert!(
+            all.to_lowercase().contains("ngày ..."),
+            "date placeholder missing"
+        );
     }
 
     /// RA-028: "Cùng ban với" lists only the members of the SAME SUBJECT panel.

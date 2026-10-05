@@ -88,4 +88,37 @@ describe('Print Pages Component Tests', () => {
       }
     },
   )
+
+  // RA-029: nothing invented when Settings has no organisation info
+  it('prints no invented organisation text when settings are empty', async () => {
+    vi.spyOn(api, 'getSettings').mockResolvedValue({
+      theme: 'light',
+      language: 'vi',
+      current_school_year_id: 1,
+      school_name: null,
+      department_name: null,
+      signer_title: null,
+      signer_name: null,
+      place_name: null,
+    } as never)
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/print/plan/1']}>
+          <Routes>
+            <Route path="/print/plan/:id" element={<PrintPlanPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+    expect(await screen.findByTestId('org-missing-banner')).toBeInTheDocument()
+    const text = document.body.textContent ?? ''
+    for (const invented of [
+      /TRƯỜNG THPT CHUYÊN/,
+      /TỔ TOÁN - TIN/,
+      /Hà Nội/,
+      /Nguyễn Văn A(?!n)/,
+    ]) {
+      expect(text).not.toMatch(invented)
+    }
+  })
 })

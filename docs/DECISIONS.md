@@ -33,7 +33,7 @@
 ## ADR-0006: Portable Data Directory Resolution
 - **Status:** Accepted
 - **Context:** Portable installations must store data alongside the executable, while standard OS installations must write to appropriate user directories without permission failures.
-- **Decision:** Probe writability of `<exe_dir>/data`. If writable, use `<exe_dir>/data/exam-panel.db`. Otherwise, fall back to `%APPDATA%/ExamPanel/data` (Windows) or `~/.local/share/ExamPanel/data` (Linux/macOS).
+- **Decision:** *(Superseded by ADR-0034 and ADR-0050: portable mode needs the `ExamPanel.portable` marker.)* Probe writability of `<exe_dir>/data`. If writable, use `<exe_dir>/data/exam-panel.db`. Otherwise, fall back to `%APPDATA%/ExamPanel/data` (Windows) or `~/.local/share/ExamPanel/data` (Linux/macOS).
 - **Consequences:** Seamless portable operation on flash drives while remaining fully compatible with protected installation folders like `C:\Program Files`.
 
 ## ADR-0007: Official Windows Release Uses MSVC Target; GNU Target as Optional Local-Dev Fallback
@@ -349,3 +349,9 @@
 - **Context:** Ten (later thirteen) keys existed in neither locale, `t('x') || 'fallback'` hid them because i18next returns the key itself, a top-level `assignments` object was declared twice in both JSON files (the later silently shadowed the first), and about 300 lines contained hard-coded Vietnamese (RA-040, RA-042).
 - **Decision:** `ui/src/i18n/i18n-keys.test.ts` fails when a static `t('…')` key is missing from either locale, when the locales differ, or when a locale file declares a duplicate key. `no-hardcoded-text.test.ts` fails on any Vietnamese literal in UI sources except the mock API, fixtures, print sheets (official Vietnamese documents) and the bilingual campus colour table. New keys are added with `scripts/i18n-add.py`, which refuses to write into a duplicated section.
 - **Consequences:** Adding UI text now requires both locale entries or the build (`pnpm check-all`) fails.
+
+## ADR-0050: Portable Mode Requires the `ExamPanel.portable` Marker (RA-037)
+- **Status:** Accepted
+- **Context:** SPEC §6 and ADR-0006 said "exe folder writable ⇒ portable", while the code (`crates/storage/src/paths.rs`, ADR-0034) has required the marker file. A user-writable installation folder would otherwise become portable silently and an update or uninstall could remove the data. The real-app run (A2) confirmed that without a marker the data goes to the user data directory.
+- **Decision:** Keep the marker rule. Update SPEC §6, ARCHITECTURE and ADR-0006 to describe it, document `EXAMPANEL_DATA_DIR` as a developer override, and correct the release checklist paths.
+- **Consequences:** Copying the program folder to another PC without the marker leaves the data behind; the portable zip ships the marker and the user guide and checklists say so.

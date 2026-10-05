@@ -89,7 +89,7 @@ flowchart TD
   - Foreign key constraint enforcement (`PRAGMA foreign_keys = ON;`).
   - Standard rollback journal mode (`PRAGMA journal_mode = DELETE;`), guaranteeing the SQLite database remains a single, completely self-contained file without `-wal` or `-shm` sidecars for seamless USB and portable execution.
 - **Components:**
-  - `paths`: Resolves portable database path (`./data/exam-panel.db` if directory is writable; OS app-data directory fallback otherwise).
+  - `paths`: Resolves the database path: `<exe_dir>/data/exam-panel.db` only when the `ExamPanel.portable` marker exists next to the executable and the folder is writable; the OS app-data directory otherwise (ADR-0050). `EXAMPANEL_DATA_DIR` overrides both for developers and tests.
   - `migrations`: Embedded schema migration management using incremental SQL scripts bundled with `include_str!`, executed within transactions and tracked via `PRAGMA user_version`. Idempotent across re-runs.
   - `store`: Strongly-typed CRUD operations mapping between SQLite tables and `core` domain structs, with structured error handling (`StorageError` distinguishing `NotFound`, `Constraint`, `Sqlite`, `Io`, and `Serialization`).
   - `seeds`: Idempotent default seeding (`seed_defaults` for grades and UI settings) and complete test/development fixture datasets (`seed_demo`).

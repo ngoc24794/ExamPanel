@@ -21,6 +21,16 @@ fn campus_pastel_color(color_name: &str) -> Color {
     }
 }
 
+/// "Place, ngày … tháng … năm …" for a hand-filled signature block. With no configured place
+/// the line starts with "Ngày" so nothing invented is printed (RA-029).
+fn signature_date(place: &str, rest: &str) -> String {
+    if place.trim().is_empty() {
+        format!("Ngày {rest}")
+    } else {
+        format!("{}, ngày {rest}", place.trim())
+    }
+}
+
 /// Exports a complete Plan workbook with 4 sheets:
 /// 1. "Phân công" (Matrix with school info, signature block, A4 landscape setup)
 /// 2. "Theo giáo viên" (One row per assignment with co-panelists)
@@ -130,13 +140,13 @@ pub fn export_plan_workbook(
         .school_name
         .as_deref()
         .filter(|s| !s.trim().is_empty())
-        .unwrap_or("TRƯỜNG THPT CHUYÊN")
+        .unwrap_or("")
         .to_uppercase();
     let dept_name = settings
         .department_name
         .as_deref()
         .filter(|s| !s.trim().is_empty())
-        .unwrap_or("TỔ CHUYÊN MÔN TOÁN")
+        .unwrap_or("")
         .to_uppercase();
 
     sheet_matrix.write_with_format(0, 0, &school_name, &header_bold_left)?;
@@ -266,8 +276,8 @@ pub fn export_plan_workbook(
         .place_name
         .as_deref()
         .filter(|s| !s.trim().is_empty())
-        .unwrap_or("Hà Nội");
-    let date_str = format!("{}, ngày ..... tháng ..... năm 20.....", place);
+        .unwrap_or("");
+    let date_str = signature_date(place, "..... tháng ..... năm 20.....");
     sheet_matrix.write_with_format(current_row, 3, &date_str, &italic_center)?;
 
     current_row += 1;
@@ -668,13 +678,13 @@ fn write_q_style_sheet(
         .school_name
         .as_deref()
         .filter(|s| !s.trim().is_empty())
-        .unwrap_or("TRƯỜNG THPT CHUYÊN")
+        .unwrap_or("")
         .to_uppercase();
     let dept_name = settings
         .department_name
         .as_deref()
         .filter(|s| !s.trim().is_empty())
-        .unwrap_or("TỔ CHUYÊN MÔN TOÁN")
+        .unwrap_or("")
         .to_uppercase();
 
     sheet.write_with_format(0, 0, &school_name, &header_bold_left)?;
@@ -965,7 +975,7 @@ fn write_q_style_sheet(
         .place_name
         .as_deref()
         .filter(|s| !s.trim().is_empty())
-        .unwrap_or("Hà Nội");
+        .unwrap_or("");
     let title = settings
         .signer_title
         .as_deref()
@@ -977,7 +987,7 @@ fn write_q_style_sheet(
         .filter(|s| !s.trim().is_empty())
         .unwrap_or("");
 
-    let date_str = format!("{}, ngày ... tháng ... năm 20...", place);
+    let date_str = signature_date(place, "... tháng ... năm 20...");
     sheet.merge_range(
         sig_row,
         gv_col,

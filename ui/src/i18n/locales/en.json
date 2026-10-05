@@ -883,7 +883,8 @@
     "roleSetter": "Setter",
     "roleReviewer": "Reviewer",
     "coPanelists": "Co-panelists:",
-    "noTasks": "No assignments scheduled for this school year."
+    "noTasks": "No assignments scheduled for this school year.",
+    "orgMissing": "Organisation info is not set (school, department, place). Those lines stay blank on the printout. Open Settings to fill them in."
   },
   "backup": {
     "title": "Backup & Restore",

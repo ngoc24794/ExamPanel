@@ -883,7 +883,8 @@
     "roleSetter": "Ra đề",
     "roleReviewer": "Phản biện",
     "coPanelists": "Cùng ban ra đề / Phản biện:",
-    "noTasks": "Không có nhiệm vụ phân công trong năm học này."
+    "noTasks": "Không có nhiệm vụ phân công trong năm học này.",
+    "orgMissing": "Chưa nhập thông tin đơn vị (trường, tổ, nơi ký). Các dòng này sẽ để trống trên bản in. Vào Cài đặt để nhập."
   },
   "backup": {
     "title": "Sao lưu & Phục hồi dữ liệu",
