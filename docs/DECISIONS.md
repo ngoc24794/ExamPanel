@@ -313,3 +313,39 @@
 - **Consequences:** Seamless UX matching the department's authentic workflow, robust error-resistant import pipelines, 100% database integrity with zero schema bloat, and complete backward compatibility with template v1 files.
 
 
+
+## ADR-0044: Startup Dialogs Run Off the Event-Loop Thread; Main Window Is Created After the Service Is Ready
+- **Status:** Accepted
+- **Context:** Startup checks (read-only portable folder, database newer than the app, damaged database, missing WebView2) showed modal dialogs with `blocking_show()` inside Tauri's `setup()`. `setup()` runs on the event-loop thread, which is the thread that has to service the dialog request, so on Linux the process parked forever on a blank window (QA finding RA-001; `tauri-plugin-dialog` documents that `blocking_show` must not run on the main thread).
+- **Decision:** `setup()` only spawns a startup thread (`src-tauri/src/startup.rs`). That thread runs the checks, shows the dialogs with `blocking_show`, opens `AppService`, registers it with `app.manage`, and finally creates the main window on the event-loop thread. The window is declared with `"create": false` in `tauri.conf.json`, so the frontend can never invoke a command before the service state exists. Failure paths exit through `AppHandle::exit`.
+- **Consequences:** Dialogs are answerable on every platform and each answer (use app-data, exit, restore latest backup) takes effect. The window appears a few milliseconds later than before. `single-instance` focus requests that arrive before the window exists are ignored. The decision logic (`classify_open_error`, dialog texts) is a pure function covered by unit tests; the real behaviour is covered by `e2e-real/scenarios/A4-actions.mjs`.
+
+## ADR-0045: Automatic Backups Are Ordered by Timestamp, Never Overwritten, and Taken Before Migrations
+- **Status:** Accepted
+- **Context:** Backup file names are `exampanel-backup-<reason>-<epoch>.db`; listing and pruning sorted by the whole file name, so the alphabetical reason prefix decided which backups survived (newest backups were deleted, RA-031). Two backups within one second overwrote each other, and opening an older database migrated it in place without any safety copy (RA-007).
+- **Decision:** (1) The sort key is the epoch (plus a sequence suffix) parsed from the file name, falling back to the modification time. (2) A backup that would collide gets a `_<n>` suffix instead of overwriting. (3) `MAX_AUTO_BACKUPS = 10` keeps the 10 newest backups across all reasons. (4) `Store::open_at` creates a `pre-migration` backup in `<db folder>/backups` before running migrations on an existing database whose schema is older than the app; fresh and current databases get none, and a database newer than the app is never touched.
+- **Consequences:** The pruning policy is "newest 10 overall" (not per reason), which Q should confirm. A schema upgrade now leaves one extra backup. `BackupValidationSummary` gained `error_code` and `supported_version` so the UI can explain rejected files in the user's language (RA-032).
+
+## ADR-0046: Release Builds Ship No Dev Tools; Folders and Printing Go Through Dedicated Rust Commands
+- **Status:** Accepted
+- **Context:** `default = ["dev-tools"]` compiled the `seed_demo` command into release binaries (RA-036). The webview capability grants only `opener:default`, so `openPath` from the frontend always failed with an ACL error (RA-034), and `window.print()` does nothing in WebKitGTK (RA-030).
+- **Decision:** `src-tauri` has no default features; developers opt in with `pnpm tauri dev --features dev-tools`. The capability file is deliberately **not** widened: "open data folder" is the Rust command `open_data_folder` (no path argument from the webview) and printing is the Rust command `print_page`, which calls the webview's native print operation on every platform. A service-level test fails if `dev-tools` becomes a default feature again or the capability gains `allow-open-path`.
+- **Consequences:** The webview cannot open arbitrary paths. The Windows build must be re-checked manually for the native print dialog (see `docs/qa/real-run-20261005-linux/windows-manual-checklist.md`).
+
+## ADR-0047: A Cancelled Optimization Is an Error and Never Produces Plans
+- **Status:** Accepted
+- **Context:** `core::optimize` returns the best-so-far plans when its cancel flag is set. The service returned them as `Ok`, so the UI saved unfinished plans after "Cancel" (RA-011); only the mock API rejected with `cancelled`.
+- **Decision:** `AppService::run_optimize` and `reoptimize_from` return `AppError { code: "cancelled" }` whenever the job's cancel flag is set after `optimize` returns. The UI reports the rejection exactly once; the mocks reject the same way. The re-optimization also restores the position ("Đề 1"/"Đề 2") of kept setter seats and plan names are numbered after the highest existing "Phương án #N" (RA-026).
+- **Consequences:** Leaving the page during a run also discards the result (no hidden saves).
+
+## ADR-0048: Single Error Report per Failure, Single-Flight Saves, Live Evaluation of Edits, Plan-List Refresh on Data Changes
+- **Status:** Accepted
+- **Context:** Failures raised two toasts (global mutation handler plus the page's own `catch`), fast double clicks sent a request twice (RA-041, RA-025), edits in the plan grid showed a stale score and accepted swaps that cannot be stored (RA-020), the plans list kept an outdated `is_stale` flag until reload (RA-022), and the page selected a new copy before the cached list contained it (RA-018).
+- **Decision:** (1) `reportError` (`ui/src/lib/query/query-client.ts`) toasts an error object at most once. (2) `useSingleFlight` guards save handlers synchronously. (3) While a plan has unsaved edits the page evaluates the edited seats through `evaluate_assignments` (latest wins) and shows that score and hard-violation count; a swap/replace that would put one teacher twice in a panel is rejected. (4) Every mutation that changes problem data invalidates `plans`, `planStatus` and `feasibility` together (`invalidateProblemData`), and mutations that must be followed by a selection return their invalidation promise. (5) Hard violations are shown as sentences built from `violations.<code>` (RA-010, RA-021), not engine codes.
+- **Consequences:** More refetches after data edits (small payloads); no behavioural change for the mocks.
+
+## ADR-0049: Translation Completeness Is Enforced by Tests
+- **Status:** Accepted
+- **Context:** Ten (later thirteen) keys existed in neither locale, `t('x') || 'fallback'` hid them because i18next returns the key itself, a top-level `assignments` object was declared twice in both JSON files (the later silently shadowed the first), and about 300 lines contained hard-coded Vietnamese (RA-040, RA-042).
+- **Decision:** `ui/src/i18n/i18n-keys.test.ts` fails when a static `t('…')` key is missing from either locale, when the locales differ, or when a locale file declares a duplicate key. `no-hardcoded-text.test.ts` fails on any Vietnamese literal in UI sources except the mock API, fixtures, print sheets (official Vietnamese documents) and the bilingual campus colour table. New keys are added with `scripts/i18n-add.py`, which refuses to write into a duplicated section.
+- **Consequences:** Adding UI text now requires both locale entries or the build (`pnpm check-all`) fails.
