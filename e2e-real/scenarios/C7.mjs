@@ -33,7 +33,8 @@ const cmInfo = parseM(cm), rmInfo = parseM(rm);
 R.note('matrix_dims', { cowork_rows: cmInfo.rows, cols: cmInfo.cols, review_rows: rmInfo.rows.length });
 R.check('C7.matrices-include-all-12-teachers', cmInfo.rows.length === 12 && rmInfo.rows.length === 12, { cowork_rows: cmInfo.rows.length, review_rows: rmInfo.rows.length, missing: teachers.map((t) => t.full_name).filter((n) => !cmInfo.rows.includes(n)) }, '12x12 (T Nghĩa appears in all 12 CN panels)', ['extracts/C7-ui-tables.json', 'screenshots/C7-stats-bottom-page.png']);
 // compare the cells for the 11 shown teachers (row i, col j in same order of rows list)
-const idByName = Object.fromEntries(teachers.flatMap((t) => [[t.full_name, t.id], [t.display_name || t.full_name, t.id]])); // the heatmaps now print the short (display) names const mism = [];
+const idByName = Object.fromEntries(teachers.flatMap((t) => [[t.full_name, t.id], [t.display_name || t.full_name, t.id]])); // the heatmaps now print the short (display) names
+const mism = [];
 for (let i = 1; i < cm.length; i++) for (let j = 1; j < cm[i].length; j++) { const a = idByName[cm[i][0]], b = idByName[cm[0].length === cm[i].length - 1 ? cmInfo.rows[j - 1] : cmInfo.rows[j - 1]]; if (i === j) continue; const exp = cowork[`${a}>${b}`] || 0; if (+cm[i][j] !== exp) mism.push({ a: cm[i][0], b: cmInfo.rows[j - 1], ui: cm[i][j], exp }); }
 R.check('C7.cowork-matrix-values', mism.length === 0, { compared: 11 * 10, mismatches: mism.slice(0, 6), n_mismatch: mism.length }, 'cell = #panels containing both teachers (independent count)', ['extracts/C7-ui-tables.json']);
 const mism2 = [];
