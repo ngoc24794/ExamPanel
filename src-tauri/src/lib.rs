@@ -293,6 +293,7 @@ pub fn run() {
             commands::set_setting,
             commands::enter_trial_mode,
             commands::exit_trial_mode,
+            commands::open_data_folder,
             commands::open_log_folder,
             commands::list_campuses,
             commands::create_campus,

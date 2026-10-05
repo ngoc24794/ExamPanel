@@ -1,5 +1,4 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import { openPath } from '@tauri-apps/plugin-opener'
 import type {
   AppInfo,
   AppSettings,
@@ -99,8 +98,9 @@ export class TauriExamPanelApi implements ExamPanelApi {
   }
 
   async openDataFolder(): Promise<void> {
-    const info = await this.getAppInfo()
-    await openPath(info.data_dir)
+    // Opened by a dedicated Rust command: the webview capability deliberately has no
+    // opener open_path permission (RA-034).
+    await invoke<void>('open_data_folder')
   }
 
   async openLogFolder(): Promise<void> {

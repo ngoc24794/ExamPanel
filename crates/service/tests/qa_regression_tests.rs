@@ -69,3 +69,32 @@ fn ra011_cancel_during_run_returns_cancelled_error() {
     assert_eq!(res.expect_err("cancelled").code, "cancelled");
     assert!(!service.is_optimizing());
 }
+
+fn repo_file(rel: &str) -> String {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .join(rel);
+    std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {}: {e}", path.display()))
+}
+
+/// RA-036: `default = ["dev-tools"]` shipped the `seed_demo` IPC command in release builds.
+#[test]
+fn ra036_release_manifest_does_not_enable_dev_tools_by_default() {
+    let manifest = repo_file("src-tauri/Cargo.toml");
+    let default_line = manifest
+        .lines()
+        .find(|l| l.trim_start().starts_with("default"))
+        .expect("src-tauri/Cargo.toml must declare `default` features");
+    assert!(
+        !default_line.contains("dev-tools"),
+        "dev-tools must not be a default feature: {default_line}"
+    );
+}
+
+/// RA-034: the webview capability must stay narrow; opening folders goes through Rust commands.
+#[test]
+fn ra034_capability_does_not_grant_frontend_open_path() {
+    let caps = repo_file("src-tauri/capabilities/default.json");
+    assert!(!caps.contains("allow-open-path"), "{caps}");
+    assert!(!caps.contains("fs:") && !caps.contains("shell:"), "{caps}");
+}

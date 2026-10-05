@@ -1,0 +1,33 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/lib/api/tauri-shell.test.ts (1 test | 1 failed) 17ms
+   × Tauri adapter shell integration > opens the data folder through the Rust command, not the ACL-restricted opener plugin 15ms
+     → promise rejected "Error: Command plugin:opener|open_path no…" instead of resolving
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/api/tauri-shell.test.ts > Tauri adapter shell integration > opens the data folder through the Rust command, not the ACL-restricted opener plugin
+AssertionError: promise rejected "Error: Command plugin:opener|open_path no…" instead of resolving
+ ❯ src/lib/api/tauri-shell.test.ts:27:43
+     25|   // folder must be opened by a dedicated Rust command, not by the fro…
+     26|   it('opens the data folder through the Rust command, not the ACL-rest…
+     27|     await expect(tauriApi.openDataFolder()).resolves.toBeUndefined()
+       |                                           ^
+     28|     expect(invokeMock).toHaveBeenCalledWith('open_data_folder', undefi…
+     29|     expect(openPathMock).not.toHaveBeenCalled()
+
+Caused by: Error: Command plugin:opener|open_path not allowed by ACL
+ ❯ src/lib/api/tauri-shell.test.ts:5:9
+ ❯ openPath src/lib/api/tauri-shell.test.ts:13:28
+ ❯ TauriExamPanelApi.openDataFolder src/lib/api/tauri.ts:103:11
+ ❯ src/lib/api/tauri-shell.test.ts:27:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  07:29:56
+   Duration  1.75s (transform 173ms, setup 164ms, collect 172ms, tests 17ms, environment 571ms, prepare 220ms)
+

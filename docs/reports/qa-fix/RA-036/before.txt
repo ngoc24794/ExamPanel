@@ -1,0 +1,38 @@
+    Blocking waiting for file lock on build directory
+   Compiling exam-panel-storage v0.1.0 (/home/user/ExamPanel/crates/storage)
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 54.61s
+     Running tests/qa_regression_tests.rs (target/debug/deps/qa_regression_tests-c43107e0f6f973f0)
+
+running 2 tests
+test ra034_capability_does_not_grant_frontend_open_path ... ok
+test ra036_release_manifest_does_not_enable_dev_tools_by_default ... FAILED
+
+failures:
+
+---- ra036_release_manifest_does_not_enable_dev_tools_by_default stdout ----
+
+thread 'ra036_release_manifest_does_not_enable_dev_tools_by_default' (21836) panicked at crates/service/tests/qa_regression_tests.rs:88:5:
+dev-tools must not be a default feature: default = ["dev-tools"]
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: qa_regression_tests::ra036_release_manifest_does_not_enable_dev_tools_by_default
+             at ./tests/qa_regression_tests.rs:88:5
+   3: qa_regression_tests::ra036_release_manifest_does_not_enable_dev_tools_by_default::{closure#0}
+             at ./tests/qa_regression_tests.rs:82:65
+   4: <qa_regression_tests::ra036_release_manifest_does_not_enable_dev_tools_by_default::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    ra036_release_manifest_does_not_enable_dev_tools_by_default
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.11s
+
+error: test failed, to rerun pass `-p exam-panel-service --test qa_regression_tests`
