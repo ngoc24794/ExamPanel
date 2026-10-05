@@ -695,7 +695,13 @@
     "campusMix1": "1 phân hiệu (Độc quyền - Vi phạm H3 nếu có)",
     "campusMix2": "2 phân hiệu kết hợp",
     "campusMix3": "3 phân hiệu kết hợp (Đa dạng tối đa)",
-    "panelCount": "{{count}} ban đề"
+    "panelCount": "{{count}} ban đề",
+    "selectPlanPlaceholder": "Chọn phương án",
+    "finalSuffix": "★ (Chính thức)",
+    "noPlans": "Chưa có phương án nào để xem thống kê. Hãy chạy tối ưu trong mục Phân công.",
+    "loadChartDesc": "So sánh số lượt phân công thực tế với chỉ tiêu phân bổ định mức",
+    "gradePrefix": "Khối {{grades}}",
+    "panelsTotal": "Tổng số: {{count}} ban đề"
   },
   "import": {
     "downloadTemplate": "Tải file mẫu",

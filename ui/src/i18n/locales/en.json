@@ -695,7 +695,13 @@
     "campusMix1": "1 Campus (Monopoly - H3 violation if any)",
     "campusMix2": "2 Campuses combined",
     "campusMix3": "3 Campuses combined (Maximum diversity)",
-    "panelCount": "{{count}} panels"
+    "panelCount": "{{count}} panels",
+    "selectPlanPlaceholder": "Select a plan",
+    "finalSuffix": "★ (Final)",
+    "noPlans": "No plans to show statistics for yet. Run the optimizer in Assignments first.",
+    "loadChartDesc": "Compare actual assignment counts with the allocated quota",
+    "gradePrefix": "Grade {{grades}}",
+    "panelsTotal": "Total: {{count}} panels"
   },
   "import": {
     "downloadTemplate": "Download Template",
