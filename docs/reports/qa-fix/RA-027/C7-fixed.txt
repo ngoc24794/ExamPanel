@@ -1,0 +1,7 @@
+[C7] C7.per-teacher-table-equals-DB: pass | observed={"rows":12,"mismatches":[]} expected="12 rows; total/setter/reviewer/exams equal independent counts from assignments"
+[C7] C7.quota-q-values: pass | observed={"bad":[],"expected":"q=4.36 (=48/11) for 11 teachers, 12.00 for T Nghĩa (override)"} expected="q matches 48/11 and 12"
+[C7] C7.matrices-include-all-12-teachers: pass | observed={"cowork_rows":12,"review_rows":12,"missing":["Cô Hiền","Cô Lài","Thầy Phúc","Thầy Lộc","Cô Thư","Cô Na","Cô Bình","Cô Quí","Cô Tú","Cô Như","Cô Lan","Thầy Nghĩa"]} expected="12x12 (T Nghĩa appears in all 12 CN panels)"
+[C7] C7.cowork-matrix-values: pass | observed={"compared":110,"mismatches":[],"n_mismatch":0} expected="cell = #panels containing both teachers (independent count)"
+[C7] C7.review-matrix-values: pass | observed={"mismatches":[],"n_mismatch":0} expected="cell = #(panel) with reviewer row and setter col"
+[C7] C7.campus-composition-24-single: pass | observed="1 phân hiệu (Độc quyền - Vi phạm H3 nếu có) 24 100%" expected="24 subject panels (12 VL + 12 CN) with 1 campus (single placeholder); RA-027 counts panels per subject"
+[C7] C7.matrix-column-headers-are-names: pass | observed=["","C Hiền","C Lài","T Phúc","T Lộc","C Thư","C Na","C Bình","C Quí","C Tú","C Như","C Lan","T Nghĩa"] expected="column headers identify teachers (UI prints 1..11)"

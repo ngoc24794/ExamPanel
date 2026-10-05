@@ -1,0 +1,7 @@
+[A4-actions] A4.ok.dialog-shown: pass | observed="ExamPanel - Lỗi ghi dữ liệu di động" expected="dialog visible within 20 s"
+[A4-actions] A4.ok.app-continues-with-app-data: pass | observed={"main":true,"db_exists":true,"exited":null} expected="main window shown, DB created in the per-user data dir, process alive"
+[A4-actions] A4.cancel.app-exits-cleanly: pass | observed={"exited":{"code":0,"sig":null,"at":1791189909042},"data_created":false} expected="exit code 0 and no data created"
+[A4-actions] A5.ok.dialog-shown: pass | observed="ExamPanel - Phiên bản không tương thích" expected="dialog visible"
+[A4-actions] A5.ok.app-exits: pass | observed={"code":1,"sig":null,"at":1791189915067} expected="exit code 1 after the message"
+[A4-actions] A6.ok.dialog-shown: pass | observed="ExamPanel - Lỗi cơ sở dữ liệu" expected="dialog visible"
+[A4-actions] A6.ok.restored-and-started: pass | observed={"main":true,"integrity":"ok"} expected="main window shown and DB integrity ok after restore"

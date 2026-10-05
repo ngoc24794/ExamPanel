@@ -1,0 +1,16 @@
+commit 67a1a261aef0686fff6084c7cc4c7cc1491ad46c
+Author: Claude <noreply@anthropic.com>
+Date:   Mon Oct 5 08:43:02 2026 +0000
+
+    docs: align checklists and DB file name with the product (RA-006, RA-038)
+    
+    Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_013VEQkQLJAdKCkQQkUBTXoW
+
+ docs/qa/phase-12-checklist.md            |  2 +-
+ docs/qa/phase-8-checklist.md             |  4 ++--
+ docs/qa/phase-9-checklist.md             |  4 ++--
+ docs/release/v0.1.0-checklist.md         | 14 +++++++-------
+ docs/user-guide/vi/08-che-do-dung-thu.md |  2 +-
+ ui/src/lib/api/mock.ts                   |  2 +-
+ 6 files changed, 14 insertions(+), 14 deletions(-)
