@@ -8,6 +8,11 @@ import {
   isTauriEnvironment,
 } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import {
+  assignmentsSignature,
+  hasDuplicateTeacherInPanel,
+} from './assignments/planEdit'
 import { getCampusDotColor } from '@/lib/theme/campus-colors'
 import {
   useSchoolYears,
@@ -184,6 +189,14 @@ export function AssignmentsPage() {
 
   // Apply assignment changes with undo/redo recording
   const handleUpdateAssignments = (newAssignments: Assignment[]) => {
+    // A teacher can hold only one seat per panel; the edit could never be saved (RA-020).
+    if (
+      hasDuplicateTeacherInPanel(newAssignments) &&
+      !hasDuplicateTeacherInPanel(currentAssignments)
+    ) {
+      toast.error(t('assignments.swapDuplicateTeacher'))
+      return
+    }
     setUndoStack((prev) => [...prev, currentAssignments])
     setRedoStack([])
     setCurrentAssignments(newAssignments)
@@ -228,11 +241,15 @@ export function AssignmentsPage() {
   // Save changes
   const handleSave = async () => {
     if (!selectedPlanId) return
-    await updateAssignmentsMutation.mutateAsync({
-      id: selectedPlanId,
-      assignments: currentAssignments,
-    })
-    setIsDirty(false)
+    try {
+      await updateAssignmentsMutation.mutateAsync({
+        id: selectedPlanId,
+        assignments: currentAssignments,
+      })
+      setIsDirty(false)
+    } catch {
+      // The mutation already reported the error; stay dirty so nothing is lost.
+    }
   }
 
   const handleDiscard = () => {
@@ -327,12 +344,37 @@ export function AssignmentsPage() {
     }
   }
 
+  // While the plan has unsaved edits, score and hard violations come from the engine for the
+  // EDITED seats, not from the loaded plan (RA-020).
+  const { data: liveEvaluation } = useQuery({
+    queryKey: [
+      'liveEvaluation',
+      schoolYearId,
+      selectedPlanId,
+      assignmentsSignature(currentAssignments),
+    ],
+    queryFn: () => api.evaluateAssignments(schoolYearId, currentAssignments),
+    enabled: isDirty && selectedPlanId !== null,
+    placeholderData: keepPreviousData,
+    staleTime: Infinity,
+  })
+  const liveActive = isDirty && liveEvaluation !== undefined
+
   const activePlanDetails: PlanDetails | null = loadedPlanDetails
     ? {
         ...loadedPlanDetails,
         assignments: currentAssignments,
+        score_report: liveActive ? liveEvaluation.score_report : loadedPlanDetails.score_report,
       }
     : null
+  const effectivePlanStatus =
+    planStatus && liveActive
+      ? {
+          ...planStatus,
+          hard_violations_now: liveEvaluation.hard_violations,
+          score_now: liveEvaluation.score_report,
+        }
+      : (planStatus ?? null)
 
   return (
     <div className="space-y-6" data-testid="assignments-page">
@@ -640,7 +682,7 @@ export function AssignmentsPage() {
             activePlanDetails && (
               <QPlanGrid
                 planDetails={activePlanDetails}
-                planStatus={planStatus ?? null}
+                planStatus={effectivePlanStatus}
                 exams={exams}
                 grades={grades}
                 subjects={subjects}
@@ -664,7 +706,7 @@ export function AssignmentsPage() {
                 {activePlanDetails && (
                   <PlanMatrixView
                     planDetails={activePlanDetails}
-                    planStatus={planStatus ?? null}
+                    planStatus={effectivePlanStatus}
                     exams={exams}
                     grades={grades}
                     subjects={subjects}

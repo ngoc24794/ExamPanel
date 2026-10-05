@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/AssignmentsPage.edit.test.tsx (2 tests) 1958ms
+   ✓ AssignmentsPage live evaluation after edits (RA-020) > updates the header score and hard-violation count after a swap  1276ms
+   ✓ AssignmentsPage live evaluation after edits (RA-020) > rejects a swap that puts the same teacher twice in one panel  681ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  07:38:48
+   Duration  5.14s (transform 857ms, setup 172ms, collect 1.71s, tests 1.96s, environment 481ms, prepare 337ms)
+
