@@ -147,4 +147,16 @@ describe('SettingsPage', () => {
       expect(screen.getByTestId('enter-trial-mode-btn')).toBeInTheDocument()
     })
   })
+
+  // RA-035: the licences dialog only said the notices exist; it must show them
+  it('shows the bundled THIRD_PARTY_NOTICES text in the licences dialog', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<SettingsPage />)
+    await user.click(await screen.findByTestId('licenses-dialog-trigger'))
+    await waitFor(() => {
+      const text = screen.getByTestId('licenses-text').textContent ?? ''
+      expect(text.length).toBeGreaterThan(5000)
+      expect(text).toContain('Third-Party Software Notices')
+    })
+  })
 })

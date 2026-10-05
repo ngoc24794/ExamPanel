@@ -217,4 +217,44 @@ describe('QPlanGrid Component Tests (Part B)', () => {
       expect(screen.getByTestId('candidate-select-modal')).toBeInTheDocument()
     })
   })
+
+  // RA-016: the S8 chip printed the raw float 2.545454545454545
+  it('rounds fractional penalty units in the S-chips', async () => {
+    const plans = await api.listPlans(1)
+    const planDetails = (await api.getPlan(plans[0].id)) as PlanDetails
+    const planStatus = (await api.planStatus(plans[0].id)) as PlanStatus
+    const report = planDetails.score_report!
+    const patched: PlanDetails = {
+      ...planDetails,
+      score_report: {
+        ...report,
+        by_rule: report.by_rule.map((r, i) =>
+          i === 0
+            ? { ...r, units: 2.545454545454545, lower_bound: 2.545454545454545 }
+            : r,
+        ),
+      },
+    }
+    renderWithClient({
+      planDetails: patched,
+      planStatus,
+      exams: await api.listExams(1),
+      grades: await api.listGrades(),
+      subjects: await api.listSubjects(1),
+      teachers: await api.teachersWithGrades(1),
+      campuses: await api.listCampuses(),
+      locks: await api.listLocks(1),
+      isEditable: false,
+      focusedTeacherId: null,
+      keptSlots: [],
+      onSelectTeacherFocus: vi.fn(),
+      onToggleKeepSlot: vi.fn(),
+      onReoptimizeRemaining: vi.fn(),
+      onUpdateAssignments: vi.fn(),
+      onCreateLock: vi.fn(),
+    })
+    const bar = await screen.findByTestId('q-grid-summary-bar')
+    expect(bar.textContent).toContain('2.55')
+    expect(bar.textContent).not.toMatch(/2\.5454/)
+  })
 })

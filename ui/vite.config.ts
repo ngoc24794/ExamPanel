@@ -14,6 +14,8 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     host: '127.0.0.1',
+    // THIRD_PARTY_NOTICES.md lives in the repository root and is shown in Settings > About
+    fs: { allow: ['..'] },
   },
   test: {
     globals: true,

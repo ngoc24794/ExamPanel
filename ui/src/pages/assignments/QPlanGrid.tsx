@@ -46,6 +46,7 @@ import {
 } from 'lucide-react'
 import { CandidateSelectModal } from './CandidateSelectModal'
 import { gradeGroupLabel } from './gridLabels'
+import { formatUnits } from '@/lib/format'
 
 export interface QPlanGridProps {
   planDetails: PlanDetails
@@ -506,7 +507,8 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                             : 'border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10'
                       }`}
                     >
-                      <span className="font-bold uppercase">{rb.rule}</span>: {rb.units}
+                      <span className="font-bold uppercase">{rb.rule}</span>:{' '}
+                      {formatUnits(rb.units)}
                       {isAtLowerBound && rb.units > 0 && (
                         <span className="text-[9px] font-sans">
                           ({t('assignments.atLowerBound')})
@@ -516,9 +518,11 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                   </TooltipTrigger>
                   <TooltipContent className="text-xs space-y-1">
                     <p className="font-semibold uppercase">{rb.rule.toUpperCase()}</p>
-                    <p>{t('assignments.ruleUnits', { units: rb.units })}</p>
+                    <p>{t('assignments.ruleUnits', { units: formatUnits(rb.units) })}</p>
                     <p>{t('assignments.ruleWeight', { weight: rb.weight })}</p>
-                    <p>{t('assignments.rulePenalty', { penalty: rb.penalty.toFixed(2) })}</p>
+                    <p>
+                      {t('assignments.rulePenalty', { penalty: rb.penalty.toFixed(2) })}
+                    </p>
                     {rb.lower_bound !== undefined && (
                       <p className="font-medium text-emerald-600 dark:text-emerald-400">
                         {t('assignments.lowerBoundLabel', { bound: rb.lower_bound })}
@@ -1016,7 +1020,9 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                 <span>
                   {totalsSortField === 'total'
                     ? totalsSortAsc
-                      ? t('assignments.sortAsc') : t('assignments.sortDesc') : t('assignments.totalsTotalShort')}
+                      ? t('assignments.sortAsc')
+                      : t('assignments.sortDesc')
+                    : t('assignments.totalsTotalShort')}
                 </span>
               </Button>
             </div>

@@ -44,6 +44,40 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { reportError } from '@/lib/query/query-client'
 
+/** Loads the bundled THIRD_PARTY_NOTICES text on demand (44 KB, only when the dialog opens). */
+function LicensesText() {
+  const { t } = useTranslation()
+  const [text, setText] = React.useState<string | null>(null)
+  const [failed, setFailed] = React.useState(false)
+
+  React.useEffect(() => {
+    let active = true
+    import('../../../THIRD_PARTY_NOTICES.md?raw')
+      .then((m) => active && setText(m.default))
+      .catch(() => active && setFailed(true))
+    return () => {
+      active = false
+    }
+  }, [])
+
+  return (
+    <div
+      className="flex-1 overflow-y-auto p-3 bg-muted/40 rounded-md border border-border text-xs"
+      data-testid="licenses-text"
+    >
+      {failed ? (
+        <p className="text-destructive">{t('settings.licensesUnavailable')}</p>
+      ) : text === null ? (
+        <p className="text-muted-foreground">{t('common.loading')}</p>
+      ) : (
+        <pre className="whitespace-pre-wrap break-words font-mono text-[11px] text-foreground">
+          {text}
+        </pre>
+      )}
+    </div>
+  )
+}
+
 export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
@@ -545,24 +579,7 @@ export const SettingsPage: React.FC = () => {
                       {t('settings.licensesDescription')}
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="flex-1 overflow-y-auto p-3 bg-muted/40 rounded-md border border-border text-xs space-y-2">
-                    <p className="font-semibold text-foreground">
-                      Rust & JavaScript Components
-                    </p>
-                    <p className="text-muted-foreground">
-                      ExamPanel v0.1.0 builds upon open-source software libraries licensed
-                      under permissive terms: MIT, Apache-2.0, BSD-3-Clause, Unicode-3.0,
-                      Zlib, and ISC.
-                    </p>
-                    <p className="text-muted-foreground">
-                      The complete notices and copyright statements are preserved in the
-                      bundled{' '}
-                      <code className="font-mono bg-muted px-1 rounded">
-                        THIRD_PARTY_NOTICES
-                      </code>{' '}
-                      document included with every installation and release package.
-                    </p>
-                  </div>
+                  <LicensesText />
                 </DialogContent>
               </Dialog>
             </div>

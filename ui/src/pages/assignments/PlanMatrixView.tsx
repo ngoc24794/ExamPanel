@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { formatUnits } from '@/lib/format'
 import { useTranslation } from 'react-i18next'
 import {
   type Assignment,
@@ -356,11 +357,18 @@ export function PlanMatrixView({
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="text-xs space-y-1 bg-popover text-popover-foreground border-border">
-                      <p className="font-bold uppercase">{t('assignments.ruleCriterion', { rule: r.rule })}</p>
-                      <p>
-                        {t('assignments.ruleWeightUnits', { weight: r.weight, units: r.units })}
+                      <p className="font-bold uppercase">
+                        {t('assignments.ruleCriterion', { rule: r.rule })}
                       </p>
-                      <p>{t('assignments.rulePenalty', { penalty: r.penalty.toFixed(2) })}</p>
+                      <p>
+                        {t('assignments.ruleWeightUnits', {
+                          weight: r.weight,
+                          units: formatUnits(r.units),
+                        })}
+                      </p>
+                      <p>
+                        {t('assignments.rulePenalty', { penalty: r.penalty.toFixed(2) })}
+                      </p>
                       <p>
                         {t('assignments.lowerBoundLabel', {
                           bound: r.lower_bound.toFixed(2),
@@ -797,7 +805,9 @@ function SlotChip({
           ) : (
             <FileEdit className="h-2.5 w-2.5" />
           )}
-          {isReviewer ? t('assignments.roleReviewerShort') : t('assignments.roleSetterShort')}
+          {isReviewer
+            ? t('assignments.roleReviewerShort')
+            : t('assignments.roleSetterShort')}
         </span>
         <span
           className={`font-medium truncate ${
@@ -814,7 +824,9 @@ function SlotChip({
           {teacher ? (
             teacher.display_name || teacher.full_name
           ) : (
-            <span className="text-muted-foreground italic">{t('assignments.emptySeat')}</span>
+            <span className="text-muted-foreground italic">
+              {t('assignments.emptySeat')}
+            </span>
           )}
         </span>
       </div>

@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/SettingsPage.test.tsx (8 tests) 1086ms
+   ✓ SettingsPage > renders organization section and saves organization info  374ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  08:38:34
+   Duration  3.28s (transform 445ms, setup 153ms, collect 1.18s, tests 1.09s, environment 450ms, prepare 172ms)
+

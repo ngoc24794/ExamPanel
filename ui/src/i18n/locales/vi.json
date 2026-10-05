@@ -363,7 +363,8 @@
     "licensesDescription": "Các thành phần mã nguồn mở bên thứ ba được sử dụng trong ExamPanel v0.1.0.",
     "releaseNotes": "Phần mềm phân công ra đề & phản biện thi THPT.",
     "languageHelp": "Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).",
-    "themeHelp": "Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành."
+    "themeHelp": "Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.",
+    "licensesUnavailable": "Không thể tải nội dung giấy phép. Xem tệp THIRD_PARTY_NOTICES đi kèm bản cài đặt."
   },
   "diagnostics": {
     "duplicate_campus_id": "Mã phân hiệu bị trùng: {{campus_id}}",
