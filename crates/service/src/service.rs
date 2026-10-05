@@ -885,12 +885,16 @@ impl AppService {
             num_runs: request.runs,
             max_plans: request.k,
             diversity_threshold: request.diversity_threshold.unwrap_or(0.20),
-            cancel: Some(job_cancel),
+            cancel: Some(Arc::clone(&job_cancel)),
             progress: progress_sink,
             initial_assignments: None,
         };
 
         let opt_res = optimize(&problem, &opts)?;
+        // A cancelled run only holds unfinished best-so-far plans: never hand them out (RA-011).
+        if job_cancel.load(std::sync::atomic::Ordering::Relaxed) {
+            return Err(AppError::new("cancelled"));
+        }
         let bounds = lower_bounds(&problem);
 
         let run_params_json = serde_json::json!({
@@ -1217,6 +1221,9 @@ impl AppService {
             };
 
             let opt_res = optimize(&problem, &opt_options)?;
+            if job_cancel.load(std::sync::atomic::Ordering::Relaxed) {
+                return Err(AppError::new("cancelled"));
+            }
             let lb = lower_bounds(&problem);
             let run_params_json = serde_json::to_string(&request)?;
 

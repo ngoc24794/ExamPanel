@@ -116,10 +116,9 @@ export function RunOptimizeDialog({
   }
 
   const handleCancel = async () => {
+    // The run promise rejects with { code: 'cancelled' }; handleStart reports it once (RA-011).
     if (handleRef.current) {
       await handleRef.current.cancel()
-      setIsRunning(false)
-      toast.info(t('assignments.cancelled'))
     }
   }
 
