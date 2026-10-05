@@ -93,9 +93,8 @@ export function ReoptimizeDialog({
 
   const handleCancel = async () => {
     if (handleRef.current) {
+      // handleStart reports the 'cancelled' rejection once (RA-011).
       await handleRef.current.cancel()
-      setIsRunning(false)
-      toast.info(t('assignments.cancelled'))
     }
   }
 
