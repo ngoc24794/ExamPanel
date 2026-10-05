@@ -1,0 +1,71 @@
+ExamPanel
+Phân công ra đề
+
+Tổng quan
+Giáo viên
+Phân hiệu
+Môn thi
+Chuyên môn
+Kỳ thi
+Lịch bận
+Quy tắc
+Phân công
+Thống kê
+Cài đặt
+ExamPanel
+v0.1.0
+Giáo viên
+
+Không khả thi
+2
+
+2026 - 2027
+
+VI
+
+Hệ Thống
+Quản lý Giáo viên
+Danh sách giáo viên, phân hiệu công tác, khối giảng dạy, hệ số tải và trạng thái sẵn sàng cho năm học hiện tại.
+Xem chỉ tiêu
+Chuyên môn
+Tải file mẫu
+Nhập từ Excel
+Thêm giáo viên
+
+
+Tất cả phân hiệu
+
+Tất cả các khối
+
+Tất cả trạng thái
+Không tìm thấy giáo viên nào phù hợp.
+Nhập dữ liệu từ Excel
+Giáo viên (12)
+Phân hiệu (1)
+Lịch vắng (0)
+Tất cả
+
+Mới
+
+Cập nhật
+
+Không đổi
+
+Lỗi
+Dòng	Trạng thái	Mã	Họ và tên	Phân hiệu	Khối dạy	Hệ số tải	Đang dạy	Ghi chú
+2	Mới	GV001	Cô Hiền	CPH	10, 11, 12	1	Mới	-
+3	Mới	GV002	Cô Lài	CPH	10, 11, 12	1	Mới	-
+4	Mới	GV003	Thầy Phúc	CPH	10, 12	1	Mới	-
+5	Mới	GV004	Thầy Lộc	CPH	10, 11	1	Mới	-
+6	Mới	GV005	Cô Thư	CPH	11	1	Mới	-
+7	Mới	GV006	Cô Na	CPH	10, 11	1	Mới	-
+8	Mới	GV007	Cô Bình	CPH	11, 12	1	Mới	-
+9	Mới	GV008	Cô Quí	CPH	11, 12	1	Mới	-
+10	Mới	GV009	Cô Tú	CPH	10	1	Mới	-
+11	Mới	GV010	Cô Như	CPH	10	1	Mới	-
+12	Mới	GV011	Cô Lan	CPH	12	1	Mới	-
+13	Mới	GV012	Thầy Nghĩa	CPH	10, 11, 12	1	Mới	-
+Quay lại chọn tệp
+Hủy
+Xác nhận & Áp dụng
+Close

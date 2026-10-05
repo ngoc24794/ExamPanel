@@ -1,0 +1,411 @@
+{
+ "id": "B3",
+ "started": "2026-10-05T05:11:30.371Z",
+ "checks": [
+  {
+   "step": "B3.rules-h3-off",
+   "result": "fail",
+   "observed": "EXCEPTION Command failed: /home/user/ExamPanel/.tools/venv/bin/python -c import sqlite3,json,sys\nc=sqlite3.connect('file:'+sys.argv[1]+'?mode=ro',uri=True)\nc.row_factory=sqlite3.Row\nr=[dict(x) for x in c.execute(sys.argv[2],json.loads(sys.argv[3]))]\nprint(json.dumps(r,ensure_ascii=False,default=str)) /home/us",
+   "expected": "step completes",
+   "evidence": []
+  },
+  {
+   "step": "B3.campus-create",
+   "result": "pass",
+   "observed": [
+    {
+     "code": "TST",
+     "name": "Phân hiệu thử nghiệm"
+    }
+   ],
+   "expected": "campus TST in DB",
+   "evidence": []
+  },
+  {
+   "step": "B3.subject-create",
+   "result": "pass",
+   "observed": [
+    {
+     "code": "TST",
+     "name": "Môn thử",
+     "setters": 2,
+     "reviewers": 1,
+     "min_campuses": 1
+    }
+   ],
+   "expected": "subject TST 2+1",
+   "evidence": []
+  },
+  {
+   "step": "B3.subject-duplicate-code-rejected",
+   "result": "pass",
+   "observed": {
+    "n": 1,
+    "toast_text": "đã tồn tại, không thể tạo trùng lặp"
+   },
+   "expected": "only one TST",
+   "evidence": []
+  },
+  {
+   "step": "B3.competency-cycle",
+   "result": "pass",
+   "observed": [
+    "Đề:Theo khối dạy",
+    "Đề:Mọi khối",
+    "[{\"subject_id\":2,\"role\":\"reviewer\",\"grade_scope\":\"taught\"},{\"subject_id\":2,\"role\":\"setter\",\"grade_scope\":\"any\"}]",
+    "Đề:Tắt",
+    "[{\"subject_id\":2,\"role\":\"reviewer\",\"grade_scope\":\"taught\"}]",
+    "Đề:Theo khối dạy",
+    "[{\"subject_id\":2,\"role\":\"reviewer\",\"grade_scope\":\"taught\"},{\"subject_id\":2,\"role\":\"setter\",\"grade_scope\":\"taught\"}]"
+   ],
+   "expected": "taught -> all -> off -> taught, persisted each click",
+   "evidence": []
+  },
+  {
+   "step": "B3.teacher-create-overrides",
+   "result": "pass",
+   "observed": [
+    {
+     "code": "THU1",
+     "full_name": "Lê Văn Tám",
+     "display_name": "Thầy Tám (Toán)",
+     "quota_override": 6,
+     "max_tasks_per_exam_override": 1
+    }
+   ],
+   "expected": "row with display name + overrides 6/1",
+   "evidence": []
+  },
+  {
+   "step": "B3.teacher-subline-cach-goi",
+   "result": "pass",
+   "observed": [
+    "Cách gọi: C Bình",
+    "Cách gọi: C Hiền",
+    "Cách gọi: C Lài"
+   ],
+   "expected": "sub-line \"Cách gọi: Thầy Tám (Toán)\" (phase-11 checklist K3 step 4)",
+   "evidence": []
+  },
+  {
+   "step": "B3.forced-badge-T-Nghia",
+   "result": "pass",
+   "observed": [
+    "Cố định: 12"
+   ],
+   "expected": "badge \"Cố định: 12\" (phase-11 checklist K3 step 5)",
+   "evidence": []
+  },
+  {
+   "step": "B3.exam-create-and-reorder",
+   "result": "pass",
+   "observed": {
+    "before_move": [
+     "GK1",
+     "CK1",
+     "GK2",
+     "CK2",
+     "TST1"
+    ],
+    "after_move": [
+     "GK1",
+     "CK1",
+     "GK2",
+     "TST1",
+     "CK2"
+    ]
+   },
+   "expected": "TST1 created, move-up changes order",
+   "evidence": []
+  },
+  {
+   "step": "B3.unavailability-toggle",
+   "result": "pass",
+   "observed": {
+    "rows": [
+     {
+      "teacher_id": 1,
+      "exam_id": 1,
+      "reason": null
+     }
+    ],
+    "cell": "Vắng"
+   },
+   "expected": "row for teacher 1 / exam 1",
+   "evidence": []
+  },
+  {
+   "step": "B3.rules-h3-off-saved",
+   "result": "pass",
+   "observed": {
+    "before": [
+     {
+      "rule_key": "h3",
+      "enabled": 1,
+      "params_json": "{\"enabled\":true}"
+     },
+     {
+      "rule_key": "h4",
+      "enabled": 1,
+      "params_json": "{\"max_setter_per_exam\":1,\"max_tasks_per_exam\":2}"
+     }
+    ],
+    "after": [
+     {
+      "rule_key": "h3",
+      "enabled": 0,
+      "params_json": "{\"enabled\":true}"
+     },
+     {
+      "rule_key": "h4",
+      "enabled": 1,
+      "params_json": "{\"max_setter_per_exam\":1,\"max_tasks_per_exam\":2}"
+     }
+    ],
+    "warnBox": true
+   },
+   "expected": "H3 enabled flag flips in DB; yellow warning box shown",
+   "evidence": []
+  },
+  {
+   "step": "B3.lock-create",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 1,
+     "exam_id": 1,
+     "grade_id": 1,
+     "subject_id": 2,
+     "teacher_id": 2,
+     "role": null,
+     "kind": "pin"
+    }
+   ],
+   "expected": "a lock row exists (pin Cô Hiền GK1/10/VL)",
+   "evidence": []
+  },
+  {
+   "step": "B3.persistence-db-identical-after-restart",
+   "result": "pass",
+   "observed": {
+    "before": {
+     "campuses": [
+      {
+       "code": "CPH"
+      },
+      {
+       "code": "TST"
+      }
+     ],
+     "subjects": [
+      {
+       "code": "VL"
+      },
+      {
+       "code": "CN"
+      },
+      {
+       "code": "TST"
+      }
+     ],
+     "comp1": [
+      {
+       "role": "reviewer",
+       "grade_scope": "taught"
+      },
+      {
+       "role": "setter",
+       "grade_scope": "taught"
+      }
+     ],
+     "teachers": [
+      {
+       "code": "THU1",
+       "quota_override": 6,
+       "max_tasks_per_exam_override": 1
+      }
+     ],
+     "exams": [
+      {
+       "code": "GK1"
+      },
+      {
+       "code": "CK1"
+      },
+      {
+       "code": "GK2"
+      },
+      {
+       "code": "TST1"
+      },
+      {
+       "code": "CK2"
+      }
+     ],
+     "un": [
+      {
+       "teacher_id": 1,
+       "exam_id": 1
+      }
+     ],
+     "rules": [
+      {
+       "rule_key": "h3",
+       "enabled": 0,
+       "params_json": "{\"enabled\":true}"
+      }
+     ],
+     "locks": [
+      {
+       "teacher_id": 2
+      }
+     ]
+    },
+    "after": {
+     "campuses": [
+      {
+       "code": "CPH"
+      },
+      {
+       "code": "TST"
+      }
+     ],
+     "subjects": [
+      {
+       "code": "VL"
+      },
+      {
+       "code": "CN"
+      },
+      {
+       "code": "TST"
+      }
+     ],
+     "comp1": [
+      {
+       "role": "reviewer",
+       "grade_scope": "taught"
+      },
+      {
+       "role": "setter",
+       "grade_scope": "taught"
+      }
+     ],
+     "teachers": [
+      {
+       "code": "THU1",
+       "quota_override": 6,
+       "max_tasks_per_exam_override": 1
+      }
+     ],
+     "exams": [
+      {
+       "code": "GK1"
+      },
+      {
+       "code": "CK1"
+      },
+      {
+       "code": "GK2"
+      },
+      {
+       "code": "TST1"
+      },
+      {
+       "code": "CK2"
+      }
+     ],
+     "un": [
+      {
+       "teacher_id": 1,
+       "exam_id": 1
+      }
+     ],
+     "rules": [
+      {
+       "rule_key": "h3",
+       "enabled": 0,
+       "params_json": "{\"enabled\":true}"
+      }
+     ],
+     "locks": [
+      {
+       "teacher_id": 2
+      }
+     ]
+    }
+   },
+   "expected": "same business rows after restart",
+   "evidence": []
+  },
+  {
+   "step": "B3.persistence-ui-after-restart",
+   "result": "pass",
+   "observed": {
+    "teachers": true,
+    "exams": true,
+    "h3_toggle": "false",
+    "subjects": true
+   },
+   "expected": "teacher, exam, subject visible; H3 toggle off",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "lock_dialog_comboboxes": 6,
+  "lock_teacher_options": [
+   {
+    "tx": "Cô Hiền (Vắng kỳ thi này)",
+    "dis": "true"
+   },
+   {
+    "tx": "Cô Lài",
+    "dis": null
+   },
+   {
+    "tx": "Thầy Phúc",
+    "dis": null
+   },
+   {
+    "tx": "Thầy Lộc",
+    "dis": null
+   },
+   {
+    "tx": "Cô Thư (Không dạy khối này)",
+    "dis": "true"
+   },
+   {
+    "tx": "Cô Na",
+    "dis": null
+   },
+   {
+    "tx": "Cô Bình (Không dạy khối này)",
+    "dis": "true"
+   },
+   {
+    "tx": "Cô Quí (Không dạy khối này)",
+    "dis": "true"
+   },
+   {
+    "tx": "Cô Tú",
+    "dis": null
+   },
+   {
+    "tx": "Cô Như",
+    "dis": null
+   },
+   {
+    "tx": "Cô Lan (Không dạy khối này)",
+    "dis": "true"
+   },
+   {
+    "tx": "Thầy Nghĩa",
+    "dis": null
+   },
+   {
+    "tx": "Lê Văn Tám",
+    "dis": null
+   }
+  ]
+ }
+}

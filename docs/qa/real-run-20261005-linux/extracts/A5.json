@@ -1,0 +1,72 @@
+{
+ "id": "A5",
+ "started": "2026-10-05T05:00:06.504Z",
+ "checks": [
+  {
+   "step": "A5.friendly-message",
+   "result": "fail",
+   "observed": {
+    "windows": [
+     "ExamPanel"
+    ],
+    "main_thread": {
+     "state": "S",
+     "wchan": "futex_do_wait"
+    }
+   },
+   "expected": "Vietnamese dialog about newer DB version",
+   "evidence": [
+    "screenshots/A5-after-12s.png"
+   ]
+  },
+  {
+   "step": "A5.no-crash-no-hang",
+   "result": "fail",
+   "observed": {
+    "state": "S",
+    "wchan": "futex_do_wait"
+   },
+   "expected": "process exits cleanly after message or UI shows an error",
+   "evidence": []
+  },
+  {
+   "step": "A5.db-hash-unchanged",
+   "result": "pass",
+   "observed": {
+    "before": "4db0e7800af2750796f4feff15f538093e2f7c09fda174523a9345e7cc7243d2",
+    "after": "4db0e7800af2750796f4feff15f538093e2f7c09fda174523a9345e7cc7243d2"
+   },
+   "expected": "identical sha256",
+   "evidence": []
+  },
+  {
+   "step": "A5.db-hash-unchanged-after-smoke",
+   "result": "pass",
+   "observed": {
+    "before": "4db0e7800af2750796f4feff15f538093e2f7c09fda174523a9345e7cc7243d2",
+    "after": "4db0e7800af2750796f4feff15f538093e2f7c09fda174523a9345e7cc7243d2"
+   },
+   "expected": "identical sha256",
+   "evidence": [
+    "logs/A5-smoke-test-newer-db.txt"
+   ]
+  }
+ ],
+ "notes": {
+  "A5_observed": {
+   "pids": [
+    17065
+   ],
+   "windows": [
+    "ExamPanel"
+   ],
+   "exited": null,
+   "main_thread": {
+    "state": "S",
+    "wchan": "futex_do_wait"
+   },
+   "log_tail": ""
+  },
+  "smoke_test_tail": "\nthread 'main' (17177) panicked at src-tauri/src/lib.rs:20:46:\nfailed to initialize database in smoke mode: AppError { code: \"unsupported_database_version\", params: {\"version\": String(\"99\")} }\nstack backtrace:\n   0: __rustc::rust_begin_unwind\n   1: core::panicking::panic_fmt\n   2: core::result::unwrap_failed\n   3: exam_panel_app::run_smoke_test\n   4: exam_panel_app::run\nnote: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.\nEXIT=101\n"
+ }
+}

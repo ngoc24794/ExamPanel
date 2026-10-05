@@ -1,0 +1,21 @@
+import { prepareRunDir, withApp, sleep, OUT_ABS } from '../lib/harness.mjs';
+import { clickTid } from '../lib/ui.mjs';
+import fs from 'node:fs'; import path from 'node:path';
+const run = prepareRunDir('probe2', { portable: true, seedDb: path.resolve('../.tools/golden/q-after-import.db') });
+const dump = (b, sel = '[role="dialog"],[role="menu"],[data-radix-popper-content-wrapper]') => b.execute((s) => { const d = [...document.querySelectorAll(s)].map((x) => x.innerText.slice(0, 500)); return d; }, sel);
+await withApp({ scenario: 'probe2', run }, async (app) => {
+  await app.nav('/unavailability'); await sleep(900);
+  await clickTid(app.b, 'unavail-cell-1-1'); await sleep(600);
+  console.log('after cell click:', JSON.stringify(await dump(app.b)));
+  await app.shot('probe2-unavail-click', { screen: false });
+  await app.b.keys('Escape'); await sleep(300);
+  await clickTid(app.b, 'bulk-actions-1'); await sleep(600);
+  console.log('bulk:', JSON.stringify(await dump(app.b)));
+  await app.b.keys('Escape');
+  await app.nav('/rules'); await sleep(600); await clickTid(app.b, 'tab-locks'); await sleep(400);
+  const b = await app.b.$('button=Thêm ràng buộc'); await b.click(); await sleep(600);
+  console.log('lock dlg:', JSON.stringify(await dump(app.b)));
+  await app.b.keys('Escape');
+  await app.nav('/competencies'); await sleep(800);
+  const t = await app.b.$('[data-testid="competency-toggle-1-2-setter"]'); console.log('before', await t.getText()); await t.click(); await sleep(500); console.log('after1', await t.getText()); await t.click(); await sleep(500); console.log('after2', await t.getText()); await t.click(); await sleep(500); console.log('after3', await t.getText());
+});

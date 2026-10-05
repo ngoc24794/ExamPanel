@@ -1,0 +1,182 @@
+{
+ "id": "A4",
+ "started": "2026-10-05T04:57:33.168Z",
+ "checks": [
+  {
+   "step": "A4.ok.dialog-shown",
+   "result": "fail",
+   "observed": null,
+   "expected": "dialog titled \"ExamPanel - Lỗi ghi dữ liệu di động\"",
+   "evidence": [
+    "/home/user/ExamPanel/docs/qa/real-run-20261005-linux/screenshots/A4-ok-dialog.png"
+   ]
+  },
+  {
+   "step": "A4.ok.fallback-to-app-data",
+   "result": "fail",
+   "observed": {
+    "exited": null,
+    "windows": [
+     "ExamPanel"
+    ],
+    "xdg_tree": [
+     "logs",
+     "logs/app.log"
+    ],
+    "exe_dir_tree": [
+     "ExamPanel",
+     "ExamPanel.portable"
+    ]
+   },
+   "expected": "DB created under XDG data dir; app still running",
+   "evidence": [
+    "/home/user/ExamPanel/docs/qa/real-run-20261005-linux/screenshots/A4-ok-after.png"
+   ]
+  },
+  {
+   "step": "A4.cancel.dialog-shown",
+   "result": "fail",
+   "observed": null,
+   "expected": "dialog titled \"ExamPanel - Lỗi ghi dữ liệu di động\"",
+   "evidence": [
+    "/home/user/ExamPanel/docs/qa/real-run-20261005-linux/screenshots/A4-cancel-dialog.png"
+   ]
+  },
+  {
+   "step": "A4.cancel.app-exits-cleanly",
+   "result": null,
+   "observed": {
+    "exited": null,
+    "windows": [
+     "ExamPanel"
+    ],
+    "xdg_tree": [
+     "logs",
+     "logs/app.log"
+    ],
+    "exe_dir_tree": [
+     "ExamPanel",
+     "ExamPanel.portable"
+    ]
+   },
+   "expected": "exit code 0, no data created",
+   "evidence": [
+    "/home/user/ExamPanel/docs/qa/real-run-20261005-linux/screenshots/A4-cancel-after.png"
+   ]
+  },
+  {
+   "step": "A4.dialog-shown",
+   "result": "fail",
+   "observed": {
+    "windows": [
+     "ExamPanel"
+    ],
+    "main_thread": {
+     "state": "S",
+     "wchan": "futex_do_wait"
+    }
+   },
+   "expected": "Vietnamese dialog \"ExamPanel - Lỗi ghi dữ liệu di động\" with OK/Cancel",
+   "evidence": [
+    "screenshots/A4-after-12s.png",
+    "logs/A4-hang-main-thread-backtrace.txt"
+   ]
+  },
+  {
+   "step": "A4.app-not-hung",
+   "result": "fail",
+   "observed": {
+    "state": "S",
+    "wchan": "futex_do_wait"
+   },
+   "expected": "UI loads or dialog shown",
+   "evidence": [
+    "screenshots/A4-after-12s.png"
+   ]
+  },
+  {
+   "step": "A4.option-use-app-data-works",
+   "result": "blocked",
+   "observed": "dialog never rendered; cannot press OK",
+   "expected": "DB created in app-data dir",
+   "evidence": [
+    "logs/A4-hang-main-thread-backtrace.txt"
+   ]
+  },
+  {
+   "step": "A4.option-exit-works",
+   "result": "blocked",
+   "observed": "dialog never rendered; cannot press Cancel",
+   "expected": "exit code 0",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "qauser_can_write_app_dir_ok": false,
+  "dialog_window_ok": null,
+  "windows_ok": [
+   {
+    "id": "4194307",
+    "name": "ExamPanel",
+    "geom": "Window 4194307   Position: 321,170 (screen: 0)   Geometry: 1280x800"
+   }
+  ],
+  "after_ok": {
+   "exited": null,
+   "windows": [
+    "ExamPanel"
+   ],
+   "xdg_tree": [
+    "logs",
+    "logs/app.log"
+   ],
+   "exe_dir_tree": [
+    "ExamPanel",
+    "ExamPanel.portable"
+   ]
+  },
+  "qauser_can_write_app_dir_cancel": false,
+  "dialog_window_cancel": null,
+  "windows_cancel": [
+   {
+    "id": "4194307",
+    "name": "ExamPanel",
+    "geom": "Window 4194307   Position: 321,170 (screen: 0)   Geometry: 1280x800"
+   }
+  ],
+  "after_cancel": {
+   "exited": null,
+   "windows": [
+    "ExamPanel"
+   ],
+   "xdg_tree": [
+    "logs",
+    "logs/app.log"
+   ],
+   "exe_dir_tree": [
+    "ExamPanel",
+    "ExamPanel.portable"
+   ]
+  },
+  "qauser_can_write_exe_dir": false,
+  "A4_observed": {
+   "pids": [
+    16816
+   ],
+   "windows": [
+    "ExamPanel"
+   ],
+   "exited": null,
+   "main_thread": {
+    "state": "S",
+    "wchan": "futex_do_wait"
+   },
+   "log_tail": ""
+  },
+  "xdg_tree": [
+   "data",
+   "data/logs",
+   "data/logs/app.log"
+  ]
+ }
+}

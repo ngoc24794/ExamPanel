@@ -1,0 +1,39 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling libc v0.2.189
+   Compiling serde_core v1.0.229
+   Compiling serde v1.0.229
+   Compiling log v0.4.34
+   Compiling once_cell v1.21.4
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+   Compiling zopfli v0.8.3
+   Compiling getrandom v0.2.17
+   Compiling rand_core v0.6.4
+   Compiling syn v2.0.119
+   Compiling ahash v0.8.12
+   Compiling serde_json v1.0.151
+   Compiling rand_chacha v0.3.1
+   Compiling hashbrown v0.14.5
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_derive v1.0.229
+   Compiling thiserror v2.0.21
+   Compiling hashlink v0.9.1
+   Compiling rand v0.8.8
+   Compiling displaydoc v0.2.7
+   Compiling smallvec v1.16.2
+   Compiling ts-rs-macros v12.0.1
+   Compiling bitflags v2.13.2
+   Compiling rusqlite v0.32.1
+   Compiling zip v8.6.0
+   Compiling zip v2.4.2
+   Compiling ts-rs v12.0.1
+   Compiling exam-panel-core v0.1.0 (/home/user/ExamPanel/crates/core)
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+   Compiling calamine v0.26.1
+   Compiling rust_xlsxwriter v0.99.1
+   Compiling exam-panel-storage v0.1.0 (/home/user/ExamPanel/crates/storage)
+    Finished `release` profile [optimized] target(s) in 29.48s
+     Running `target/release/task5_comparison`
+Running Cold Start Optimizer (seed 42, R = 8, 200,000 iters)...
+Running Warm Start Optimizer (seed 42, R = 8, 200,000 iters from Q's plan)...
+Running Preset Evaluation: 'Cho phép dồn việc trong một kỳ' (S9 disabled)...

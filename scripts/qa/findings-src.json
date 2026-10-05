@@ -1,0 +1,225 @@
+[
+ {
+  "title": "Startup error dialogs deadlock the main thread on Linux (blank window, no dialog) — read-only portable folder, DB newer than app, corrupted DB",
+  "severity": "S1",
+  "category": "bug",
+  "area": "app shell",
+  "engine": "engine-agnostic (Linux GTK confirmed; Windows not verified)",
+  "scenarios": [
+   "A4",
+   "A5",
+   "A6"
+  ],
+  "repro": "1) Copy release exe + ExamPanel.portable to a folder, chmod 555 the folder (as unprivileged user). 2) Launch the exe under Xvfb. 3) Wait 12 s. (Same hang for DB with PRAGMA user_version=99 and for a corrupted exam-panel.db with a backup present.)",
+  "expected": "Vietnamese modal dialog (read-only: Use app-data / Exit; newer DB: friendly message; corrupted: offer restore) as coded in src-tauri/src/lib.rs setup().",
+  "actual": "A blank black main window stays open forever; no dialog window exists (xdotool lists only 'ExamPanel'); process alive with main thread blocked (futex). gdb backtrace of the main thread: exam_panel_app::run::{closure#4} (setup) -> tauri_plugin_dialog::MessageDialogBuilder::blocking_show -> mpmc Receiver::recv -> Thread::park, i.e. blocking_show() is called on the event-loop thread inside setup() before the loop can service the dialog request. User sees nothing and must kill the process.",
+  "evidence": [
+   "extracts/A4.json",
+   "extracts/A5.json",
+   "extracts/A6.json",
+   "logs/A4-hang-main-thread-backtrace.txt",
+   "screenshots/A4-after-12s.png",
+   "screenshots/A5-after-12s.png",
+   "screenshots/A6-after-12s.png"
+  ],
+  "cause_hypothesis": "src-tauri/src/lib.rs setup(): app.dialog()...blocking_show() on the main thread. tauri-plugin-dialog docs say blocking_show must not run on the main thread. Fix idea: show the dialog from a spawned thread or use the non-blocking show() + channel, or run the checks before tauri::Builder::run using rfd directly. May behave differently on Windows (MessageBox) — must be tested there (see windows-manual-checklist).",
+  "mock_gap": "Mock suite cannot reach these startup paths at all.",
+  "q_notice": "On a locked USB stick or after a corrupted file, ExamPanel opens a white/black window and never responds, with no message.",
+  "id": "RA-001"
+ },
+ {
+  "title": "Import preview: 'Đang dạy' column shows 'Mới' (status key) instead of Có/Không",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "B2"
+  ],
+  "repro": "Teachers > Nhập từ Excel > choose the filled Q template > Xem trước kết quả > tab Giáo viên.",
+  "expected": "Column 'Đang dạy' shows Có/Không (the sheet says 'Có').",
+  "actual": "Every active teacher row shows 'Mới' (inactive would show 'Bỏ qua'), duplicating the status badge.",
+  "evidence": [
+   "screenshots/B2-import-preview-screen.png",
+   "extracts/B2-preview-text.txt"
+  ],
+  "cause_hypothesis": "ui/src/pages/teachers/ImportWizardModal.tsx ~line 404: row.active ? t('import.statusNew') : t('import.statusSkipped') — wrong i18n keys.",
+  "mock_gap": "Mock suite passes (no assertion on this column).",
+  "q_notice": "Preview shows 'Mới' under 'Đang dạy' for every teacher, which looks like an error.",
+  "id": "RA-002"
+ },
+ {
+  "title": "Grid header reads 'Khối Khối 10' (duplicated word) in Q-style grid",
+  "severity": "S4",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A7",
+   "C4"
+  ],
+  "repro": "Open /assignments with any plan in 'Bảng tổ' view.",
+  "expected": "Header 'Khối 10' (spec: grade groups).",
+  "actual": "'Khối Khối 10', 'Khối Khối 11', 'Khối Khối 12'.",
+  "evidence": [
+   "screenshots/A7-assignments-page.png"
+  ],
+  "cause_hypothesis": "Grade label is built as t('…grade') + grade.name where grade.name is already 'Khối 10' (ui/src/pages/assignments/QPlanGrid.tsx).",
+  "mock_gap": "Mock fixtures use the same grade names; mock suite does not assert header text.",
+  "q_notice": "Q sees 'Khối Khối 10' at the top of every grade column.",
+  "id": "RA-003"
+ },
+ {
+  "title": "Production dashboard still shows developer 'Kết nối Hệ thống Lõi' ping panel ('pong from ExamPanel core')",
+  "severity": "S4",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A1",
+   "A7"
+  ],
+  "repro": "Launch release build > Tổng quan, scroll down.",
+  "expected": "No developer diagnostics on the user dashboard (Developer route is correctly absent).",
+  "actual": "Panel 'Kết nối Hệ thống Lõi — Kiểm tra phản hồi IPC giữa giao diện người dùng và lõi Rust' with 'pong from ExamPanel core v0.1.0' and status 'Hệ thống sẵn sàng'.",
+  "evidence": [
+   "extracts/A7.json",
+   "screenshots/probe-screen.png"
+  ],
+  "cause_hypothesis": "ui/src/pages/OverviewPage.tsx ping widget not gated by import.meta.env.DEV.",
+  "mock_gap": "n/a",
+  "q_notice": "A technical 'Rust core ping' box on the home page.",
+  "id": "RA-004"
+ },
+ {
+  "title": "Existing mock Playwright suite: cannot launch pinned browser in offline CDN sandbox, and a run rewrites 94 tracked docs files",
+  "severity": "S3",
+  "category": "environment",
+  "area": "docs",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "Step0"
+  ],
+  "repro": "pnpm -C ui test:e2e in a sandbox where the Playwright CDN is blocked; then git status after a run with a working browser.",
+  "expected": "Suite runs; working tree stays clean.",
+  "actual": "(1) Default run: 14/14 fail with 'Executable doesn't exist ... chromium_headless_shell-1243' (sandbox has 1194; CDN 403) — environment. (2) With QA wrapper config using the preinstalled Chromium: 14/14 pass, but the run modifies 94 tracked files (docs/screenshots/**, docs/reports/phase-9/*.pdf) because the specs write their screenshots/PDFs into tracked docs folders.",
+  "evidence": [
+   "logs/mock-e2e-attempt1-default-config.txt",
+   "mock-e2e-baseline.txt",
+   "logs/mock-suite-tracked-files-modified.txt",
+   "logs/mock-suite-tracked-files-modified-count.txt"
+  ],
+  "cause_hypothesis": "ui/e2e/*.spec.ts use fixed output paths under docs/. Suggest output dir under test-results/ unless an env flag is set.",
+  "mock_gap": "This is the mock suite itself.",
+  "q_notice": "none",
+  "id": "RA-005"
+ },
+ {
+  "title": "DB file name inconsistent in docs: code/SPEC/ADR/DOC-TOI say exam-panel.db; v0.1.0 checklist and user guide say exampanel.db",
+  "severity": "S4",
+  "category": "docs",
+  "area": "docs",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A1",
+   "A7"
+  ],
+  "repro": "grep -rn 'exampanel.db\\|exam-panel.db' docs DOC-TOI.txt crates/storage/src/paths.rs",
+  "expected": "One name everywhere.",
+  "actual": "Real app creates data/exam-panel.db (A1 data tree). docs/release/v0.1.0-checklist.md lines 19 and 89 and docs/user-guide/vi/08-che-do-dung-thu.md line 33 say exampanel.db; docs/qa/phase-9-checklist.md says backup default name exampanel-backup-YYYYMMDD-HHmm.db (to verify in D3).",
+  "evidence": [
+   "extracts/A1.json",
+   "logs/docs-grep-dbname.txt"
+  ],
+  "cause_hypothesis": "docs drift.",
+  "mock_gap": "n/a (mock/mock.ts also reports exampanel.db).",
+  "q_notice": "A tester following the release checklist looks for a file that does not exist.",
+  "id": "RA-006"
+ },
+ {
+  "title": "Opening an older (v4) database migrates it in place with no automatic pre-migration backup",
+  "severity": "S2",
+  "category": "spec-mismatch",
+  "area": "storage",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A7"
+  ],
+  "repro": "Copy crates/storage/fixtures/v4_synthetic.db to <exe>/data/exam-panel.db, launch the app.",
+  "expected": "(Task expectation) automatic backup in data/backups before migration. NOTE: SPEC/ADR-0042 do not promise one — expectation may be wrong; but release checklist section 7 upgrade path is exactly this case.",
+  "actual": "user_version 4 -> 5, all row counts preserved, plans identical (A7 passes data checks), UI shows all 12 teachers and the plan — but data/backups does not exist: the only copy of the pre-upgrade DB is overwritten.",
+  "evidence": [
+   "extracts/A7.json"
+  ],
+  "cause_hypothesis": "Store::open_at runs run_migrations without calling create_automatic_backup (crates/storage/src/store.rs). Believe the app matches the written spec, but a pre-migration backup is cheap data-loss insurance for a v0.1.0->v0.2.0 upgrade.",
+  "mock_gap": "Not reachable in mock.",
+  "q_notice": "If an upgrade ever fails midway, Q has no automatic copy of the old file.",
+  "id": "RA-007"
+ },
+ {
+  "title": "Every DB open rewrites the database file (sqlite_sequence for 'grades' grows by 3 per open via seed_defaults)",
+  "severity": "S4",
+  "category": "bug",
+  "area": "storage",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "B1",
+   "A5"
+  ],
+  "repro": "Copy a fully initialised exam-panel.db, launch app, wait until ready, exit; sha256 before/after. Enter and exit trial mode.",
+  "expected": "An already initialised, current-version DB is opened without byte changes (relevant for read-only media, and for the 'real DB hash unchanged' check in trial mode).",
+  "actual": "sha256 differs after every launch and again after exit-trial-mode. Logical content identical; the only diff in `.dump` is sqlite_sequence grades 3->6->9 (+3 per open).",
+  "evidence": [
+   "extracts/B1.json",
+   "logs/B1-dump-diff.txt"
+  ],
+  "cause_hypothesis": "crates/storage/src/store.rs open_at()/reopen -> seed_defaults(): INSERT OR IGNORE of the 3 default grades bumps the AUTOINCREMENT counter every time. Effects: harmless today (grade ids will jump if a user adds a grade), but byte-level 'unchanged' invariants cannot hold, and every launch writes to the DB (journal file on USB).",
+  "mock_gap": "Not reachable in mock.",
+  "q_notice": "none (internal)",
+  "id": "RA-008"
+ },
+ {
+  "title": "Excel export 'Tiêu chí' sheet labels S3-S8 with wrong criterion names, truncates S8 violation count, and omits lower bounds",
+  "severity": "S2",
+  "category": "bug",
+  "area": "export",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C1",
+   "D1"
+  ],
+  "repro": "Import Q's table (docs/reports/phase-12/plan-grid.xlsx), click Xuất Excel, open sheet 'Tiêu chí'.",
+  "expected": "Rule names identical to the Rules screen/SPEC (S3 Phản biện độc lập phân hiệu, S4 Đa dạng cặp ra đề, S5 Tránh phản biện chéo lặp lại, S6 Giãn cách kỳ thi liên tiếp, S7 Luân chuyển khối lớp, S8 Cân bằng tải trọng thực tế); 'Số vi phạm' = engine units (S8 4.545); phase-9 checklist says the sheet shows lower bounds.",
+  "actual": "S3 'Tránh liên tiếp 2 kỳ làm cùng vai trò', S4 'Tránh liên tiếp 2 kỳ làm cùng khối', S5 'Tránh cặp đôi lặp lại', S6 'Tránh ban thi toàn giáo viên dạy khối đó', S7 'Phân bổ đều giữa các khối', S8 'Phân hiệu chính cho môn học' (!) — descriptions of other rules; S8 'Số vi phạm' = 4 while contribution = 36.36 (=4.545x8); no lower-bound column. Numeric contributions themselves match the UI and engine (S1 10, S2 3, S3 144, S5 6, S6 16, S8 36.36, S9 45).",
+  "evidence": [
+   "extracts/C1-q-plan-export.json",
+   "extracts/C1-ui-detail-view.txt",
+   "extracts/probe-forms.json"
+  ],
+  "cause_hypothesis": "crates/service/src/excel/export.rs lines ~554-559 hard-coded rule label table out of date vs ui locale names; units cast to integer.",
+  "mock_gap": "Mock suite does not open exported xlsx content.",
+  "q_notice": "Q opens the 'Tiêu chí' sheet and sees S8 described as 'Phân hiệu chính cho môn học' although the school has no campuses; criteria names differ from the app.",
+  "id": "RA-009"
+ },
+ {
+  "title": "Import plan preview shows hard violation as raw code 'h4: max_tasks_per_exam_exceeded' without teacher/exam/context",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C1"
+  ],
+  "repro": "Clear C Quí's 'Số việc tối đa mỗi kỳ' override in Teachers, then Assignments > Nhập từ bảng có sẵn > paste Q TSV > Xem trước > tab Cảnh báo & Lỗi.",
+  "expected": "One Vietnamese message naming C Quí, CK2 and 3 > 2 (the single hard violation expected from the Q ground truth).",
+  "actual": "Count is right (exactly 1) but the text is the raw engine code 'h4: max_tasks_per_exam_exceeded' with no teacher/exam.",
+  "evidence": [
+   "extracts/C1-issues-no-qui-override.txt",
+   "screenshots/C1-issues-no-qui-override-page.png"
+  ],
+  "cause_hypothesis": "ImportPlanModal issues list prints code+raw key, no i18n mapping for violation codes.",
+  "mock_gap": "Mock hard-violation fixtures may use plain text.",
+  "q_notice": "Q sees a code, not who/where.",
+  "id": "RA-010"
+ }
+]

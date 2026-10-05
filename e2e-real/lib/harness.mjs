@@ -100,15 +100,15 @@ export class App {
     } catch (e) { this.hookLog.push('collect-fail ' + e.message); return null; }
   }
   async shot(name, { screen = true } = {}) {
-    const base = path.join(OUT_ABS, 'screenshots', `${this.scenario}-${name}`);
+    const base = path.join(OUT_ABS, "screenshots", name);
     fs.mkdirSync(path.dirname(base), { recursive: true });
     try { await this.b.saveScreenshot(base + '-page.png'); } catch (e) { this.hookLog.push('page-shot-fail ' + e.message); }
     if (screen) { try { execFileSync('import', ['-window', 'root', '-resize', '1920x1080>', base + '-screen.png'], { env: { ...process.env, DISPLAY } }); } catch {} }
     return base;
   }
   async nav(hashPath) { // SPA route change without reload
-    await this.b.execute((p) => { window.history.pushState({}, '', p); window.dispatchEvent(new PopStateEvent('popstate')); }, hashPath);
-    await sleep(400);
+    await this.b.execute((p) => { window.location.hash = '#' + p; }, hashPath); // HashRouter
+    await sleep(500);
   }
   async invoke(cmd, args = {}) {
     const r = await this.b.executeAsync(function (cmd, args, done) {
@@ -168,4 +168,24 @@ export function sampleRss() {
   const rows = out.map((l) => { const m = l.trim().match(/^(\d+)\s+(\d+)\s+(\S+)\s+(.*)$/); return m ? { pid: +m[1], rss: +m[2], comm: m[3], args: m[4] } : null; }).filter(Boolean);
   const rel = rows.filter((r) => /ExamPanel|WebKit/i.test(r.comm + r.args));
   return { total_kb: rel.reduce((s, r) => s + r.rss, 0), procs: rel.map((r) => ({ pid: r.pid, comm: r.comm, rss_kb: r.rss })) };
+}
+
+/** Launch the app WITHOUT WebDriver (for native pre-UI dialogs). Returns {child, out(), kill()} */
+export function launchRaw(run, { env = {}, dbus = null } = {}) {
+  const d = dbus || startDbus(run.dir);
+  const e = isoEnv(run.dir, { DBUS_SESSION_BUS_ADDRESS: d.address, ...env });
+  const logf = path.join(run.dir, 'out/raw-' + Date.now() + '.log');
+  const fd = fs.openSync(logf, 'a');
+  const child = spawn('runuser', ['-u', RUN_USER, '--', 'env', ...Object.entries(e).map(([k, v]) => `${k}=${v}`), run.exe], { stdio: ['ignore', fd, fd] });
+  const st = { exited: null };
+  child.on('exit', (code, sig) => { st.exited = { code, sig, at: Date.now() }; });
+  return { child, dbus: d, logf, st, kill() { try { execSync(`pkill -u ${RUN_USER} -f ${JSON.stringify(run.exe)}`); } catch {} d.stop(); } };
+}
+
+/** Run fn(app) and always stop the app (even on exception). */
+export async function withApp(opts, fn) {
+  const app = await launchApp(opts);
+  try { await waitUiReady(app); return await fn(app); }
+  catch (e) { console.error('SCENARIO ERROR', opts.scenario, e && e.stack || e); try { await app.shot(opts.scenario + '-error'); } catch {} throw e; }
+  finally { await app.stop(); }
 }

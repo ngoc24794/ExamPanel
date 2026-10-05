@@ -1,0 +1,5 @@
+GK1/10 VL [C Hiền, C Lài | T Phúc] CN [T Nghĩa | C Hiền]; GK1/11 VL [T Lộc, C Thư | C Na] CN [T Nghĩa | C Lài]; GK1/12 VL [C Bình, T Phúc | C Quí] CN [T Nghĩa | T Lộc];
+CK1/10 VL [C Hiền, C Tú | C Như] CN [T Nghĩa | C Tú]; CK1/11 VL [C Lài, C Bình | C Thư] CN [T Nghĩa | C Lan]; CK1/12 VL [C Lan, C Quí | C Lài] CN [T Nghĩa | C Bình];
+GK2/10 VL [C Tú, C Như | T Lộc] CN [T Nghĩa | C Như]; GK2/11 VL [C Na, C Thư | C Hiền] CN [T Nghĩa | C Thư]; GK2/12 VL [C Lan, C Lài | C Quí] CN [T Nghĩa | T Phúc];
+CK2/10 VL [C Na, C Như | C Tú] CN [T Nghĩa | C Quí]; CK2/11 VL [T Lộc, C Quí | C Bình] CN [T Nghĩa | C Na]; CK2/12 VL [T Phúc, C Hiền | C Lan] CN [T Nghĩa | C Quí].
+Q's totals: C Hiền 5, C Lài 5, T Lộc 4, C Tú 4, C Lan 4, C Bình 4, C Như 4, C Thư 4, T Phúc 4, C Na 4, C Quí 6, T Nghĩa 12.

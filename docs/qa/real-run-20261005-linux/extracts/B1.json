@@ -1,0 +1,171 @@
+{
+ "id": "B1",
+ "started": "2026-10-05T05:06:36.385Z",
+ "checks": [
+  {
+   "step": "B1.real-db-hash-after-exit",
+   "result": "fail",
+   "observed": {
+    "idle": "3e0ceb8aa38cea3c03d0b761317e9034af4df8d164d3f8afba239267f7412b83",
+    "after": "1b1bf6df155e86a688f6b43cb81423691e95ec52789bc848e21fa3162477e495"
+   },
+   "expected": "identical sha256 (real DB not even touched)",
+   "evidence": []
+  },
+  {
+   "step": "B1.startup-does-not-modify-existing-db",
+   "result": "fail",
+   "observed": {
+    "before_launch": "31fd4dc3268d0ea55424270ed0626bd2d65a5cc3c076ca56b1f2d9877bf7b47b",
+    "after_ready": "3e0ceb8aa38cea3c03d0b761317e9034af4df8d164d3f8afba239267f7412b83"
+   },
+   "expected": "identical sha256 (informational: startup may legitimately run seed_defaults/migrations)",
+   "evidence": []
+  },
+  {
+   "step": "B1.banner-visible",
+   "result": "pass",
+   "observed": "Đang ở chế độ dùng thử với dữ liệu mẫu. Dữ liệu thật được giữ an toàn tuyệt đối.Quay lại dữ liệu thật",
+   "expected": "amber banner",
+   "evidence": [
+    "screenshots/B1-trial-page.png"
+   ]
+  },
+  {
+   "step": "B1.demo-is-Q-shaped-12-teachers",
+   "result": "pass",
+   "observed": 12,
+   "expected": "12 teachers (task); release checklist v0.1.0 says 18 teachers/2 campuses — stale?",
+   "evidence": []
+  },
+  {
+   "step": "B1.demo-subjects-VL-CN",
+   "result": "pass",
+   "observed": [
+    "VL",
+    "CN"
+   ],
+   "expected": "VL + CN",
+   "evidence": []
+  },
+  {
+   "step": "B1.real-db-unchanged-while-in-trial",
+   "result": "pass",
+   "observed": {
+    "idle": "3e0ceb8aa38cea3c03d0b761317e9034af4df8d164d3f8afba239267f7412b83",
+    "now": "3e0ceb8aa38cea3c03d0b761317e9034af4df8d164d3f8afba239267f7412b83"
+   },
+   "expected": "identical sha256",
+   "evidence": []
+  },
+  {
+   "step": "B1.exit-restores-real-data",
+   "result": "pass",
+   "observed": [
+    "Cô Hiền",
+    "Cô Lài",
+    "Thầy Phúc",
+    "Thầy Lộc",
+    "Cô Thư",
+    "Cô Na",
+    "Cô Bình",
+    "Cô Quí",
+    "Cô Tú",
+    "Cô Như",
+    "Cô Lan",
+    "Thầy Nghĩa"
+   ],
+   "expected": "12 real teachers, no trial edits",
+   "evidence": []
+  },
+  {
+   "step": "B1.banner-gone-after-exit",
+   "result": "pass",
+   "observed": true,
+   "expected": "banner hidden",
+   "evidence": []
+  },
+  {
+   "step": "B1.real-db-bytes-after-exit",
+   "result": "fail",
+   "observed": {
+    "idle": "3e0ceb8aa38cea3c03d0b761317e9034af4df8d164d3f8afba239267f7412b83",
+    "after": "1b1bf6df155e86a688f6b43cb81423691e95ec52789bc848e21fa3162477e495"
+   },
+   "expected": "identical sha256 (task wording)",
+   "evidence": []
+  },
+  {
+   "step": "B1.real-db-logical-content-after-exit",
+   "result": "pass",
+   "observed": {
+    "idle": "da97f15fb31c6478a25140156b0e256a3e7630b6909c23e885b34739ae05ec34",
+    "after": "da97f15fb31c6478a25140156b0e256a3e7630b6909c23e885b34739ae05ec34"
+   },
+   "expected": "identical .dump excluding sqlite_sequence",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "after_enter_click_head": "ExamPanel\nPhân công ra đề\n\nTổng quan\nGiáo viên\nPhân hiệu\nMôn thi\nChuyên môn\nKỳ thi\nLịch bận\nQuy tắc\nPhân công\nThống kê\nCài đặt\nExamPanel\nv0.1.0\nCài đặt\n\nCó cảnh báo\n24\n\n2026-2027\n\nVI\n\nHệ Thống\nĐang ở chế độ dùng thử với dữ liệu mẫu. Dữ liệu thật được giữ an toàn tuyệt đối.\nQuay lại dữ liệu thật\nCài đặt Hệ thống\nTùy chọn giao diện, vị trí lưu trữ tệp dữ liệu và thông tin phiên bản.\nGiao diện & Ngôn ngữ\nChủ đề giao diện\nTùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.\n\nSáng\n\nTối\n\nHệ thống\nNgôn ngữ hiển thị\nChọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).\n\nTiếng Việt\n\nEng",
+  "confirm_dialog_present": false,
+  "trial_info": {
+   "identifier": "vn.exampanel.app",
+   "version": "0.1.0",
+   "db_path": "/home/user/ExamPanel/.tools/qa-run/B1-5/app/data/demo.db",
+   "mode": "portable",
+   "build_date": "2026-10-05",
+   "in_trial_mode": true,
+   "commit_hash": "5a19e0df",
+   "data_dir": "/home/user/ExamPanel/.tools/qa-run/B1-5/app/data",
+   "name": "ExamPanel",
+   "is_portable": true
+  },
+  "trial_teachers": [
+   "C Hiền",
+   "C Lài",
+   "T Phúc",
+   "T Lộc",
+   "C Thư",
+   "C Na",
+   "C Bình",
+   "C Quí",
+   "C Tú",
+   "C Như",
+   "C Lan",
+   "T Nghĩa"
+  ],
+  "trial_subjects": [
+   {
+    "code": "VL",
+    "setters": 2,
+    "reviewers": 1,
+    "min": 2
+   },
+   {
+    "code": "CN",
+    "setters": 1,
+    "reviewers": 1,
+    "min": 2
+   }
+  ],
+  "trial_edit_result": {
+   "v": null,
+   "ok": true
+  },
+  "after_exit_info": {
+   "identifier": "vn.exampanel.app",
+   "version": "0.1.0",
+   "db_path": "/home/user/ExamPanel/.tools/qa-run/B1-5/app/data/exam-panel.db",
+   "mode": "portable",
+   "build_date": "2026-10-05",
+   "in_trial_mode": false,
+   "commit_hash": "5a19e0df",
+   "data_dir": "/home/user/ExamPanel/.tools/qa-run/B1-5/app/data",
+   "name": "ExamPanel",
+   "is_portable": true
+  },
+  "demo_db_exists": true,
+  "byte_diff_cause": "sqlite_sequence grades +3 on every open of the DB (diff of .dump): see logs/B1-dump-diff.txt"
+ }
+}

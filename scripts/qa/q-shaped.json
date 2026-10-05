@@ -1,0 +1,19 @@
+{
+  "note": "Q-shaped dataset, NoCampus variant. Teacher grades/names follow crates/core/src/domain/fixtures.rs make_canonical_q_problem(NoCampus) (same values as data/q_real_data.template.json teacher_grades).",
+  "campus": {"code": "CPH", "name": "Chưa phân hiệu"},
+  "subjects": [["VL","Vật lí",2,1,1,"#2563EB"],["CN","Công nghệ",1,1,1,"#10B981"]],
+  "teachers": [
+    ["HIEN","Cô Hiền","C Hiền","10, 11, 12",null,null],
+    ["LAI","Cô Lài","C Lài","10, 11, 12",null,null],
+    ["PHUC","Thầy Phúc","T Phúc","10, 12",null,null],
+    ["LOC","Thầy Lộc","T Lộc","10, 11",null,null],
+    ["THU","Cô Thư","C Thư","11",null,null],
+    ["NA","Cô Na","C Na","10, 11",null,null],
+    ["BINH","Cô Bình","C Bình","11, 12",null,null],
+    ["QUI","Cô Quí","C Quí","11, 12",null,3],
+    ["TU","Cô Tú","C Tú","10",null,null],
+    ["NHU","Cô Như","C Như","10",null,null],
+    ["LAN","Cô Lan","C Lan","12",null,null],
+    ["NGHIA","Thầy Nghĩa","T Nghĩa","10, 11, 12",12,3]
+  ]
+}
