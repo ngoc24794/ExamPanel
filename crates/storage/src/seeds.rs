@@ -5,24 +5,44 @@ use rusqlite::Connection;
 
 /// Seeds default grades (10, 11, 12) and system settings. Idempotent.
 pub fn seed_defaults(conn: &Connection) -> Result<(), StorageError> {
-    // Default grades: 10, 11, 12
-    conn.execute(
-        "INSERT OR IGNORE INTO grades (code, name, sort_order) VALUES
-         (10, 'Khối 10', 1),
-         (11, 'Khối 11', 2),
-         (12, 'Khối 12', 3);",
-        [],
-    )
-    .map_err(StorageError::from_sqlite)?;
+    // `INSERT OR IGNORE` on an AUTOINCREMENT table advances sqlite_sequence even when every row
+    // is ignored, which rewrote the file on every open (RA-008). Only insert what is missing.
+    let grades_present: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM grades WHERE code IN (10, 11, 12)",
+            [],
+            |r| r.get(0),
+        )
+        .map_err(StorageError::from_sqlite)?;
+    if grades_present < 3 {
+        // Default grades: 10, 11, 12
+        conn.execute(
+            "INSERT OR IGNORE INTO grades (code, name, sort_order) VALUES
+             (10, 'Khối 10', 1),
+             (11, 'Khối 11', 2),
+             (12, 'Khối 12', 3);",
+            [],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
 
-    // Default settings
-    conn.execute(
-        "INSERT OR IGNORE INTO settings (key, value) VALUES
-         ('theme', 'system'),
-         ('language', 'vi');",
-        [],
-    )
-    .map_err(StorageError::from_sqlite)?;
+    let settings_present: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM settings WHERE key IN ('theme', 'language')",
+            [],
+            |r| r.get(0),
+        )
+        .map_err(StorageError::from_sqlite)?;
+    if settings_present < 2 {
+        // Default settings
+        conn.execute(
+            "INSERT OR IGNORE INTO settings (key, value) VALUES
+             ('theme', 'system'),
+             ('language', 'vi');",
+            [],
+        )
+        .map_err(StorageError::from_sqlite)?;
+    }
 
     Ok(())
 }
