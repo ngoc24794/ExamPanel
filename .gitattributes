@@ -1,0 +1,2 @@
+# Keep embedded SQL byte-identical across platforms (schema tests compare it with committed fixture DBs).
+*.sql text eol=lf
