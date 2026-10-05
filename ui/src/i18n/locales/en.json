@@ -266,7 +266,17 @@
   "assignments": {
     "title": "Assignment Plan",
     "description": "Run randomized backtracking and simulated annealing to produce optimal assignment schedules.",
-    "swapDuplicateTeacher": "Cannot apply: a teacher cannot hold two seats in the same panel."
+    "swapDuplicateTeacher": "Cannot apply: a teacher cannot hold two seats in the same panel.",
+    "compareDescription": "Compare assignments, scores and differences between two plans",
+    "comparePickA": "Select plan A",
+    "comparePickB": "Select plan B",
+    "compareScoreShort": "Score: {{score}}",
+    "compareScoreA": "Score A",
+    "compareScoreB": "Score B",
+    "compareScoreDelta": "Difference (B - A)",
+    "compareExamGrade": "Exam / Grade",
+    "compareReviewerShort": "Rev",
+    "comparePanelsChanged": "{{count}} panels changed"
   },
   "stats": {
     "title": "Statistics & Reports",

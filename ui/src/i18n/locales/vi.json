@@ -266,7 +266,17 @@
   "assignments": {
     "title": "Phương án Phân công",
     "description": "Khởi chạy thuật toán quay lui ngẫu nhiên và luyện kim mô phỏng để sinh phương án tối ưu.",
-    "swapDuplicateTeacher": "Không thể đổi: một giáo viên không được giữ hai vị trí trong cùng một ban đề."
+    "swapDuplicateTeacher": "Không thể đổi: một giáo viên không được giữ hai vị trí trong cùng một ban đề.",
+    "compareDescription": "So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án",
+    "comparePickA": "Chọn phương án A",
+    "comparePickB": "Chọn phương án B",
+    "compareScoreShort": "Điểm: {{score}}",
+    "compareScoreA": "Điểm A",
+    "compareScoreB": "Điểm B",
+    "compareScoreDelta": "Chênh lệch (B - A)",
+    "compareExamGrade": "Kỳ / Khối",
+    "compareReviewerShort": "PB",
+    "comparePanelsChanged": "{{count}} ban đề có thay đổi"
   },
   "stats": {
     "title": "Thống kê & Báo cáo",

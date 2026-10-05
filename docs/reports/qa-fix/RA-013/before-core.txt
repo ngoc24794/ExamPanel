@@ -1,0 +1,37 @@
+   Compiling exam-panel-core v0.1.0 (/home/user/ExamPanel/crates/core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.15s
+     Running unittests src/lib.rs (target/debug/deps/exam_panel_core-be841cdb20a3cb99)
+
+running 1 test
+test optimize::tests::test_plan_distance_is_subject_aware ... FAILED
+
+failures:
+
+---- optimize::tests::test_plan_distance_is_subject_aware stdout ----
+
+thread 'optimize::tests::test_plan_distance_is_subject_aware' (7335) panicked at crates/core/src/optimize/mod.rs:301:9:
+assertion failed: (super::plan_distance(&a, &b) - 1.0).abs() < 1e-12
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:150:5
+   3: exam_panel_core::optimize::tests::test_plan_distance_is_subject_aware
+             at ./src/optimize/mod.rs:301:9
+   4: exam_panel_core::optimize::tests::test_plan_distance_is_subject_aware::{closure#0}
+             at ./src/optimize/mod.rs:287:45
+   5: <exam_panel_core::optimize::tests::test_plan_distance_is_subject_aware::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    optimize::tests::test_plan_distance_is_subject_aware
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 93 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p exam-panel-core --lib`

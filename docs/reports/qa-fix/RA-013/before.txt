@@ -1,0 +1,2693 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/assignments/PlanCompareModal.test.tsx (2 tests | 2 failed) 2219ms
+   × PlanCompareModal with two subjects (RA-013) > counts every seat whose teacher differs, per subject 1167ms
+     → Unable to find an element with the text: /Khoảng cách sai khác: 2 ô/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mclass[39m=[32m"fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-describedby[39m=[32m"radix-:r2:"[39m
+    [33maria-labelledby[39m=[32m"radix-:r1:"[39m
+    [33mclass[39m=[32m"fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-card text-card-foreground border-border"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mdata-testid[39m=[32m"plan-compare-modal"[39m
+    [33mid[39m=[32m"radix-:r0:"[39m
+    [33mrole[39m=[32m"dialog"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col space-y-1.5 text-center sm:text-left"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-lg font-semibold leading-none tracking-tight text-foreground flex items-center gap-2"[39m
+        [33mid[39m=[32m"radix-:r1:"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33mclass[39m=[32m"lucide lucide-git-compare h-5 w-5 text-primary"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"18"[39m
+            [33mcy[39m=[32m"18"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"6"[39m
+            [33mcy[39m=[32m"6"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M13 6h3a2 2 0 0 1 2 2v7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M11 18H8a2 2 0 0 1-2-2V9"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [36m<span>[39m
+          [0mSo sánh 2 phương án[0m
+        [36m</span>[39m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+        [33mid[39m=[32m"radix-:r2:"[39m
+      [36m>[39m
+        [0mSo sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4 py-2 border-b border-border"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án A[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 1[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án B[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 2[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 border border-border text-xs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"inline-flex items-center rounded-md border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground text-xs font-bold"[39m
+        [36m>[39m
+          [0mKhoảng cách sai khác: 1 ô thay đổi[0m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-4"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mĐiểm A: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mĐiểm B: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mChênh lệch (B - A):[0m
+          [0m [0m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-amber-600"[39m
+          [36m>[39m
+            [0m0.00[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<h4[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-foreground"[39m
+      [36m>[39m
+        [0mÔ có thay đổi giữa 2 phương án[0m
+        [0m ([0m
+        [0m1[0m
+        [0m ban đề có thay đổi)[0m
+      [36m</h4>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"overflow-x-auto rounded border border-border"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full border-collapse text-xs"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border bg-muted/30"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-left text-muted-foreground w-28"[39m
+              [36m>[39m
+                [0mKỳ / Khối[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-center text-foreground border-l border-border"[39m
+              [36m>[39m
+                [0mKhối 10[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border last:border-0"[39m
+            [36m>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 font-medium bg-muted/10"[39m
+              [36m>[39m
+                [0mGiữa kỳ 1[0m
+              [36m</td>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 border-l border-border align-top bg-amber-500/10"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-1"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mA:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mThầy Phúc[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-primary font-medium"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mB:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mCô Bình[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33mclass[39m=[32m"lucide lucide-x h-4 w-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 6 6 18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 6 12 12"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"sr-only"[39m
+      [36m>[39m
+        [0mClose[0m
+      [36m</span>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mclass[39m=[32m"fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-describedby[39m=[32m"radix-:r2:"[39m
+    [33maria-labelledby[39m=[32m"radix-:r1:"[39m
+    [33mclass[39m=[32m"fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-card text-card-foreground border-border"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mdata-testid[39m=[32m"plan-compare-modal"[39m
+    [33mid[39m=[32m"radix-:r0:"[39m
+    [33mrole[39m=[32m"dialog"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col space-y-1.5 text-center sm:text-left"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-lg font-semibold leading-none tracking-tight text-foreground flex items-center gap-2"[39m
+        [33mid[39m=[32m"radix-:r1:"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33mclass[39m=[32m"lucide lucide-git-compare h-5 w-5 text-primary"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"18"[39m
+            [33mcy[39m=[32m"18"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"6"[39m
+            [33mcy[39m=[32m"6"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M13 6h3a2 2 0 0 1 2 2v7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M11 18H8a2 2 0 0 1-2-2V9"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [36m<span>[39m
+          [0mSo sánh 2 phương án[0m
+        [36m</span>[39m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+        [33mid[39m=[32m"radix-:r2:"[39m
+      [36m>[39m
+        [0mSo sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4 py-2 border-b border-border"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án A[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 1[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án B[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 2[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 border border-border text-xs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"inline-flex items-center rounded-md border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground text-xs font-bold"[39m
+        [36m>[39m
+          [0mKhoảng cách sai khác: 1 ô thay đổi[0m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-4"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mĐiểm A: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mĐiểm B: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mChênh lệch (B - A):[0m
+          [0m [0m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-amber-600"[39m
+          [36m>[39m
+            [0m0.00[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<h4[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-foreground"[39m
+      [36m>[39m
+        [0mÔ có thay đổi giữa 2 phương án[0m
+        [0m ([0m
+        [0m1[0m
+        [0m ban đề có thay đổi)[0m
+      [36m</h4>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"overflow-x-auto rounded border border-border"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full border-collapse text-xs"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border bg-muted/30"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-left text-muted-foreground w-28"[39m
+              [36m>[39m
+                [0mKỳ / Khối[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-center text-foreground border-l border-border"[39m
+              [36m>[39m
+                [0mKhối 10[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border last:border-0"[39m
+            [36m>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 font-medium bg-muted/10"[39m
+              [36m>[39m
+                [0mGiữa kỳ 1[0m
+              [36m</td>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 border-l border-border align-top bg-amber-500/10"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-1"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mA:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mThầy Phúc[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-primary font-medium"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mB:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mCô Bình[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33mclass[39m=[32m"lucide lucide-x h-4 w-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 6 6 18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 6 12 12"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"sr-only"[39m
+      [36m>[39m
+        [0mClose[0m
+      [36m</span>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+[36m</body>[39m
+   × PlanCompareModal with two subjects (RA-013) > shows the VL and CN panels separately in the changed cell 1050ms
+     → Unable to find an element by: [data-testid="compare-cell-1-1-VL-A"]
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mclass[39m=[32m"fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-describedby[39m=[32m"radix-:rb:"[39m
+    [33maria-labelledby[39m=[32m"radix-:ra:"[39m
+    [33mclass[39m=[32m"fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-card text-card-foreground border-border"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mdata-testid[39m=[32m"plan-compare-modal"[39m
+    [33mid[39m=[32m"radix-:r9:"[39m
+    [33mrole[39m=[32m"dialog"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col space-y-1.5 text-center sm:text-left"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-lg font-semibold leading-none tracking-tight text-foreground flex items-center gap-2"[39m
+        [33mid[39m=[32m"radix-:ra:"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33mclass[39m=[32m"lucide lucide-git-compare h-5 w-5 text-primary"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"18"[39m
+            [33mcy[39m=[32m"18"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"6"[39m
+            [33mcy[39m=[32m"6"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M13 6h3a2 2 0 0 1 2 2v7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M11 18H8a2 2 0 0 1-2-2V9"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [36m<span>[39m
+          [0mSo sánh 2 phương án[0m
+        [36m</span>[39m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+        [33mid[39m=[32m"radix-:rb:"[39m
+      [36m>[39m
+        [0mSo sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4 py-2 border-b border-border"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án A[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 1[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án B[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 2[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 border border-border text-xs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"inline-flex items-center rounded-md border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground text-xs font-bold"[39m
+        [36m>[39m
+          [0mKhoảng cách sai khác: 1 ô thay đổi[0m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-4"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mĐiểm A: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mĐiểm B: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mChênh lệch (B - A):[0m
+          [0m [0m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-amber-600"[39m
+          [36m>[39m
+            [0m0.00[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<h4[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-foreground"[39m
+      [36m>[39m
+        [0mÔ có thay đổi giữa 2 phương án[0m
+        [0m ([0m
+        [0m1[0m
+        [0m ban đề có thay đổi)[0m
+      [36m</h4>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"overflow-x-auto rounded border border-border"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full border-collapse text-xs"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border bg-muted/30"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-left text-muted-foreground w-28"[39m
+              [36m>[39m
+                [0mKỳ / Khối[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-center text-foreground border-l border-border"[39m
+              [36m>[39m
+                [0mKhối 10[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border last:border-0"[39m
+            [36m>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 font-medium bg-muted/10"[39m
+              [36m>[39m
+                [0mGiữa kỳ 1[0m
+              [36m</td>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 border-l border-border align-top bg-amber-500/10"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-1"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mA:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mThầy Phúc[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-primary font-medium"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mB:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mCô Bình[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33mclass[39m=[32m"lucide lucide-x h-4 w-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 6 6 18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 6 12 12"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"sr-only"[39m
+      [36m>[39m
+        [0mClose[0m
+      [36m</span>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mclass[39m=[32m"fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-describedby[39m=[32m"radix-:rb:"[39m
+    [33maria-labelledby[39m=[32m"radix-:ra:"[39m
+    [33mclass[39m=[32m"fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-card text-card-foreground border-border"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mdata-testid[39m=[32m"plan-compare-modal"[39m
+    [33mid[39m=[32m"radix-:r9:"[39m
+    [33mrole[39m=[32m"dialog"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col space-y-1.5 text-center sm:text-left"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-lg font-semibold leading-none tracking-tight text-foreground flex items-center gap-2"[39m
+        [33mid[39m=[32m"radix-:ra:"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33mclass[39m=[32m"lucide lucide-git-compare h-5 w-5 text-primary"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"18"[39m
+            [33mcy[39m=[32m"18"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"6"[39m
+            [33mcy[39m=[32m"6"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M13 6h3a2 2 0 0 1 2 2v7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M11 18H8a2 2 0 0 1-2-2V9"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [36m<span>[39m
+          [0mSo sánh 2 phương án[0m
+        [36m</span>[39m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+        [33mid[39m=[32m"radix-:rb:"[39m
+      [36m>[39m
+        [0mSo sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4 py-2 border-b border-border"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án A[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 1[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án B[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 2[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 border border-border text-xs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"inline-flex items-center rounded-md border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground text-xs font-bold"[39m
+        [36m>[39m
+          [0mKhoảng cách sai khác: 1 ô thay đổi[0m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-4"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mĐiểm A: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mĐiểm B: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mChênh lệch (B - A):[0m
+          [0m [0m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-amber-600"[39m
+          [36m>[39m
+            [0m0.00[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<h4[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-foreground"[39m
+      [36m>[39m
+        [0mÔ có thay đổi giữa 2 phương án[0m
+        [0m ([0m
+        [0m1[0m
+        [0m ban đề có thay đổi)[0m
+      [36m</h4>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"overflow-x-auto rounded border border-border"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full border-collapse text-xs"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border bg-muted/30"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-left text-muted-foreground w-28"[39m
+              [36m>[39m
+                [0mKỳ / Khối[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-center text-foreground border-l border-border"[39m
+              [36m>[39m
+                [0mKhối 10[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border last:border-0"[39m
+            [36m>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 font-medium bg-muted/10"[39m
+              [36m>[39m
+                [0mGiữa kỳ 1[0m
+              [36m</td>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 border-l border-border align-top bg-amber-500/10"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-1"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mA:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mThầy Phúc[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-primary font-medium"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mB:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mCô Bình[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33mclass[39m=[32m"lucide lucide-x h-4 w-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 6 6 18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 6 12 12"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"sr-only"[39m
+      [36m>[39m
+        [0mClose[0m
+      [36m</span>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+[36m</body>[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/assignments/PlanCompareModal.test.tsx > PlanCompareModal with two subjects (RA-013) > counts every seat whose teacher differs, per subject
+TestingLibraryElementError: Unable to find an element with the text: /Khoảng cách sai khác: 2 ô/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mclass[39m=[32m"fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-describedby[39m=[32m"radix-:r2:"[39m
+    [33maria-labelledby[39m=[32m"radix-:r1:"[39m
+    [33mclass[39m=[32m"fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-card text-card-foreground border-border"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mdata-testid[39m=[32m"plan-compare-modal"[39m
+    [33mid[39m=[32m"radix-:r0:"[39m
+    [33mrole[39m=[32m"dialog"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col space-y-1.5 text-center sm:text-left"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-lg font-semibold leading-none tracking-tight text-foreground flex items-center gap-2"[39m
+        [33mid[39m=[32m"radix-:r1:"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33mclass[39m=[32m"lucide lucide-git-compare h-5 w-5 text-primary"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"18"[39m
+            [33mcy[39m=[32m"18"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"6"[39m
+            [33mcy[39m=[32m"6"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M13 6h3a2 2 0 0 1 2 2v7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M11 18H8a2 2 0 0 1-2-2V9"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [36m<span>[39m
+          [0mSo sánh 2 phương án[0m
+        [36m</span>[39m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+        [33mid[39m=[32m"radix-:r2:"[39m
+      [36m>[39m
+        [0mSo sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4 py-2 border-b border-border"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án A[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 1[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án B[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 2[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 border border-border text-xs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"inline-flex items-center rounded-md border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground text-xs font-bold"[39m
+        [36m>[39m
+          [0mKhoảng cách sai khác: 1 ô thay đổi[0m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-4"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mĐiểm A: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mĐiểm B: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mChênh lệch (B - A):[0m
+          [0m [0m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-amber-600"[39m
+          [36m>[39m
+            [0m0.00[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<h4[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-foreground"[39m
+      [36m>[39m
+        [0mÔ có thay đổi giữa 2 phương án[0m
+        [0m ([0m
+        [0m1[0m
+        [0m ban đề có thay đổi)[0m
+      [36m</h4>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"overflow-x-auto rounded border border-border"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full border-collapse text-xs"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border bg-muted/30"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-left text-muted-foreground w-28"[39m
+              [36m>[39m
+                [0mKỳ / Khối[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-center text-foreground border-l border-border"[39m
+              [36m>[39m
+                [0mKhối 10[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border last:border-0"[39m
+            [36m>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 font-medium bg-muted/10"[39m
+              [36m>[39m
+                [0mGiữa kỳ 1[0m
+              [36m</td>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 border-l border-border align-top bg-amber-500/10"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-1"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mA:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mThầy Phúc[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-primary font-medium"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mB:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mCô Bình[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33mclass[39m=[32m"lucide lucide-x h-4 w-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 6 6 18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 6 12 12"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"sr-only"[39m
+      [36m>[39m
+        [0mClose[0m
+      [36m</span>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mclass[39m=[32m"fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-describedby[39m=[32m"radix-:r2:"[39m
+    [33maria-labelledby[39m=[32m"radix-:r1:"[39m
+    [33mclass[39m=[32m"fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-card text-card-foreground border-border"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mdata-testid[39m=[32m"plan-compare-modal"[39m
+    [33mid[39m=[32m"radix-:r0:"[39m
+    [33mrole[39m=[32m"dialog"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col space-y-1.5 text-center sm:text-left"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-lg font-semibold leading-none tracking-tight text-foreground flex items-center gap-2"[39m
+        [33mid[39m=[32m"radix-:r1:"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33mclass[39m=[32m"lucide lucide-git-compare h-5 w-5 text-primary"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"18"[39m
+            [33mcy[39m=[32m"18"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"6"[39m
+            [33mcy[39m=[32m"6"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M13 6h3a2 2 0 0 1 2 2v7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M11 18H8a2 2 0 0 1-2-2V9"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [36m<span>[39m
+          [0mSo sánh 2 phương án[0m
+        [36m</span>[39m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+        [33mid[39m=[32m"radix-:r2:"[39m
+      [36m>[39m
+        [0mSo sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4 py-2 border-b border-border"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án A[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 1[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án B[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 2[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 border border-border text-xs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"inline-flex items-center rounded-md border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground text-xs font-bold"[39m
+        [36m>[39m
+          [0mKhoảng cách sai khác: 1 ô thay đổi[0m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-4"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mĐiểm A: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mĐiểm B: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mChênh lệch (B - A):[0m
+          [0m [0m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-amber-600"[39m
+          [36m>[39m
+            [0m0.00[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<h4[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-foreground"[39m
+      [36m>[39m
+        [0mÔ có thay đổi giữa 2 phương án[0m
+        [0m ([0m
+        [0m1[0m
+        [0m ban đề có thay đổi)[0m
+      [36m</h4>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"overflow-x-auto rounded border border-border"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full border-collapse text-xs"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border bg-muted/30"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-left text-muted-foreground w-28"[39m
+              [36m>[39m
+                [0mKỳ / Khối[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-center text-foreground border-l border-border"[39m
+              [36m>[39m
+                [0mKhối 10[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border last:border-0"[39m
+            [36m>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 font-medium bg-muted/10"[39m
+              [36m>[39m
+                [0mGiữa kỳ 1[0m
+              [36m</td>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 border-l border-border align-top bg-amber-500/10"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-1"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mA:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mThầy Phúc[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-primary font-medium"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mB:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mCô Bình[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33mclass[39m=[32m"lucide lucide-x h-4 w-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 6 6 18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 6 12 12"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"sr-only"[39m
+      [36m>[39m
+        [0mClose[0m
+      [36m</span>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/assignments/PlanCompareModal.test.tsx:103:25
+    101|     )
+    102|     // VL reviewer and CN reviewer both changed => 2 seats (subject-bl…
+    103|     expect(await screen.findByText(/Khoảng cách sai khác: 2 ô/)).toBeI…
+       |                         ^
+    104|   })
+    105| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/assignments/PlanCompareModal.test.tsx > PlanCompareModal with two subjects (RA-013) > shows the VL and CN panels separately in the changed cell
+TestingLibraryElementError: Unable to find an element by: [data-testid="compare-cell-1-1-VL-A"]
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mclass[39m=[32m"fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-describedby[39m=[32m"radix-:rb:"[39m
+    [33maria-labelledby[39m=[32m"radix-:ra:"[39m
+    [33mclass[39m=[32m"fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-card text-card-foreground border-border"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mdata-testid[39m=[32m"plan-compare-modal"[39m
+    [33mid[39m=[32m"radix-:r9:"[39m
+    [33mrole[39m=[32m"dialog"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col space-y-1.5 text-center sm:text-left"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-lg font-semibold leading-none tracking-tight text-foreground flex items-center gap-2"[39m
+        [33mid[39m=[32m"radix-:ra:"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33mclass[39m=[32m"lucide lucide-git-compare h-5 w-5 text-primary"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"18"[39m
+            [33mcy[39m=[32m"18"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"6"[39m
+            [33mcy[39m=[32m"6"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M13 6h3a2 2 0 0 1 2 2v7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M11 18H8a2 2 0 0 1-2-2V9"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [36m<span>[39m
+          [0mSo sánh 2 phương án[0m
+        [36m</span>[39m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+        [33mid[39m=[32m"radix-:rb:"[39m
+      [36m>[39m
+        [0mSo sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4 py-2 border-b border-border"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án A[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 1[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án B[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 2[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 border border-border text-xs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"inline-flex items-center rounded-md border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground text-xs font-bold"[39m
+        [36m>[39m
+          [0mKhoảng cách sai khác: 1 ô thay đổi[0m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-4"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mĐiểm A: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mĐiểm B: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mChênh lệch (B - A):[0m
+          [0m [0m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-amber-600"[39m
+          [36m>[39m
+            [0m0.00[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<h4[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-foreground"[39m
+      [36m>[39m
+        [0mÔ có thay đổi giữa 2 phương án[0m
+        [0m ([0m
+        [0m1[0m
+        [0m ban đề có thay đổi)[0m
+      [36m</h4>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"overflow-x-auto rounded border border-border"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full border-collapse text-xs"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border bg-muted/30"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-left text-muted-foreground w-28"[39m
+              [36m>[39m
+                [0mKỳ / Khối[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-center text-foreground border-l border-border"[39m
+              [36m>[39m
+                [0mKhối 10[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border last:border-0"[39m
+            [36m>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 font-medium bg-muted/10"[39m
+              [36m>[39m
+                [0mGiữa kỳ 1[0m
+              [36m</td>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 border-l border-border align-top bg-amber-500/10"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-1"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mA:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mThầy Phúc[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-primary font-medium"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mB:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mCô Bình[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33mclass[39m=[32m"lucide lucide-x h-4 w-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 6 6 18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 6 12 12"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"sr-only"[39m
+      [36m>[39m
+        [0mClose[0m
+      [36m</span>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mclass[39m=[32m"fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-describedby[39m=[32m"radix-:rb:"[39m
+    [33maria-labelledby[39m=[32m"radix-:ra:"[39m
+    [33mclass[39m=[32m"fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-card text-card-foreground border-border"[39m
+    [33mdata-state[39m=[32m"open"[39m
+    [33mdata-testid[39m=[32m"plan-compare-modal"[39m
+    [33mid[39m=[32m"radix-:r9:"[39m
+    [33mrole[39m=[32m"dialog"[39m
+    [33mstyle[39m=[32m"pointer-events: auto;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col space-y-1.5 text-center sm:text-left"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-lg font-semibold leading-none tracking-tight text-foreground flex items-center gap-2"[39m
+        [33mid[39m=[32m"radix-:ra:"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33mclass[39m=[32m"lucide lucide-git-compare h-5 w-5 text-primary"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"18"[39m
+            [33mcy[39m=[32m"18"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"6"[39m
+            [33mcy[39m=[32m"6"[39m
+            [33mr[39m=[32m"3"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M13 6h3a2 2 0 0 1 2 2v7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M11 18H8a2 2 0 0 1-2-2V9"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [36m<span>[39m
+          [0mSo sánh 2 phương án[0m
+        [36m</span>[39m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+        [33mid[39m=[32m"radix-:rb:"[39m
+      [36m>[39m
+        [0mSo sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4 py-2 border-b border-border"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án A[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 1[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+        [36m>[39m
+          [0mPhương án B[0m
+        [36m</label>[39m
+        [36m<button[39m
+          [33maria-autocomplete[39m=[32m"none"[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-2 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground w-full text-xs"[39m
+          [33mdata-state[39m=[32m"closed"[39m
+          [33mdir[39m=[32m"ltr"[39m
+          [33mrole[39m=[32m"combobox"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mstyle[39m=[32m"pointer-events: none;"[39m
+          [36m>[39m
+            [0mPlan 2[0m
+            [0m (Điểm: [0m
+            [0m10.0[0m
+            [0m)[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-down h-4 w-4 opacity-50"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 9 6 6 6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 border border-border text-xs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"inline-flex items-center rounded-md border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground text-xs font-bold"[39m
+        [36m>[39m
+          [0mKhoảng cách sai khác: 1 ô thay đổi[0m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-4"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mĐiểm A: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mĐiểm B: [0m
+          [36m<strong>[39m
+            [0m--[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mChênh lệch (B - A):[0m
+          [0m [0m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-amber-600"[39m
+          [36m>[39m
+            [0m0.00[0m
+          [36m</strong>[39m
+        [36m</span>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<h4[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-foreground"[39m
+      [36m>[39m
+        [0mÔ có thay đổi giữa 2 phương án[0m
+        [0m ([0m
+        [0m1[0m
+        [0m ban đề có thay đổi)[0m
+      [36m</h4>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"overflow-x-auto rounded border border-border"[39m
+      [36m>[39m
+        [36m<table[39m
+          [33mclass[39m=[32m"w-full border-collapse text-xs"[39m
+        [36m>[39m
+          [36m<thead>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border bg-muted/30"[39m
+            [36m>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-left text-muted-foreground w-28"[39m
+              [36m>[39m
+                [0mKỳ / Khối[0m
+              [36m</th>[39m
+              [36m<th[39m
+                [33mclass[39m=[32m"p-2 text-center text-foreground border-l border-border"[39m
+              [36m>[39m
+                [0mKhối 10[0m
+              [36m</th>[39m
+            [36m</tr>[39m
+          [36m</thead>[39m
+          [36m<tbody>[39m
+            [36m<tr[39m
+              [33mclass[39m=[32m"border-b border-border last:border-0"[39m
+            [36m>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 font-medium bg-muted/10"[39m
+              [36m>[39m
+                [0mGiữa kỳ 1[0m
+              [36m</td>[39m
+              [36m<td[39m
+                [33mclass[39m=[32m"p-2 border-l border-border align-top bg-amber-500/10"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-1"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mA:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mThầy Phúc[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"text-[10px] text-primary font-medium"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"font-semibold text-foreground"[39m
+                    [36m>[39m
+                      [0mB:[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mCô Hiền, Cô Lài, Thầy Nghĩa[0m
+                    [0m | PB: [0m
+                    [0mCô Bình[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</td>[39m
+            [36m</tr>[39m
+          [36m</tbody>[39m
+        [36m</table>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33mclass[39m=[32m"lucide lucide-x h-4 w-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 6 6 18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 6 12 12"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"sr-only"[39m
+      [36m>[39m
+        [0mClose[0m
+      [36m</span>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/assignments/PlanCompareModal.test.tsx:120:30
+    118|       />,
+    119|     )
+    120|     const vlA = await screen.findByTestId('compare-cell-1-1-VL-A')
+       |                              ^
+    121|     await waitFor(() => expect(vlA.textContent).toMatch(/Phúc/))
+    122|     expect(vlA.textContent).toMatch(/Hiền/)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  07:41:01
+   Duration  4.22s (transform 334ms, setup 153ms, collect 911ms, tests 2.22s, environment 486ms, prepare 188ms)
+

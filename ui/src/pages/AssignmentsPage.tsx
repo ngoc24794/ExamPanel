@@ -839,6 +839,7 @@ export function AssignmentsPage() {
         initialPlanAId={selectedPlanId ?? undefined}
         exams={exams}
         grades={grades}
+        subjects={subjects}
         teachers={teachers}
         campuses={campuses}
       />
