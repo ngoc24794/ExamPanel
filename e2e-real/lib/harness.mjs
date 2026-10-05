@@ -132,6 +132,8 @@ export class App {
 /** Launch a fresh tauri-driver + app. opts: {scenario, run (prepareRunDir result), env, args, dbus, width, height} */
 export async function launchApp(opts) {
   const { scenario, run, env = {}, args = [] } = opts;
+  // isolation: kill leftovers of earlier (failed) scenarios so RSS/timing numbers are not contaminated
+  try { const stray = execSync(`pgrep -u ${RUN_USER} -af '/.tools/qa-run/' || true`, { shell: '/bin/bash' }).toString().split('\n').filter((l) => l && !l.includes(run.dir)); if (stray.length) { fs.appendFileSync(path.join(run.dir, 'out/stray-processes-killed.txt'), stray.join('\n') + '\n'); execSync(`pkill -u ${RUN_USER} || true`, { shell: '/bin/bash' }); await sleep(800); } } catch {}
   const dbus = opts.dbus || startDbus(run.dir);
   const pPort = await freePort(); const nPort = await freePort();
   const fullEnv = { ...process.env, ...isoEnv(run.dir, { DBUS_SESSION_BUS_ADDRESS: dbus.address, ...env }) };

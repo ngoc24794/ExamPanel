@@ -1,0 +1,6 @@
+
+(process:20617): dconf-WARNING **: 05:11:30.878: Unable to open /root/.nix-profile/share/dconf/profile/user: Permission denied
+
+(ExamPanel:20619): dconf-WARNING **: 05:11:31.085: Unable to open /root/.nix-profile/share/dconf/profile/user: Permission denied
+
+(process:20689): dconf-WARNING **: 05:11:31.825: Unable to open /root/.nix-profile/share/dconf/profile/user: Permission denied

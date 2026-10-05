@@ -1,0 +1,257 @@
+ExamPanel
+Phân công ra đề
+
+Tổng quan
+Giáo viên
+Phân hiệu
+Môn thi
+Chuyên môn
+Kỳ thi
+Lịch bận
+Quy tắc
+Phân công
+Thống kê
+Cài đặt
+ExamPanel
+v0.1.0
+Giáo viên
+
+Có cảnh báo
+12
+
+2026 - 2027
+
+VI
+
+Hệ Thống
+Quản lý Giáo viên
+Danh sách giáo viên, phân hiệu công tác, khối giảng dạy, hệ số tải và trạng thái sẵn sàng cho năm học hiện tại.
+Xem chỉ tiêu
+Chuyên môn
+Tải file mẫu
+Nhập từ Excel
+Thêm giáo viên
+ĐỘ PHỦ GIÁO VIÊN THEO KHỐI & PHÂN HIỆU
+Khối	
+CPH
+Tổng	Trạng thái
+Khối 10	8	8	
+Đủ điều kiện
+Khối 11	8	8	
+Đủ điều kiện
+Khối 12	7	7	
+Đủ điều kiện
+
+
+Tất cả phân hiệu
+
+Tất cả các khối
+
+Tất cả trạng thái
+Mã GV	
+Họ và tên
+Phân hiệu
+Khối giảng dạy	
+Hệ số tải
+Hoạt động
+Ghi chú	Thao tác
+GV007	
+Cô Bình
+Cách gọi: C Bình
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV001	
+Cô Hiền
+Cách gọi: C Hiền
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV002	
+Cô Lài
+Cách gọi: C Lài
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV011	
+Cô Lan
+Cách gọi: C Lan
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV006	
+Cô Na
+Cách gọi: C Na
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV010	
+Cô Như
+Cách gọi: C Như
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV008	
+Cô Quí
+Cách gọi: C Quí
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV005	
+Cô Thư
+Cách gọi: C Thư
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV009	
+Cô Tú
+Cách gọi: C Tú
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV004	
+Thầy Lộc
+Cách gọi: T Lộc
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV012	
+Thầy Nghĩa
+Cố định: 12
+Cách gọi: T Nghĩa
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+GV003	
+Thầy Phúc
+Cách gọi: T Phúc
+Chưa phân hiệu
+10
+11
+12
+
+1.0
+
+—	
+
+
+
+Nhập dữ liệu từ Excel
+Giáo viên (13)
+Phân hiệu (1)
+Lịch vắng (0)
+Tất cả
+
+Mới
+
+Cập nhật
+
+Không đổi
+
+Lỗi
+Dòng	Trạng thái	Mã	Họ và tên	Phân hiệu	Khối dạy	Hệ số tải	Đang dạy	Ghi chú
+2	Không đổi	GV001	Cô Hiền	CPH	10, 11, 12	1	Mới	-
+3	Không đổi	GV002	Cô Lài	CPH	10, 11, 12	1	Mới	-
+4	Không đổi	GV003	Thầy Phúc	CPH	10, 12	1	Mới	-
+5	Không đổi	GV004	Thầy Lộc	CPH	10, 11	1	Mới	-
+6	Không đổi	GV005	Cô Thư	CPH	11	1	Mới	-
+7	Không đổi	GV006	Cô Na	CPH	10, 11	1	Mới	-
+8	Không đổi	GV007	Cô Bình	CPH	11, 12	1	Mới	-
+9	Không đổi	GV008	Cô Quí	CPH	11, 12	1	Mới	-
+10	Không đổi	GV009	Cô Tú	CPH	10	1	Mới	-
+11	Không đổi	GV010	Cô Như	CPH	10	1	Mới	-
+12	Không đổi	GV011	Cô Lan	CPH	12	1	Mới	-
+13	Không đổi	GV012	Thầy Nghĩa	CPH	10, 11, 12	1	Mới	-
+14	Mới	GV999	Trần Văn Thử Nghiệm	CPH	10, 11	1	Mới	-
+Quay lại chọn tệp
+Hủy
+Xác nhận & Áp dụng
+Close

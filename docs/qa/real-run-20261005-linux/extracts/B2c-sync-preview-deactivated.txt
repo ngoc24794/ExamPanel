@@ -1,0 +1,14 @@
+Nhập dữ liệu từ Excel
+Giáo viên (9)
+Phân hiệu (1)
+Lịch vắng (0)
+Ngừng hoạt động (4)
+Mã	Họ và tên	Phân hiệu
+GV009	Cô Tú	Chưa phân hiệu
+GV010	Cô Như	Chưa phân hiệu
+GV011	Cô Lan	Chưa phân hiệu
+GV999	Trần Văn Thử Nghiệm	Chưa phân hiệu
+Quay lại chọn tệp
+Hủy
+Xác nhận & Áp dụng
+Close

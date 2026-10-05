@@ -11,8 +11,9 @@ const scan = () => {
   return out;
 };
 const KEY = /(?<![\w@/.\-])[a-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*){1,3}(?![\w@/\-]|\.(?:xlsx|db|json|png|pdf|txt|md))/g;
-const states = [];
+const states = []; let DATA = new Set();
 await withApp({ scenario: 'E2', run }, async (app) => {
+  { const inv = async (c, a = {}) => (await app.invoke(c, a)).v; const ts = await inv('list_teachers'); const sj = await inv('list_subjects', { schoolYearId: 1 }); const ex = await inv('list_exams', { schoolYearId: 1 }); const cp = await inv('list_campuses'); const pl = await inv('list_plans', { schoolYearId: 1 }); for (const t of ts) { DATA.add(t.full_name); if (t.display_name) { DATA.add(t.display_name); DATA.add('Display Name: ' + t.display_name); DATA.add('(' + t.display_name + ')'); } } for (const x of sj) { DATA.add(x.name); DATA.add(x.code); DATA.add(x.name + ':'); } for (const x of ex) { DATA.add(x.name); DATA.add(x.code); } for (const x of cp) { DATA.add(x.name); DATA.add(x.code); } for (const x of pl) DATA.add(x.name); DATA.add('Năm học 2026 - 2027 — Phương án: Phương án #1'); }
   const routes = ['/', '/teachers', '/campuses', '/subjects', '/competencies', '/exams', '/unavailability', '/rules', '/assignments', '/statistics', '/settings'];
   for (const lang of ['vi', 'en']) {
     await app.nav('/settings'); await sleep(700); await clickTid(app.b, `lang-${lang}-btn`); await sleep(600);
@@ -29,16 +30,17 @@ await withApp({ scenario: 'E2', run }, async (app) => {
   }
   await app.nav('/settings'); await clickTid(app.b, 'lang-vi-btn');
 });
-fs.writeFileSync(path.join(OUT_ABS, 'extracts/E2-dom-scan.json'), JSON.stringify(states.map((s) => ({ lang: s.lang, where: s.where, error: s.error, text_len: s.text.length })), null, 1));
+fs.writeFileSync(path.join(OUT_ABS, 'extracts/E2-dom-scan.json'), JSON.stringify(states.map((s) => ({ lang: s.lang, where: s.where, error: s.error, text_len: s.text.length, text: s.text, attrs: s.attrs })), null, 0));
 // analysis
 const findings = { raw_keys: {}, forbidden: {}, mixed: {}, hard_coded_other_language: {} };
+const isData = (l) => { const t = l.trim(); if (DATA.has(t)) return true; const parts = t.split(/\t+/).map((x) => x.trim()).filter(Boolean); return parts.length > 0 && parts.every((x) => DATA.has(x) || /^[\d.,\[\]\s+\-–—/:%()]+$/.test(x) || [...DATA].some((d) => x.includes(d))) && /[\t]/.test(l) ? true : [...DATA].some((d) => d.length > 3 && t === d); };
 const VI_CHARS = /[ăâđêôơưàáạảãèéẹẻẽìíịỉĩòóọỏõùúụủũỳýỵỷỹ]/i;
 const EN_WORDS = /\b(Close|Cancel|Save|Delete|Edit|Search|Loading|Error|Success|Toggle|Refresh|Select|Back|Next|Apply|Import|Export|Download|Backup|Restore|Settings|Teachers|Subjects|Exams|Rules|Statistics|Assignments)\b/;
 for (const s of states) {
   const all = (s.text || '') + '\n' + (s.attrs || []).join('\n');
   for (const m of all.matchAll(KEY)) { const k = m[0]; if (/^\d|^v\d/.test(k)) continue; (findings.raw_keys[k] ||= new Set()).add(`${s.lang}:${s.where}`); }
   if (s.lang === 'vi') { for (const re of [/cơ sở/gi, /Kế hoạch/g, /Ràng buộc (cứng|mềm)/g]) for (const m of all.matchAll(re)) (findings.forbidden[m[0]] ||= new Set()).add(`${s.lang}:${s.where}`); }
-  if (s.lang === 'en') { const lines = (s.text || '').split('\n').filter((l) => VI_CHARS.test(l)); for (const l of lines) (findings.mixed['en-page-has-vietnamese: ' + l.trim().slice(0, 80)] ||= new Set()).add(`en:${s.where}`); }
+  if (s.lang === 'en') { const lines = (s.text || '').split('\n').filter((l) => VI_CHARS.test(l) && !isData(l)); for (const l of lines) (findings.mixed['en-page-has-vietnamese: ' + l.trim().slice(0, 80)] ||= new Set()).add(`en:${s.where}`); }
   if (s.lang === 'vi') { const lines = (s.text || '').split('\n').filter((l) => EN_WORDS.test(l) && !VI_CHARS.test(l) && l.length < 60); for (const l of lines) (findings.mixed['vi-page-has-english: ' + l.trim()] ||= new Set()).add(`vi:${s.where}`); }
 }
 const ser = Object.fromEntries(Object.entries(findings).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([a, b]) => [a, [...b]]))]));

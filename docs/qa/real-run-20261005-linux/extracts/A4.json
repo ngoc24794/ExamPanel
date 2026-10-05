@@ -3,68 +3,6 @@
  "started": "2026-10-05T04:57:33.168Z",
  "checks": [
   {
-   "step": "A4.ok.dialog-shown",
-   "result": "fail",
-   "observed": null,
-   "expected": "dialog titled \"ExamPanel - Lỗi ghi dữ liệu di động\"",
-   "evidence": [
-    "/home/user/ExamPanel/docs/qa/real-run-20261005-linux/screenshots/A4-ok-dialog.png"
-   ]
-  },
-  {
-   "step": "A4.ok.fallback-to-app-data",
-   "result": "fail",
-   "observed": {
-    "exited": null,
-    "windows": [
-     "ExamPanel"
-    ],
-    "xdg_tree": [
-     "logs",
-     "logs/app.log"
-    ],
-    "exe_dir_tree": [
-     "ExamPanel",
-     "ExamPanel.portable"
-    ]
-   },
-   "expected": "DB created under XDG data dir; app still running",
-   "evidence": [
-    "/home/user/ExamPanel/docs/qa/real-run-20261005-linux/screenshots/A4-ok-after.png"
-   ]
-  },
-  {
-   "step": "A4.cancel.dialog-shown",
-   "result": "fail",
-   "observed": null,
-   "expected": "dialog titled \"ExamPanel - Lỗi ghi dữ liệu di động\"",
-   "evidence": [
-    "/home/user/ExamPanel/docs/qa/real-run-20261005-linux/screenshots/A4-cancel-dialog.png"
-   ]
-  },
-  {
-   "step": "A4.cancel.app-exits-cleanly",
-   "result": null,
-   "observed": {
-    "exited": null,
-    "windows": [
-     "ExamPanel"
-    ],
-    "xdg_tree": [
-     "logs",
-     "logs/app.log"
-    ],
-    "exe_dir_tree": [
-     "ExamPanel",
-     "ExamPanel.portable"
-    ]
-   },
-   "expected": "exit code 0, no data created",
-   "evidence": [
-    "/home/user/ExamPanel/docs/qa/real-run-20261005-linux/screenshots/A4-cancel-after.png"
-   ]
-  },
-  {
    "step": "A4.dialog-shown",
    "result": "fail",
    "observed": {
@@ -109,6 +47,15 @@
    "observed": "dialog never rendered; cannot press Cancel",
    "expected": "exit code 0",
    "evidence": []
+  },
+  {
+   "step": "A4.windows-usb-write-protect",
+   "result": "manual-required",
+   "observed": "Windows/USB behaviour cannot be exercised on Linux",
+   "expected": "see windows-manual-checklist.md W5",
+   "evidence": [
+    "windows-manual-checklist.md"
+   ]
   }
  ],
  "notes": {

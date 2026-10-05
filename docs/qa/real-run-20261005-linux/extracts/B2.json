@@ -94,6 +94,145 @@
    },
    "expected": "teachers visible",
    "evidence": []
+  },
+  {
+   "step": "B2.upsert-preview-new-teacher-row",
+   "result": "pass",
+   "observed": {
+    "gv999_row": "14 Mới GV999 Trần Văn Thử Nghiệm CPH 10, 11 1 Mới -",
+    "status_counts_in_teacher_tab": {
+     "new": 13,
+     "unchanged": 12,
+     "update": 0
+    },
+    "rows": 13
+   },
+   "expected": "GV999 shown with green \"Mới\"; other 12 rows \"Không đổi\" (phase-9 step 2)",
+   "evidence": [
+    "extracts/B2c-upsert-preview.txt",
+    "screenshots/B2c-upsert-preview-page.png"
+   ]
+  },
+  {
+   "step": "B2.upsert-apply-creates-teacher-and-backup",
+   "result": "pass",
+   "observed": {
+    "teachers_before": 12,
+    "after": 13,
+    "toasts": [
+     "Nhập dữ liệu thành công! Đã tự động tạo bản sao lưu an toàn. | Tạo mới 1 giáo viên, cập nhật 0 giáo viên, ngừng hoạt động 0 giáo viên."
+    ],
+    "backups": [
+     "exampanel-backup-pre-import-1791181389.db"
+    ]
+   },
+   "expected": "GV999 created, pre-import backup, success toast with counts",
+   "evidence": []
+  },
+  {
+   "step": "B2.upsert-teacher-list-refreshes",
+   "result": "pass",
+   "observed": "checked list text",
+   "expected": "new teacher visible without reload",
+   "evidence": []
+  },
+  {
+   "step": "B2.sync-preview-lists-teachers-to-deactivate",
+   "result": "pass",
+   "observed": {
+    "tab_present": true,
+    "names_found": [
+     "Cô Lan",
+     "Cô Tú",
+     "Cô Như",
+     "Trần Văn Thử Nghiệm"
+    ]
+   },
+   "expected": "tab \"Ngừng hoạt động\" lists the 3 removed teachers + GV999 (not in file)",
+   "evidence": [
+    "extracts/B2c-sync-preview-deactivated.txt",
+    "screenshots/B2c-sync-preview-page.png"
+   ]
+  },
+  {
+   "step": "B2.sync-apply-deactivates-not-deletes",
+   "result": "pass",
+   "observed": {
+    "rows": [
+     {
+      "full_name": "Cô Tú",
+      "active": 0
+     },
+     {
+      "full_name": "Cô Như",
+      "active": 0
+     },
+     {
+      "full_name": "Cô Lan",
+      "active": 0
+     },
+     {
+      "full_name": "Trần Văn Thử Nghiệm",
+      "active": 0
+     }
+    ],
+    "assignments_of_inactive_teachers_in_plan1": 12,
+    "total_teachers": 13
+   },
+   "expected": "active=0, rows kept, historical assignments kept (phase-9 step 3)",
+   "evidence": []
+  },
+  {
+   "step": "B2.restore-v4-fixture-migrates-to-v5",
+   "result": "pass",
+   "observed": {
+    "dialog": "Xác nhận phục hồi dữ liệu | Hệ thống sẽ tự động sao lưu dữ liệu hiện tại trước khi phục hồi. Ứng dụng sẽ nạp lại dữ liệu sau khi hoàn tất. | Tệp dữ liệu hợp lệ (Kiểm tra toàn vẹn thành công) | Năm học: 1 | Giáo viên: 12 | Phương án: 1 | Phiên bản: v4 | Hủy | X",
+    "user_version_after": 5,
+    "teachers": 12,
+    "plans": [
+     {
+      "name": "Phương án v4 mẫu",
+      "is_final": 1
+     }
+    ],
+    "subjects": [
+     "CHUNG"
+    ],
+    "teachers_with_CHUNG_competency": 12
+   },
+   "expected": "migration 0005 runs on restore; legacy teachers keep CHUNG competency; plan intact (phase-11 step 8)",
+   "evidence": [
+    "extracts/B2c-restore-v4-dialog.txt"
+   ]
+  },
+  {
+   "step": "B2.real-school-file-15-50-teachers",
+   "result": "not-verified",
+   "observed": "no real school data available (rule 3); Q-shaped 12-teacher synthetic data used",
+   "expected": "import of a real 15-50 teacher file (v0.1.0 checklist §3)",
+   "evidence": []
+  },
+  {
+   "step": "B2.preview-feasibility-diagnostics",
+   "result": "not-verified",
+   "observed": "preview text of the feasible Q data shows only teacher/campus/absence tabs and statuses (extracts/B2-preview-text.txt); no feasibility simulation block appeared and the negative case (teacher without competency, H3 pool reduction: teacher_no_competency / h3_reviewer_pool_reduced) was not exercised by this run",
+   "expected": "warnings with diagnostic codes when the imported data would make the problem infeasible (phase-12 checklist K4.4)",
+   "evidence": [
+    "extracts/B2-preview-text.txt"
+   ]
+  },
+  {
+   "step": "B2.preview-active-column-shows-Có/Không",
+   "result": "fail",
+   "observed": {
+    "gv999_row": "14 Mới GV999 Trần Văn Thử Nghiệm CPH 10, 11 1 Mới -",
+    "expected_last_cells": "Hệ số tải 1 | Đang dạy Có | Ghi chú -"
+   },
+   "expected": "column \"Đang dạy\" shows Có/Không (sheet value \"Có\")",
+   "evidence": [
+    "extracts/B2c-upsert-preview.txt",
+    "screenshots/B2-import-preview-page.png"
+   ]
   }
  ],
  "notes": {
@@ -220,6 +359,24 @@
      "min_campuses": 1
     }
    ]
-  }
+  },
+  "status_filter_row_counts": [
+   [
+    "Mới",
+    1
+   ],
+   [
+    "Cập nhật",
+    0
+   ],
+   [
+    "Không đổi",
+    12
+   ],
+   [
+    "Lỗi",
+    0
+   ]
+  ]
  }
 }

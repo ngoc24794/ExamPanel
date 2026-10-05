@@ -1,0 +1,73 @@
+[
+ {
+  "at": "2026-10-05T05:40:05.560Z",
+  "errors": [],
+  "csp": [],
+  "rejections": [
+   "{\"code\":\"duplicate_entry\",\"params\":{\"detail\":\"UNIQUE constraint failed: assignments.plan_id, assignments.exam_id, assignments.grade_id, assignments.subject_id, assignments.teacher_id\"}}"
+  ],
+  "console": [],
+  "requests": [
+   {
+    "u": "ipc://localhost/teachers_with_grades",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_subjects",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_competencies",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/check_feasibility",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_problem_details",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_exams",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_locks",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_plans",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_plan",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plan_status",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/create_manual_copy",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_plans",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_plan",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plan_status",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/update_plan_assignments",
+    "k": "fetch"
+   }
+  ]
+ }
+]

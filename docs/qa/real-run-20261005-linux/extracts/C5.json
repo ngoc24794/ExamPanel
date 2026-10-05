@@ -437,6 +437,15 @@
    "observed": true,
    "expected": "pin icon visible in the pinned cell",
    "evidence": []
+  },
+  {
+   "step": "C5.drag-swap-with-real-mouse",
+   "result": "manual-required",
+   "observed": "WebKitWebDriver native dragAndDrop did not trigger HTML5 DnD; synthetic DragEvent used (see C5.drag-swap)",
+   "expected": "real mouse drag on a physical machine / WebView2",
+   "evidence": [
+    "extracts/C5.json"
+   ]
   }
  ],
  "notes": {

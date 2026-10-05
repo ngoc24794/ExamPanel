@@ -1,0 +1,22 @@
+{
+ "res": {
+  "all": {
+   "setter_lines": 36,
+   "reviewer_lines": 24,
+   "len": 1412
+  },
+  "VL": {
+   "setter_lines": 24,
+   "reviewer_lines": 12,
+   "len": 691
+  },
+  "CN": {
+   "setter_lines": 12,
+   "reviewer_lines": 12,
+   "len": 593
+  }
+ },
+ "rawLabel": [
+  "common.all (2)"
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "fs.read_text_file": "Command plugin:fs|read_text_file not allowed by ACL",
+ "fs.write": "Command plugin:fs|write_text_file not allowed by ACL",
+ "shell.execute": "Command plugin:shell|execute not allowed by ACL",
+ "opener.open_path": "Command plugin:opener|open_path not allowed by ACL",
+ "opener.open_url_file": "Not allowed to open url file:///etc/passwd",
+ "opener.open_url_https": "ALLOWED/OK",
+ "opener.reveal": "org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.portal.OpenURI was not provided by any .service files",
+ "process.exit": "Command plugin:process|exit not allowed by ACL",
+ "app.plugin_unknown": "Command plugin:nonexistent|x not allowed by ACL",
+ "core.window.close": "ALLOWED/OK",
+ "log.write": "ALLOWED/OK",
+ "file_written_/tmp/qa-pwn.txt": false
+}

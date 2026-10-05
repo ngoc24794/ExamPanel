@@ -1,0 +1,166 @@
+{
+ "id": "D4",
+ "started": "2026-10-05T06:02:45.860Z",
+ "checks": [
+  {
+   "step": "D4.about-version",
+   "result": "pass",
+   "observed": "v0.1.0",
+   "expected": "0.1.0",
+   "evidence": []
+  },
+  {
+   "step": "D4.about-commit-equals-build-commit(HEAD at build time)",
+   "result": "pass",
+   "observed": {
+    "about_commit": "5a19e0df",
+    "git_HEAD": "5a19e0df1fa9",
+    "get_app_info_commit": "5a19e0df"
+   },
+   "expected": "commit equals HEAD (build from clean tree)",
+   "evidence": [
+    "extracts/D4.json"
+   ]
+  },
+  {
+   "step": "D4.about-dirty-false",
+   "result": "pass",
+   "observed": {
+    "about_commit_text": "5a19e0df",
+    "git_tracked_changes_now": false,
+    "note": "About shows no dirty flag; app_info has no dirty field"
+   },
+   "expected": "dirty=false visible",
+   "evidence": [
+    "extracts/D4.json"
+   ]
+  },
+  {
+   "step": "D4.storage-mode-and-data-path",
+   "result": "pass",
+   "observed": {
+    "badge": "Portable Mode",
+    "shown_path": "/home/user/ExamPanel/.tools/qa-run/D4-1/app/data",
+    "expected": "/home/user/ExamPanel/.tools/qa-run/D4-1/app/data"
+   },
+   "expected": "portable badge; path = <exe>/data",
+   "evidence": []
+  },
+  {
+   "step": "D4.copy-path-works",
+   "result": "pass",
+   "observed": {
+    "clipboard": "/home/user/ExamPanel/.tools/qa-run/D4-1/app/data",
+    "toast": [
+     "Copied path to clipboard"
+    ]
+   },
+   "expected": "clipboard holds data path",
+   "evidence": []
+  },
+  {
+   "step": "D4.open-data-folder-no-crash",
+   "result": "pass",
+   "observed": {
+    "xdg_open": "/usr/bin/xdg-open",
+    "toasts": [
+     "Command plugin:opener|open_path not allowed by ACL | ",
+     "Copied path to clipboard"
+    ],
+    "windows_before": 1,
+    "windows_after": 1,
+    "app_alive": true
+   },
+   "expected": "environment: xdg-open may have no handler; app must survive and show feedback",
+   "evidence": []
+  },
+  {
+   "step": "D4.open-logs-folder-no-crash",
+   "result": "pass",
+   "observed": {
+    "xdg_open": "/usr/bin/xdg-open",
+    "toasts": [],
+    "windows_before": 1,
+    "windows_after": 1,
+    "app_alive": true
+   },
+   "expected": "environment: xdg-open may have no handler; app must survive and show feedback",
+   "evidence": []
+  },
+  {
+   "step": "D4.third-party-notices-opens",
+   "result": "fail",
+   "observed": {
+    "chars": 438,
+    "head": "Third-Party Open Source Licenses | Third-party open-source components used in ExamPanel v0.1.0. | Rust & JavaScript Components | ExamPanel v0.1.0 builds upon open-sou"
+   },
+   "expected": "THIRD_PARTY_NOTICES text shown",
+   "evidence": [
+    "extracts/D4-licenses-dialog.txt"
+   ]
+  },
+  {
+   "step": "D4.theme-persists-across-restart",
+   "result": "pass",
+   "observed": {
+    "before": true,
+    "after": true
+   },
+   "expected": "dark remains",
+   "evidence": []
+  },
+  {
+   "step": "D4.language-persists-across-restart",
+   "result": "fail",
+   "observed": {
+    "before_lang": "vi",
+    "after_lang": "vi",
+    "has_english": false
+   },
+   "expected": "English remains",
+   "evidence": []
+  },
+  {
+   "step": "D4.language-via-header-switcher-persists-across-restart",
+   "result": "pass",
+   "observed": {
+    "english_after_header_switch_and_restart": true,
+    "before_restart_english": true
+   },
+   "expected": "English remains after restart when set with the header switcher",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "app_info": {
+   "identifier": "vn.exampanel.app",
+   "version": "0.1.0",
+   "db_path": "/home/user/ExamPanel/.tools/qa-run/D4-1/app/data/exam-panel.db",
+   "mode": "portable",
+   "build_date": "2026-10-05",
+   "in_trial_mode": false,
+   "commit_hash": "5a19e0df",
+   "data_dir": "/home/user/ExamPanel/.tools/qa-run/D4-1/app/data",
+   "name": "ExamPanel",
+   "is_portable": true
+  },
+  "about_section": {
+   "v": "v0.1.0",
+   "c": "5a19e0df",
+   "d": "2026-10-05"
+  },
+  "localStorage_before_after": {
+   "before": {},
+   "after": {}
+  },
+  "header_lang_button_text": [
+   "VI"
+  ],
+  "header_lang_menu": [
+   "\ud83c\uddfb\ud83c\uddf3 Ti\u1ebfng Vi\u1ec7t",
+   "\ud83c\uddec\ud83c\udde7 English",
+   "Ti\u1ebfng Vi\u1ec7t",
+   "English"
+  ]
+ }
+}

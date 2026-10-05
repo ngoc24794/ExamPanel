@@ -1,0 +1,20 @@
+# A9 — aggregated console errors/warnings, external requests and CSP violations over 114 app runs
+
+Source: logs/hooks/*.json (page hook injected after each page load; events before the hook and across reloads are NOT captured), logs/app-logs/*.log (tauri-plugin-log file), logs/driver-logs, logs/raw.
+
+## Page console errors / warnings / window errors / unhandled rejections (unique, with counts)
+- x2 in 2 run(s): unhandledrejection: {"code":"duplicate_entry","params":{"detail":"UNIQUE constraint failed: assignments.plan_id, assignments.exam_id, assignments.grade_id, assignments.subject_id, assignments.teacher_id"}}
+
+## Requests to non-local hosts (fetch/XHR/WebSocket URLs seen by the hook)
+- https://example.com/  (runs: E4-1, E4-2) — deliberate probe in E4
+- http://127.0.0.1:9/  (runs: E4-1, E4-2) — deliberate probe in E4
+
+## securitypolicyviolation events
+- img-src blocked https://example.com/x.png (runs: E4-1, E4-2)
+- script-src-elem blocked https://example.com/x.js (runs: E4-1, E4-2)
+- script-src-elem blocked inline (runs: E4-1, E4-2)
+- connect-src blocked https://example.com/ (runs: E4-1, E4-2)
+- connect-src blocked http://127.0.0.1:9/ (runs: E4-1, E4-2)
+
+## Rust-side log lines containing ERROR / WARN / panic (app.log)
+(none)

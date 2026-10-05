@@ -1,0 +1,16 @@
+Hard-coded Vietnamese UI text still visible when the UI language is English (curated by hand from extracts/E2-i18n-findings.json and extracts/E2-dom-scan.json; user data such as teacher names, plan names, exam names, grade names and campus names removed).
+Screen / dialog                -> text that stays Vietnamese in EN mode
+Sidebar (all pages)            -> "Phân công ra đề" (app subtitle)
+Overview + feasibility sheet   -> "Năm học 2026 - 2027", "0 lỗi, 12 cảnh báo", "1 phân hiệu", "12 giáo viên"
+Competencies                   -> "VL (2Đ+1PB)", "CN (1Đ+1PB)", "Đề:"
+Unavailability                 -> column header "Thao tác"
+Assignments totals panel       -> sort label "Giảm"
+Statistics                     -> "So sánh số lượt phân công thực tế với chỉ tiêu phân bổ định mức"; "Campus diversity breakdown across each 3-member panel (Tổng số: 12 ban đề)"
+Settings                       -> "Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.", "Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).", backup table headers "Tệp sao lưu / Dung lượng / Thời gian / Thao tác"
+Teacher dialog                 -> "Grades Taught (Năm học 2026 - 2027)"
+Compare dialog                 -> "So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án", "Điểm A/B", "Chênh lệch (B - A)", "Changed slot between plans (12 ban đề có thay đổi)", "Kỳ / Khối", "(Điểm: …)"
+Import-plan dialog             -> "Hỗ trợ tệp xuất từ phần mềm (“Bảng phân công (mẫu tổ)”) hoặc mẫu bảng gốc của cô…"
+Import-Excel dialog            -> "Hủy"
+Quota-preview dialog           -> "Tổng số giáo viên: 12", "Tổng chỉ tiêu phân bổ: 60.00", table headers "Giáo viên / Trọng số tải / Kỳ khả dụng / Nhiệm vụ cố định / Chỉ tiêu mục tiêu (q) / Khoảng", badge "Cố định: 12"
+Feasibility sheet              -> "GK1 • Khối 10 • CN • Ra đề" (role word), forced-placement section
+Vietnamese mode (reverse)      -> English "Close" (dialog close button label)

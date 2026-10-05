@@ -1,0 +1,16 @@
+
+(process:2377): dconf-WARNING **: 06:00:06.101: Unable to open /root/.nix-profile/share/dconf/profile/user: Permission denied
+
+(ExamPanel:2379): dconf-WARNING **: 06:00:06.223: Unable to open /root/.nix-profile/share/dconf/profile/user: Permission denied
+
+(process:2449): dconf-WARNING **: 06:00:06.899: Unable to open /root/.nix-profile/share/dconf/profile/user: Permission denied
+
+(ExamPanel:2379): Gtk-CRITICAL **: 06:00:17.705: gtk_widget_event: assertion 'WIDGET_REALIZED_FOR_EVENT (widget, event)' failed
+
+(ExamPanel:2379): Gtk-CRITICAL **: 06:00:37.717: gtk_widget_event: assertion 'WIDGET_REALIZED_FOR_EVENT (widget, event)' failed
+
+(ExamPanel:2379): Gtk-CRITICAL **: 06:00:44.683: gtk_widget_event: assertion 'WIDGET_REALIZED_FOR_EVENT (widget, event)' failed
+
+(ExamPanel:2379): Gtk-CRITICAL **: 06:00:44.689: gtk_widget_event: assertion 'WIDGET_REALIZED_FOR_EVENT (widget, event)' failed
+
+Session terminated, killing shell... ...killed.

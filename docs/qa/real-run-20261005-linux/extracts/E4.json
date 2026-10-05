@@ -1,0 +1,244 @@
+{
+ "id": "E4",
+ "started": "2026-10-05T06:11:11.227Z",
+ "checks": [
+  {
+   "step": "E4.no-developer-route",
+   "result": "pass",
+   "observed": {
+    "hash_after_nav": "#/"
+   },
+   "expected": "redirects to / (route not compiled in: import.meta.env.DEV false)",
+   "evidence": []
+  },
+  {
+   "step": "E4.no-developer-link-in-sidebar",
+   "result": "pass",
+   "observed": [
+    "#/",
+    "#/teachers",
+    "#/campuses",
+    "#/subjects",
+    "#/competencies",
+    "#/exams",
+    "#/unavailability",
+    "#/rules",
+    "#/assignments",
+    "#/statistics",
+    "#/settings"
+   ],
+   "expected": "no /dev link",
+   "evidence": []
+  },
+  {
+   "step": "E4.seed_demo-denied-in-release",
+   "result": "fail",
+   "observed": {
+    "result": {
+     "params": {
+      "detail": "FOREIGN KEY constraint failed"
+     },
+     "code": "foreign_key_violation"
+    },
+    "teachers_before": 12,
+    "teachers_after": 12,
+    "years_before": 1,
+    "years_after": 1
+   },
+   "expected": "seed_demo must not exist or must refuse in the release build (task: \"no seed_demo command\")",
+   "evidence": [
+    "extracts/E4.json",
+    "build-inspect.txt"
+   ]
+  },
+  {
+   "step": "E4.fs-shell-process-plugins-not-granted",
+   "result": "pass",
+   "observed": {
+    "fs_read": "Command plugin:fs|read_text_file not allowed by ACL",
+    "fs_write": "Command plugin:fs|write_text_file not allowed by ACL",
+    "shell": "Command plugin:shell|execute not allowed by ACL",
+    "process": "Command plugin:process|exit not allowed by ACL"
+   },
+   "expected": "denied / plugin not found",
+   "evidence": [
+    "extracts/E4-capability-probes.json"
+   ]
+  },
+  {
+   "step": "E4.opener-open_path-denied",
+   "result": "pass",
+   "observed": {
+    "open_path": "Command plugin:opener|open_path not allowed by ACL",
+    "open_url_file": "Not allowed to open url file:///etc/passwd"
+   },
+   "expected": "arbitrary path / file: URL not allowed by capability scope",
+   "evidence": [
+    "extracts/E4-capability-probes.json"
+   ]
+  },
+  {
+   "step": "E4.custom-commands-accept-arbitrary-paths(info)",
+   "result": "pass",
+   "observed": {
+    "export_plan_excel_to_tmp": "writes"
+   },
+   "expected": "informational: IPC accepts any path (acceptable only while the webview loads local content only)",
+   "evidence": [
+    "extracts/E4.json"
+   ]
+  },
+  {
+   "step": "E4.external-fetch-img-script-blocked-by-CSP",
+   "result": "pass",
+   "observed": {
+    "script": "BLOCKED script error",
+    "img": "BLOCKED img error",
+    "inline_script_ran": "LOADED false",
+    "fetch_https": "BLOCKED TypeError: Load failed",
+    "fetch_http_localhost": "BLOCKED TypeError: Load failed"
+   },
+   "expected": "CSP connect-src/img-src/script-src block external hosts",
+   "evidence": [
+    "extracts/E4-network-csp-probe.json"
+   ]
+  },
+  {
+   "step": "E4.inline-script-blocked",
+   "result": "pass",
+   "observed": "LOADED false",
+   "expected": "script-src self blocks inline script",
+   "evidence": []
+  },
+  {
+   "step": "E4.csp-violations-reported-for-probes-only",
+   "result": "pass",
+   "observed": [
+    {
+     "b": "https://example.com/x.png",
+     "d": "img-src"
+    },
+    {
+     "b": "https://example.com/x.js",
+     "d": "script-src-elem"
+    },
+    {
+     "b": "inline",
+     "d": "script-src-elem"
+    },
+    {
+     "b": "https://example.com/",
+     "d": "connect-src"
+    },
+    {
+     "b": "http://127.0.0.1:9/",
+     "d": "connect-src"
+    }
+   ],
+   "expected": "securitypolicyviolation events fired for the 3 deliberate probes (and nothing else, see A9)",
+   "evidence": []
+  },
+  {
+   "step": "E4.seed_demo-on-empty-real-db-must-not-write",
+   "result": "fail",
+   "observed": {
+    "result": "executed",
+    "before": {
+     "t": 0,
+     "c": 0,
+     "p": 0
+    },
+    "after": {
+     "t": 12,
+     "c": 4,
+     "p": 0
+    },
+    "writes_into_real_db_file": "exam-panel.db"
+   },
+   "expected": "release build has no seed_demo command (task: confirm release contains no dev-tools); here the command exists and fills the real exam-panel.db with demo teachers/plans",
+   "evidence": [
+    "extracts/E4.json",
+    "build-inspect.txt"
+   ]
+  }
+ ],
+ "notes": {
+  "capability_probes": {
+   "fs.read_text_file": "Command plugin:fs|read_text_file not allowed by ACL",
+   "fs.write": "Command plugin:fs|write_text_file not allowed by ACL",
+   "shell.execute": "Command plugin:shell|execute not allowed by ACL",
+   "opener.open_path": "Command plugin:opener|open_path not allowed by ACL",
+   "opener.open_url_file": "Not allowed to open url file:///etc/passwd",
+   "opener.open_url_https": "ALLOWED/OK",
+   "opener.reveal": "org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.portal.OpenURI was not provided by any .service files",
+   "process.exit": "Command plugin:process|exit not allowed by ACL",
+   "app.plugin_unknown": "Command plugin:nonexistent|x not allowed by ACL",
+   "core.window.close": "ALLOWED/OK",
+   "log.write": "ALLOWED/OK",
+   "file_written_/tmp/qa-pwn.txt": false
+  },
+  "opener_https_and_reveal": {
+   "https": "ALLOWED/OK",
+   "reveal": "org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.portal.OpenURI was not provided by any .service files"
+  },
+  "export_plan_excel_arbitrary_path": {
+   "ok": true,
+   "file_created": true
+  },
+  "network_probe": {
+   "script": "BLOCKED script error",
+   "img": "BLOCKED img error",
+   "inline_script_ran": "LOADED false",
+   "fetch_https": "BLOCKED TypeError: Load failed",
+   "fetch_http_localhost": "BLOCKED TypeError: Load failed"
+  },
+  "hook_csp_events": [
+   {
+    "b": "https://example.com/x.png",
+    "d": "img-src"
+   },
+   {
+    "b": "https://example.com/x.js",
+    "d": "script-src-elem"
+   },
+   {
+    "b": "inline",
+    "d": "script-src-elem"
+   },
+   {
+    "b": "https://example.com/",
+    "d": "connect-src"
+   },
+   {
+    "b": "http://127.0.0.1:9/",
+    "d": "connect-src"
+   }
+  ],
+  "hook_non_local_requests": [
+   {
+    "u": "https://example.com/",
+    "k": "fetch"
+   },
+   {
+    "u": "http://127.0.0.1:9/",
+    "k": "fetch"
+   }
+  ],
+  "seed_demo_on_populated_db_logical_hash_unchanged": true,
+  "seed_demo_empty_db": {
+   "result": "OK",
+   "before": {
+    "t": 0,
+    "c": 0,
+    "p": 0
+   },
+   "after": {
+    "t": 12,
+    "c": 4,
+    "p": 0
+   },
+   "db_path": "/home/user/ExamPanel/.tools/qa-run/E4empty-1/app/data/exam-panel.db",
+   "in_trial_mode": false
+  }
+ }
+}

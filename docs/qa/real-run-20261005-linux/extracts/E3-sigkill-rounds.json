@@ -1,0 +1,62 @@
+[
+ {
+  "round": 1,
+  "killed_pid": 15925,
+  "hot_journal_after_kill": [
+   "exam-panel.db-journal"
+  ],
+  "relaunch_ready_ms": 1575,
+  "integrity": "ok",
+  "unavailability_rows": 24,
+  "plans": 4
+ },
+ {
+  "round": 2,
+  "killed_pid": 16201,
+  "hot_journal_after_kill": [],
+  "relaunch_ready_ms": 1558,
+  "integrity": "ok",
+  "unavailability_rows": 24,
+  "plans": 4
+ },
+ {
+  "round": 3,
+  "killed_pid": 16476,
+  "hot_journal_after_kill": [
+   "exam-panel.db-journal"
+  ],
+  "relaunch_ready_ms": 1955,
+  "integrity": "ok",
+  "unavailability_rows": 24,
+  "plans": 4
+ },
+ {
+  "round": 4,
+  "killed_pid": 16748,
+  "hot_journal_after_kill": [],
+  "relaunch_ready_ms": 1660,
+  "integrity": "ok",
+  "unavailability_rows": 24,
+  "plans": 4
+ },
+ {
+  "round": 5,
+  "killed_pid": 17018,
+  "hot_journal_after_kill": [
+   "exam-panel.db-journal"
+  ],
+  "relaunch_ready_ms": 1559,
+  "integrity": "ok",
+  "unavailability_rows": 24,
+  "plans": 4
+ },
+ {
+  "round": 6,
+  "killed_pid": 17292,
+  "hot_journal_after_kill": [],
+  "relaunch_ready_ms": 1603,
+  "integrity": "ok",
+  "unavailability_rows": 24,
+  "plans": 4
+ }
+]

@@ -3,16 +3,6 @@
  "started": "2026-10-05T05:06:36.385Z",
  "checks": [
   {
-   "step": "B1.real-db-hash-after-exit",
-   "result": "fail",
-   "observed": {
-    "idle": "3e0ceb8aa38cea3c03d0b761317e9034af4df8d164d3f8afba239267f7412b83",
-    "after": "1b1bf6df155e86a688f6b43cb81423691e95ec52789bc848e21fa3162477e495"
-   },
-   "expected": "identical sha256 (real DB not even touched)",
-   "evidence": []
-  },
-  {
    "step": "B1.startup-does-not-modify-existing-db",
    "result": "fail",
    "observed": {
@@ -25,7 +15,7 @@
   {
    "step": "B1.banner-visible",
    "result": "pass",
-   "observed": "Đang ở chế độ dùng thử với dữ liệu mẫu. Dữ liệu thật được giữ an toàn tuyệt đối.Quay lại dữ liệu thật",
+   "observed": "\u0110ang \u1edf ch\u1ebf \u0111\u1ed9 d\u00f9ng th\u1eed v\u1edbi d\u1eef li\u1ec7u m\u1eabu. D\u1eef li\u1ec7u th\u1eadt \u0111\u01b0\u1ee3c gi\u1eef an to\u00e0n tuy\u1ec7t \u0111\u1ed1i.Quay l\u1ea1i d\u1eef li\u1ec7u th\u1eadt",
    "expected": "amber banner",
    "evidence": [
     "screenshots/B1-trial-page.png"
@@ -35,7 +25,7 @@
    "step": "B1.demo-is-Q-shaped-12-teachers",
    "result": "pass",
    "observed": 12,
-   "expected": "12 teachers (task); release checklist v0.1.0 says 18 teachers/2 campuses — stale?",
+   "expected": "12 teachers (task); release checklist v0.1.0 says 18 teachers/2 campuses \u2014 stale?",
    "evidence": []
   },
   {
@@ -62,18 +52,18 @@
    "step": "B1.exit-restores-real-data",
    "result": "pass",
    "observed": [
-    "Cô Hiền",
-    "Cô Lài",
-    "Thầy Phúc",
-    "Thầy Lộc",
-    "Cô Thư",
-    "Cô Na",
-    "Cô Bình",
-    "Cô Quí",
-    "Cô Tú",
-    "Cô Như",
-    "Cô Lan",
-    "Thầy Nghĩa"
+    "C\u00f4 Hi\u1ec1n",
+    "C\u00f4 L\u00e0i",
+    "Th\u1ea7y Ph\u00fac",
+    "Th\u1ea7y L\u1ed9c",
+    "C\u00f4 Th\u01b0",
+    "C\u00f4 Na",
+    "C\u00f4 B\u00ecnh",
+    "C\u00f4 Qu\u00ed",
+    "C\u00f4 T\u00fa",
+    "C\u00f4 Nh\u01b0",
+    "C\u00f4 Lan",
+    "Th\u1ea7y Ngh\u0129a"
    ],
    "expected": "12 real teachers, no trial edits",
    "evidence": []
@@ -107,7 +97,7 @@
   }
  ],
  "notes": {
-  "after_enter_click_head": "ExamPanel\nPhân công ra đề\n\nTổng quan\nGiáo viên\nPhân hiệu\nMôn thi\nChuyên môn\nKỳ thi\nLịch bận\nQuy tắc\nPhân công\nThống kê\nCài đặt\nExamPanel\nv0.1.0\nCài đặt\n\nCó cảnh báo\n24\n\n2026-2027\n\nVI\n\nHệ Thống\nĐang ở chế độ dùng thử với dữ liệu mẫu. Dữ liệu thật được giữ an toàn tuyệt đối.\nQuay lại dữ liệu thật\nCài đặt Hệ thống\nTùy chọn giao diện, vị trí lưu trữ tệp dữ liệu và thông tin phiên bản.\nGiao diện & Ngôn ngữ\nChủ đề giao diện\nTùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.\n\nSáng\n\nTối\n\nHệ thống\nNgôn ngữ hiển thị\nChọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).\n\nTiếng Việt\n\nEng",
+  "after_enter_click_head": "ExamPanel\nPh\u00e2n c\u00f4ng ra \u0111\u1ec1\n\nT\u1ed5ng quan\nGi\u00e1o vi\u00ean\nPh\u00e2n hi\u1ec7u\nM\u00f4n thi\nChuy\u00ean m\u00f4n\nK\u1ef3 thi\nL\u1ecbch b\u1eadn\nQuy t\u1eafc\nPh\u00e2n c\u00f4ng\nTh\u1ed1ng k\u00ea\nC\u00e0i \u0111\u1eb7t\nExamPanel\nv0.1.0\nC\u00e0i \u0111\u1eb7t\n\nC\u00f3 c\u1ea3nh b\u00e1o\n24\n\n2026-2027\n\nVI\n\nH\u1ec7 Th\u1ed1ng\n\u0110ang \u1edf ch\u1ebf \u0111\u1ed9 d\u00f9ng th\u1eed v\u1edbi d\u1eef li\u1ec7u m\u1eabu. D\u1eef li\u1ec7u th\u1eadt \u0111\u01b0\u1ee3c gi\u1eef an to\u00e0n tuy\u1ec7t \u0111\u1ed1i.\nQuay l\u1ea1i d\u1eef li\u1ec7u th\u1eadt\nC\u00e0i \u0111\u1eb7t H\u1ec7 th\u1ed1ng\nT\u00f9y ch\u1ecdn giao di\u1ec7n, v\u1ecb tr\u00ed l\u01b0u tr\u1eef t\u1ec7p d\u1eef li\u1ec7u v\u00e0 th\u00f4ng tin phi\u00ean b\u1ea3n.\nGiao di\u1ec7n & Ng\u00f4n ng\u1eef\nCh\u1ee7 \u0111\u1ec1 giao di\u1ec7n\nT\u00f9y ch\u1ec9nh giao di\u1ec7n hi\u1ec3n th\u1ecb s\u00e1ng, t\u1ed1i ho\u1eb7c theo h\u1ec7 \u0111i\u1ec1u h\u00e0nh.\n\nS\u00e1ng\n\nT\u1ed1i\n\nH\u1ec7 th\u1ed1ng\nNg\u00f4n ng\u1eef hi\u1ec3n th\u1ecb\nCh\u1ecdn ng\u00f4n ng\u1eef giao di\u1ec7n (Ti\u1ebfng Vi\u1ec7t m\u1eb7c \u0111\u1ecbnh ho\u1eb7c English).\n\nTi\u1ebfng Vi\u1ec7t\n\nEng",
   "confirm_dialog_present": false,
   "trial_info": {
    "identifier": "vn.exampanel.app",
@@ -122,18 +112,18 @@
    "is_portable": true
   },
   "trial_teachers": [
-   "C Hiền",
-   "C Lài",
-   "T Phúc",
-   "T Lộc",
-   "C Thư",
+   "C Hi\u1ec1n",
+   "C L\u00e0i",
+   "T Ph\u00fac",
+   "T L\u1ed9c",
+   "C Th\u01b0",
    "C Na",
-   "C Bình",
-   "C Quí",
-   "C Tú",
-   "C Như",
+   "C B\u00ecnh",
+   "C Qu\u00ed",
+   "C T\u00fa",
+   "C Nh\u01b0",
    "C Lan",
-   "T Nghĩa"
+   "T Ngh\u0129a"
   ],
   "trial_subjects": [
    {

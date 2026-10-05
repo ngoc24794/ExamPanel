@@ -1,0 +1,91 @@
+ExamPanel
+Phân công ra đề
+
+Overview
+Teachers
+Campuses
+Subjects
+Competencies
+Exams
+Unavailability
+Rules
+Assignments
+Statistics
+Settings
+ExamPanel
+v0.1.0
+Settings
+
+Warnings
+12
+
+2026 - 2027
+
+EN
+
+Dark
+System Settings
+Theme preferences, data storage location, and version info.
+Appearance & Language
+Theme
+Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.
+
+Light
+
+Dark
+
+System
+Language
+Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).
+
+Tiếng Việt
+
+English
+Organization Details
+School and department details rendered on printable matrices, teacher notices, and export workbooks.
+School / Unit Name
+Department
+Location / Place Name
+Signer Title
+Signer Name
+
+Save Details
+Data Storage
+Storage Mode
+Portable Mode
+Data Directory Path
+/home/user/ExamPanel/.tools/qa-run/D4-1/app/data
+
+Copy Path
+
+Open Data Folder
+
+Open Logs Folder
+Trial Mode
+Experience all features of ExamPanel with an independent sample dataset in demo.db without affecting your real data.
+
+Try with sample data
+Backup & Restore
+
+Backup Now
+
+Restore from File
+Safely manage database backups with automated integrity validation.
+Automatic Backups
+
+Tệp sao lưu	Dung lượng	Thời gian	Thao tác
+No automatic backups available.
+About ExamPanel
+Application Version
+v0.1.0
+Commit Hash
+5a19e0df
+Build Date
+2026-10-05
+Storage Mode
+Portable (USB Drive)
+Data Directory
+/home/user/ExamPanel/.tools/qa-run/D4-1/app/data
+Third-Party Open Source Licenses
+View details
+Automated panel assignment and reviewer allocation for high school exams.

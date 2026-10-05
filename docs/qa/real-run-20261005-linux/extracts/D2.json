@@ -19,6 +19,25 @@
    },
    "expected": "file written",
    "evidence": []
+  },
+  {
+   "step": "D2.real-app-print-dialog-and-pdf",
+   "result": "blocked",
+   "observed": "window.print() is a no-op in the WebKitGTK app and WebDriver Print Page is unsupported (RA-030)",
+   "expected": "Print dialog -> PDF from the real app",
+   "evidence": [
+    "screenshots/D2-gtk-print-dialog.png",
+    "extracts/D2.json"
+   ]
+  },
+  {
+   "step": "D2.notices-filter-toggle-all-vs-with-tasks",
+   "result": "not-verified",
+   "observed": "filter control exists on /print/notices (visible in screenshots) but toggling was not driven; PDF replay used default filter (12 teachers all with duties)",
+   "expected": "both filters give correct page counts",
+   "evidence": [
+    "extracts/D2-pdfchecks.json"
+   ]
   }
  ],
  "notes": {

@@ -11,7 +11,7 @@
    },
    "expected": "exit 0 within seconds",
    "evidence": [
-    ".tools/qa-run/A3-1/out/second-launch.txt"
+    "logs/raw/A3-1-second-launch.txt"
    ]
   },
   {
@@ -48,6 +48,24 @@
    "observed": true,
    "expected": "true",
    "evidence": []
+  },
+  {
+   "step": "A3.second-launch-focuses-first-window",
+   "result": "not-verified",
+   "observed": "second launch exits 0 in 49 ms and creates no window; X11 active-window/focus under openbox was not asserted",
+   "expected": "first window raised/focused (tauri-plugin-single-instance callback show()+set_focus())",
+   "evidence": [
+    "extracts/A3.json"
+   ]
+  },
+  {
+   "step": "A3.no-second-db-connection",
+   "result": "not-verified",
+   "observed": "only one app PID exists; open file descriptors on exam-panel.db were not enumerated by this harness",
+   "expected": "single connection",
+   "evidence": [
+    "extracts/A3.json"
+   ]
   }
  ],
  "notes": {

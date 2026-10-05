@@ -1,0 +1,33 @@
+Trung tâm kiểm tra tính khả thi
+KHẢ THI
+Chi tiết các cảnh báo và điều kiện chưa thỏa mãn cho năm học hiện tại. (2026 - 2027)
+Tất cả các điều kiện và dữ liệu đều thỏa mãn.
+feasibility.forcedPlacementsTitle
+12
+feasibility.forcedPlacementsDesc
+Thầy Nghĩa
+GK1 • Khối 10 • CN • Ra đề
+Thầy Nghĩa
+GK1 • Khối 11 • CN • Ra đề
+Thầy Nghĩa
+GK1 • Khối 12 • CN • Ra đề
+Thầy Nghĩa
+CK1 • Khối 10 • CN • Ra đề
+Thầy Nghĩa
+CK1 • Khối 11 • CN • Ra đề
+Thầy Nghĩa
+CK1 • Khối 12 • CN • Ra đề
+Thầy Nghĩa
+GK2 • Khối 10 • CN • Ra đề
+Thầy Nghĩa
+GK2 • Khối 11 • CN • Ra đề
+Thầy Nghĩa
+GK2 • Khối 12 • CN • Ra đề
+Thầy Nghĩa
+CK2 • Khối 10 • CN • Ra đề
+Thầy Nghĩa
+CK2 • Khối 11 • CN • Ra đề
+Thầy Nghĩa
+CK2 • Khối 12 • CN • Ra đề
+Tất cả các điều kiện và dữ liệu đều thỏa mãn.
+Close

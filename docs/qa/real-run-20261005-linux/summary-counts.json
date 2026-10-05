@@ -1,0 +1,38 @@
+{
+ "findings_by_severity": {
+  "S1": 1,
+  "S2": 15,
+  "S3": 19,
+  "S4": 8
+ },
+ "findings_by_category": {
+  "bug": 14,
+  "spec-mismatch": 1,
+  "mock-vs-real gap": 4,
+  "Q-fit": 6,
+  "packaging/runtime": 3,
+  "i18n/text": 9,
+  "environment": 1,
+  "docs": 4,
+  "accessibility": 1
+ },
+ "scenario_rows": {
+  "pass": 5,
+  "fail": 22,
+  "blocked": 1
+ },
+ "checklist_steps": {
+  "fail": 37,
+  "blocked": 4,
+  "pass": 9,
+  "manual-required": 3
+ },
+ "step_checks": {
+  "pass": 213,
+  "not-verified": 8,
+  "fail": 47,
+  "blocked": 4,
+  "manual-required": 2
+ },
+ "n_findings": 43
+}
