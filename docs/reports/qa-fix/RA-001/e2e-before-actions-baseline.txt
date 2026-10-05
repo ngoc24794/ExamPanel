@@ -1,0 +1,10 @@
+[A4-actions] A4.ok.dialog-shown: fail | observed=null expected="dialog visible within 20 s"
+[A4-actions] A4.ok.app-continues-with-app-data: fail | observed={"main":true,"db_exists":false,"exited":null} expected="main window shown, DB created in the per-user data dir, process alive"
+[A4-actions] A4.cancel.app-exits-cleanly: fail | observed={"exited":null,"data_created":false} expected="exit code 0 and no data created"
+[A4-actions] A5.ok.dialog-shown: fail | observed=null expected="dialog visible"
+[A4-actions] A5.ok.app-exits: fail | observed=null expected="exit code 1 after the message"
+[A4-actions] A6.ok.dialog-shown: fail | observed=null expected="dialog visible"
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+sqlite3.DatabaseError: file is not a database
+[A4-actions] A6.ok.restored-and-started: fail | observed={"main":true,"integrity":"Error: Command failed: /home/user/ExamPanel/.tools/venv/bin/python -c import sql"} expected="main window shown and DB integrity ok after restore"
