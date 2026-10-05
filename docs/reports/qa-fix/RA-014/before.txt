@@ -1,0 +1,30 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1024x700 (3.3s)
+  ✘  2 [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1280x720 (1.2s)
+  ✓  3 [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1440x900 (1.1s)
+  ✓  4 [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1920x1080 (980ms)
+
+
+  1) [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1280x720 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    106
+
+      36 |
+      37 |     // every grade column of the grid is inside its container (no sideways scrolling)
+    > 38 |     expect(m.wrapScrollOverflow).toBeLessThanOrEqual(1)
+         |                                  ^
+      39 |     expect(m.tableRight).toBeLessThanOrEqual(m.wrapRight + 1)
+      40 |     // the totals panel (all columns up to the last exam column) is fully visible
+      41 |     expect(m.totalsScrollOverflow).toBeLessThanOrEqual(1)
+        at /home/user/ExamPanel/ui/e2e/grid-layout.spec.ts:38:34
+
+    Error Context: .tools/pw-out/grid-layout-Q-grid-and-tot-22434-are-not-clipped-at-1280x720-chromium/error-context.md
+
+  1 failed
+    [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1280x720 
+  3 passed (9.2s)

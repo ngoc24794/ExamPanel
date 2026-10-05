@@ -34,7 +34,7 @@ const SY = 1
 const cases: Array<{
   name: string
   api: keyof typeof api
-  run: (h: ReturnType<typeof makeHooks>) => Promise<unknown>
+  run: (h: ReturnType<typeof useAllHooks>) => Promise<unknown>
 }> = [
   {
     name: 'set unavailability',
@@ -70,7 +70,11 @@ const cases: Array<{
         },
       }),
   },
-  { name: 'delete teacher', api: 'deleteTeacher', run: (h) => h.delTeacher.mutateAsync(1) },
+  {
+    name: 'delete teacher',
+    api: 'deleteTeacher',
+    run: (h) => h.delTeacher.mutateAsync(1),
+  },
   {
     name: 'deactivate teacher',
     api: 'deactivateTeacher',
@@ -85,7 +89,12 @@ const cases: Array<{
     name: 'create exam',
     api: 'createExam',
     run: (h) =>
-      h.createExam.mutateAsync({ school_year_id: SY, code: 'X', name: 'X', sort_order: 9 }),
+      h.createExam.mutateAsync({
+        school_year_id: SY,
+        code: 'X',
+        name: 'X',
+        sort_order: 9,
+      }),
   },
   {
     name: 'update exam',
@@ -100,9 +109,21 @@ const cases: Array<{
       }),
   },
   { name: 'delete exam', api: 'deleteExam', run: (h) => h.delExam.mutateAsync(1) },
-  { name: 'reorder exams', api: 'reorderExams', run: (h) => h.reorderExams.mutateAsync([1]) },
-  { name: 'save rules', api: 'saveRuleSettings', run: (h) => h.saveRules.mutateAsync([]) },
-  { name: 'reset rules', api: 'resetRuleSettingsToDefaults', run: (h) => h.resetRules.mutateAsync() },
+  {
+    name: 'reorder exams',
+    api: 'reorderExams',
+    run: (h) => h.reorderExams.mutateAsync([1]),
+  },
+  {
+    name: 'save rules',
+    api: 'saveRuleSettings',
+    run: (h) => h.saveRules.mutateAsync([]),
+  },
+  {
+    name: 'reset rules',
+    api: 'resetRuleSettingsToDefaults',
+    run: (h) => h.resetRules.mutateAsync(),
+  },
   {
     name: 'create lock',
     api: 'createLock',
@@ -145,7 +166,7 @@ const cases: Array<{
   },
 ]
 
-function makeHooks() {
+function useAllHooks() {
   return {
     plans: usePlans(SY),
     setUnavail: useSetUnavailability(SY),
@@ -175,16 +196,18 @@ describe('plans list is refreshed after problem data changes (RA-022)', () => {
 
   it.each(cases)('$name refetches the plans list', async ({ api: method, run }) => {
     const listPlans = vi.spyOn(api, 'listPlans').mockResolvedValue([])
-    ;(vi.spyOn(api, method as never) as unknown as { mockResolvedValue: (v: unknown) => void }).mockResolvedValue(
-      method === 'createTeacher' ? { id: 99 } : undefined,
-    )
+    ;(
+      vi.spyOn(api, method as never) as unknown as {
+        mockResolvedValue: (v: unknown) => void
+      }
+    ).mockResolvedValue(method === 'createTeacher' ? { id: 99 } : undefined)
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: 60_000 } },
     })
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
     )
-    const { result } = renderHook(() => makeHooks(), { wrapper })
+    const { result } = renderHook(() => useAllHooks(), { wrapper })
     await waitFor(() => expect(listPlans).toHaveBeenCalledTimes(1))
 
     await act(async () => {

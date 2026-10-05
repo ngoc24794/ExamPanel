@@ -276,7 +276,8 @@
     "compareScoreDelta": "Chênh lệch (B - A)",
     "compareExamGrade": "Kỳ / Khối",
     "compareReviewerShort": "PB",
-    "comparePanelsChanged": "{{count}} ban đề có thay đổi"
+    "comparePanelsChanged": "{{count}} ban đề có thay đổi",
+    "gradeWord": "Khối"
   },
   "stats": {
     "title": "Thống kê & Báo cáo",

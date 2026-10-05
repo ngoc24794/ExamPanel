@@ -9,7 +9,10 @@ import { AssignmentsPage } from './AssignmentsPage'
 
 function renderPage() {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, staleTime: 60_000 }, mutations: { retry: false } },
+    defaultOptions: {
+      queries: { retry: false, staleTime: 60_000 },
+      mutations: { retry: false },
+    },
   })
   return render(
     <MemoryRouter>

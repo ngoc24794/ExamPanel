@@ -13,11 +13,31 @@ import {
 } from '@/lib/api'
 import { PlanCompareModal } from './PlanCompareModal'
 
-const exams: Exam[] = [{ id: 1, school_year_id: 1, code: 'GK1', name: 'Giữa kỳ 1', sort_order: 1 }]
+const exams: Exam[] = [
+  { id: 1, school_year_id: 1, code: 'GK1', name: 'Giữa kỳ 1', sort_order: 1 },
+]
 const grades: Grade[] = [{ id: 1, name: 'Khối 10', sort_order: 1 } as Grade]
 const subjects: Subject[] = [
-  { id: 1, code: 'VL', name: 'Vật lí', color: 'blue', sort_order: 1, setters: 2, reviewers: 1, min_campuses: 0 },
-  { id: 2, code: 'CN', name: 'Công nghệ', color: 'green', sort_order: 2, setters: 1, reviewers: 1, min_campuses: 0 },
+  {
+    id: 1,
+    code: 'VL',
+    name: 'Vật lí',
+    color: 'blue',
+    sort_order: 1,
+    setters: 2,
+    reviewers: 1,
+    min_campuses: 0,
+  },
+  {
+    id: 2,
+    code: 'CN',
+    name: 'Công nghệ',
+    color: 'green',
+    sort_order: 2,
+    setters: 1,
+    reviewers: 1,
+    min_campuses: 0,
+  },
 ]
 const names = ['', 'Cô Hiền', 'Cô Lài', 'Thầy Phúc', 'Thầy Nghĩa', 'Cô Bình']
 const teachers: TeacherWithGrades[] = [1, 2, 3, 4, 5].map((id) => ({
@@ -46,7 +66,15 @@ const seat = (
   role: 'setter' | 'reviewer',
   position: number,
   teacher_id: number,
-): Assignment => ({ plan_id: 0, exam_id: 1, grade_id: 1, subject_id, teacher_id, role, position })
+): Assignment => ({
+  plan_id: 0,
+  exam_id: 1,
+  grade_id: 1,
+  subject_id,
+  teacher_id,
+  role,
+  position,
+})
 
 // Plan A: VL [Hiền, Lài | Phúc]  CN [Nghĩa | Bình]
 const planA = [

@@ -12,7 +12,10 @@ vi.mock('sonner', () => ({ toast: { success: vi.fn(), info: vi.fn(), error: vi.f
 
 function renderPage() {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, staleTime: 60_000 }, mutations: { retry: false } },
+    defaultOptions: {
+      queries: { retry: false, staleTime: 60_000 },
+      mutations: { retry: false },
+    },
   })
   return render(
     <MemoryRouter>
@@ -59,7 +62,9 @@ async function seats(): Promise<{ list: Seat[]; testId: (a: Seat) => string }> {
 
 async function openEditableCopy() {
   renderPage()
-  fireEvent.click(await screen.findByTestId('create-edit-copy-button', undefined, { timeout: 3000 }))
+  fireEvent.click(
+    await screen.findByTestId('create-edit-copy-button', undefined, { timeout: 3000 }),
+  )
   await screen.findByTitle(/Hoàn tác/, undefined, { timeout: 3000 })
 }
 

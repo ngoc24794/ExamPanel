@@ -82,9 +82,12 @@ describe('QPlanGrid Component Tests (Part B)', () => {
     // Attached Totals Panel headers: GV, Tổng, Đề, PB
     expect(screen.getByText('Tổng cộng')).toBeInTheDocument()
 
-    // Exam rows exist (GK1, CK1, GK2, CK2)
+    // The grade header never doubles the word (RA-003)
+    expect(screen.queryByText(/Khối Khối/i)).not.toBeInTheDocument()
+
+    // Exam rows and totals columns use the paper codes GK1, CK1, GK2, CK2 (RA-015)
     for (const ex of exams) {
-      expect(screen.getAllByText(ex.name).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(ex.code).length).toBeGreaterThan(1) // grid row + totals header
     }
   })
 

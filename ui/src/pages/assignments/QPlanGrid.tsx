@@ -45,6 +45,7 @@ import {
   Search,
 } from 'lucide-react'
 import { CandidateSelectModal } from './CandidateSelectModal'
+import { gradeGroupLabel } from './gridLabels'
 
 export interface QPlanGridProps {
   planDetails: PlanDetails
@@ -461,7 +462,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
       </div>
 
       {/* Main Grid + Attached Totals Panel Layout */}
-      <div className="flex flex-col xl:flex-row items-start gap-4 w-full">
+      <div className="flex flex-col min-[1440px]:flex-row items-start gap-4 w-full">
         {/* Left: Q-Style Assignment Grid */}
         <div className="flex-1 w-full overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
           <table
@@ -484,7 +485,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                     colSpan={effectiveSubjects.length}
                     className="p-2 border-r border-border text-center font-bold text-xs bg-muted/50"
                   >
-                    Khối {grade.name}
+                    {gradeGroupLabel(grade.name, t('assignments.gradeWord'))}
                   </th>
                 ))}
               </tr>
@@ -554,7 +555,9 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                         rowSpan={totalExamRows}
                         className="p-2 border-r border-border text-center font-bold text-xs bg-muted/40 align-middle w-20"
                       >
-                        <div className="font-bold text-foreground">{exam.name}</div>
+                        <div className="font-bold text-foreground" title={exam.name}>
+                          {exam.code}
+                        </div>
                       </td>
                     )}
 
@@ -575,10 +578,9 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                           return (
                             <td
                               key={`${exam.id}-${grade.id}-${subject.id}-${rowDef.role}-${rowDef.position}`}
-                              className="border-r border-border bg-muted/10 p-1 text-center text-muted-foreground/30 font-mono text-[11px]"
-                            >
-                              —
-                            </td>
+                              data-testid={`q-grid-blank-${exam.id}-${grade.id}-${subject.code}-${rowDef.role}-${rowDef.position}`}
+                              className="border-r border-border bg-muted/10 p-1"
+                            />
                           )
                         }
 
@@ -872,7 +874,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
 
         {/* Right: Attached Totals Panel */}
         <div
-          className="w-full xl:w-96 rounded-lg border border-border bg-card shadow-sm p-3 space-y-3 shrink-0"
+          className="w-full min-[1440px]:w-96 rounded-lg border border-border bg-card shadow-sm p-3 space-y-3 shrink-0"
           data-testid="q-plan-totals-panel"
         >
           <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
@@ -937,8 +939,12 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                     {t('assignments.totalsReviewer') || 'PB'}
                   </th>
                   {exams.map((ex) => (
-                    <th key={ex.id} className="p-1.5 text-center font-mono text-[10px]">
-                      {ex.name}
+                    <th
+                      key={ex.id}
+                      title={ex.name}
+                      className="p-1.5 text-center font-mono text-[10px]"
+                    >
+                      {ex.code}
                     </th>
                   ))}
                 </tr>

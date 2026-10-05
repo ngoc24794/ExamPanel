@@ -23,7 +23,8 @@ export function panelMembers(
   subjectId: number,
 ): PanelMembers {
   const inPanel = assignments.filter(
-    (a) => a.exam_id === examId && a.grade_id === gradeId && (a.subject_id ?? 1) === subjectId,
+    (a) =>
+      a.exam_id === examId && a.grade_id === gradeId && (a.subject_id ?? 1) === subjectId,
   )
   return {
     setters: inPanel

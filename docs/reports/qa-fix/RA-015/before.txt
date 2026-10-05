@@ -1,0 +1,789 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/assignments/QPlanGrid.test.tsx (3 tests | 1 failed) 787ms
+   × QPlanGrid Component Tests (Part B) > renders Q-style grid structure, headers, and attached totals panel 411ms
+     → Found multiple elements with the text: /Khối Khối/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<th[39m
+  [33mclass[39m=[32m"p-2 border-r border-border text-center font-bold text-xs bg-muted/50"[39m
+  [33mcolspan[39m=[32m"2"[39m
+[36m>[39m
+  [0mKhối [0m
+  [0mKhối 10[0m
+[36m</th>[39m
+
+Ignored nodes: comments, script, style
+[36m<th[39m
+  [33mclass[39m=[32m"p-2 border-r border-border text-center font-bold text-xs bg-muted/50"[39m
+  [33mcolspan[39m=[32m"2"[39m
+[36m>[39m
+  [0mKhối [0m
+  [0mKhối 11[0m
+[36m</th>[39m
+
+Ignored nodes: comments, script, style
+[36m<th[39m
+  [33mclass[39m=[32m"p-2 border-r border-border text-center font-bold text-xs bg-muted/50"[39m
+  [33mcolspan[39m=[32m"2"[39m
+[36m>[39m
+  [0mKhối [0m
+  [0mKhối 12[0m
+[36m</th>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+      [33mdata-testid[39m=[32m"q-plan-grid-root"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card shadow-sm text-xs"[39m
+        [33mdata-testid[39m=[32m"q-grid-summary-bar"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5 font-bold text-sm text-foreground"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mTổng điểm phạt: 38.80[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [0mĐiều kiện bắt buộc: Hợp lệ (0 vi phạm)[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms1[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms2[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms3[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms4[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms5[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m1[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms6[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m6[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms7[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms8[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m2.5997967774713313[0m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[9px] font-sans"[39m
+            [36m>[39m
+              [0m([0m
+              [0mKhông thể giảm thêm[0m
+              [0m)[0m
+            [36m</span>[39m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col xl:flex-row items-start gap-4 w-full"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass...
+   ✓ QPlanGrid Component Tests (Part B) > highlights all seats of a teacher on hover and displays tooltip 228ms
+   ✓ QPlanGrid Component Tests (Part B) > renders forced-load teacher indicator and task count markers in totals table 147ms
+ ❯ src/pages/assignments/GridEditing.test.tsx (9 tests | 1 failed) 2892ms
+   ✓ Grid Editing & Interaction Tests > seat click opens the candidate list with disabled invalid candidates and reasons  578ms
+   ✓ Grid Editing & Interaction Tests > drag-to-swap: drags one seat and drops on another to swap teachers  486ms
+   ✓ Grid Editing & Interaction Tests > keyboard flow: navigates candidates with ArrowDown/ArrowUp and selects with Enter 61ms
+   ✓ Grid Editing & Interaction Tests > undo/redo: records assignment updates and allows undoing and redoing  879ms
+   ✓ Grid Editing & Interaction Tests > forced seats immovable: cannot be dragged, clicked for replacement, or overwritten by drop 192ms
+   ✓ Grid Editing & Interaction Tests > totals panel counts and the ≥2 / ≥3 markers (* and **) 106ms
+   ✓ Grid Editing & Interaction Tests > teacher hover focus: highlights all seats of hovered teacher and totals row 226ms
+   ✓ Grid Editing & Interaction Tests > view-toggle persistence: persists view mode to localStorage and restores on mount 203ms
+   × Grid Editing & Interaction Tests > two-subject layout with blank CN second "Đề" row 160ms
+     → Unable to find an element by: [data-testid="q-grid-blank-1-1-CN-setter-1"]
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+      [33mdata-testid[39m=[32m"q-plan-grid-root"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card shadow-sm text-xs"[39m
+        [33mdata-testid[39m=[32m"q-grid-summary-bar"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5 font-bold text-sm text-foreground"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mTổng điểm phạt: 38.80[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [0mĐiều kiện bắt buộc: Hợp lệ (0 vi phạm)[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms1[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms2[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms3[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms4[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms5[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m1[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms6[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m6[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms7[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms8[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m2.5997967774713313[0m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[9px] font-sans"[39m
+            [36m>[39m
+              [0m([0m
+              [0mKhông thể giảm thêm[0m
+              [0m)[0m
+            [36m</span>[39m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col xl:flex-row items-start gap-4 w-full"[39m
+      [36m>[39m
+  ...
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/assignments/GridEditing.test.tsx > Grid Editing & Interaction Tests > two-subject layout with blank CN second "Đề" row
+TestingLibraryElementError: Unable to find an element by: [data-testid="q-grid-blank-1-1-CN-setter-1"]
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+      [33mdata-testid[39m=[32m"q-plan-grid-root"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card shadow-sm text-xs"[39m
+        [33mdata-testid[39m=[32m"q-grid-summary-bar"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5 font-bold text-sm text-foreground"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mTổng điểm phạt: 38.80[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [0mĐiều kiện bắt buộc: Hợp lệ (0 vi phạm)[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms1[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms2[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms3[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms4[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms5[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m1[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms6[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m6[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms7[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms8[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m2.5997967774713313[0m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[9px] font-sans"[39m
+            [36m>[39m
+              [0m([0m
+              [0mKhông thể giảm thêm[0m
+              [0m)[0m
+            [36m</span>[39m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col xl:flex-row items-start gap-4 w-full"[39m
+      [36m>[39m
+  ...
+ ❯ Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/assignments/GridEditing.test.tsx:572:26
+    570|     // For CN setter position 1 the seat does not exist (position >= s…
+    571|     // paper sheet leaves that cell blank, no placeholder glyph (RA-01…
+    572|     const blank = screen.getByTestId('q-grid-blank-1-1-CN-setter-1')
+       |                          ^
+    573|     expect(blank.textContent).toBe('')
+    574|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/assignments/QPlanGrid.test.tsx > QPlanGrid Component Tests (Part B) > renders Q-style grid structure, headers, and attached totals panel
+TestingLibraryElementError: Found multiple elements with the text: /Khối Khối/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<th[39m
+  [33mclass[39m=[32m"p-2 border-r border-border text-center font-bold text-xs bg-muted/50"[39m
+  [33mcolspan[39m=[32m"2"[39m
+[36m>[39m
+  [0mKhối [0m
+  [0mKhối 10[0m
+[36m</th>[39m
+
+Ignored nodes: comments, script, style
+[36m<th[39m
+  [33mclass[39m=[32m"p-2 border-r border-border text-center font-bold text-xs bg-muted/50"[39m
+  [33mcolspan[39m=[32m"2"[39m
+[36m>[39m
+  [0mKhối [0m
+  [0mKhối 11[0m
+[36m</th>[39m
+
+Ignored nodes: comments, script, style
+[36m<th[39m
+  [33mclass[39m=[32m"p-2 border-r border-border text-center font-bold text-xs bg-muted/50"[39m
+  [33mcolspan[39m=[32m"2"[39m
+[36m>[39m
+  [0mKhối [0m
+  [0mKhối 12[0m
+[36m</th>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+      [33mdata-testid[39m=[32m"q-plan-grid-root"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card shadow-sm text-xs"[39m
+        [33mdata-testid[39m=[32m"q-grid-summary-bar"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5 font-bold text-sm text-foreground"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mTổng điểm phạt: 38.80[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [0mĐiều kiện bắt buộc: Hợp lệ (0 vi phạm)[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms1[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms2[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms3[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms4[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms5[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m1[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms6[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m6[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-border text-muted-foreground bg-muted/20"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms7[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m0[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"px-2 py-0.5 rounded border text-[11px] font-mono cursor-help flex items-center gap-1 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-bold uppercase"[39m
+            [36m>[39m
+              [0ms8[0m
+            [36m</span>[39m
+            [0m: [0m
+            [0m2.5997967774713313[0m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[9px] font-sans"[39m
+            [36m>[39m
+              [0m([0m
+              [0mKhông thể giảm thêm[0m
+              [0m)[0m
+            [36m</span>[39m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col xl:flex-row items-start gap-4 w-full"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass...
+ ❯ Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/assignments/QPlanGrid.test.tsx:86:19
+     84| 
+     85|     // The grade header never doubles the word (RA-003)
+     86|     expect(screen.queryByText(/Khối Khối/i)).not.toBeInTheDocument()
+       |                   ^
+     87| 
+     88|     // Exam rows and totals columns use the paper codes GK1, CK1, GK2,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 10 passed (12)
+   Start at  07:46:36
+   Duration  5.14s (transform 710ms, setup 256ms, collect 2.34s, tests 3.68s, environment 794ms, prepare 312ms)
+

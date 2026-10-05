@@ -77,7 +77,13 @@ export function PlanCompareModal({
   // Compute distance and difference map per (exam, grade, subject) panel (RA-013).
   const comparison = React.useMemo(() => {
     if (!detailsA || !detailsB) return null
-    return comparePlans(detailsA.assignments, detailsB.assignments, exams, grades, subjects)
+    return comparePlans(
+      detailsA.assignments,
+      detailsB.assignments,
+      exams,
+      grades,
+      subjects,
+    )
   }, [detailsA, detailsB, exams, grades, subjects])
 
   const teacherName = (id: number | undefined) =>
@@ -113,7 +119,11 @@ export function PlanCompareModal({
               <SelectContent className="bg-card border-border">
                 {plans.map((p) => (
                   <SelectItem key={p.id} value={p.id.toString()} className="text-xs">
-                    {p.name} ({t('assignments.compareScoreShort', { score: p.score?.toFixed(1) ?? '--' })})
+                    {p.name} (
+                    {t('assignments.compareScoreShort', {
+                      score: p.score?.toFixed(1) ?? '--',
+                    })}
+                    )
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -134,7 +144,11 @@ export function PlanCompareModal({
               <SelectContent className="bg-card border-border">
                 {plans.map((p) => (
                   <SelectItem key={p.id} value={p.id.toString()} className="text-xs">
-                    {p.name} ({t('assignments.compareScoreShort', { score: p.score?.toFixed(1) ?? '--' })})
+                    {p.name} (
+                    {t('assignments.compareScoreShort', {
+                      score: p.score?.toFixed(1) ?? '--',
+                    })}
+                    )
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -190,7 +204,10 @@ export function PlanCompareModal({
           <div className="space-y-4">
             <h4 className="text-sm font-semibold text-foreground">
               {t('assignments.diffHighlight')} (
-              {t('assignments.comparePanelsChanged', { count: comparison.diffPanels.size })})
+              {t('assignments.comparePanelsChanged', {
+                count: comparison.diffPanels.size,
+              })}
+              )
             </h4>
 
             {/* Matrix comparison: one block per subject panel */}

@@ -276,7 +276,8 @@
     "compareScoreDelta": "Difference (B - A)",
     "compareExamGrade": "Exam / Grade",
     "compareReviewerShort": "Rev",
-    "comparePanelsChanged": "{{count}} panels changed"
+    "comparePanelsChanged": "{{count}} panels changed",
+    "gradeWord": "Grade"
   },
   "stats": {
     "title": "Statistics & Reports",

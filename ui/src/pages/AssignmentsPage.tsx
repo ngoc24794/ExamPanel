@@ -9,10 +9,7 @@ import {
 } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import {
-  assignmentsSignature,
-  hasDuplicateTeacherInPanel,
-} from './assignments/planEdit'
+import { assignmentsSignature, hasDuplicateTeacherInPanel } from './assignments/planEdit'
 import { getCampusDotColor } from '@/lib/theme/campus-colors'
 import {
   useSchoolYears,
@@ -364,7 +361,9 @@ export function AssignmentsPage() {
     ? {
         ...loadedPlanDetails,
         assignments: currentAssignments,
-        score_report: liveActive ? liveEvaluation.score_report : loadedPlanDetails.score_report,
+        score_report: liveActive
+          ? liveEvaluation.score_report
+          : loadedPlanDetails.score_report,
       }
     : null
   const effectivePlanStatus =

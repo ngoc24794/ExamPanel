@@ -567,8 +567,9 @@ describe('Grid Editing & Interaction Tests', () => {
     const vlCell = screen.getByTestId('q-grid-cell-1-1-VL-setter-1')
     expect(vlCell).toBeInTheDocument()
 
-    // For CN setter position 1, it is invalid (position >= subject.setters = 1), so it renders as a blank cell containing "—"
-    const cellsWithDash = screen.getAllByText('—')
-    expect(cellsWithDash.length).toBeGreaterThan(0)
+    // For CN setter position 1 the seat does not exist (position >= subject.setters = 1): the
+    // paper sheet leaves that cell blank, no placeholder glyph (RA-015)
+    const blank = screen.getByTestId('q-grid-blank-1-1-CN-setter-1')
+    expect(blank.textContent).toBe('')
   })
 })

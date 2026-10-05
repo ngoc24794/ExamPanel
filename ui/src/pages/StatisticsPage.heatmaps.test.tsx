@@ -14,7 +14,15 @@ const seat = (
   teacher_id: number,
   exam_id = 1,
   grade_id = 1,
-): Assignment => ({ plan_id: 1, exam_id, grade_id, subject_id, teacher_id, role, position })
+): Assignment => ({
+  plan_id: 1,
+  exam_id,
+  grade_id,
+  subject_id,
+  teacher_id,
+  role,
+  position,
+})
 
 // VL [t1, t2 | t3]  CN [t4 | t1]  — t1 is on BOTH panels of the same exam × grade.
 const assignments = [
@@ -68,7 +76,9 @@ describe('StatisticsPage heatmaps with 12 teachers', () => {
 
     render(
       <ThemeProvider>
-        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <QueryClientProvider
+          client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+        >
           <StatisticsPage />
         </QueryClientProvider>
       </ThemeProvider>,

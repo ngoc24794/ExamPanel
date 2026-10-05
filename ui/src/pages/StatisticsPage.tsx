@@ -446,7 +446,8 @@ export function StatisticsPage() {
                 <span>{t('statistics.campusMixTitle')}</span>
               </CardTitle>
               <CardDescription className="text-xs">
-                {t('statistics.campusMixDesc')} ({t('statistics.panelsTotal', { count: campusMixStats.total })})
+                {t('statistics.campusMixDesc')} (
+                {t('statistics.panelsTotal', { count: campusMixStats.total })})
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -529,7 +530,10 @@ export function StatisticsPage() {
                     </thead>
                     <tbody>
                       {teachers.map((tA) => (
-                        <tr key={tA.teacher.id} data-testid={`cowork-row-${tA.teacher.id}`}>
+                        <tr
+                          key={tA.teacher.id}
+                          data-testid={`cowork-row-${tA.teacher.id}`}
+                        >
                           <td className="p-1 font-medium text-muted-foreground text-right pr-2 truncate max-w-[80px]">
                             {teacherLabel(tA)}
                           </td>
@@ -602,7 +606,10 @@ export function StatisticsPage() {
                     </thead>
                     <tbody>
                       {teachers.map((tA) => (
-                        <tr key={tA.teacher.id} data-testid={`review-row-${tA.teacher.id}`}>
+                        <tr
+                          key={tA.teacher.id}
+                          data-testid={`review-row-${tA.teacher.id}`}
+                        >
                           <td className="p-1 font-medium text-muted-foreground text-right pr-2 truncate max-w-[80px]">
                             {teacherLabel(tA)}
                           </td>
