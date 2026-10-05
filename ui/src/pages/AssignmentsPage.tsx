@@ -779,10 +779,11 @@ export function AssignmentsPage() {
         open={showRunDialog}
         onOpenChange={setShowRunDialog}
         schoolYearId={schoolYearId}
-        onSuccess={(newIds) => {
+        onSuccess={async (newIds) => {
           if (newIds.length > 0) {
+            // Select only once the list contains the new plans (see RA-018).
+            await refetchPlans()
             setSelectedPlanId(newIds[0])
-            refetchPlans()
           }
         }}
         onOpenFeasibility={() => setShowFeasibilitySheet(true)}
@@ -808,10 +809,10 @@ export function AssignmentsPage() {
           planId={selectedPlanId}
           schoolYearId={schoolYearId}
           keptSlots={keptSlots}
-          onSuccess={(newIds) => {
+          onSuccess={async (newIds) => {
             if (newIds.length > 0) {
+              await refetchPlans()
               setSelectedPlanId(newIds[0])
-              refetchPlans()
             }
           }}
         />
