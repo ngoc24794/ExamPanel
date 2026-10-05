@@ -317,7 +317,7 @@ export const UnavailabilityPage: React.FC = () => {
                             className="h-7 text-[11px] text-muted-foreground hover:text-foreground px-2"
                             data-testid={`bulk-actions-${teacher.id}`}
                           >
-                            <span>Thao tác</span>
+                            <span>{t('common.actions')}</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="text-xs">

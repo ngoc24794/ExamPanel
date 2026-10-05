@@ -74,7 +74,7 @@ export function PlansHistoryList({
   }
 
   const handleDuplicate = async (plan: PlanSummary) => {
-    const copyName = `${plan.name} (Bản sao)`
+    const copyName = `${plan.name} (${t('assignments.copySuffix')})`
     const newId = await duplicateMutation.mutateAsync({ id: plan.id, name: copyName })
     onSelectPlan(newId)
   }
@@ -288,7 +288,7 @@ export function PlansHistoryList({
               <DialogTitle>{t('assignments.deletePlan')}</DialogTitle>
             </DialogHeader>
             <p className="text-sm text-muted-foreground">
-              Bạn có chắc chắn muốn xóa phương án này? Hành động này không thể hoàn tác.
+              {t('assignments.deleteConfirm')}
             </p>
             <DialogFooter>
               <Button

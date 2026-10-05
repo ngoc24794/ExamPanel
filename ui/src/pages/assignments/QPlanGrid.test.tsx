@@ -80,7 +80,7 @@ describe('QPlanGrid Component Tests (Part B)', () => {
     expect(screen.getByText(/Khối 12/i)).toBeInTheDocument()
 
     // Attached Totals Panel headers: GV, Tổng, Đề, PB
-    expect(screen.getByText('Tổng cộng')).toBeInTheDocument()
+    expect(screen.getByText(/Tổng cộng|Grand total/)).toBeInTheDocument()
 
     // The grade header never doubles the word (RA-003)
     expect(screen.queryByText(/Khối Khối/i)).not.toBeInTheDocument()

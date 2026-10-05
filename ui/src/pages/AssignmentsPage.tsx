@@ -261,7 +261,7 @@ export function AssignmentsPage() {
   // Duplicate optimizer plan into an editable draft
   const handleCreateEditableCopy = async () => {
     if (!activePlan) return
-    const copyName = `${activePlan.name} (Chỉnh sửa)`
+    const copyName = `${activePlan.name} (${t('assignments.editSuffix')})`
     const newId = await duplicateMutation.mutateAsync({
       id: activePlan.id,
       name: copyName,
@@ -337,7 +337,7 @@ export function AssignmentsPage() {
       toast.success(t('export.exportSuccess'))
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      toast.error(`Lỗi xuất Excel: ${msg}`)
+      toast.error(t('export.exportError', { message: msg }))
     }
   }
 
@@ -454,7 +454,7 @@ export function AssignmentsPage() {
             data-testid="import-plan-button"
           >
             <FileUp className="h-4 w-4" />
-            {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+            {t('planImport.buttonTitle')}
           </Button>
 
           {/* Plans History Toggle */}
@@ -481,7 +481,7 @@ export function AssignmentsPage() {
               }`}
               data-testid="view-toggle-grid"
             >
-              {t('assignments.viewModeGrid') || 'Bảng tổ'}
+              {t('assignments.viewModeGrid')}
             </button>
             <button
               type="button"
@@ -493,7 +493,7 @@ export function AssignmentsPage() {
               }`}
               data-testid="view-toggle-detail"
             >
-              {t('assignments.viewModeDetail') || 'Chi tiết'}
+              {t('assignments.viewModeDetail')}
             </button>
           </div>
         </div>
@@ -507,8 +507,8 @@ export function AssignmentsPage() {
               <History className="h-4 w-4 text-primary" />
               <span>{t('assignments.history')}</span>
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}>
-              Đóng
+                        <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}>
+              {t('common.close')}
             </Button>
           </div>
           <PlansHistoryList
@@ -539,7 +539,7 @@ export function AssignmentsPage() {
               data-testid="empty-import-plan-button"
             >
               <FileUp className="h-4 w-4" />
-              {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+              {t('planImport.buttonTitle')}
             </Button>
           </div>
         </div>
@@ -772,14 +772,13 @@ export function AssignmentsPage() {
                 ) : (
                   <div className="p-4 rounded-lg border border-border bg-card shadow-sm space-y-3 text-xs">
                     <h4 className="font-semibold text-foreground text-sm flex items-center gap-1.5">
-                      <span>Danh sách giáo viên</span>
+                      <span>{t('assignments.teacherList')}</span>
                       <Badge variant="outline" className="text-xs">
                         {teachers.length}
                       </Badge>
                     </h4>
                     <p className="text-muted-foreground">
-                      Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được
-                      phân công trên ma trận.
+                      {t('assignments.teacherListHint')}
                     </p>
                     <div className="max-h-[500px] overflow-y-auto space-y-1 pr-1">
                       {teachers.map((twg) => {
@@ -807,7 +806,7 @@ export function AssignmentsPage() {
                               </span>
                             </div>
                             <Badge variant="secondary" className="text-[10px]">
-                              {count} lượt
+                              {t('assignments.dutiesCount', { count })}
                             </Badge>
                           </div>
                         )

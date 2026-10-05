@@ -204,15 +204,14 @@ export const FeasibilitySheet: React.FC<FeasibilitySheetProps> = ({
             <div className="flex items-center justify-between border-b border-primary/10 pb-2">
               <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                 <LockIcon className="h-3.5 w-3.5 text-primary" />
-                {t('feasibility.forcedPlacementsTitle') || 'Phân công cố định'}
+                {t('feasibility.forcedPlacementsTitle')}
               </span>
               <Badge variant="outline" className="text-[10px] font-mono">
                 {forcedList.length}
               </Badge>
             </div>
             <p className="text-[11px] text-muted-foreground">
-              {t('feasibility.forcedPlacementsDesc') ||
-                'Các nhiệm vụ đã được cố định theo cấu hình. Thuật toán sẽ bảo lưu các vị trí này.'}
+              {t('feasibility.forcedPlacementsDesc')}
             </p>
             <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
               {forcedList.map((fp, i) => {
@@ -222,7 +221,7 @@ export const FeasibilitySheet: React.FC<FeasibilitySheetProps> = ({
                 const exam = exams.find((e) => e.id === fp.panel.exam_id)
                 const grade = grades.find((g) => g.id === fp.panel.grade_id)
                 const subject = subjects.find((s) => s.id === fp.panel.subject_id)
-                const roleLabel = fp.role === 'setter' ? 'Ra đề' : 'Phản biện'
+                const roleLabel = fp.role === 'setter' ? t('common.roleSetter') : t('common.roleReviewer')
 
                 return (
                   <div
@@ -233,7 +232,7 @@ export const FeasibilitySheet: React.FC<FeasibilitySheetProps> = ({
                       {teacher?.full_name || `GV #${fp.teacher_id}`}
                     </span>
                     <span className="text-muted-foreground text-[10px]">
-                      {exam?.code || `Kỳ ${fp.panel.exam_id}`} •{' '}
+                      {exam?.code || t('rules.examFallback', { id: fp.panel.exam_id })} •{' '}
                       {grade?.name || `K${fp.panel.grade_id}`} •{' '}
                       {subject?.code || 'Chung'} •{' '}
                       <span className="font-semibold text-primary">{roleLabel}</span>

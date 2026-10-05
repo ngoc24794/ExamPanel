@@ -1,0 +1,99 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/i18n/i18n-keys.test.ts (4 tests | 2 failed) 25ms
+   ✓ i18n completeness (RA-040) > finds the translation keys used by the source 2ms
+   × i18n completeness (RA-040) > every static t() key exists in BOTH vi.json and en.json 16ms
+     → missing keys:
+feasibility.forcedPlacementsTitle [vi+en] ← components/FeasibilitySheet.tsx
+feasibility.forcedPlacementsDesc [vi+en] ← components/FeasibilitySheet.tsx
+common.all [vi+en] ← pages/CompetenciesPage.tsx, pages/assignments/PlanMatrixView.tsx
+common.loading [vi+en] ← pages/ExamsPage.tsx, pages/SubjectsPage.tsx, pages/teachers/QuotaPreviewModal.tsx, pages/teachers/TeacherCompetenciesModal.tsx
+rules.h3Warning [vi+en] ← pages/RulesPage.tsx
+rules.h4MaxTasksPerExam [vi+en] ← pages/RulesPage.tsx
+rules.h4MaxSetterPerExam [vi+en] ← pages/RulesPage.tsx
+rules.s1MaxTasksMode [vi+en] ← pages/RulesPage.tsx
+rules.s1ModeAuto [vi+en] ← pages/RulesPage.tsx
+teachers.advancedSettings [vi+en] ← pages/TeachersPage.tsx
+teachers.quotaOverrideHelp [vi+en] ← pages/TeachersPage.tsx
+teachers.maxTasksPerExamOverrideHelp [vi+en] ← pages/TeachersPage.tsx
+common.close [vi+en] ← pages/teachers/QuotaPreviewModal.tsx: expected [ …(13) ] to deeply equal []
+   ✓ i18n completeness (RA-040) > vi.json and en.json define exactly the same keys 1ms
+   × i18n completeness (RA-040) > locale files contain no duplicate JSON keys (the last one silently wins) 4ms
+     → vi.json: expected [ 'settings.storageMode' ] to deeply equal []
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/i18n/i18n-keys.test.ts > i18n completeness (RA-040) > every static t() key exists in BOTH vi.json and en.json
+AssertionError: missing keys:
+feasibility.forcedPlacementsTitle [vi+en] ← components/FeasibilitySheet.tsx
+feasibility.forcedPlacementsDesc [vi+en] ← components/FeasibilitySheet.tsx
+common.all [vi+en] ← pages/CompetenciesPage.tsx, pages/assignments/PlanMatrixView.tsx
+common.loading [vi+en] ← pages/ExamsPage.tsx, pages/SubjectsPage.tsx, pages/teachers/QuotaPreviewModal.tsx, pages/teachers/TeacherCompetenciesModal.tsx
+rules.h3Warning [vi+en] ← pages/RulesPage.tsx
+rules.h4MaxTasksPerExam [vi+en] ← pages/RulesPage.tsx
+rules.h4MaxSetterPerExam [vi+en] ← pages/RulesPage.tsx
+rules.s1MaxTasksMode [vi+en] ← pages/RulesPage.tsx
+rules.s1ModeAuto [vi+en] ← pages/RulesPage.tsx
+teachers.advancedSettings [vi+en] ← pages/TeachersPage.tsx
+teachers.quotaOverrideHelp [vi+en] ← pages/TeachersPage.tsx
+teachers.maxTasksPerExamOverrideHelp [vi+en] ← pages/TeachersPage.tsx
+common.close [vi+en] ← pages/teachers/QuotaPreviewModal.tsx: expected [ …(13) ] to deeply equal []
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "feasibility.forcedPlacementsTitle [vi+en] ← components/FeasibilitySheet.tsx",[39m
+[31m+   "feasibility.forcedPlacementsDesc [vi+en] ← components/FeasibilitySheet.tsx",[39m
+[31m+   "common.all [vi+en] ← pages/CompetenciesPage.tsx, pages/assignments/PlanMatrixView.tsx",[39m
+[31m+   "common.loading [vi+en] ← pages/ExamsPage.tsx, pages/SubjectsPage.tsx, pages/teachers/QuotaPreviewModal.tsx, pages/teachers/TeacherCompetenciesModal.tsx",[39m
+[31m+   "rules.h3Warning [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "rules.h4MaxTasksPerExam [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "rules.h4MaxSetterPerExam [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "rules.s1MaxTasksMode [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "rules.s1ModeAuto [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "teachers.advancedSettings [vi+en] ← pages/TeachersPage.tsx",[39m
+[31m+   "teachers.quotaOverrideHelp [vi+en] ← pages/TeachersPage.tsx",[39m
+[31m+   "teachers.maxTasksPerExamOverrideHelp [vi+en] ← pages/TeachersPage.tsx",[39m
+[31m+   "common.close [vi+en] ← pages/teachers/QuotaPreviewModal.tsx",[39m
+[31m+ ][39m
+
+ ❯ src/i18n/i18n-keys.test.ts:127:61
+    125|       if (where) missing.push(`${key} [${where}] ← ${[...new Set(files…
+    126|     }
+    127|     expect(missing, `missing keys:\n${missing.join('\n')}`).toEqual([])
+       |                                                             ^
+    128|   })
+    129| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/i18n/i18n-keys.test.ts > i18n completeness (RA-040) > locale files contain no duplicate JSON keys (the last one silently wins)
+AssertionError: vi.json: expected [ 'settings.storageMode' ] to deeply equal []
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "settings.storageMode",[39m
+[31m+ ][39m
+
+ ❯ src/i18n/i18n-keys.test.ts:141:41
+    139|     for (const file of ['vi.json', 'en.json']) {
+    140|       const text = fs.readFileSync(path.join(__dirname, 'locales', fil…
+    141|       expect(duplicateKeys(text), file).toEqual([])
+       |                                         ^
+    142|     }
+    143|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  08:17:50
+   Duration  1.09s (transform 107ms, setup 149ms, collect 103ms, tests 25ms, environment 354ms, prepare 125ms)
+

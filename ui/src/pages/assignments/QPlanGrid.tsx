@@ -204,7 +204,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
   const defaultSubject: Subject = {
     id: 1,
     code: 'VL',
-    name: 'Vật lí',
+    name: 'VL',
     color: 'palette-1',
     sort_order: 1,
     setters: 2,
@@ -516,9 +516,9 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                   </TooltipTrigger>
                   <TooltipContent className="text-xs space-y-1">
                     <p className="font-semibold uppercase">{rb.rule.toUpperCase()}</p>
-                    <p>Số đơn vị phạt: {rb.units}</p>
-                    <p>Trọng số: {rb.weight}</p>
-                    <p>Điểm phạt: {rb.penalty.toFixed(2)}</p>
+                    <p>{t('assignments.ruleUnits', { units: rb.units })}</p>
+                    <p>{t('assignments.ruleWeight', { weight: rb.weight })}</p>
+                    <p>{t('assignments.rulePenalty', { penalty: rb.penalty.toFixed(2) })}</p>
                     {rb.lower_bound !== undefined && (
                       <p className="font-medium text-emerald-600 dark:text-emerald-400">
                         {t('assignments.lowerBoundLabel', { bound: rb.lower_bound })}
@@ -549,7 +549,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                   colSpan={2}
                   className="p-2 border-r border-border text-center font-bold text-xs uppercase bg-muted/80 w-36"
                 >
-                  {t('assignments.examGradeHeader') || 'Kì thi/khối'}
+                  {t('assignments.examGradeHeader')}
                 </th>
                 {grades.map((grade) => (
                   <th
@@ -601,7 +601,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                   rowDefs.push({
                     role: 'setter',
                     position: p,
-                    label: t('assignments.roleSetterShort') || 'Đề',
+                    label: t('assignments.roleSetterShort'),
                     isFirst: p === 0,
                   })
                 }
@@ -609,7 +609,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                   rowDefs.push({
                     role: 'reviewer',
                     position: p,
-                    label: t('assignments.roleReviewerShort') || 'P.Biện',
+                    label: t('assignments.roleReviewerShort'),
                     isFirst: p === 0 && maxSetters === 0,
                   })
                 }
@@ -960,7 +960,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                                             exams:
                                               Array.from(
                                                 teacherStat?.examNames ?? [],
-                                              ).join(', ') || 'Chưa có',
+                                              ).join(', ') || t('assignments.none'),
                                           })}
                                         </p>
                                         {isForced && (
@@ -971,7 +971,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                                       </>
                                     ) : (
                                       <p className="italic">
-                                        Chưa có giáo viên phân công
+                                        {t('assignments.noTeacherAssigned')}
                                       </p>
                                     )}
                                   </TooltipContent>
@@ -996,7 +996,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
         >
           <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
             <span className="font-bold text-xs uppercase text-foreground">
-              {t('assignments.totalsHeader') || 'Bảng tổng hợp lượt'}
+              {t('assignments.totalsHeader')}
             </span>
             <div className="flex items-center gap-1.5">
               <Button
@@ -1016,9 +1016,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                 <span>
                   {totalsSortField === 'total'
                     ? totalsSortAsc
-                      ? 'Tăng'
-                      : 'Giảm'
-                    : 'Tổng'}
+                      ? t('assignments.sortAsc') : t('assignments.sortDesc') : t('assignments.totalsTotalShort')}
                 </span>
               </Button>
             </div>
@@ -1030,9 +1028,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
             <Input
               value={totalsSearch}
               onChange={(e) => setTotalsSearch(e.target.value)}
-              placeholder={
-                t('assignments.teacherSearchPlaceholder') || 'Lọc giáo viên...'
-              }
+              placeholder={t('assignments.teacherSearchPlaceholder')}
               className="h-7 text-xs pl-8 bg-background"
               data-testid="q-totals-filter-input"
             />
@@ -1044,16 +1040,16 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
               <thead className="bg-muted/50 sticky top-0 border-b border-border text-[11px] font-bold">
                 <tr>
                   <th className="p-1.5 text-left font-semibold">
-                    {t('assignments.totalsTeacher') || 'GV'}
+                    {t('assignments.totalsTeacher')}
                   </th>
                   <th className="p-1.5 text-center font-bold text-primary">
-                    {t('assignments.totalsTotal') || 'Tổng'}
+                    {t('assignments.totalsTotal')}
                   </th>
                   <th className="p-1.5 text-center text-muted-foreground">
-                    {t('assignments.totalsSetter') || 'Đề'}
+                    {t('assignments.totalsSetter')}
                   </th>
                   <th className="p-1.5 text-center text-muted-foreground">
-                    {t('assignments.totalsReviewer') || 'PB'}
+                    {t('assignments.totalsReviewer')}
                   </th>
                   {exams.map((ex) => (
                     <th
@@ -1101,7 +1097,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                               variant="outline"
                               className="text-[9px] px-1 py-0 border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10 shrink-0 font-normal"
                             >
-                              {t('assignments.totalsFixed') || 'cố định'}
+                              {t('assignments.totalsFixed')}
                             </Badge>
                           )}
                         </div>
@@ -1164,7 +1160,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
               {/* Total Row */}
               <tfoot className="bg-muted/80 sticky bottom-0 border-t border-border font-bold text-[11px]">
                 <tr>
-                  <td className="p-1.5 text-foreground">Tổng cộng</td>
+                  <td className="p-1.5 text-foreground">{t('assignments.totalsSum')}</td>
                   <td className="p-1.5 text-center text-primary font-bold">
                     {Array.from(teacherStats.values()).reduce(
                       (sum, s) => sum + s.total,

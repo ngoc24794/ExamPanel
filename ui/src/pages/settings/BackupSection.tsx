@@ -92,7 +92,7 @@ export const BackupSection: React.FC = () => {
       void loadBackups()
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      toast.error(`Lỗi sao lưu: ${msg}`)
+      toast.error(t('backup.backupError', { message: msg }))
     } finally {
       setBackingUp(false)
     }
@@ -114,7 +114,7 @@ export const BackupSection: React.FC = () => {
       await initiateRestore(chosenPath)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      toast.error(`Lỗi chọn tệp: ${msg}`)
+      toast.error(t('backup.pickFileError', { message: msg }))
     }
   }
 
@@ -156,7 +156,7 @@ export const BackupSection: React.FC = () => {
       void loadBackups()
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      toast.error(`Lỗi phục hồi: ${msg}`)
+      toast.error(t('backup.restoreError', { message: msg }))
     } finally {
       setRestoring(false)
     }
@@ -187,7 +187,7 @@ export const BackupSection: React.FC = () => {
               className="gap-1.5 text-xs h-8"
             >
               <Download className="h-3.5 w-3.5" />
-              <span>{backingUp ? 'Đang sao lưu...' : t('backup.backupNow')}</span>
+              <span>{backingUp ? t('backup.backingUp') : t('backup.backupNow')}</span>
             </Button>
             <Button
               data-testid="restore-file-btn"
@@ -218,7 +218,7 @@ export const BackupSection: React.FC = () => {
               onClick={() => void loadBackups()}
               disabled={loadingList}
               className="h-7 w-7 p-0"
-              title="Làm mới"
+              title={t('common.refresh')}
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loadingList ? 'animate-spin' : ''}`} />
             </Button>
@@ -228,10 +228,10 @@ export const BackupSection: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-1/2">Tệp sao lưu</TableHead>
-                  <TableHead className="w-24">Dung lượng</TableHead>
-                  <TableHead className="w-36">Thời gian</TableHead>
-                  <TableHead className="w-24 text-right">Thao tác</TableHead>
+                  <TableHead className="w-1/2">{t('backup.colFile')}</TableHead>
+                  <TableHead className="w-24">{t('backup.colSize')}</TableHead>
+                  <TableHead className="w-36">{t('backup.colTime')}</TableHead>
+                  <TableHead className="w-24 text-right">{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -263,7 +263,7 @@ export const BackupSection: React.FC = () => {
                           onClick={() => void initiateRestore(b.path)}
                           className="h-7 px-2 text-xs text-primary hover:text-primary"
                         >
-                          Phục hồi
+                                                    {t('backup.restoreBtn')}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -291,7 +291,7 @@ export const BackupSection: React.FC = () => {
 
               {validating ? (
                 <div className="p-4 text-center text-muted-foreground">
-                  Đang kiểm tra tính toàn vẹn của tệp sao lưu...
+                  {t('backup.validating')}
                 </div>
               ) : validationSummary ? (
                 <div className="space-y-3">
@@ -315,25 +315,25 @@ export const BackupSection: React.FC = () => {
                   {validationSummary.valid && (
                     <div className="grid grid-cols-2 gap-2 p-3 rounded-md bg-muted/40 border border-border">
                       <div>
-                        <span className="text-muted-foreground">Năm học:</span>{' '}
+                        <span className="text-muted-foreground">{t('backup.labelSchoolYears')}:</span>{' '}
                         <span className="font-semibold">
                           {validationSummary.school_years_count}
                         </span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Giáo viên:</span>{' '}
+                        <span className="text-muted-foreground">{t('backup.labelTeachers')}:</span>{' '}
                         <span className="font-semibold">
                           {validationSummary.teachers_count}
                         </span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Phương án:</span>{' '}
+                        <span className="text-muted-foreground">{t('backup.labelPlans')}:</span>{' '}
                         <span className="font-semibold">
                           {validationSummary.plans_count}
                         </span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Phiên bản:</span>{' '}
+                        <span className="text-muted-foreground">{t('backup.labelVersion')}:</span>{' '}
                         <span className="font-semibold font-mono">
                           v{validationSummary.user_version}
                         </span>
@@ -351,7 +351,7 @@ export const BackupSection: React.FC = () => {
                 onClick={() => setRestoreDialogOpen(false)}
                 disabled={restoring}
               >
-                Hủy
+                                {t('common.cancel')}
               </Button>
               <Button
                 data-testid="confirm-restore-btn"
@@ -360,7 +360,7 @@ export const BackupSection: React.FC = () => {
                 onClick={handleConfirmRestore}
                 disabled={restoring || validating || !validationSummary?.valid}
               >
-                {restoring ? 'Đang phục hồi...' : 'Xác nhận phục hồi'}
+                {restoring ? t('backup.restoring') : t('backup.restoreConfirmBtn')}
               </Button>
             </DialogFooter>
           </DialogContent>

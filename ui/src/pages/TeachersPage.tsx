@@ -79,8 +79,8 @@ import {
 } from '@/lib/query/hooks'
 
 const teacherFormSchema = z.object({
-  fullName: z.string().min(1, 'Họ tên không được để trống'),
-  campusId: z.number().min(1, 'Vui lòng chọn phân hiệu'),
+  fullName: z.string().min(1, 'teachers.errFullNameRequired'),
+  campusId: z.number().min(1, 'teachers.errCampusRequired'),
   loadWeight: z.number().min(0).max(1),
   active: z.boolean(),
   note: z.string().optional(),
@@ -166,10 +166,10 @@ export const TeachersPage: React.FC = () => {
         // Fallback for tests/browser
       }
       await api.generateImportTemplate(targetPath)
-      toast.success(t('import.downloadTemplate') + ' thành công!')
+      toast.success(t('import.templateSuccess'))
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      toast.error(`Lỗi tạo tệp mẫu: ${msg}`)
+      toast.error(t('import.templateError', { message: msg }))
     }
   }
 
@@ -421,7 +421,7 @@ export const TeachersPage: React.FC = () => {
             className="gap-2"
           >
             <Calculator className="h-4 w-4 text-primary" />
-            {t('quota.previewBtn') || 'Xem chỉ tiêu'}
+            {t('quota.previewBtn')}
           </Button>
           <Button
             data-testid="competencies-btn"
@@ -435,7 +435,7 @@ export const TeachersPage: React.FC = () => {
             className="gap-2"
           >
             <Award className="h-4 w-4 text-primary" />
-            {t('competencies.title') || 'Chuyên môn'}
+            {t('competencies.title')}
           </Button>
           <Button
             data-testid="download-template-btn"
@@ -661,7 +661,7 @@ export const TeachersPage: React.FC = () => {
                                   : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
                               }`}
                               title={`${grade.name}: ${
-                                isTaught ? 'Đang phân công' : 'Chưa phân công'
+                                isTaught ? t('teachers.gradeAssigned') : t('teachers.gradeNotAssigned')
                               }`}
                             >
                               {grade.code}
@@ -719,7 +719,7 @@ export const TeachersPage: React.FC = () => {
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-foreground"
                           onClick={() => setCompetenciesTeacher(tg.teacher)}
-                          title={t('competencies.editTitle') || 'Phân công chuyên môn'}
+                          title={t('competencies.editTitle')}
                           data-testid={`teacher-competencies-btn-${tg.teacher.id}`}
                         >
                           <Award className="h-3.5 w-3.5 text-primary" />
@@ -789,7 +789,7 @@ export const TeachersPage: React.FC = () => {
                     data-testid="teacher-name-input"
                   />
                   {errors.fullName && (
-                    <p className="text-xs text-destructive">{errors.fullName.message}</p>
+                    <p className="text-xs text-destructive">{t(errors.fullName.message ?? '')}</p>
                   )}
                 </div>
               </div>
@@ -829,7 +829,7 @@ export const TeachersPage: React.FC = () => {
               {/* Grades Taught Multi-Check */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-foreground">
-                  {t('teachers.gradesTaught')} (Năm học {currentYear?.name})
+                  {t('teachers.gradesTaught')} ({t('common.schoolYearName', { name: currentYear?.name })})
                 </label>
                 <div className="flex items-center gap-4">
                   {grades.map((grade) => {

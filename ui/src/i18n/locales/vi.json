@@ -34,7 +34,17 @@
     "inactive": "Tạm dừng",
     "search": "Tìm kiếm...",
     "placeholderNotice": "Mô-đun đang trong khung kiến trúc (Giai đoạn 1). Logic nghiệp vụ sẽ được triển khai ở các giai đoạn sau.",
-    "version": "Phiên bản"
+    "version": "Phiên bản",
+    "all": "Tất cả",
+    "loading": "Đang tải...",
+    "saving": "Đang lưu...",
+    "close": "Đóng",
+    "refresh": "Làm mới",
+    "actions": "Thao tác",
+    "roleSetter": "Ra đề",
+    "roleReviewer": "Phản biện",
+    "schoolYearName": "Năm học {{name}}",
+    "placeholderDesc": "Các tính năng chuyên sâu của mô-đun này sẽ được phát triển trong các giai đoạn tiếp theo theo kiến trúc dự án."
   },
   "theme": {
     "toggle": "Chuyển giao diện",
@@ -53,7 +63,10 @@
     "coreConnectionCard": "Kết nối Hệ thống Lõi",
     "coreDescription": "Kiểm tra phản hồi IPC giữa giao diện người dùng và lõi Rust.",
     "scaleCard": "Quy mô tham chiếu",
-    "scaleInfo": "11 giáo viên, 4 phân hiệu, 4 kỳ thi (GK1, CK1, GK2, CK2) × 3 khối (10, 11, 12) = 12 ban đề, 36 lượt phân công (24 người ra đề, 12 người phản biện)."
+    "scaleInfo": "11 giáo viên, 4 phân hiệu, 4 kỳ thi (GK1, CK1, GK2, CK2) × 3 khối (10, 11, 12) = 12 ban đề, 36 lượt phân công (24 người ra đề, 12 người phản biện).",
+    "issuesSummary": "{{errors}} lỗi, {{warnings}} cảnh báo",
+    "campusesCount": "{{count}} phân hiệu",
+    "teachersCount": "{{count}} giáo viên"
   },
   "campuses": {
     "title": "Quản lý Phân hiệu",
@@ -72,7 +85,10 @@
     "codePlaceholder": "VD: PH1",
     "namePlaceholder": "VD: Phân hiệu Ba Đình",
     "selectColor": "Chọn màu đại diện",
-    "teachersCount": "{{count}} giáo viên"
+    "teachersCount": "{{count}} giáo viên",
+    "errCodeRequired": "Mã không được để trống",
+    "errNameRequired": "Tên không được để trống",
+    "errColorRequired": "Vui lòng chọn màu"
   },
   "teachers": {
     "title": "Quản lý Giáo viên",
@@ -118,7 +134,32 @@
     "quotaOverridePlaceholder": "Mặc định (tự động)",
     "maxTasksPerExamOverride": "Giới hạn nhiệm vụ/kỳ",
     "maxTasksPerExamOverridePlaceholder": "Mặc định (theo quy tắc)",
-    "forcedSeatsBadge": "Cố định: {{count}}"
+    "forcedSeatsBadge": "Cố định: {{count}}",
+    "advancedSettings": "Cài đặt nâng cao",
+    "quotaOverrideHelp": "Để trống để tính tự động theo hệ số tải; nhập số để cố định tổng số nhiệm vụ của giáo viên này.",
+    "maxTasksPerExamOverrideHelp": "Để trống để dùng quy tắc chung; nhập số để giới hạn nhiệm vụ của giáo viên này trong mỗi kỳ thi.",
+    "quotaLoading": "Đang tính toán chỉ tiêu...",
+    "competenciesLoading": "Đang tải thông tin chuyên môn...",
+    "compQuickActions": "Thao tác nhanh cho toàn trường:",
+    "compSubject": "Môn học",
+    "compSetterRole": "Vai trò Ra đề (Đề)",
+    "compReviewerRole": "Vai trò Phản biện (PB)",
+    "compTakesRole": "Đảm nhận",
+    "compScopeTaught": "Khối đang dạy",
+    "compScopeAny": "Mọi khối",
+    "quotaTotalTeachers": "Tổng số giáo viên",
+    "quotaTotalQuota": "Tổng chỉ tiêu phân bổ",
+    "quotaColTeacher": "Giáo viên",
+    "quotaColWeight": "Trọng số tải",
+    "quotaColAvailable": "Kỳ khả dụng",
+    "quotaColForced": "Nhiệm vụ cố định",
+    "quotaColTarget": "Chỉ tiêu mục tiêu (q)",
+    "quotaColRange": "Khoảng cho phép [lo, hi]",
+    "quotaForcedBadge": "Cố định: {{count}}",
+    "gradeAssigned": "Đang phân công",
+    "gradeNotAssigned": "Chưa phân công",
+    "errFullNameRequired": "Họ tên không được để trống",
+    "errCampusRequired": "Vui lòng chọn phân hiệu"
   },
   "schoolYear": {
     "selector": "Năm học",
@@ -261,7 +302,17 @@
     "s10Title": "S10: Phủ đủ môn phản biện",
     "s10Desc": "Khuyến khích giáo viên có chuyên môn phản biện ở nhiều môn được phản biện ít nhất một lần ở mỗi môn.",
     "s10Example": "Ví dụ: Giáo viên có thể phản biện cả Vật lí và Công nghệ thì nên phản biện mỗi môn ít nhất 1 lần.",
-    "weight": "Trọng số"
+    "weight": "Trọng số",
+    "h3Warning": "Tắt H3 cho phép các hội đồng chỉ gồm giáo viên cùng một phân hiệu.",
+    "h4MaxTasksPerExam": "Tối đa nhiệm vụ / đợt",
+    "h4MaxSetterPerExam": "Tối đa ra đề / đợt",
+    "s1MaxTasksMode": "Giới hạn nhiệm vụ/đợt thi",
+    "s1ModeAuto": "Tự động (Auto)",
+    "unsavedChanges": "Chưa lưu thay đổi",
+    "numberPlaceholder": "Số",
+    "examFallback": "Kỳ {{id}}",
+    "gradeFallback": "Khối {{id}}",
+    "pickTeacher": "Chọn giáo viên..."
   },
   "stats": {
     "title": "Thống kê & Báo cáo",
@@ -275,7 +326,6 @@
     "languageLabel": "Ngôn ngữ hiển thị",
     "storageSection": "Lưu trữ dữ liệu",
     "dataPath": "Đường dẫn thư mục dữ liệu",
-    "storageMode": "Chế độ lưu trữ",
     "modePortable": "Chế độ Di động (Portable — cùng thư mục ứng dụng)",
     "modeAppData": "Chế độ Chuẩn (App Data hệ thống)",
     "copyPath": "Sao chép đường dẫn",
@@ -310,7 +360,8 @@
     "viewLicenses": "Xem chi tiết",
     "licensesDescription": "Các thành phần mã nguồn mở bên thứ ba được sử dụng trong ExamPanel v0.1.0.",
     "releaseNotes": "Phần mềm phân công ra đề & phản biện thi THPT.",
-    "languageHelp": "Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English)."
+    "languageHelp": "Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).",
+    "themeHelp": "Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành."
   },
   "diagnostics": {
     "duplicate_campus_id": "Mã phân hiệu bị trùng: {{campus_id}}",
@@ -443,7 +494,9 @@
     "categoryCapacity": "Hạn mức & Tải trọng",
     "allGood": "Tất cả các điều kiện và dữ liệu đều thỏa mãn.",
     "errorCount": "{{count}} lỗi",
-    "warningCount": "{{count}} cảnh báo"
+    "warningCount": "{{count}} cảnh báo",
+    "forcedPlacementsTitle": "Phân công cố định",
+    "forcedPlacementsDesc": "Các nhiệm vụ đã được cố định theo cấu hình. Thuật toán sẽ bảo lưu các vị trí này."
   },
   "unavailability": {
     "title": "Lịch bận giáo viên",
@@ -637,7 +690,35 @@
     "emptySeat": "Trống",
     "cellMenu": "Tùy chọn vị trí",
     "keptBanner": "Đã chọn giữ: {{count}} ô",
-    "clearKept": "Bỏ chọn tất cả"
+    "clearKept": "Bỏ chọn tất cả",
+    "focusLoadWeight": "Hệ số tải: {{weight}}",
+    "focusRoles": "Vai trò",
+    "focusRoleCounts": "{{setters}} ra đề, {{reviewers}} phản biện",
+    "focusExams": "Kỳ thi",
+    "focusGrades": "Khối lớp",
+    "focusUnassigned": "Chưa được phân",
+    "focusSoftViolations": "Vi phạm tiêu chí mềm liên quan ({{count}}):",
+    "ruleUnits": "Số đơn vị phạt: {{units}}",
+    "ruleWeight": "Trọng số: {{weight}}",
+    "rulePenalty": "Điểm phạt: {{penalty}}",
+    "none": "Chưa có",
+    "noTeacherAssigned": "Chưa có giáo viên phân công",
+    "sortAsc": "Tăng",
+    "sortDesc": "Giảm",
+    "totalsTotalShort": "Tổng",
+    "totalsSum": "Tổng cộng",
+    "ruleCriterion": "Tiêu chí {{rule}}",
+    "ruleWeightUnits": "Hệ số: {{weight}} | Đơn vị vi phạm: {{units}}",
+    "noCandidates": "Không tìm thấy giáo viên phù hợp",
+    "currentHolder": "Hiện tại",
+    "candidateTotal": "Tổng: {{total}}",
+    "candidateKeyboardHint": "Gợi ý: Dùng phím ↑ ↓ để chọn, Enter để áp dụng",
+    "copySuffix": "Bản sao",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa phương án này? Hành động này không thể hoàn tác.",
+    "editSuffix": "Chỉnh sửa",
+    "teacherList": "Danh sách giáo viên",
+    "teacherListHint": "Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được phân công trên ma trận.",
+    "dutiesCount": "{{count}} lượt"
   },
   "planImport": {
     "buttonTitle": "Nhập từ bảng có sẵn",
@@ -671,7 +752,20 @@
     "noIssues": "Không phát hiện lỗi hoặc cảnh báo nào.",
     "planName": "Nhập từ bảng của tổ",
     "importSuccess": "Đã nhập bảng phân công thành công",
-    "importError": "Lỗi khi nhập bảng phân công: {{error}}"
+    "importError": "Lỗi khi nhập bảng phân công: {{error}}",
+    "pickFileError": "Lỗi chọn tệp: {{message}}",
+    "pasteRequired": "Vui lòng dán nội dung bảng (TSV)",
+    "readError": "Lỗi đọc dữ liệu: {{message}}",
+    "fileHint": "Hỗ trợ tệp xuất từ phần mềm (“Bảng phân công (mẫu tổ)”) hoặc mẫu bảng gốc của tổ.",
+    "pasteHint": "Sao chép toàn bộ khối bảng phân công bắt đầu từ góc “Kì thi/khối” và dán trực tiếp.",
+    "colExamId": "Kỳ thi ID",
+    "colGradeId": "Khối ID",
+    "colSubjectId": "Môn ID",
+    "colRole": "Vai trò",
+    "colPosition": "Vị trí",
+    "colTeacherId": "Giáo viên ID",
+    "applying": "Đang áp dụng...",
+    "reading": "Đang đọc..."
   },
   "statistics": {
     "title": "Thống kê & Báo cáo phân công",
@@ -753,13 +847,21 @@
     "applying": "Đang áp dụng...",
     "applySuccess": "Nhập dữ liệu thành công! Đã tự động tạo bản sao lưu an toàn.",
     "appliedCounts": "Tạo mới {{teachersCreated}} giáo viên, cập nhật {{teachersUpdated}} giáo viên, ngừng hoạt động {{teachersDeactivated}} giáo viên.",
-    "noteAutoBackup": "Hệ thống sẽ tự động sao lưu an toàn toàn bộ dữ liệu trước khi thực hiện ghi nhận vào hệ thống."
+    "noteAutoBackup": "Hệ thống sẽ tự động sao lưu an toàn toàn bộ dữ liệu trước khi thực hiện ghi nhận vào hệ thống.",
+    "readError": "Lỗi đọc tệp Excel: {{message}}",
+    "applyError": "Lỗi áp dụng nhập dữ liệu: {{message}}",
+    "feasibilityErrorCount": "Có {{count}} lỗi bắt buộc",
+    "noDeactivated": "Không có giáo viên nào bị ngưng hoạt động.",
+    "backToFile": "Quay lại chọn tệp",
+    "templateSuccess": "Tải tệp mẫu thành công!",
+    "templateError": "Lỗi tạo tệp mẫu: {{message}}"
   },
   "export": {
     "exportExcel": "Xuất Excel (.xlsx)",
     "exporting": "Đang xuất...",
     "exportSuccess": "Xuất tệp Excel thành công",
-    "exportMockDisabled": "Tính năng xuất Excel chỉ khả dụng trong ứng dụng Desktop"
+    "exportMockDisabled": "Tính năng xuất Excel chỉ khả dụng trong ứng dụng Desktop",
+    "exportError": "Lỗi xuất Excel: {{message}}"
   },
   "print": {
     "printPlan": "In bảng phân công",
@@ -797,7 +899,22 @@
     "plansCount": "Số phương án: {{count}}",
     "userVersion": "Phiên bản schema: {{version}}",
     "restoreSuccess": "Phục hồi dữ liệu thành công!",
-    "backupSuccess": "Sao lưu dữ liệu thành công!"
+    "backupSuccess": "Sao lưu dữ liệu thành công!",
+    "backupError": "Lỗi sao lưu: {{message}}",
+    "pickFileError": "Lỗi chọn tệp: {{message}}",
+    "restoreError": "Lỗi phục hồi: {{message}}",
+    "backingUp": "Đang sao lưu...",
+    "colFile": "Tệp sao lưu",
+    "colSize": "Dung lượng",
+    "colTime": "Thời gian",
+    "restoreBtn": "Phục hồi",
+    "validating": "Đang kiểm tra tính toàn vẹn của tệp sao lưu...",
+    "labelSchoolYears": "Năm học",
+    "labelTeachers": "Giáo viên",
+    "labelPlans": "Phương án",
+    "labelVersion": "Phiên bản",
+    "restoring": "Đang phục hồi...",
+    "restoreConfirmBtn": "Xác nhận phục hồi"
   },
   "trial": {
     "section_title": "Chế độ dùng thử",
@@ -837,7 +954,9 @@
     "validationNameRequired": "Tên môn thi không được để trống",
     "validationSettersRange": "Số người ra đề phải từ 1 đến 4",
     "validationReviewersRange": "Số người phản biện phải từ 0 đến 2",
-    "validationMinCampusesRange": "Số phân hiệu tối thiểu từ 0 đến 3"
+    "validationMinCampusesRange": "Số phân hiệu tối thiểu từ 0 đến 3",
+    "sortOrderLabel": "Thứ tự sắp xếp: {{order}}",
+    "namePlaceholder": "Vật lí, Công nghệ..."
   },
   "competencies": {
     "title": "Chuyên môn",
@@ -863,7 +982,10 @@
     "stateTaught": "Theo khối dạy",
     "stateAll": "Mọi khối",
     "eligibleFooter": "Thống kê đủ điều kiện",
-    "eligibleCount": "{{setters}} ra đề | {{reviewers}} phản biện"
+    "eligibleCount": "{{setters}} ra đề | {{reviewers}} phản biện",
+    "bulkError": "Lỗi khi thực hiện thao tác hàng loạt",
+    "deleteError": "Lỗi khi xóa chuyên môn",
+    "subjectComposition": "{{setters}}Đ+{{reviewers}}PB"
   },
   "quota": {
     "previewBtn": "Xem chỉ tiêu",

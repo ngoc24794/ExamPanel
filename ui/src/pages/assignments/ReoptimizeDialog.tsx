@@ -127,7 +127,9 @@ export function ReoptimizeDialog({
         <div className="py-3 space-y-3">
           <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs">
             <BookmarkCheck className="h-4 w-4 text-amber-500 shrink-0" />
-            <span>{t('assignments.reoptimizeKeptNotice', { count: keptSlots.length })}</span>
+            <span>
+              {t('assignments.reoptimizeKeptNotice', { count: keptSlots.length })}
+            </span>
           </div>
 
           {!isRunning && (

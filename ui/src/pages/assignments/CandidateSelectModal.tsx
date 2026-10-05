@@ -148,7 +148,7 @@ export function CandidateSelectModal({
 
             {!isLoading && filteredCandidates.length === 0 && (
               <div className="p-4 text-center text-xs text-muted-foreground">
-                Không tìm thấy giáo viên phù hợp
+                {t('assignments.noCandidates')}
               </div>
             )}
 
@@ -195,7 +195,8 @@ export function CandidateSelectModal({
                           </span>
                           {isCurrent && (
                             <Badge variant="outline" className="text-[10px] px-1 py-0">
-                              Hiện tại
+                                                            {t('assignments.currentHolder')}
+
                             </Badge>
                           )}
                           <span className="text-[11px] text-muted-foreground">
@@ -245,7 +246,7 @@ export function CandidateSelectModal({
                             )}
                           </span>
                           <span className="text-[10px] text-muted-foreground block">
-                            Tổng: {cand.new_total.toFixed(1)}
+                            {t('assignments.candidateTotal', { total: cand.new_total.toFixed(1) })}
                           </span>
                         </div>
                       )}
@@ -272,7 +273,7 @@ export function CandidateSelectModal({
         </div>
 
         <DialogFooter className="flex justify-between items-center text-xs text-muted-foreground">
-          <span>Gợi ý: Dùng phím ↑ ↓ để chọn, Enter để áp dụng</span>
+          <span>{t('assignments.candidateKeyboardHint')}</span>
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
             {t('common.cancel')}
           </Button>

@@ -107,7 +107,7 @@ export const ExamsPage: React.FC = () => {
     if (!activeYear) {
       try {
         const created = await api.createSchoolYear({
-          name: t('app.schoolYearDefault', { defaultValue: '2026 - 2027' }),
+          name: t('app.schoolYearDefault'),
           is_current: true,
         })
         activeYear = created
@@ -200,7 +200,7 @@ export const ExamsPage: React.FC = () => {
           grades.length > 0 ? Math.max(...grades.map((g) => g.sort_order)) + 1 : 1
         await createGradeMutation.mutateAsync({
           code: Number(gradeCode),
-          name: gradeName.trim() || `Khối ${gradeCode}`,
+          name: gradeName.trim() || t('rules.gradeFallback', { id: gradeCode }),
           sort_order: nextOrder,
         })
         toast.success(t('exams.gradeCreateSuccess'))
@@ -241,7 +241,7 @@ export const ExamsPage: React.FC = () => {
                 <span>{t('exams.examsSection')}</span>
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
-                {currentYear ? `Năm học ${currentYear.name}` : ''}
+                {currentYear ? t('common.schoolYearName', { name: currentYear.name }) : ''}
               </CardDescription>
             </div>
             <Button
@@ -462,7 +462,7 @@ export const ExamsPage: React.FC = () => {
                 disabled={createExamMutation.isPending || updateExamMutation.isPending}
               >
                 {createExamMutation.isPending || updateExamMutation.isPending
-                  ? t('common.loading', { defaultValue: 'Đang lưu...' })
+                  ? t('common.saving')
                   : t('common.save')}
               </Button>
             </DialogFooter>
@@ -547,7 +547,7 @@ export const ExamsPage: React.FC = () => {
                 disabled={createGradeMutation.isPending || updateGradeMutation.isPending}
               >
                 {createGradeMutation.isPending || updateGradeMutation.isPending
-                  ? t('common.loading', { defaultValue: 'Đang lưu...' })
+                  ? t('common.saving')
                   : t('common.save')}
               </Button>
             </DialogFooter>

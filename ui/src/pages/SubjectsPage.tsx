@@ -96,33 +96,23 @@ export const SubjectsPage: React.FC = () => {
     const trimmedName = name.trim()
 
     if (!trimmedCode) {
-      setFormError(
-        t('subjects.validationCodeRequired') || 'Mã môn thi không được để trống',
-      )
+      setFormError(t('subjects.validationCodeRequired'))
       return
     }
     if (!trimmedName) {
-      setFormError(
-        t('subjects.validationNameRequired') || 'Tên môn thi không được để trống',
-      )
+      setFormError(t('subjects.validationNameRequired'))
       return
     }
     if (setters < 1 || setters > 4) {
-      setFormError(
-        t('subjects.validationSettersRange') || 'Số người ra đề phải từ 1 đến 4',
-      )
+      setFormError(t('subjects.validationSettersRange'))
       return
     }
     if (reviewers < 0 || reviewers > 2) {
-      setFormError(
-        t('subjects.validationReviewersRange') || 'Số người phản biện phải từ 0 đến 2',
-      )
+      setFormError(t('subjects.validationReviewersRange'))
       return
     }
     if (minCampuses < 0 || minCampuses > 3) {
-      setFormError(
-        t('subjects.validationMinCampusesRange') || 'Số phân hiệu tối thiểu từ 0 đến 3',
-      )
+      setFormError(t('subjects.validationMinCampusesRange'))
       return
     }
 
@@ -138,7 +128,7 @@ export const SubjectsPage: React.FC = () => {
           reviewers,
           min_campuses: minCampuses,
         })
-        toast.success(t('subjects.updateSuccess') || 'Cập nhật môn thi thành công')
+        toast.success(t('subjects.updateSuccess'))
       } else {
         await createMutation.mutateAsync({
           school_year_id: schoolYearId,
@@ -150,7 +140,7 @@ export const SubjectsPage: React.FC = () => {
           reviewers,
           min_campuses: minCampuses,
         })
-        toast.success(t('subjects.createSuccess') || 'Tạo môn thi mới thành công')
+        toast.success(t('subjects.createSuccess'))
       }
       setDialogOpen(false)
     } catch (err) {
@@ -174,7 +164,7 @@ export const SubjectsPage: React.FC = () => {
         <div>
           <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-primary" />
-            <span>{t('subjects.title') || 'Danh mục Môn thi'}</span>
+            <span>{t('subjects.title')}</span>
             {currentYear && (
               <Badge variant="outline" className="text-xs">
                 {currentYear.name}
@@ -182,8 +172,7 @@ export const SubjectsPage: React.FC = () => {
             )}
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {t('subjects.description') ||
-              'Quản lý các môn thi, định mức ban đề (ra đề / phản biện) và yêu cầu đa dạng phân hiệu.'}
+            {t('subjects.description')}
           </p>
         </div>
         <Button
@@ -193,26 +182,25 @@ export const SubjectsPage: React.FC = () => {
           data-testid="create-subject-btn"
         >
           <Plus className="h-4 w-4" />
-          {t('subjects.createBtn') || 'Thêm môn thi'}
+          {t('subjects.createBtn')}
         </Button>
       </div>
 
       {isLoading ? (
         <div className="p-8 text-center text-sm text-muted-foreground">
-          {t('common.loading') || 'Đang tải dữ liệu...'}
+          {t('common.loading')}
         </div>
       ) : subjects.length === 0 ? (
         <Card className="p-8 text-center border-dashed">
           <BookOpen className="h-10 w-10 mx-auto text-muted-foreground mb-3 opacity-50" />
           <p className="text-sm font-medium text-foreground">
-            {t('subjects.noSubjects') || 'Chưa có môn thi nào'}
+            {t('subjects.noSubjects')}
           </p>
           <p className="text-xs text-muted-foreground mt-1 mb-4">
-            {t('subjects.noSubjectsHelp') ||
-              'Tạo môn thi đầu tiên (ví dụ: VL - Vật lí, CN - Công nghệ).'}
+            {t('subjects.noSubjectsHelp')}
           </p>
           <Button size="sm" onClick={openCreateDialog} className="text-xs">
-            {t('subjects.createBtn') || 'Thêm môn thi'}
+            {t('subjects.createBtn')}
           </Button>
         </Card>
       ) : (
@@ -239,7 +227,7 @@ export const SubjectsPage: React.FC = () => {
                       size="sm"
                       className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
                       onClick={() => openEditDialog(subj)}
-                      title={t('common.edit') || 'Sửa'}
+                      title={t('common.edit')}
                       data-testid={`edit-subject-${subj.id}`}
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -249,7 +237,7 @@ export const SubjectsPage: React.FC = () => {
                       size="sm"
                       className="h-7 w-7 p-0 text-destructive/70 hover:text-destructive"
                       onClick={() => setDeleteSubjectId(subj.id)}
-                      title={t('common.delete') || 'Xóa'}
+                      title={t('common.delete')}
                       data-testid={`delete-subject-${subj.id}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -260,28 +248,27 @@ export const SubjectsPage: React.FC = () => {
                   {subj.name}
                 </CardTitle>
                 <CardDescription className="text-xs text-muted-foreground">
-                  Thứ tự sắp xếp: {subj.sort_order}
+                  {t('subjects.sortOrderLabel', { order: subj.sort_order })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0 text-xs space-y-2 border-t border-border/60 mt-2">
                 <div className="flex justify-between items-center pt-2">
                   <span className="text-muted-foreground">
-                    {t('subjects.composition') || 'Cơ cấu ban đề'}:
+                    {t('subjects.composition')}:
                   </span>
                   <span className="font-medium text-foreground">
-                    {subj.setters} {t('assignments.setter') || 'Đề'} + {subj.reviewers}{' '}
-                    {t('assignments.reviewer') || 'PB'}
+                    {subj.setters} {t('assignments.setter')} + {subj.reviewers}{' '}
+                    {t('assignments.reviewer')}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">
-                    {t('subjects.minCampuses') || 'Đa dạng phân hiệu tối thiểu'}:
+                    {t('subjects.minCampuses')}:
                   </span>
                   <span className="font-medium text-foreground">
                     {subj.min_campuses > 0
-                      ? t('subjects.minCampusesValue', { count: subj.min_campuses }) ||
-                        `${subj.min_campuses} phân hiệu`
-                      : t('subjects.minCampusesNone') || 'Không ràng buộc'}
+                      ? t('subjects.minCampusesValue', { count: subj.min_campuses })
+                      : t('subjects.minCampusesNone')}
                   </span>
                 </div>
               </CardContent>
@@ -295,9 +282,7 @@ export const SubjectsPage: React.FC = () => {
         <DialogContent className="sm:max-w-md bg-card border-border">
           <DialogHeader>
             <DialogTitle className="text-base font-semibold text-foreground">
-              {editingSubject
-                ? t('subjects.editTitle') || 'Chỉnh sửa môn thi'
-                : t('subjects.createTitle') || 'Thêm môn thi mới'}
+              {editingSubject ? t('subjects.editTitle') : t('subjects.createTitle')}
             </DialogTitle>
           </DialogHeader>
 
@@ -311,8 +296,7 @@ export const SubjectsPage: React.FC = () => {
             <div className="space-y-3">
               <div>
                 <label className="text-xs font-medium text-foreground block mb-1">
-                  {t('subjects.codeLabel') || 'Mã môn thi'}{' '}
-                  <span className="text-destructive">*</span>
+                  {t('subjects.codeLabel')} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   value={code}
@@ -326,13 +310,12 @@ export const SubjectsPage: React.FC = () => {
 
               <div>
                 <label className="text-xs font-medium text-foreground block mb-1">
-                  {t('subjects.nameLabel') || 'Tên môn thi'}{' '}
-                  <span className="text-destructive">*</span>
+                  {t('subjects.nameLabel')} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Vật lí, Công nghệ..."
+                  placeholder={t('subjects.namePlaceholder')}
                   className="h-8 text-xs"
                   data-testid="subject-name-input"
                   required
@@ -342,7 +325,7 @@ export const SubjectsPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-foreground block mb-1">
-                    {t('subjects.settersLabel') || 'Số người ra đề'} (1..4)
+                    {t('subjects.settersLabel')} (1..4)
                   </label>
                   <Input
                     type="number"
@@ -356,7 +339,7 @@ export const SubjectsPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground block mb-1">
-                    {t('subjects.reviewersLabel') || 'Số người phản biện'} (0..2)
+                    {t('subjects.reviewersLabel')} (0..2)
                   </label>
                   <Input
                     type="number"
@@ -373,7 +356,7 @@ export const SubjectsPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-foreground block mb-1">
-                    {t('subjects.minCampusesLabel') || 'Phân hiệu tối thiểu'} (0..3)
+                    {t('subjects.minCampusesLabel')} (0..3)
                   </label>
                   <Input
                     type="number"
@@ -387,7 +370,7 @@ export const SubjectsPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground block mb-1">
-                    {t('subjects.colorLabel') || 'Màu sắc'}
+                    {t('subjects.colorLabel')}
                   </label>
                   <div className="flex items-center gap-1.5 mt-1">
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => {
@@ -419,7 +402,7 @@ export const SubjectsPage: React.FC = () => {
                 onClick={() => setDialogOpen(false)}
                 className="text-xs"
               >
-                {t('common.cancel') || 'Hủy'}
+                {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -427,7 +410,7 @@ export const SubjectsPage: React.FC = () => {
                 className="text-xs bg-primary text-primary-foreground hover:bg-primary/90"
                 data-testid="save-subject-btn"
               >
-                {t('common.save') || 'Lưu'}
+                {t('common.save')}
               </Button>
             </DialogFooter>
           </form>
@@ -442,23 +425,22 @@ export const SubjectsPage: React.FC = () => {
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-base text-foreground">
-              {t('subjects.deleteConfirmTitle') || 'Xác nhận xóa môn thi?'}
+              {t('subjects.deleteConfirmTitle')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-muted-foreground">
-              {t('subjects.deleteConfirmDesc') ||
-                'Hành động này sẽ xóa môn thi khỏi cấu hình. Nếu môn thi đã có dữ liệu phân công, việc xóa sẽ bị từ chối.'}
+              {t('subjects.deleteConfirmDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="text-xs">
-              {t('common.cancel') || 'Hủy'}
+              {t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="confirm-delete-subject-btn"
             >
-              {t('common.delete') || 'Xóa'}
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

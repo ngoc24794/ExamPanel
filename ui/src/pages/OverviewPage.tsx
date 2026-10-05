@@ -110,7 +110,7 @@ export const OverviewPage: React.FC = () => {
               {teachersWithGrades.length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {currentYear ? `Năm học ${currentYear.name}` : ''}
+              {currentYear ? t('common.schoolYearName', { name: currentYear.name }) : ''}
             </p>
           </CardContent>
         </Card>
@@ -137,8 +137,7 @@ export const OverviewPage: React.FC = () => {
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {feasibility?.report.errors.length ?? 0} lỗi,{' '}
-              {feasibility?.report.warnings.length ?? 0} cảnh báo
+              {t('overview.issuesSummary', { errors: feasibility?.report.errors.length ?? 0, warnings: feasibility?.report.warnings.length ?? 0 })}
             </p>
           </CardContent>
         </Card>
@@ -207,13 +206,13 @@ export const OverviewPage: React.FC = () => {
             <div className="flex justify-between py-1 border-b border-border/50">
               <span>{t('teachers.campus')}:</span>
               <span className="font-medium text-foreground">
-                {campuses.length} phân hiệu
+                {t('overview.campusesCount', { count: campuses.length })}
               </span>
             </div>
             <div className="flex justify-between py-1">
               <span>{t('nav.teachers')}:</span>
               <span className="font-medium text-foreground">
-                {teachersWithGrades.length} giáo viên
+                {t('overview.teachersCount', { count: teachersWithGrades.length })}
               </span>
             </div>
           </CardContent>

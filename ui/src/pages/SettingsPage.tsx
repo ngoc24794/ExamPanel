@@ -162,7 +162,7 @@ export const SettingsPage: React.FC = () => {
                   {t('settings.themeLabel')}
                 </label>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.
+                  {t('settings.themeHelp')}
                 </p>
               </div>
               <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg border border-border">

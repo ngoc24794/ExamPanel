@@ -185,7 +185,7 @@ function AppLayout() {
                   ExamPanel
                 </span>
                 <span className="text-[10px] text-muted-foreground truncate">
-                  Phân công ra đề
+                  {t('app.subtitle')}
                 </span>
               </div>
             )}

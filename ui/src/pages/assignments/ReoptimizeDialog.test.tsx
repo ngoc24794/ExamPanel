@@ -7,7 +7,9 @@ import { ReoptimizeDialog } from './ReoptimizeDialog'
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), info: vi.fn(), error: vi.fn() } }))
 
-const kept = [{ exam_id: 1, grade_id: 1, subject_id: 1, role: 'setter' as const, position: 0 }]
+const kept = [
+  { exam_id: 1, grade_id: 1, subject_id: 1, role: 'setter' as const, position: 0 },
+]
 
 describe('ReoptimizeDialog (RA-026 UI, RA-011)', () => {
   beforeEach(() => {
@@ -32,7 +34,9 @@ describe('ReoptimizeDialog (RA-026 UI, RA-011)', () => {
     )
     fireEvent.click(screen.getByTestId('reopt-k-3'))
     fireEvent.click(screen.getByTestId('reopt-effort-standard'))
-    fireEvent.click(screen.getByRole('button', { name: /Bắt đầu tối ưu lại|Start re-optimizing/ }))
+    fireEvent.click(
+      screen.getByRole('button', { name: /Bắt đầu tối ưu lại|Start re-optimizing/ }),
+    )
     await waitFor(() => expect(spy).toHaveBeenCalled())
     const req = spy.mock.calls[0][0]
     expect(req.request.k).toBe(3)
@@ -60,7 +64,9 @@ describe('ReoptimizeDialog (RA-026 UI, RA-011)', () => {
         onSuccess={() => {}}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: /Bắt đầu tối ưu lại|Start re-optimizing/ }))
+    fireEvent.click(
+      screen.getByRole('button', { name: /Bắt đầu tối ưu lại|Start re-optimizing/ }),
+    )
     fireEvent.click(await screen.findByRole('button', { name: /Hủy bỏ|Cancel run/i }))
     await waitFor(() => expect(toast.info).toHaveBeenCalledTimes(1))
     expect(save).not.toHaveBeenCalled()

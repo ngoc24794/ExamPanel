@@ -372,7 +372,7 @@ export const RulesPage: React.FC = () => {
               variant="outline"
               className="text-xs text-amber-500 border-amber-500/30"
             >
-              Chưa lưu thay đổi
+              {t('rules.unsavedChanges')}
             </Badge>
           )}
           <Button
@@ -513,10 +513,7 @@ export const RulesPage: React.FC = () => {
                     data-testid="h3-warning-box"
                   >
                     <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-                    <span>
-                      {t('rules.h3Warning') ||
-                        'Tắt H3 cho phép các hội đồng chỉ gồm giáo viên cùng một phân hiệu.'}
-                    </span>
+                    <span>{t('rules.h3Warning')}</span>
                   </div>
                 )}
               </CardContent>
@@ -550,7 +547,7 @@ export const RulesPage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
                     <div className="space-y-1">
                       <label className="text-[11px] font-medium text-foreground">
-                        {t('rules.h4MaxTasksPerExam') || 'Tối đa nhiệm vụ / đợt'}:
+                        {t('rules.h4MaxTasksPerExam')}:
                       </label>
                       <input
                         type="number"
@@ -571,7 +568,7 @@ export const RulesPage: React.FC = () => {
                     </div>
                     <div className="space-y-1">
                       <label className="text-[11px] font-medium text-foreground">
-                        {t('rules.h4MaxSetterPerExam') || 'Tối đa ra đề / đợt'}:
+                        {t('rules.h4MaxSetterPerExam')}:
                       </label>
                       <input
                         type="number"
@@ -818,7 +815,7 @@ export const RulesPage: React.FC = () => {
                       <div className="pt-2 border-t border-border space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-medium text-foreground">
-                            {t('rules.s1MaxTasksMode') || 'Giới hạn nhiệm vụ/đợt thi'}:
+                            {t('rules.s1MaxTasksMode')}:
                           </span>
                           <div className="flex items-center gap-2">
                             <button
@@ -835,13 +832,13 @@ export const RulesPage: React.FC = () => {
                               }`}
                               data-testid="s1-mode-auto"
                             >
-                              {t('rules.s1ModeAuto') || 'Tự động (Auto)'}
+                              {t('rules.s1ModeAuto')}
                             </button>
                             <input
                               type="number"
                               min="1"
                               max="5"
-                              placeholder="Số"
+                              placeholder={t('rules.numberPlaceholder')}
                               value={
                                 (rule?.params?.max_tasks_per_exam as
                                   number | undefined) ?? ''
@@ -990,8 +987,8 @@ export const RulesPage: React.FC = () => {
                             {teacher?.full_name || `GV #${lock.teacher_id}`}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            → {exam?.name || `Kỳ ${lock.exam_id}`} —{' '}
-                            {grade?.name || `Khối ${lock.grade_id}`}
+                            → {exam?.name || t('rules.examFallback', { id: lock.exam_id })} —{' '}
+                            {grade?.name || t('rules.gradeFallback', { id: lock.grade_id })}
                           </span>
                           {lock.role && (
                             <Badge variant="outline" className="text-[10px]">
@@ -1090,7 +1087,7 @@ export const RulesPage: React.FC = () => {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">
-                  {t('subjects.title', { defaultValue: 'Môn học' })}
+                  {t('subjects.title')}
                 </label>
                 <Select value={lockSubjectId} onValueChange={setLockSubjectId}>
                   <SelectTrigger
@@ -1120,7 +1117,7 @@ export const RulesPage: React.FC = () => {
                   className="text-xs bg-background"
                   data-testid="lock-teacher-select"
                 >
-                  <SelectValue placeholder="Chọn giáo viên..." />
+                  <SelectValue placeholder={t('rules.pickTeacher')} />
                 </SelectTrigger>
                 <SelectContent>
                   {teacherEligibilityList.map(({ teacher, isEligible, reason }) => (

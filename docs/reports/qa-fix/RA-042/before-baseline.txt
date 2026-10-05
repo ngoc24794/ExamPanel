@@ -1,0 +1,966 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/.tools/baseline/ui
+
+ ❯ src/i18n/i18n-keys.test.ts (4 tests | 2 failed) 16ms
+   ✓ i18n completeness (RA-040) > finds the translation keys used by the source 1ms
+   × i18n completeness (RA-040) > every static t() key exists in BOTH vi.json and en.json 9ms
+     → missing keys:
+feasibility.forcedPlacementsTitle [vi+en] ← components/FeasibilitySheet.tsx
+feasibility.forcedPlacementsDesc [vi+en] ← components/FeasibilitySheet.tsx
+common.all [vi+en] ← pages/CompetenciesPage.tsx, pages/assignments/PlanMatrixView.tsx
+common.loading [vi+en] ← pages/ExamsPage.tsx, pages/SubjectsPage.tsx, pages/teachers/QuotaPreviewModal.tsx, pages/teachers/TeacherCompetenciesModal.tsx
+rules.h3Warning [vi+en] ← pages/RulesPage.tsx
+rules.h4MaxTasksPerExam [vi+en] ← pages/RulesPage.tsx
+rules.h4MaxSetterPerExam [vi+en] ← pages/RulesPage.tsx
+rules.s1MaxTasksMode [vi+en] ← pages/RulesPage.tsx
+rules.s1ModeAuto [vi+en] ← pages/RulesPage.tsx
+teachers.advancedSettings [vi+en] ← pages/TeachersPage.tsx
+teachers.quotaOverrideHelp [vi+en] ← pages/TeachersPage.tsx
+teachers.maxTasksPerExamOverrideHelp [vi+en] ← pages/TeachersPage.tsx
+common.close [vi+en] ← pages/teachers/QuotaPreviewModal.tsx: expected [ …(13) ] to deeply equal []
+   ✓ i18n completeness (RA-040) > vi.json and en.json define exactly the same keys 1ms
+   × i18n completeness (RA-040) > locale files contain no duplicate JSON keys (the last one silently wins) 4ms
+     → vi.json: expected [ 'settings.storageMode', …(1) ] to deeply equal []
+ ❯ src/i18n/no-hardcoded-text.test.ts (1 test | 1 failed) 32ms
+   × no hard-coded Vietnamese UI text (RA-042) > every component renders text through t() 31ms
+     → hard-coded Vietnamese:
+app/App.tsx: Phân công ra đề
+components/FeasibilitySheet.tsx: {t('feasibility.forcedPlacementsTitle') || 'Phân công cố định'}
+components/FeasibilitySheet.tsx: 'Các nhiệm vụ đã được cố định theo cấu hình. Thuật toán sẽ bảo lưu các vị trí này.'}
+components/FeasibilitySheet.tsx: const roleLabel = fp.role === 'setter' ? 'Ra đề' : 'Phản biện'
+components/FeasibilitySheet.tsx: {exam?.code || `Kỳ ${fp.panel.exam_id}`} •{' '}
+lib/query/hooks.ts: i18n.t('schoolYear.createSuccess', { defaultValue: 'Tạo năm học thành công' }),
+lib/query/hooks.ts: i18n.t('dev.seedSuccess', { defaultValue: 'Đã nạp dữ liệu mẫu thành công' }),
+lib/query/hooks.ts: defaultValue: 'Đã lưu cấu hình quy tắc thành công',
+lib/query/hooks.ts: defaultValue: 'Đã đánh dấu phương án chính thức thành công',
+lib/query/hooks.ts: defaultValue: 'Đã lưu phương án phân công',
+lib/query/hooks.ts: defaultValue: 'Đã tạo môn học thành công',
+lib/query/hooks.ts: defaultValue: 'Đã cập nhật môn học thành công',
+lib/query/hooks.ts: defaultValue: 'Đã xóa môn học thành công',
+pages/AssignmentsPage.tsx: const copyName = `${activePlan.name} (Chỉnh sửa)`
+pages/AssignmentsPage.tsx: toast.error(`Lỗi xuất Excel: ${msg}`)
+pages/AssignmentsPage.tsx: {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+pages/AssignmentsPage.tsx: {t('assignments.viewModeGrid') || 'Bảng tổ'}
+pages/AssignmentsPage.tsx: {t('assignments.viewModeDetail') || 'Chi tiết'}
+pages/AssignmentsPage.tsx: Đóng
+pages/AssignmentsPage.tsx: {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+pages/AssignmentsPage.tsx: <span>Danh sách giáo viên</span>
+pages/AssignmentsPage.tsx: Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được
+pages/AssignmentsPage.tsx: phân công trên ma trận.
+pages/AssignmentsPage.tsx: {count} lượt
+pages/AssignmentsPage.tsx: <span>Đã chọn giữ: {keptSlots.length} ô</span>
+pages/AssignmentsPage.tsx: Bỏ chọn tất cả
+pages/CampusesPage.tsx: code: z.string().min(1, 'Mã không được để trống'),
+pages/CampusesPage.tsx: name: z.string().min(1, 'Tên không được để trống'),
+pages/CampusesPage.tsx: color: z.string().min(1, 'Vui lòng chọn màu'),
+pages/CompetenciesPage.tsx: toast.error('Lỗi khi thực hiện thao tác hàng loạt')
+pages/CompetenciesPage.tsx: toast.error('Lỗi khi thực hiện thao tác hàng loạt')
+pages/CompetenciesPage.tsx: toast.error('Lỗi khi xóa chuyên môn')
+pages/CompetenciesPage.tsx: <SelectItem value="all">{t('common.all') || 'Tất cả môn'}</SelectItem>
+pages/CompetenciesPage.tsx: {sub.code} ({sub.setters}Đ+{sub.reviewers}PB)
+pages/CompetenciesPage.tsx: title={`Ra đề: ${
+pages/CompetenciesPage.tsx: <span className="font-bold">Đề:</span>
+pages/CompetenciesPage.tsx: title={`Phản biện: ${
+pages/ExamsPage.tsx: name: gradeName.trim() || `Khối ${gradeCode}`,
+pages/ExamsPage.tsx: {currentYear ? `Năm học ${currentYear.name}` : ''}
+pages/ExamsPage.tsx: ? t('common.loading', { defaultValue: 'Đang lưu...' })
+pages/ExamsPage.tsx: ? t('common.loading', { defaultValue: 'Đang lưu...' })
+pages/OverviewPage.tsx: {currentYear ? `Năm học ${currentYear.name}` : ''}
+pages/OverviewPage.tsx: {feasibility?.report.errors.length ?? 0} lỗi,{' '}
+pages/OverviewPage.tsx: {feasibility?.report.warnings.length ?? 0} cảnh báo
+pages/OverviewPage.tsx: {campuses.length} phân hiệu
+pages/OverviewPage.tsx: {teachersWithGrades.length} giáo viên
+pages/PlaceholderPage.tsx: Các tính năng chuyên sâu của mô-đun này sẽ được phát triển trong các giai đoạn
+pages/PlaceholderPage.tsx: tiếp theo theo kiến trúc dự án.
+pages/RulesPage.tsx: Chưa lưu thay đổi
+pages/RulesPage.tsx: 'Tắt H3 cho phép các hội đồng chỉ gồm giáo viên cùng một phân hiệu.'}
+pages/RulesPage.tsx: {t('rules.h4MaxTasksPerExam') || 'Tối đa nhiệm vụ / đợt'}:
+pages/RulesPage.tsx: {t('rules.h4MaxSetterPerExam') || 'Tối đa ra đề / đợt'}:
+pages/RulesPage.tsx: {t('rules.s1MaxTasksMode') || 'Giới hạn nhiệm vụ/đợt thi'}:
+pages/RulesPage.tsx: {t('rules.s1ModeAuto') || 'Tự động (Auto)'}
+pages/RulesPage.tsx: placeholder="Số"
+pages/RulesPage.tsx: → {exam?.name || `Kỳ ${lock.exam_id}`} —{' '}
+pages/RulesPage.tsx: {grade?.name || `Khối ${lock.grade_id}`}
+pages/RulesPage.tsx: {t('subjects.title', { defaultValue: 'Môn học' })}
+pages/RulesPage.tsx: <SelectValue placeholder="Chọn giáo viên..." />
+pages/SettingsPage.tsx: Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.
+pages/SettingsPage.tsx: Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).
+pages/StatisticsPage.tsx: <SelectValue placeholder="Chọn phương án" />
+pages/StatisticsPage.tsx: {p.name} {p.is_final ? '★ (Chính thức)' : ''}
+pages/StatisticsPage.tsx: Chưa có phương án nào để xem thống kê. Hãy chạy tối ưu trong mục Phân công.
+pages/StatisticsPage.tsx: So sánh số lượt phân công thực tế với chỉ tiêu phân bổ định mức
+pages/StatisticsPage.tsx: Khối {r.gradesStr || '--'}
+pages/StatisticsPage.tsx: {t('statistics.campusMixDesc')} (Tổng số: {campusMixStats.total} ban đề)
+pages/SubjectsPage.tsx: t('subjects.validationCodeRequired') || 'Mã môn thi không được để trống',
+pages/SubjectsPage.tsx: t('subjects.validationNameRequired') || 'Tên môn thi không được để trống',
+pages/SubjectsPage.tsx: t('subjects.validationSettersRange') || 'Số người ra đề phải từ 1 đến 4',
+pages/SubjectsPage.tsx: t('subjects.validationReviewersRange') || 'Số người phản biện phải từ 0 đến 2',
+pages/SubjectsPage.tsx: t('subjects.validationMinCampusesRange') || 'Số phân hiệu tối thiểu từ 0 đến 3',
+pages/SubjectsPage.tsx: toast.success(t('subjects.updateSuccess') || 'Cập nhật môn thi thành công')
+pages/SubjectsPage.tsx: toast.success(t('subjects.createSuccess') || 'Tạo môn thi mới thành công')
+pages/SubjectsPage.tsx: <span>{t('subjects.title') || 'Danh mục Môn thi'}</span>
+pages/SubjectsPage.tsx: 'Quản lý các môn thi, định mức ban đề (ra đề / phản biện) và yêu cầu đa dạng phân hiệu.'}
+pages/SubjectsPage.tsx: {t('subjects.createBtn') || 'Thêm môn thi'}
+pages/SubjectsPage.tsx: {t('common.loading') || 'Đang tải dữ liệu...'}
+pages/SubjectsPage.tsx: {t('subjects.noSubjects') || 'Chưa có môn thi nào'}
+pages/SubjectsPage.tsx: 'Tạo môn thi đầu tiên (ví dụ: VL - Vật lí, CN - Công nghệ).'}
+pages/SubjectsPage.tsx: {t('subjects.createBtn') || 'Thêm môn thi'}
+pages/SubjectsPage.tsx: title={t('common.edit') || 'Sửa'}
+pages/SubjectsPage.tsx: title={t('common.delete') || 'Xóa'}
+pages/SubjectsPage.tsx: Thứ tự sắp xếp: {subj.sort_order}
+pages/SubjectsPage.tsx: {t('subjects.composition') || 'Cơ cấu ban đề'}:
+pages/SubjectsPage.tsx: {subj.setters} {t('assignments.setter') || 'Đề'} + {subj.reviewers}{' '}
+pages/SubjectsPage.tsx: {t('subjects.minCampuses') || 'Đa dạng phân hiệu tối thiểu'}:
+pages/SubjectsPage.tsx: `${subj.min_campuses} phân hiệu`
+pages/SubjectsPage.tsx: : t('subjects.minCampusesNone') || 'Không ràng buộc'}
+pages/SubjectsPage.tsx: ? t('subjects.editTitle') || 'Chỉnh sửa môn thi'
+pages/SubjectsPage.tsx: : t('subjects.createTitle') || 'Thêm môn thi mới'}
+pages/SubjectsPage.tsx: {t('subjects.codeLabel') || 'Mã môn thi'}{' '}
+pages/SubjectsPage.tsx: {t('subjects.nameLabel') || 'Tên môn thi'}{' '}
+pages/SubjectsPage.tsx: placeholder="Vật lí, Công nghệ..."
+pages/SubjectsPage.tsx: {t('subjects.settersLabel') || 'Số người ra đề'} (1..4)
+pages/SubjectsPage.tsx: {t('subjects.reviewersLabel') || 'Số người phản biện'} (0..2)
+pages/SubjectsPage.tsx: {t('subjects.minCampusesLabel') || 'Phân hiệu tối thiểu'} (0..3)
+pages/SubjectsPage.tsx: {t('subjects.colorLabel') || 'Màu sắc'}
+pages/SubjectsPage.tsx: {t('common.cancel') || 'Hủy'}
+pages/SubjectsPage.tsx: {t('common.save') || 'Lưu'}
+pages/SubjectsPage.tsx: {t('subjects.deleteConfirmTitle') || 'Xác nhận xóa môn thi?'}
+pages/SubjectsPage.tsx: 'Hành động này sẽ xóa môn thi khỏi cấu hình. Nếu môn thi đã có dữ liệu phân công, việc xóa sẽ bị từ chối.'}
+pages/SubjectsPage.tsx: {t('common.cancel') || 'Hủy'}
+pages/SubjectsPage.tsx: {t('common.delete') || 'Xóa'}
+pages/TeachersPage.tsx: fullName: z.string().min(1, 'Họ tên không được để trống'),
+pages/TeachersPage.tsx: campusId: z.number().min(1, 'Vui lòng chọn phân hiệu'),
+pages/TeachersPage.tsx: toast.success(t('import.downloadTemplate') + ' thành công!')
+pages/TeachersPage.tsx: toast.error(`Lỗi tạo tệp mẫu: ${msg}`)
+pages/TeachersPage.tsx: {t('quota.previewBtn') || 'Xem chỉ tiêu'}
+pages/TeachersPage.tsx: {t('competencies.title') || 'Chuyên môn'}
+pages/TeachersPage.tsx: isTaught ? 'Đang phân công' : 'Chưa phân công'
+pages/TeachersPage.tsx: title={t('competencies.editTitle') || 'Phân công chuyên môn'}
+pages/TeachersPage.tsx: {t('teachers.gradesTaught')} (Năm học {currentYear?.name})
+pages/UnavailabilityPage.tsx: <span>Thao tác</span>
+pages/assignments/CandidateSelectModal.tsx: Không tìm thấy giáo viên phù hợp
+pages/assignments/CandidateSelectModal.tsx: Hiện tại
+pages/assignments/CandidateSelectModal.tsx: Tổng: {cand.new_total.toFixed(1)}
+pages/assignments/CandidateSelectModal.tsx: <span>Gợi ý: Dùng phím ↑ ↓ để chọn, Enter để áp dụng</span>
+pages/assignments/ImportPlanModal.tsx: toast.error(`Lỗi chọn tệp: ${msg}`)
+pages/assignments/ImportPlanModal.tsx: toast.error(t('import.noFileSelected') || 'Vui lòng chọn đường dẫn tệp Excel')
+pages/assignments/ImportPlanModal.tsx: toast.error('Vui lòng dán nội dung bảng (TSV)')
+pages/assignments/ImportPlanModal.tsx: toast.error(`Lỗi đọc dữ liệu: ${msg}`)
+pages/assignments/ImportPlanModal.tsx: const planName = t('planImport.planName') || 'Nhập từ bảng của tổ'
+pages/assignments/ImportPlanModal.tsx: toast.success(t('planImport.importSuccess') || 'Đã nhập bảng phân công thành công')
+pages/assignments/ImportPlanModal.tsx: t('planImport.importError', { error: msg }) || `Lỗi khi lưu phương án: ${msg}`,
+pages/assignments/ImportPlanModal.tsx: <span>{t('planImport.dialogTitle') || 'Nhập bảng phân công có sẵn'}</span>
+pages/assignments/ImportPlanModal.tsx: 'Nhập ma trận phân công từ tệp Excel hoặc dán vùng dữ liệu (TSV) từ bảng tính.'}
+pages/assignments/ImportPlanModal.tsx: <span>{t('planImport.tabExcel') || 'Tệp Excel (.xlsx)'}</span>
+pages/assignments/ImportPlanModal.tsx: <span>{t('planImport.tabTsv') || 'Dán văn bản (TSV)'}</span>
+pages/assignments/ImportPlanModal.tsx: {t('planImport.excelBrowse') || 'Chọn tệp Excel'}
+pages/assignments/ImportPlanModal.tsx: t('planImport.excelPlaceholder') || 'Đường dẫn tệp Excel...'
+pages/assignments/ImportPlanModal.tsx: {t('import.browse') || 'Chọn tệp'}
+pages/assignments/ImportPlanModal.tsx: Hỗ trợ tệp xuất từ phần mềm (&ldquo;Bảng phân công (mẫu tổ)&rdquo;) hoặc
+pages/assignments/ImportPlanModal.tsx: mẫu bảng gốc của cô Q.
+pages/assignments/ImportPlanModal.tsx: 'Nội dung bảng (sao chép và dán từ Excel hoặc Google Sheets)'}
+pages/assignments/ImportPlanModal.tsx: 'Dán vùng bảng phân công vào đây (bao gồm tiêu đề Kì thi/khối, khối, môn, vai trò)...'
+pages/assignments/ImportPlanModal.tsx: Sao chép toàn bộ khối bảng phân công bắt đầu từ góc &ldquo;Kì
+pages/assignments/ImportPlanModal.tsx: thi/khối&rdquo; và dán trực tiếp.
+pages/assignments/ImportPlanModal.tsx: {t('planImport.validStatus') || 'Hợp lệ'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.invalidStatus') || 'Không thể áp dụng'}
+pages/assignments/ImportPlanModal.tsx: `Tổng số vị trí nạp: ${preview.assignments.length}`}
+pages/assignments/ImportPlanModal.tsx: `Điểm phạt ước tính: ${softScoreDisplay}`}
+pages/assignments/ImportPlanModal.tsx: `Đối soát giáo viên (${preview.teacher_totals.length})`}
+pages/assignments/ImportPlanModal.tsx: `Cảnh báo & Lỗi (${issueCount})`}
+pages/assignments/ImportPlanModal.tsx: }) || `Danh sách phân công (${preview.assignments.length})`}
+pages/assignments/ImportPlanModal.tsx: <TableHead>{t('planImport.colTeacher') || 'Giáo viên'}</TableHead>
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colDisplayName') || 'Cách gọi'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colDetected') || 'Số lượt nạp'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colFileTotal') || 'Số trong tệp'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colSetters') || 'Ra đề'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colReviewers') || 'Phản biện'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colStatus') || 'Trạng thái'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.statusMatched') || 'Khớp'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.statusMismatch') || 'Lệch'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.noIssues') || 'Không phát hiện lỗi hoặc cảnh báo nào.'}
+pages/assignments/ImportPlanModal.tsx: <TableHead>Kỳ thi ID</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Khối ID</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Môn ID</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Vai trò</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Vị trí</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Giáo viên ID</TableHead>
+pages/assignments/ImportPlanModal.tsx: {asgn.role === 'setter' ? 'Ra đề' : 'Phản biện'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.backBtn') || 'Quay lại'}
+pages/assignments/ImportPlanModal.tsx: ? 'Đang áp dụng...'
+pages/assignments/ImportPlanModal.tsx: : t('planImport.applyBtn') || 'Áp dụng phương án'}
+pages/assignments/ImportPlanModal.tsx: {t('common.cancel') || 'Hủy'}
+pages/assignments/ImportPlanModal.tsx: ? 'Đang đọc...'
+pages/assignments/ImportPlanModal.tsx: : t('planImport.previewBtn') || 'Xem trước phân công'}
+pages/assignments/PlanCompareModal.tsx: So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án
+pages/assignments/PlanCompareModal.tsx: <SelectValue placeholder="Chọn phương án A" />
+pages/assignments/PlanCompareModal.tsx: {p.name} (Điểm: {p.score?.toFixed(1) ?? '--'})
+pages/assignments/PlanCompareModal.tsx: <SelectValue placeholder="Chọn phương án B" />
+pages/assignments/PlanCompareModal.tsx: {p.name} (Điểm: {p.score?.toFixed(1) ?? '--'})
+pages/assignments/PlanCompareModal.tsx: Điểm A: <strong>{detailsA.score_report?.total.toFixed(2) ?? '--'}</strong>
+pages/assignments/PlanCompareModal.tsx: Điểm B: <strong>{detailsB.score_report?.total.toFixed(2) ?? '--'}</strong>
+pages/assignments/PlanCompareModal.tsx: Chênh lệch (B - A):{' '}
+pages/assignments/PlanCompareModal.tsx: {t('assignments.diffHighlight')} ({comparison.diffSlots.size} ban đề có thay
+pages/assignments/PlanCompareModal.tsx: đổi)
+pages/assignments/PlanCompareModal.tsx: Kỳ / Khối
+pages/assignments/PlanMatrixView.tsx: <p className="font-bold uppercase">Tiêu chí {r.rule}</p>
+pages/assignments/PlanMatrixView.tsx: Hệ số: {r.weight} | Đơn vị vi phạm: {r.units}
+pages/assignments/PlanMatrixView.tsx: <p>Điểm phạt: {r.penalty.toFixed(2)}</p>
+pages/assignments/PlanMatrixView.tsx: {t('subjects.subject') || 'Môn học'}:
+pages/assignments/PlanMatrixView.tsx: {t('common.all') || 'Tất cả'} ({effectiveSubjects.length})
+pages/assignments/PlanMatrixView.tsx: Kỳ thi / Khối
+pages/assignments/PlanMatrixView.tsx: {isReviewer ? 'PB' : 'Đề'}
+pages/assignments/PlanMatrixView.tsx: <span className="text-muted-foreground italic">Trống</span>
+pages/assignments/PlansHistoryList.tsx: const copyName = `${plan.name} (Bản sao)`
+pages/assignments/PlansHistoryList.tsx: Bạn có chắc chắn muốn xóa phương án này? Hành động này không thể hoàn tác.
+pages/assignments/QPlanGrid.tsx: name: 'Vật lí',
+pages/assignments/QPlanGrid.tsx: <p>Số đơn vị phạt: {rb.units}</p>
+pages/assignments/QPlanGrid.tsx: <p>Trọng số: {rb.weight}</p>
+pages/assignments/QPlanGrid.tsx: <p>Điểm phạt: {rb.penalty.toFixed(2)}</p>
+pages/assignments/QPlanGrid.tsx: {t('assignments.examGradeHeader') || 'Kì thi/khối'}
+pages/assignments/QPlanGrid.tsx: Khối {grade.name}
+pages/assignments/QPlanGrid.tsx: label: t('assignments.roleSetterShort') || 'Đề',
+pages/assignments/QPlanGrid.tsx: label: t('assignments.roleReviewerShort') || 'P.Biện',
+pages/assignments/QPlanGrid.tsx: Trống
+pages/assignments/QPlanGrid.tsx: ) || 'Chưa có',
+pages/assignments/QPlanGrid.tsx: <p className="italic">Chưa có giáo viên phân công</p>
+pages/assignments/QPlanGrid.tsx: {t('assignments.totalsHeader') || 'Bảng tổng hợp lượt'}
+pages/assignments/QPlanGrid.tsx: ? 'Tăng'
+pages/assignments/QPlanGrid.tsx: : 'Giảm'
+pages/assignments/QPlanGrid.tsx: : 'Tổng'}
+pages/assignments/QPlanGrid.tsx: t('assignments.teacherSearchPlaceholder') || 'Lọc giáo viên...'
+pages/assignments/QPlanGrid.tsx: {t('assignments.totalsTotal') || 'Tổng'}
+pages/assignments/QPlanGrid.tsx: {t('assignments.totalsSetter') || 'Đề'}
+pages/assignments/QPlanGrid.tsx: {t('assignments.totalsFixed') || 'cố định'}
+pages/assignments/QPlanGrid.tsx: <td className="p-1.5 text-foreground">Tổng cộng</td>
+pages/assignments/ReoptimizeDialog.tsx: <strong>{keptSlots.length}</strong> vị trí được giữ cố định, thuật toán sẽ
+pages/assignments/ReoptimizeDialog.tsx: sắp xếp lại các vị trí còn lại để cải thiện điểm số.
+pages/assignments/ReoptimizeDialog.tsx: Đang tối ưu lại...
+pages/assignments/ReoptimizeDialog.tsx: Điểm tốt nhất: <strong>{progress?.best_score.toFixed(2) ?? '--'}</strong>
+pages/assignments/ReoptimizeDialog.tsx: Bắt đầu tối ưu lại
+pages/assignments/RunOptimizeDialog.tsx: {blockingErrors.length} lỗi cấu hình khiến thuật toán không thể xếp lịch hợp
+pages/assignments/RunOptimizeDialog.tsx: lệ.
+pages/assignments/TeacherFocusPanel.tsx: Hệ số tải: {teacher.load_weight}
+pages/assignments/TeacherFocusPanel.tsx: <span className="text-muted-foreground block">Vai trò</span>
+pages/assignments/TeacherFocusPanel.tsx: {setterCount} ra đề, {reviewerCount} phản biện
+pages/assignments/TeacherFocusPanel.tsx: <strong className="text-foreground">Kỳ thi:</strong>{' '}
+pages/assignments/TeacherFocusPanel.tsx: <span className="text-muted-foreground">{examNames || 'Chưa được phân'}</span>
+pages/assignments/TeacherFocusPanel.tsx: <strong className="text-foreground">Khối lớp:</strong>{' '}
+pages/assignments/TeacherFocusPanel.tsx: {gradeNames || 'Chưa được phân'}
+pages/assignments/TeacherFocusPanel.tsx: <span>Vi phạm tiêu chí mềm liên quan ({myViolations.length}):</span>
+pages/settings/BackupSection.tsx: toast.error(`Lỗi sao lưu: ${msg}`)
+pages/settings/BackupSection.tsx: toast.error(`Lỗi chọn tệp: ${msg}`)
+pages/settings/BackupSection.tsx: toast.error(`Lỗi phục hồi: ${msg}`)
+pages/settings/BackupSection.tsx: <span>{backingUp ? 'Đang sao lưu...' : t('backup.backupNow')}</span>
+pages/settings/BackupSection.tsx: title="Làm mới"
+pages/settings/BackupSection.tsx: <TableHead className="w-1/2">Tệp sao lưu</TableHead>
+pages/settings/BackupSection.tsx: <TableHead className="w-24">Dung lượng</TableHead>
+pages/settings/BackupSection.tsx: <TableHead className="w-36">Thời gian</TableHead>
+pages/settings/BackupSection.tsx: <TableHead className="w-24 text-right">Thao tác</TableHead>
+pages/settings/BackupSection.tsx: Phục hồi
+pages/settings/BackupSection.tsx: Đang kiểm tra tính toàn vẹn của tệp sao lưu...
+pages/settings/BackupSection.tsx: <span className="text-muted-foreground">Năm học:</span>{' '}
+pages/settings/BackupSection.tsx: <span className="text-muted-foreground">Giáo viên:</span>{' '}
+pages/settings/BackupSection.tsx: <span className="text-muted-foreground">Phương án:</span>{' '}
+pages/settings/BackupSection.tsx: <span className="text-muted-foreground">Phiên bản:</span>{' '}
+pages/settings/BackupSection.tsx: Hủy
+pages/settings/BackupSection.tsx: {restoring ? 'Đang phục hồi...' : 'Xác nhận phục hồi'}
+pages/teachers/ImportWizardModal.tsx: toast.error(`Lỗi đọc tệp Excel: ${msg}`)
+pages/teachers/ImportWizardModal.tsx: toast.error(`Lỗi áp dụng nhập dữ liệu: ${msg}`)
+pages/teachers/ImportWizardModal.tsx: {t('import.feasibilityWarning')} (Có{' '}
+pages/teachers/ImportWizardModal.tsx: {preview.feasibility_report.report.errors.length} lỗi bắt buộc)
+pages/teachers/ImportWizardModal.tsx: Không có giáo viên nào bị ngưng hoạt động.
+pages/teachers/ImportWizardModal.tsx: Quay lại chọn tệp
+pages/teachers/ImportWizardModal.tsx: Hủy
+pages/teachers/QuotaPreviewModal.tsx: {t('quota.previewTitle') || 'Dự toán phân bổ chỉ tiêu nhiệm vụ'}
+pages/teachers/QuotaPreviewModal.tsx: 'Chỉ tiêu nhiệm vụ được tính toán tự động theo trọng số tải, tính khả dụng và loại trừ các nhiệm vụ cố định.'}
+pages/teachers/QuotaPreviewModal.tsx: {t('common.loading') || 'Đang tính toán chỉ tiêu...'}
+pages/teachers/QuotaPreviewModal.tsx: {t('quota.empty') || 'Chưa có dữ liệu chỉ tiêu.'}
+pages/teachers/QuotaPreviewModal.tsx: <span className="text-muted-foreground">Tổng số giáo viên: </span>
+pages/teachers/QuotaPreviewModal.tsx: <span className="text-muted-foreground">Tổng chỉ tiêu phân bổ: </span>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead>Giáo viên</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead className="text-center">Trọng số tải</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead className="text-center">Kỳ khả dụng</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead className="text-center">Nhiệm vụ cố định</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead className="text-right">Chỉ tiêu mục tiêu (q)</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: Khoảng cho phép [lo, hi]
+pages/teachers/QuotaPreviewModal.tsx: Cố định: {forcedCount}
+pages/teachers/QuotaPreviewModal.tsx: {t('common.close') || 'Đóng'}
+pages/teachers/TeacherCompetenciesModal.tsx: t('competencies.saveSuccess') || 'Cập nhật phân công chuyên môn thành công',
+pages/teachers/TeacherCompetenciesModal.tsx: 'Đã gán chuyên môn theo khối đang dạy cho toàn bộ giáo viên',
+pages/teachers/TeacherCompetenciesModal.tsx: {t('competencies.modalTitle') || 'Phân công chuyên môn'}
+pages/teachers/TeacherCompetenciesModal.tsx: 'Chỉ định các môn học và vai trò (ra đề / phản biện) giáo viên có thẩm quyền đảm nhận.'}
+pages/teachers/TeacherCompetenciesModal.tsx: <span className="text-muted-foreground">Thao tác nhanh cho toàn trường:</span>
+pages/teachers/TeacherCompetenciesModal.tsx: 'Gán theo khối đang dạy cho tất cả giáo viên'}
+pages/teachers/TeacherCompetenciesModal.tsx: {t('common.loading') || 'Đang tải thông tin chuyên môn...'}
+pages/teachers/TeacherCompetenciesModal.tsx: {t('subjects.noSubjects') || 'Chưa có môn thi nào được cấu hình.'}
+pages/teachers/TeacherCompetenciesModal.tsx: <TableHead className="w-40">Môn học</TableHead>
+pages/teachers/TeacherCompetenciesModal.tsx: <TableHead>Vai trò Ra đề (Đề)</TableHead>
+pages/teachers/TeacherCompetenciesModal.tsx: <TableHead>Vai trò Phản biện (PB)</TableHead>
+pages/teachers/TeacherCompetenciesModal.tsx: Đảm nhận
+pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value="taught">Khối đang dạy</SelectItem>
+pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value="any">Mọi khối</SelectItem>
+pages/teachers/TeacherCompetenciesModal.tsx: Đảm nhận
+pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value="taught">Khối đang dạy</SelectItem>
+pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value="any">Mọi khối</SelectItem>
+pages/teachers/TeacherCompetenciesModal.tsx: {t('common.cancel') || 'Hủy'}
+pages/teachers/TeacherCompetenciesModal.tsx: {t('common.save') || 'Lưu chuyên môn'}: expected [ …(281) ] to deeply equal []
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/i18n/i18n-keys.test.ts > i18n completeness (RA-040) > every static t() key exists in BOTH vi.json and en.json
+AssertionError: missing keys:
+feasibility.forcedPlacementsTitle [vi+en] ← components/FeasibilitySheet.tsx
+feasibility.forcedPlacementsDesc [vi+en] ← components/FeasibilitySheet.tsx
+common.all [vi+en] ← pages/CompetenciesPage.tsx, pages/assignments/PlanMatrixView.tsx
+common.loading [vi+en] ← pages/ExamsPage.tsx, pages/SubjectsPage.tsx, pages/teachers/QuotaPreviewModal.tsx, pages/teachers/TeacherCompetenciesModal.tsx
+rules.h3Warning [vi+en] ← pages/RulesPage.tsx
+rules.h4MaxTasksPerExam [vi+en] ← pages/RulesPage.tsx
+rules.h4MaxSetterPerExam [vi+en] ← pages/RulesPage.tsx
+rules.s1MaxTasksMode [vi+en] ← pages/RulesPage.tsx
+rules.s1ModeAuto [vi+en] ← pages/RulesPage.tsx
+teachers.advancedSettings [vi+en] ← pages/TeachersPage.tsx
+teachers.quotaOverrideHelp [vi+en] ← pages/TeachersPage.tsx
+teachers.maxTasksPerExamOverrideHelp [vi+en] ← pages/TeachersPage.tsx
+common.close [vi+en] ← pages/teachers/QuotaPreviewModal.tsx: expected [ …(13) ] to deeply equal []
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "feasibility.forcedPlacementsTitle [vi+en] ← components/FeasibilitySheet.tsx",[39m
+[31m+   "feasibility.forcedPlacementsDesc [vi+en] ← components/FeasibilitySheet.tsx",[39m
+[31m+   "common.all [vi+en] ← pages/CompetenciesPage.tsx, pages/assignments/PlanMatrixView.tsx",[39m
+[31m+   "common.loading [vi+en] ← pages/ExamsPage.tsx, pages/SubjectsPage.tsx, pages/teachers/QuotaPreviewModal.tsx, pages/teachers/TeacherCompetenciesModal.tsx",[39m
+[31m+   "rules.h3Warning [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "rules.h4MaxTasksPerExam [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "rules.h4MaxSetterPerExam [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "rules.s1MaxTasksMode [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "rules.s1ModeAuto [vi+en] ← pages/RulesPage.tsx",[39m
+[31m+   "teachers.advancedSettings [vi+en] ← pages/TeachersPage.tsx",[39m
+[31m+   "teachers.quotaOverrideHelp [vi+en] ← pages/TeachersPage.tsx",[39m
+[31m+   "teachers.maxTasksPerExamOverrideHelp [vi+en] ← pages/TeachersPage.tsx",[39m
+[31m+   "common.close [vi+en] ← pages/teachers/QuotaPreviewModal.tsx",[39m
+[31m+ ][39m
+
+ ❯ src/i18n/i18n-keys.test.ts:129:61
+    127|       if (where) missing.push(`${key} [${where}] ← ${[...new Set(files…
+    128|     }
+    129|     expect(missing, `missing keys:\n${missing.join('\n')}`).toEqual([])
+       |                                                             ^
+    130|   })
+    131| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/i18n/i18n-keys.test.ts > i18n completeness (RA-040) > locale files contain no duplicate JSON keys (the last one silently wins)
+AssertionError: vi.json: expected [ 'settings.storageMode', …(1) ] to deeply equal []
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "settings.storageMode",[39m
+[31m+   "assignments",[39m
+[31m+ ][39m
+
+ ❯ src/i18n/i18n-keys.test.ts:143:41
+    141|     for (const file of ['vi.json', 'en.json']) {
+    142|       const text = fs.readFileSync(path.join(__dirname, 'locales', fil…
+    143|       expect(duplicateKeys(text), file).toEqual([])
+       |                                         ^
+    144|     }
+    145|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/i18n/no-hardcoded-text.test.ts > no hard-coded Vietnamese UI text (RA-042) > every component renders text through t()
+AssertionError: hard-coded Vietnamese:
+app/App.tsx: Phân công ra đề
+components/FeasibilitySheet.tsx: {t('feasibility.forcedPlacementsTitle') || 'Phân công cố định'}
+components/FeasibilitySheet.tsx: 'Các nhiệm vụ đã được cố định theo cấu hình. Thuật toán sẽ bảo lưu các vị trí này.'}
+components/FeasibilitySheet.tsx: const roleLabel = fp.role === 'setter' ? 'Ra đề' : 'Phản biện'
+components/FeasibilitySheet.tsx: {exam?.code || `Kỳ ${fp.panel.exam_id}`} •{' '}
+lib/query/hooks.ts: i18n.t('schoolYear.createSuccess', { defaultValue: 'Tạo năm học thành công' }),
+lib/query/hooks.ts: i18n.t('dev.seedSuccess', { defaultValue: 'Đã nạp dữ liệu mẫu thành công' }),
+lib/query/hooks.ts: defaultValue: 'Đã lưu cấu hình quy tắc thành công',
+lib/query/hooks.ts: defaultValue: 'Đã đánh dấu phương án chính thức thành công',
+lib/query/hooks.ts: defaultValue: 'Đã lưu phương án phân công',
+lib/query/hooks.ts: defaultValue: 'Đã tạo môn học thành công',
+lib/query/hooks.ts: defaultValue: 'Đã cập nhật môn học thành công',
+lib/query/hooks.ts: defaultValue: 'Đã xóa môn học thành công',
+pages/AssignmentsPage.tsx: const copyName = `${activePlan.name} (Chỉnh sửa)`
+pages/AssignmentsPage.tsx: toast.error(`Lỗi xuất Excel: ${msg}`)
+pages/AssignmentsPage.tsx: {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+pages/AssignmentsPage.tsx: {t('assignments.viewModeGrid') || 'Bảng tổ'}
+pages/AssignmentsPage.tsx: {t('assignments.viewModeDetail') || 'Chi tiết'}
+pages/AssignmentsPage.tsx: Đóng
+pages/AssignmentsPage.tsx: {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+pages/AssignmentsPage.tsx: <span>Danh sách giáo viên</span>
+pages/AssignmentsPage.tsx: Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được
+pages/AssignmentsPage.tsx: phân công trên ma trận.
+pages/AssignmentsPage.tsx: {count} lượt
+pages/AssignmentsPage.tsx: <span>Đã chọn giữ: {keptSlots.length} ô</span>
+pages/AssignmentsPage.tsx: Bỏ chọn tất cả
+pages/CampusesPage.tsx: code: z.string().min(1, 'Mã không được để trống'),
+pages/CampusesPage.tsx: name: z.string().min(1, 'Tên không được để trống'),
+pages/CampusesPage.tsx: color: z.string().min(1, 'Vui lòng chọn màu'),
+pages/CompetenciesPage.tsx: toast.error('Lỗi khi thực hiện thao tác hàng loạt')
+pages/CompetenciesPage.tsx: toast.error('Lỗi khi thực hiện thao tác hàng loạt')
+pages/CompetenciesPage.tsx: toast.error('Lỗi khi xóa chuyên môn')
+pages/CompetenciesPage.tsx: <SelectItem value="all">{t('common.all') || 'Tất cả môn'}</SelectItem>
+pages/CompetenciesPage.tsx: {sub.code} ({sub.setters}Đ+{sub.reviewers}PB)
+pages/CompetenciesPage.tsx: title={`Ra đề: ${
+pages/CompetenciesPage.tsx: <span className="font-bold">Đề:</span>
+pages/CompetenciesPage.tsx: title={`Phản biện: ${
+pages/ExamsPage.tsx: name: gradeName.trim() || `Khối ${gradeCode}`,
+pages/ExamsPage.tsx: {currentYear ? `Năm học ${currentYear.name}` : ''}
+pages/ExamsPage.tsx: ? t('common.loading', { defaultValue: 'Đang lưu...' })
+pages/ExamsPage.tsx: ? t('common.loading', { defaultValue: 'Đang lưu...' })
+pages/OverviewPage.tsx: {currentYear ? `Năm học ${currentYear.name}` : ''}
+pages/OverviewPage.tsx: {feasibility?.report.errors.length ?? 0} lỗi,{' '}
+pages/OverviewPage.tsx: {feasibility?.report.warnings.length ?? 0} cảnh báo
+pages/OverviewPage.tsx: {campuses.length} phân hiệu
+pages/OverviewPage.tsx: {teachersWithGrades.length} giáo viên
+pages/PlaceholderPage.tsx: Các tính năng chuyên sâu của mô-đun này sẽ được phát triển trong các giai đoạn
+pages/PlaceholderPage.tsx: tiếp theo theo kiến trúc dự án.
+pages/RulesPage.tsx: Chưa lưu thay đổi
+pages/RulesPage.tsx: 'Tắt H3 cho phép các hội đồng chỉ gồm giáo viên cùng một phân hiệu.'}
+pages/RulesPage.tsx: {t('rules.h4MaxTasksPerExam') || 'Tối đa nhiệm vụ / đợt'}:
+pages/RulesPage.tsx: {t('rules.h4MaxSetterPerExam') || 'Tối đa ra đề / đợt'}:
+pages/RulesPage.tsx: {t('rules.s1MaxTasksMode') || 'Giới hạn nhiệm vụ/đợt thi'}:
+pages/RulesPage.tsx: {t('rules.s1ModeAuto') || 'Tự động (Auto)'}
+pages/RulesPage.tsx: placeholder="Số"
+pages/RulesPage.tsx: → {exam?.name || `Kỳ ${lock.exam_id}`} —{' '}
+pages/RulesPage.tsx: {grade?.name || `Khối ${lock.grade_id}`}
+pages/RulesPage.tsx: {t('subjects.title', { defaultValue: 'Môn học' })}
+pages/RulesPage.tsx: <SelectValue placeholder="Chọn giáo viên..." />
+pages/SettingsPage.tsx: Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.
+pages/SettingsPage.tsx: Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).
+pages/StatisticsPage.tsx: <SelectValue placeholder="Chọn phương án" />
+pages/StatisticsPage.tsx: {p.name} {p.is_final ? '★ (Chính thức)' : ''}
+pages/StatisticsPage.tsx: Chưa có phương án nào để xem thống kê. Hãy chạy tối ưu trong mục Phân công.
+pages/StatisticsPage.tsx: So sánh số lượt phân công thực tế với chỉ tiêu phân bổ định mức
+pages/StatisticsPage.tsx: Khối {r.gradesStr || '--'}
+pages/StatisticsPage.tsx: {t('statistics.campusMixDesc')} (Tổng số: {campusMixStats.total} ban đề)
+pages/SubjectsPage.tsx: t('subjects.validationCodeRequired') || 'Mã môn thi không được để trống',
+pages/SubjectsPage.tsx: t('subjects.validationNameRequired') || 'Tên môn thi không được để trống',
+pages/SubjectsPage.tsx: t('subjects.validationSettersRange') || 'Số người ra đề phải từ 1 đến 4',
+pages/SubjectsPage.tsx: t('subjects.validationReviewersRange') || 'Số người phản biện phải từ 0 đến 2',
+pages/SubjectsPage.tsx: t('subjects.validationMinCampusesRange') || 'Số phân hiệu tối thiểu từ 0 đến 3',
+pages/SubjectsPage.tsx: toast.success(t('subjects.updateSuccess') || 'Cập nhật môn thi thành công')
+pages/SubjectsPage.tsx: toast.success(t('subjects.createSuccess') || 'Tạo môn thi mới thành công')
+pages/SubjectsPage.tsx: <span>{t('subjects.title') || 'Danh mục Môn thi'}</span>
+pages/SubjectsPage.tsx: 'Quản lý các môn thi, định mức ban đề (ra đề / phản biện) và yêu cầu đa dạng phân hiệu.'}
+pages/SubjectsPage.tsx: {t('subjects.createBtn') || 'Thêm môn thi'}
+pages/SubjectsPage.tsx: {t('common.loading') || 'Đang tải dữ liệu...'}
+pages/SubjectsPage.tsx: {t('subjects.noSubjects') || 'Chưa có môn thi nào'}
+pages/SubjectsPage.tsx: 'Tạo môn thi đầu tiên (ví dụ: VL - Vật lí, CN - Công nghệ).'}
+pages/SubjectsPage.tsx: {t('subjects.createBtn') || 'Thêm môn thi'}
+pages/SubjectsPage.tsx: title={t('common.edit') || 'Sửa'}
+pages/SubjectsPage.tsx: title={t('common.delete') || 'Xóa'}
+pages/SubjectsPage.tsx: Thứ tự sắp xếp: {subj.sort_order}
+pages/SubjectsPage.tsx: {t('subjects.composition') || 'Cơ cấu ban đề'}:
+pages/SubjectsPage.tsx: {subj.setters} {t('assignments.setter') || 'Đề'} + {subj.reviewers}{' '}
+pages/SubjectsPage.tsx: {t('subjects.minCampuses') || 'Đa dạng phân hiệu tối thiểu'}:
+pages/SubjectsPage.tsx: `${subj.min_campuses} phân hiệu`
+pages/SubjectsPage.tsx: : t('subjects.minCampusesNone') || 'Không ràng buộc'}
+pages/SubjectsPage.tsx: ? t('subjects.editTitle') || 'Chỉnh sửa môn thi'
+pages/SubjectsPage.tsx: : t('subjects.createTitle') || 'Thêm môn thi mới'}
+pages/SubjectsPage.tsx: {t('subjects.codeLabel') || 'Mã môn thi'}{' '}
+pages/SubjectsPage.tsx: {t('subjects.nameLabel') || 'Tên môn thi'}{' '}
+pages/SubjectsPage.tsx: placeholder="Vật lí, Công nghệ..."
+pages/SubjectsPage.tsx: {t('subjects.settersLabel') || 'Số người ra đề'} (1..4)
+pages/SubjectsPage.tsx: {t('subjects.reviewersLabel') || 'Số người phản biện'} (0..2)
+pages/SubjectsPage.tsx: {t('subjects.minCampusesLabel') || 'Phân hiệu tối thiểu'} (0..3)
+pages/SubjectsPage.tsx: {t('subjects.colorLabel') || 'Màu sắc'}
+pages/SubjectsPage.tsx: {t('common.cancel') || 'Hủy'}
+pages/SubjectsPage.tsx: {t('common.save') || 'Lưu'}
+pages/SubjectsPage.tsx: {t('subjects.deleteConfirmTitle') || 'Xác nhận xóa môn thi?'}
+pages/SubjectsPage.tsx: 'Hành động này sẽ xóa môn thi khỏi cấu hình. Nếu môn thi đã có dữ liệu phân công, việc xóa sẽ bị từ chối.'}
+pages/SubjectsPage.tsx: {t('common.cancel') || 'Hủy'}
+pages/SubjectsPage.tsx: {t('common.delete') || 'Xóa'}
+pages/TeachersPage.tsx: fullName: z.string().min(1, 'Họ tên không được để trống'),
+pages/TeachersPage.tsx: campusId: z.number().min(1, 'Vui lòng chọn phân hiệu'),
+pages/TeachersPage.tsx: toast.success(t('import.downloadTemplate') + ' thành công!')
+pages/TeachersPage.tsx: toast.error(`Lỗi tạo tệp mẫu: ${msg}`)
+pages/TeachersPage.tsx: {t('quota.previewBtn') || 'Xem chỉ tiêu'}
+pages/TeachersPage.tsx: {t('competencies.title') || 'Chuyên môn'}
+pages/TeachersPage.tsx: isTaught ? 'Đang phân công' : 'Chưa phân công'
+pages/TeachersPage.tsx: title={t('competencies.editTitle') || 'Phân công chuyên môn'}
+pages/TeachersPage.tsx: {t('teachers.gradesTaught')} (Năm học {currentYear?.name})
+pages/UnavailabilityPage.tsx: <span>Thao tác</span>
+pages/assignments/CandidateSelectModal.tsx: Không tìm thấy giáo viên phù hợp
+pages/assignments/CandidateSelectModal.tsx: Hiện tại
+pages/assignments/CandidateSelectModal.tsx: Tổng: {cand.new_total.toFixed(1)}
+pages/assignments/CandidateSelectModal.tsx: <span>Gợi ý: Dùng phím ↑ ↓ để chọn, Enter để áp dụng</span>
+pages/assignments/ImportPlanModal.tsx: toast.error(`Lỗi chọn tệp: ${msg}`)
+pages/assignments/ImportPlanModal.tsx: toast.error(t('import.noFileSelected') || 'Vui lòng chọn đường dẫn tệp Excel')
+pages/assignments/ImportPlanModal.tsx: toast.error('Vui lòng dán nội dung bảng (TSV)')
+pages/assignments/ImportPlanModal.tsx: toast.error(`Lỗi đọc dữ liệu: ${msg}`)
+pages/assignments/ImportPlanModal.tsx: const planName = t('planImport.planName') || 'Nhập từ bảng của tổ'
+pages/assignments/ImportPlanModal.tsx: toast.success(t('planImport.importSuccess') || 'Đã nhập bảng phân công thành công')
+pages/assignments/ImportPlanModal.tsx: t('planImport.importError', { error: msg }) || `Lỗi khi lưu phương án: ${msg}`,
+pages/assignments/ImportPlanModal.tsx: <span>{t('planImport.dialogTitle') || 'Nhập bảng phân công có sẵn'}</span>
+pages/assignments/ImportPlanModal.tsx: 'Nhập ma trận phân công từ tệp Excel hoặc dán vùng dữ liệu (TSV) từ bảng tính.'}
+pages/assignments/ImportPlanModal.tsx: <span>{t('planImport.tabExcel') || 'Tệp Excel (.xlsx)'}</span>
+pages/assignments/ImportPlanModal.tsx: <span>{t('planImport.tabTsv') || 'Dán văn bản (TSV)'}</span>
+pages/assignments/ImportPlanModal.tsx: {t('planImport.excelBrowse') || 'Chọn tệp Excel'}
+pages/assignments/ImportPlanModal.tsx: t('planImport.excelPlaceholder') || 'Đường dẫn tệp Excel...'
+pages/assignments/ImportPlanModal.tsx: {t('import.browse') || 'Chọn tệp'}
+pages/assignments/ImportPlanModal.tsx: Hỗ trợ tệp xuất từ phần mềm (&ldquo;Bảng phân công (mẫu tổ)&rdquo;) hoặc
+pages/assignments/ImportPlanModal.tsx: mẫu bảng gốc của cô Q.
+pages/assignments/ImportPlanModal.tsx: 'Nội dung bảng (sao chép và dán từ Excel hoặc Google Sheets)'}
+pages/assignments/ImportPlanModal.tsx: 'Dán vùng bảng phân công vào đây (bao gồm tiêu đề Kì thi/khối, khối, môn, vai trò)...'
+pages/assignments/ImportPlanModal.tsx: Sao chép toàn bộ khối bảng phân công bắt đầu từ góc &ldquo;Kì
+pages/assignments/ImportPlanModal.tsx: thi/khối&rdquo; và dán trực tiếp.
+pages/assignments/ImportPlanModal.tsx: {t('planImport.validStatus') || 'Hợp lệ'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.invalidStatus') || 'Không thể áp dụng'}
+pages/assignments/ImportPlanModal.tsx: `Tổng số vị trí nạp: ${preview.assignments.length}`}
+pages/assignments/ImportPlanModal.tsx: `Điểm phạt ước tính: ${softScoreDisplay}`}
+pages/assignments/ImportPlanModal.tsx: `Đối soát giáo viên (${preview.teacher_totals.length})`}
+pages/assignments/ImportPlanModal.tsx: `Cảnh báo & Lỗi (${issueCount})`}
+pages/assignments/ImportPlanModal.tsx: }) || `Danh sách phân công (${preview.assignments.length})`}
+pages/assignments/ImportPlanModal.tsx: <TableHead>{t('planImport.colTeacher') || 'Giáo viên'}</TableHead>
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colDisplayName') || 'Cách gọi'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colDetected') || 'Số lượt nạp'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colFileTotal') || 'Số trong tệp'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colSetters') || 'Ra đề'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colReviewers') || 'Phản biện'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.colStatus') || 'Trạng thái'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.statusMatched') || 'Khớp'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.statusMismatch') || 'Lệch'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.noIssues') || 'Không phát hiện lỗi hoặc cảnh báo nào.'}
+pages/assignments/ImportPlanModal.tsx: <TableHead>Kỳ thi ID</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Khối ID</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Môn ID</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Vai trò</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Vị trí</TableHead>
+pages/assignments/ImportPlanModal.tsx: <TableHead>Giáo viên ID</TableHead>
+pages/assignments/ImportPlanModal.tsx: {asgn.role === 'setter' ? 'Ra đề' : 'Phản biện'}
+pages/assignments/ImportPlanModal.tsx: {t('planImport.backBtn') || 'Quay lại'}
+pages/assignments/ImportPlanModal.tsx: ? 'Đang áp dụng...'
+pages/assignments/ImportPlanModal.tsx: : t('planImport.applyBtn') || 'Áp dụng phương án'}
+pages/assignments/ImportPlanModal.tsx: {t('common.cancel') || 'Hủy'}
+pages/assignments/ImportPlanModal.tsx: ? 'Đang đọc...'
+pages/assignments/ImportPlanModal.tsx: : t('planImport.previewBtn') || 'Xem trước phân công'}
+pages/assignments/PlanCompareModal.tsx: So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án
+pages/assignments/PlanCompareModal.tsx: <SelectValue placeholder="Chọn phương án A" />
+pages/assignments/PlanCompareModal.tsx: {p.name} (Điểm: {p.score?.toFixed(1) ?? '--'})
+pages/assignments/PlanCompareModal.tsx: <SelectValue placeholder="Chọn phương án B" />
+pages/assignments/PlanCompareModal.tsx: {p.name} (Điểm: {p.score?.toFixed(1) ?? '--'})
+pages/assignments/PlanCompareModal.tsx: Điểm A: <strong>{detailsA.score_report?.total.toFixed(2) ?? '--'}</strong>
+pages/assignments/PlanCompareModal.tsx: Điểm B: <strong>{detailsB.score_report?.total.toFixed(2) ?? '--'}</strong>
+pages/assignments/PlanCompareModal.tsx: Chênh lệch (B - A):{' '}
+pages/assignments/PlanCompareModal.tsx: {t('assignments.diffHighlight')} ({comparison.diffSlots.size} ban đề có thay
+pages/assignments/PlanCompareModal.tsx: đổi)
+pages/assignments/PlanCompareModal.tsx: Kỳ / Khối
+pages/assignments/PlanMatrixView.tsx: <p className="font-bold uppercase">Tiêu chí {r.rule}</p>
+pages/assignments/PlanMatrixView.tsx: Hệ số: {r.weight} | Đơn vị vi phạm: {r.units}
+pages/assignments/PlanMatrixView.tsx: <p>Điểm phạt: {r.penalty.toFixed(2)}</p>
+pages/assignments/PlanMatrixView.tsx: {t('subjects.subject') || 'Môn học'}:
+pages/assignments/PlanMatrixView.tsx: {t('common.all') || 'Tất cả'} ({effectiveSubjects.length})
+pages/assignments/PlanMatrixView.tsx: Kỳ thi / Khối
+pages/assignments/PlanMatrixView.tsx: {isReviewer ? 'PB' : 'Đề'}
+pages/assignments/PlanMatrixView.tsx: <span className="text-muted-foreground italic">Trống</span>
+pages/assignments/PlansHistoryList.tsx: const copyName = `${plan.name} (Bản sao)`
+pages/assignments/PlansHistoryList.tsx: Bạn có chắc chắn muốn xóa phương án này? Hành động này không thể hoàn tác.
+pages/assignments/QPlanGrid.tsx: name: 'Vật lí',
+pages/assignments/QPlanGrid.tsx: <p>Số đơn vị phạt: {rb.units}</p>
+pages/assignments/QPlanGrid.tsx: <p>Trọng số: {rb.weight}</p>
+pages/assignments/QPlanGrid.tsx: <p>Điểm phạt: {rb.penalty.toFixed(2)}</p>
+pages/assignments/QPlanGrid.tsx: {t('assignments.examGradeHeader') || 'Kì thi/khối'}
+pages/assignments/QPlanGrid.tsx: Khối {grade.name}
+pages/assignments/QPlanGrid.tsx: label: t('assignments.roleSetterShort') || 'Đề',
+pages/assignments/QPlanGrid.tsx: label: t('assignments.roleReviewerShort') || 'P.Biện',
+pages/assignments/QPlanGrid.tsx: Trống
+pages/assignments/QPlanGrid.tsx: ) || 'Chưa có',
+pages/assignments/QPlanGrid.tsx: <p className="italic">Chưa có giáo viên phân công</p>
+pages/assignments/QPlanGrid.tsx: {t('assignments.totalsHeader') || 'Bảng tổng hợp lượt'}
+pages/assignments/QPlanGrid.tsx: ? 'Tăng'
+pages/assignments/QPlanGrid.tsx: : 'Giảm'
+pages/assignments/QPlanGrid.tsx: : 'Tổng'}
+pages/assignments/QPlanGrid.tsx: t('assignments.teacherSearchPlaceholder') || 'Lọc giáo viên...'
+pages/assignments/QPlanGrid.tsx: {t('assignments.totalsTotal') || 'Tổng'}
+pages/assignments/QPlanGrid.tsx: {t('assignments.totalsSetter') || 'Đề'}
+pages/assignments/QPlanGrid.tsx: {t('assignments.totalsFixed') || 'cố định'}
+pages/assignments/QPlanGrid.tsx: <td className="p-1.5 text-foreground">Tổng cộng</td>
+pages/assignments/ReoptimizeDialog.tsx: <strong>{keptSlots.length}</strong> vị trí được giữ cố định, thuật toán sẽ
+pages/assignments/ReoptimizeDialog.tsx: sắp xếp lại các vị trí còn lại để cải thiện điểm số.
+pages/assignments/ReoptimizeDialog.tsx: Đang tối ưu lại...
+pages/assignments/ReoptimizeDialog.tsx: Điểm tốt nhất: <strong>{progress?.best_score.toFixed(2) ?? '--'}</strong>
+pages/assignments/ReoptimizeDialog.tsx: Bắt đầu tối ưu lại
+pages/assignments/RunOptimizeDialog.tsx: {blockingErrors.length} lỗi cấu hình khiến thuật toán không thể xếp lịch hợp
+pages/assignments/RunOptimizeDialog.tsx: lệ.
+pages/assignments/TeacherFocusPanel.tsx: Hệ số tải: {teacher.load_weight}
+pages/assignments/TeacherFocusPanel.tsx: <span className="text-muted-foreground block">Vai trò</span>
+pages/assignments/TeacherFocusPanel.tsx: {setterCount} ra đề, {reviewerCount} phản biện
+pages/assignments/TeacherFocusPanel.tsx: <strong className="text-foreground">Kỳ thi:</strong>{' '}
+pages/assignments/TeacherFocusPanel.tsx: <span className="text-muted-foreground">{examNames || 'Chưa được phân'}</span>
+pages/assignments/TeacherFocusPanel.tsx: <strong className="text-foreground">Khối lớp:</strong>{' '}
+pages/assignments/TeacherFocusPanel.tsx: {gradeNames || 'Chưa được phân'}
+pages/assignments/TeacherFocusPanel.tsx: <span>Vi phạm tiêu chí mềm liên quan ({myViolations.length}):</span>
+pages/settings/BackupSection.tsx: toast.error(`Lỗi sao lưu: ${msg}`)
+pages/settings/BackupSection.tsx: toast.error(`Lỗi chọn tệp: ${msg}`)
+pages/settings/BackupSection.tsx: toast.error(`Lỗi phục hồi: ${msg}`)
+pages/settings/BackupSection.tsx: <span>{backingUp ? 'Đang sao lưu...' : t('backup.backupNow')}</span>
+pages/settings/BackupSection.tsx: title="Làm mới"
+pages/settings/BackupSection.tsx: <TableHead className="w-1/2">Tệp sao lưu</TableHead>
+pages/settings/BackupSection.tsx: <TableHead className="w-24">Dung lượng</TableHead>
+pages/settings/BackupSection.tsx: <TableHead className="w-36">Thời gian</TableHead>
+pages/settings/BackupSection.tsx: <TableHead className="w-24 text-right">Thao tác</TableHead>
+pages/settings/BackupSection.tsx: Phục hồi
+pages/settings/BackupSection.tsx: Đang kiểm tra tính toàn vẹn của tệp sao lưu...
+pages/settings/BackupSection.tsx: <span className="text-muted-foreground">Năm học:</span>{' '}
+pages/settings/BackupSection.tsx: <span className="text-muted-foreground">Giáo viên:</span>{' '}
+pages/settings/BackupSection.tsx: <span className="text-muted-foreground">Phương án:</span>{' '}
+pages/settings/BackupSection.tsx: <span className="text-muted-foreground">Phiên bản:</span>{' '}
+pages/settings/BackupSection.tsx: Hủy
+pages/settings/BackupSection.tsx: {restoring ? 'Đang phục hồi...' : 'Xác nhận phục hồi'}
+pages/teachers/ImportWizardModal.tsx: toast.error(`Lỗi đọc tệp Excel: ${msg}`)
+pages/teachers/ImportWizardModal.tsx: toast.error(`Lỗi áp dụng nhập dữ liệu: ${msg}`)
+pages/teachers/ImportWizardModal.tsx: {t('import.feasibilityWarning')} (Có{' '}
+pages/teachers/ImportWizardModal.tsx: {preview.feasibility_report.report.errors.length} lỗi bắt buộc)
+pages/teachers/ImportWizardModal.tsx: Không có giáo viên nào bị ngưng hoạt động.
+pages/teachers/ImportWizardModal.tsx: Quay lại chọn tệp
+pages/teachers/ImportWizardModal.tsx: Hủy
+pages/teachers/QuotaPreviewModal.tsx: {t('quota.previewTitle') || 'Dự toán phân bổ chỉ tiêu nhiệm vụ'}
+pages/teachers/QuotaPreviewModal.tsx: 'Chỉ tiêu nhiệm vụ được tính toán tự động theo trọng số tải, tính khả dụng và loại trừ các nhiệm vụ cố định.'}
+pages/teachers/QuotaPreviewModal.tsx: {t('common.loading') || 'Đang tính toán chỉ tiêu...'}
+pages/teachers/QuotaPreviewModal.tsx: {t('quota.empty') || 'Chưa có dữ liệu chỉ tiêu.'}
+pages/teachers/QuotaPreviewModal.tsx: <span className="text-muted-foreground">Tổng số giáo viên: </span>
+pages/teachers/QuotaPreviewModal.tsx: <span className="text-muted-foreground">Tổng chỉ tiêu phân bổ: </span>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead>Giáo viên</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead className="text-center">Trọng số tải</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead className="text-center">Kỳ khả dụng</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead className="text-center">Nhiệm vụ cố định</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: <TableHead className="text-right">Chỉ tiêu mục tiêu (q)</TableHead>
+pages/teachers/QuotaPreviewModal.tsx: Khoảng cho phép [lo, hi]
+pages/teachers/QuotaPreviewModal.tsx: Cố định: {forcedCount}
+pages/teachers/QuotaPreviewModal.tsx: {t('common.close') || 'Đóng'}
+pages/teachers/TeacherCompetenciesModal.tsx: t('competencies.saveSuccess') || 'Cập nhật phân công chuyên môn thành công',
+pages/teachers/TeacherCompetenciesModal.tsx: 'Đã gán chuyên môn theo khối đang dạy cho toàn bộ giáo viên',
+pages/teachers/TeacherCompetenciesModal.tsx: {t('competencies.modalTitle') || 'Phân công chuyên môn'}
+pages/teachers/TeacherCompetenciesModal.tsx: 'Chỉ định các môn học và vai trò (ra đề / phản biện) giáo viên có thẩm quyền đảm nhận.'}
+pages/teachers/TeacherCompetenciesModal.tsx: <span className="text-muted-foreground">Thao tác nhanh cho toàn trường:</span>
+pages/teachers/TeacherCompetenciesModal.tsx: 'Gán theo khối đang dạy cho tất cả giáo viên'}
+pages/teachers/TeacherCompetenciesModal.tsx: {t('common.loading') || 'Đang tải thông tin chuyên môn...'}
+pages/teachers/TeacherCompetenciesModal.tsx: {t('subjects.noSubjects') || 'Chưa có môn thi nào được cấu hình.'}
+pages/teachers/TeacherCompetenciesModal.tsx: <TableHead className="w-40">Môn học</TableHead>
+pages/teachers/TeacherCompetenciesModal.tsx: <TableHead>Vai trò Ra đề (Đề)</TableHead>
+pages/teachers/TeacherCompetenciesModal.tsx: <TableHead>Vai trò Phản biện (PB)</TableHead>
+pages/teachers/TeacherCompetenciesModal.tsx: Đảm nhận
+pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value="taught">Khối đang dạy</SelectItem>
+pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value="any">Mọi khối</SelectItem>
+pages/teachers/TeacherCompetenciesModal.tsx: Đảm nhận
+pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value="taught">Khối đang dạy</SelectItem>
+pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value="any">Mọi khối</SelectItem>
+pages/teachers/TeacherCompetenciesModal.tsx: {t('common.cancel') || 'Hủy'}
+pages/teachers/TeacherCompetenciesModal.tsx: {t('common.save') || 'Lưu chuyên môn'}: expected [ …(281) ] to deeply equal []
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "app/App.tsx: Phân công ra đề",[39m
+[31m+   "components/FeasibilitySheet.tsx: {t('feasibility.forcedPlacementsTitle') || 'Phân công cố định'}",[39m
+[31m+   "components/FeasibilitySheet.tsx: 'Các nhiệm vụ đã được cố định theo cấu hình. Thuật toán sẽ bảo lưu các vị trí này.'}",[39m
+[31m+   "components/FeasibilitySheet.tsx: const roleLabel = fp.role === 'setter' ? 'Ra đề' : 'Phản biện'",[39m
+[31m+   "components/FeasibilitySheet.tsx: {exam?.code || `Kỳ ${fp.panel.exam_id}`} •{' '}",[39m
+[31m+   "lib/query/hooks.ts: i18n.t('schoolYear.createSuccess', { defaultValue: 'Tạo năm học thành công' }),",[39m
+[31m+   "lib/query/hooks.ts: i18n.t('dev.seedSuccess', { defaultValue: 'Đã nạp dữ liệu mẫu thành công' }),",[39m
+[31m+   "lib/query/hooks.ts: defaultValue: 'Đã lưu cấu hình quy tắc thành công',",[39m
+[31m+   "lib/query/hooks.ts: defaultValue: 'Đã đánh dấu phương án chính thức thành công',",[39m
+[31m+   "lib/query/hooks.ts: defaultValue: 'Đã lưu phương án phân công',",[39m
+[31m+   "lib/query/hooks.ts: defaultValue: 'Đã tạo môn học thành công',",[39m
+[31m+   "lib/query/hooks.ts: defaultValue: 'Đã cập nhật môn học thành công',",[39m
+[31m+   "lib/query/hooks.ts: defaultValue: 'Đã xóa môn học thành công',",[39m
+[31m+   "pages/AssignmentsPage.tsx: const copyName = `${activePlan.name} (Chỉnh sửa)`",[39m
+[31m+   "pages/AssignmentsPage.tsx: toast.error(`Lỗi xuất Excel: ${msg}`)",[39m
+[31m+   "pages/AssignmentsPage.tsx: {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}",[39m
+[31m+   "pages/AssignmentsPage.tsx: {t('assignments.viewModeGrid') || 'Bảng tổ'}",[39m
+[31m+   "pages/AssignmentsPage.tsx: {t('assignments.viewModeDetail') || 'Chi tiết'}",[39m
+[31m+   "pages/AssignmentsPage.tsx: Đóng",[39m
+[31m+   "pages/AssignmentsPage.tsx: {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}",[39m
+[31m+   "pages/AssignmentsPage.tsx: <span>Danh sách giáo viên</span>",[39m
+[31m+   "pages/AssignmentsPage.tsx: Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được",[39m
+[31m+   "pages/AssignmentsPage.tsx: phân công trên ma trận.",[39m
+[31m+   "pages/AssignmentsPage.tsx: {count} lượt",[39m
+[31m+   "pages/AssignmentsPage.tsx: <span>Đã chọn giữ: {keptSlots.length} ô</span>",[39m
+[31m+   "pages/AssignmentsPage.tsx: Bỏ chọn tất cả",[39m
+[31m+   "pages/CampusesPage.tsx: code: z.string().min(1, 'Mã không được để trống'),",[39m
+[31m+   "pages/CampusesPage.tsx: name: z.string().min(1, 'Tên không được để trống'),",[39m
+[31m+   "pages/CampusesPage.tsx: color: z.string().min(1, 'Vui lòng chọn màu'),",[39m
+[31m+   "pages/CompetenciesPage.tsx: toast.error('Lỗi khi thực hiện thao tác hàng loạt')",[39m
+[31m+   "pages/CompetenciesPage.tsx: toast.error('Lỗi khi thực hiện thao tác hàng loạt')",[39m
+[31m+   "pages/CompetenciesPage.tsx: toast.error('Lỗi khi xóa chuyên môn')",[39m
+[31m+   "pages/CompetenciesPage.tsx: <SelectItem value=\"all\">{t('common.all') || 'Tất cả môn'}</SelectItem>",[39m
+[31m+   "pages/CompetenciesPage.tsx: {sub.code} ({sub.setters}Đ+{sub.reviewers}PB)",[39m
+[31m+   "pages/CompetenciesPage.tsx: title={`Ra đề: ${",[39m
+[31m+   "pages/CompetenciesPage.tsx: <span className=\"font-bold\">Đề:</span>",[39m
+[31m+   "pages/CompetenciesPage.tsx: title={`Phản biện: ${",[39m
+[31m+   "pages/ExamsPage.tsx: name: gradeName.trim() || `Khối ${gradeCode}`,",[39m
+[31m+   "pages/ExamsPage.tsx: {currentYear ? `Năm học ${currentYear.name}` : ''}",[39m
+[31m+   "pages/ExamsPage.tsx: ? t('common.loading', { defaultValue: 'Đang lưu...' })",[39m
+[31m+   "pages/ExamsPage.tsx: ? t('common.loading', { defaultValue: 'Đang lưu...' })",[39m
+[31m+   "pages/OverviewPage.tsx: {currentYear ? `Năm học ${currentYear.name}` : ''}",[39m
+[31m+   "pages/OverviewPage.tsx: {feasibility?.report.errors.length ?? 0} lỗi,{' '}",[39m
+[31m+   "pages/OverviewPage.tsx: {feasibility?.report.warnings.length ?? 0} cảnh báo",[39m
+[31m+   "pages/OverviewPage.tsx: {campuses.length} phân hiệu",[39m
+[31m+   "pages/OverviewPage.tsx: {teachersWithGrades.length} giáo viên",[39m
+[31m+   "pages/PlaceholderPage.tsx: Các tính năng chuyên sâu của mô-đun này sẽ được phát triển trong các giai đoạn",[39m
+[31m+   "pages/PlaceholderPage.tsx: tiếp theo theo kiến trúc dự án.",[39m
+[31m+   "pages/RulesPage.tsx: Chưa lưu thay đổi",[39m
+[31m+   "pages/RulesPage.tsx: 'Tắt H3 cho phép các hội đồng chỉ gồm giáo viên cùng một phân hiệu.'}",[39m
+[31m+   "pages/RulesPage.tsx: {t('rules.h4MaxTasksPerExam') || 'Tối đa nhiệm vụ / đợt'}:",[39m
+[31m+   "pages/RulesPage.tsx: {t('rules.h4MaxSetterPerExam') || 'Tối đa ra đề / đợt'}:",[39m
+[31m+   "pages/RulesPage.tsx: {t('rules.s1MaxTasksMode') || 'Giới hạn nhiệm vụ/đợt thi'}:",[39m
+[31m+   "pages/RulesPage.tsx: {t('rules.s1ModeAuto') || 'Tự động (Auto)'}",[39m
+[31m+   "pages/RulesPage.tsx: placeholder=\"Số\"",[39m
+[31m+   "pages/RulesPage.tsx: → {exam?.name || `Kỳ ${lock.exam_id}`} —{' '}",[39m
+[31m+   "pages/RulesPage.tsx: {grade?.name || `Khối ${lock.grade_id}`}",[39m
+[31m+   "pages/RulesPage.tsx: {t('subjects.title', { defaultValue: 'Môn học' })}",[39m
+[31m+   "pages/RulesPage.tsx: <SelectValue placeholder=\"Chọn giáo viên...\" />",[39m
+[31m+   "pages/SettingsPage.tsx: Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.",[39m
+[31m+   "pages/SettingsPage.tsx: Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).",[39m
+[31m+   "pages/StatisticsPage.tsx: <SelectValue placeholder=\"Chọn phương án\" />",[39m
+[31m+   "pages/StatisticsPage.tsx: {p.name} {p.is_final ? '★ (Chính thức)' : ''}",[39m
+[31m+   "pages/StatisticsPage.tsx: Chưa có phương án nào để xem thống kê. Hãy chạy tối ưu trong mục Phân công.",[39m
+[31m+   "pages/StatisticsPage.tsx: So sánh số lượt phân công thực tế với chỉ tiêu phân bổ định mức",[39m
+[31m+   "pages/StatisticsPage.tsx: Khối {r.gradesStr || '--'}",[39m
+[31m+   "pages/StatisticsPage.tsx: {t('statistics.campusMixDesc')} (Tổng số: {campusMixStats.total} ban đề)",[39m
+[31m+   "pages/SubjectsPage.tsx: t('subjects.validationCodeRequired') || 'Mã môn thi không được để trống',",[39m
+[31m+   "pages/SubjectsPage.tsx: t('subjects.validationNameRequired') || 'Tên môn thi không được để trống',",[39m
+[31m+   "pages/SubjectsPage.tsx: t('subjects.validationSettersRange') || 'Số người ra đề phải từ 1 đến 4',",[39m
+[31m+   "pages/SubjectsPage.tsx: t('subjects.validationReviewersRange') || 'Số người phản biện phải từ 0 đến 2',",[39m
+[31m+   "pages/SubjectsPage.tsx: t('subjects.validationMinCampusesRange') || 'Số phân hiệu tối thiểu từ 0 đến 3',",[39m
+[31m+   "pages/SubjectsPage.tsx: toast.success(t('subjects.updateSuccess') || 'Cập nhật môn thi thành công')",[39m
+[31m+   "pages/SubjectsPage.tsx: toast.success(t('subjects.createSuccess') || 'Tạo môn thi mới thành công')",[39m
+[31m+   "pages/SubjectsPage.tsx: <span>{t('subjects.title') || 'Danh mục Môn thi'}</span>",[39m
+[31m+   "pages/SubjectsPage.tsx: 'Quản lý các môn thi, định mức ban đề (ra đề / phản biện) và yêu cầu đa dạng phân hiệu.'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.createBtn') || 'Thêm môn thi'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('common.loading') || 'Đang tải dữ liệu...'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.noSubjects') || 'Chưa có môn thi nào'}",[39m
+[31m+   "pages/SubjectsPage.tsx: 'Tạo môn thi đầu tiên (ví dụ: VL - Vật lí, CN - Công nghệ).'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.createBtn') || 'Thêm môn thi'}",[39m
+[31m+   "pages/SubjectsPage.tsx: title={t('common.edit') || 'Sửa'}",[39m
+[31m+   "pages/SubjectsPage.tsx: title={t('common.delete') || 'Xóa'}",[39m
+[31m+   "pages/SubjectsPage.tsx: Thứ tự sắp xếp: {subj.sort_order}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.composition') || 'Cơ cấu ban đề'}:",[39m
+[31m+   "pages/SubjectsPage.tsx: {subj.setters} {t('assignments.setter') || 'Đề'} + {subj.reviewers}{' '}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.minCampuses') || 'Đa dạng phân hiệu tối thiểu'}:",[39m
+[31m+   "pages/SubjectsPage.tsx: `${subj.min_campuses} phân hiệu`",[39m
+[31m+   "pages/SubjectsPage.tsx: : t('subjects.minCampusesNone') || 'Không ràng buộc'}",[39m
+[31m+   "pages/SubjectsPage.tsx: ? t('subjects.editTitle') || 'Chỉnh sửa môn thi'",[39m
+[31m+   "pages/SubjectsPage.tsx: : t('subjects.createTitle') || 'Thêm môn thi mới'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.codeLabel') || 'Mã môn thi'}{' '}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.nameLabel') || 'Tên môn thi'}{' '}",[39m
+[31m+   "pages/SubjectsPage.tsx: placeholder=\"Vật lí, Công nghệ...\"",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.settersLabel') || 'Số người ra đề'} (1..4)",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.reviewersLabel') || 'Số người phản biện'} (0..2)",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.minCampusesLabel') || 'Phân hiệu tối thiểu'} (0..3)",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.colorLabel') || 'Màu sắc'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('common.cancel') || 'Hủy'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('common.save') || 'Lưu'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('subjects.deleteConfirmTitle') || 'Xác nhận xóa môn thi?'}",[39m
+[31m+   "pages/SubjectsPage.tsx: 'Hành động này sẽ xóa môn thi khỏi cấu hình. Nếu môn thi đã có dữ liệu phân công, việc xóa sẽ bị từ chối.'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('common.cancel') || 'Hủy'}",[39m
+[31m+   "pages/SubjectsPage.tsx: {t('common.delete') || 'Xóa'}",[39m
+[31m+   "pages/TeachersPage.tsx: fullName: z.string().min(1, 'Họ tên không được để trống'),",[39m
+[31m+   "pages/TeachersPage.tsx: campusId: z.number().min(1, 'Vui lòng chọn phân hiệu'),",[39m
+[31m+   "pages/TeachersPage.tsx: toast.success(t('import.downloadTemplate') + ' thành công!')",[39m
+[31m+   "pages/TeachersPage.tsx: toast.error(`Lỗi tạo tệp mẫu: ${msg}`)",[39m
+[31m+   "pages/TeachersPage.tsx: {t('quota.previewBtn') || 'Xem chỉ tiêu'}",[39m
+[31m+   "pages/TeachersPage.tsx: {t('competencies.title') || 'Chuyên môn'}",[39m
+[31m+   "pages/TeachersPage.tsx: isTaught ? 'Đang phân công' : 'Chưa phân công'",[39m
+[31m+   "pages/TeachersPage.tsx: title={t('competencies.editTitle') || 'Phân công chuyên môn'}",[39m
+[31m+   "pages/TeachersPage.tsx: {t('teachers.gradesTaught')} (Năm học {currentYear?.name})",[39m
+[31m+   "pages/UnavailabilityPage.tsx: <span>Thao tác</span>",[39m
+[31m+   "pages/assignments/CandidateSelectModal.tsx: Không tìm thấy giáo viên phù hợp",[39m
+[31m+   "pages/assignments/CandidateSelectModal.tsx: Hiện tại",[39m
+[31m+   "pages/assignments/CandidateSelectModal.tsx: Tổng: {cand.new_total.toFixed(1)}",[39m
+[31m+   "pages/assignments/CandidateSelectModal.tsx: <span>Gợi ý: Dùng phím ↑ ↓ để chọn, Enter để áp dụng</span>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: toast.error(`Lỗi chọn tệp: ${msg}`)",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: toast.error(t('import.noFileSelected') || 'Vui lòng chọn đường dẫn tệp Excel')",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: toast.error('Vui lòng dán nội dung bảng (TSV)')",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: toast.error(`Lỗi đọc dữ liệu: ${msg}`)",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: const planName = t('planImport.planName') || 'Nhập từ bảng của tổ'",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: toast.success(t('planImport.importSuccess') || 'Đã nhập bảng phân công thành công')",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: t('planImport.importError', { error: msg }) || `Lỗi khi lưu phương án: ${msg}`,",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <span>{t('planImport.dialogTitle') || 'Nhập bảng phân công có sẵn'}</span>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: 'Nhập ma trận phân công từ tệp Excel hoặc dán vùng dữ liệu (TSV) từ bảng tính.'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <span>{t('planImport.tabExcel') || 'Tệp Excel (.xlsx)'}</span>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <span>{t('planImport.tabTsv') || 'Dán văn bản (TSV)'}</span>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.excelBrowse') || 'Chọn tệp Excel'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: t('planImport.excelPlaceholder') || 'Đường dẫn tệp Excel...'",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('import.browse') || 'Chọn tệp'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: Hỗ trợ tệp xuất từ phần mềm (&ldquo;Bảng phân công (mẫu tổ)&rdquo;) hoặc",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: mẫu bảng gốc của cô Q.",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: 'Nội dung bảng (sao chép và dán từ Excel hoặc Google Sheets)'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: 'Dán vùng bảng phân công vào đây (bao gồm tiêu đề Kì thi/khối, khối, môn, vai trò)...'",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: Sao chép toàn bộ khối bảng phân công bắt đầu từ góc &ldquo;Kì",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: thi/khối&rdquo; và dán trực tiếp.",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.validStatus') || 'Hợp lệ'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.invalidStatus') || 'Không thể áp dụng'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: `Tổng số vị trí nạp: ${preview.assignments.length}`}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: `Điểm phạt ước tính: ${softScoreDisplay}`}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: `Đối soát giáo viên (${preview.teacher_totals.length})`}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: `Cảnh báo & Lỗi (${issueCount})`}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: }) || `Danh sách phân công (${preview.assignments.length})`}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <TableHead>{t('planImport.colTeacher') || 'Giáo viên'}</TableHead>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.colDisplayName') || 'Cách gọi'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.colDetected') || 'Số lượt nạp'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.colFileTotal') || 'Số trong tệp'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.colSetters') || 'Ra đề'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.colReviewers') || 'Phản biện'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.colStatus') || 'Trạng thái'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.statusMatched') || 'Khớp'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.statusMismatch') || 'Lệch'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.noIssues') || 'Không phát hiện lỗi hoặc cảnh báo nào.'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <TableHead>Kỳ thi ID</TableHead>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <TableHead>Khối ID</TableHead>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <TableHead>Môn ID</TableHead>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <TableHead>Vai trò</TableHead>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <TableHead>Vị trí</TableHead>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: <TableHead>Giáo viên ID</TableHead>",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {asgn.role === 'setter' ? 'Ra đề' : 'Phản biện'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('planImport.backBtn') || 'Quay lại'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: ? 'Đang áp dụng...'",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: : t('planImport.applyBtn') || 'Áp dụng phương án'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: {t('common.cancel') || 'Hủy'}",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: ? 'Đang đọc...'",[39m
+[31m+   "pages/assignments/ImportPlanModal.tsx: : t('planImport.previewBtn') || 'Xem trước phân công'}",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: <SelectValue placeholder=\"Chọn phương án A\" />",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: {p.name} (Điểm: {p.score?.toFixed(1) ?? '--'})",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: <SelectValue placeholder=\"Chọn phương án B\" />",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: {p.name} (Điểm: {p.score?.toFixed(1) ?? '--'})",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: Điểm A: <strong>{detailsA.score_report?.total.toFixed(2) ?? '--'}</strong>",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: Điểm B: <strong>{detailsB.score_report?.total.toFixed(2) ?? '--'}</strong>",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: Chênh lệch (B - A):{' '}",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: {t('assignments.diffHighlight')} ({comparison.diffSlots.size} ban đề có thay",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: đổi)",[39m
+[31m+   "pages/assignments/PlanCompareModal.tsx: Kỳ / Khối",[39m
+[31m+   "pages/assignments/PlanMatrixView.tsx: <p className=\"font-bold uppercase\">Tiêu chí {r.rule}</p>",[39m
+[31m+   "pages/assignments/PlanMatrixView.tsx: Hệ số: {r.weight} | Đơn vị vi phạm: {r.units}",[39m
+[31m+   "pages/assignments/PlanMatrixView.tsx: <p>Điểm phạt: {r.penalty.toFixed(2)}</p>",[39m
+[31m+   "pages/assignments/PlanMatrixView.tsx: {t('subjects.subject') || 'Môn học'}:",[39m
+[31m+   "pages/assignments/PlanMatrixView.tsx: {t('common.all') || 'Tất cả'} ({effectiveSubjects.length})",[39m
+[31m+   "pages/assignments/PlanMatrixView.tsx: Kỳ thi / Khối",[39m
+[31m+   "pages/assignments/PlanMatrixView.tsx: {isReviewer ? 'PB' : 'Đề'}",[39m
+[31m+   "pages/assignments/PlanMatrixView.tsx: <span className=\"text-muted-foreground italic\">Trống</span>",[39m
+[31m+   "pages/assignments/PlansHistoryList.tsx: const copyName = `${plan.name} (Bản sao)`",[39m
+[31m+   "pages/assignments/PlansHistoryList.tsx: Bạn có chắc chắn muốn xóa phương án này? Hành động này không thể hoàn tác.",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: name: 'Vật lí',",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: <p>Số đơn vị phạt: {rb.units}</p>",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: <p>Trọng số: {rb.weight}</p>",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: <p>Điểm phạt: {rb.penalty.toFixed(2)}</p>",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: {t('assignments.examGradeHeader') || 'Kì thi/khối'}",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: Khối {grade.name}",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: label: t('assignments.roleSetterShort') || 'Đề',",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: label: t('assignments.roleReviewerShort') || 'P.Biện',",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: Trống",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: ) || 'Chưa có',",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: <p className=\"italic\">Chưa có giáo viên phân công</p>",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: {t('assignments.totalsHeader') || 'Bảng tổng hợp lượt'}",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: ? 'Tăng'",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: : 'Giảm'",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: : 'Tổng'}",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: t('assignments.teacherSearchPlaceholder') || 'Lọc giáo viên...'",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: {t('assignments.totalsTotal') || 'Tổng'}",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: {t('assignments.totalsSetter') || 'Đề'}",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: {t('assignments.totalsFixed') || 'cố định'}",[39m
+[31m+   "pages/assignments/QPlanGrid.tsx: <td className=\"p-1.5 text-foreground\">Tổng cộng</td>",[39m
+[31m+   "pages/assignments/ReoptimizeDialog.tsx: <strong>{keptSlots.length}</strong> vị trí được giữ cố định, thuật toán sẽ",[39m
+[31m+   "pages/assignments/ReoptimizeDialog.tsx: sắp xếp lại các vị trí còn lại để cải thiện điểm số.",[39m
+[31m+   "pages/assignments/ReoptimizeDialog.tsx: Đang tối ưu lại...",[39m
+[31m+   "pages/assignments/ReoptimizeDialog.tsx: Điểm tốt nhất: <strong>{progress?.best_score.toFixed(2) ?? '--'}</strong>",[39m
+[31m+   "pages/assignments/ReoptimizeDialog.tsx: Bắt đầu tối ưu lại",[39m
+[31m+   "pages/assignments/RunOptimizeDialog.tsx: {blockingErrors.length} lỗi cấu hình khiến thuật toán không thể xếp lịch hợp",[39m
+[31m+   "pages/assignments/RunOptimizeDialog.tsx: lệ.",[39m
+[31m+   "pages/assignments/TeacherFocusPanel.tsx: Hệ số tải: {teacher.load_weight}",[39m
+[31m+   "pages/assignments/TeacherFocusPanel.tsx: <span className=\"text-muted-foreground block\">Vai trò</span>",[39m
+[31m+   "pages/assignments/TeacherFocusPanel.tsx: {setterCount} ra đề, {reviewerCount} phản biện",[39m
+[31m+   "pages/assignments/TeacherFocusPanel.tsx: <strong className=\"text-foreground\">Kỳ thi:</strong>{' '}",[39m
+[31m+   "pages/assignments/TeacherFocusPanel.tsx: <span className=\"text-muted-foreground\">{examNames || 'Chưa được phân'}</span>",[39m
+[31m+   "pages/assignments/TeacherFocusPanel.tsx: <strong className=\"text-foreground\">Khối lớp:</strong>{' '}",[39m
+[31m+   "pages/assignments/TeacherFocusPanel.tsx: {gradeNames || 'Chưa được phân'}",[39m
+[31m+   "pages/assignments/TeacherFocusPanel.tsx: <span>Vi phạm tiêu chí mềm liên quan ({myViolations.length}):</span>",[39m
+[31m+   "pages/settings/BackupSection.tsx: toast.error(`Lỗi sao lưu: ${msg}`)",[39m
+[31m+   "pages/settings/BackupSection.tsx: toast.error(`Lỗi chọn tệp: ${msg}`)",[39m
+[31m+   "pages/settings/BackupSection.tsx: toast.error(`Lỗi phục hồi: ${msg}`)",[39m
+[31m+   "pages/settings/BackupSection.tsx: <span>{backingUp ? 'Đang sao lưu...' : t('backup.backupNow')}</span>",[39m
+[31m+   "pages/settings/BackupSection.tsx: title=\"Làm mới\"",[39m
+[31m+   "pages/settings/BackupSection.tsx: <TableHead className=\"w-1/2\">Tệp sao lưu</TableHead>",[39m
+[31m+   "pages/settings/BackupSection.tsx: <TableHead className=\"w-24\">Dung lượng</TableHead>",[39m
+[31m+   "pages/settings/BackupSection.tsx: <TableHead className=\"w-36\">Thời gian</TableHead>",[39m
+[31m+   "pages/settings/BackupSection.tsx: <TableHead className=\"w-24 text-right\">Thao tác</TableHead>",[39m
+[31m+   "pages/settings/BackupSection.tsx: Phục hồi",[39m
+[31m+   "pages/settings/BackupSection.tsx: Đang kiểm tra tính toàn vẹn của tệp sao lưu...",[39m
+[31m+   "pages/settings/BackupSection.tsx: <span className=\"text-muted-foreground\">Năm học:</span>{' '}",[39m
+[31m+   "pages/settings/BackupSection.tsx: <span className=\"text-muted-foreground\">Giáo viên:</span>{' '}",[39m
+[31m+   "pages/settings/BackupSection.tsx: <span className=\"text-muted-foreground\">Phương án:</span>{' '}",[39m
+[31m+   "pages/settings/BackupSection.tsx: <span className=\"text-muted-foreground\">Phiên bản:</span>{' '}",[39m
+[31m+   "pages/settings/BackupSection.tsx: Hủy",[39m
+[31m+   "pages/settings/BackupSection.tsx: {restoring ? 'Đang phục hồi...' : 'Xác nhận phục hồi'}",[39m
+[31m+   "pages/teachers/ImportWizardModal.tsx: toast.error(`Lỗi đọc tệp Excel: ${msg}`)",[39m
+[31m+   "pages/teachers/ImportWizardModal.tsx: toast.error(`Lỗi áp dụng nhập dữ liệu: ${msg}`)",[39m
+[31m+   "pages/teachers/ImportWizardModal.tsx: {t('import.feasibilityWarning')} (Có{' '}",[39m
+[31m+   "pages/teachers/ImportWizardModal.tsx: {preview.feasibility_report.report.errors.length} lỗi bắt buộc)",[39m
+[31m+   "pages/teachers/ImportWizardModal.tsx: Không có giáo viên nào bị ngưng hoạt động.",[39m
+[31m+   "pages/teachers/ImportWizardModal.tsx: Quay lại chọn tệp",[39m
+[31m+   "pages/teachers/ImportWizardModal.tsx: Hủy",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: {t('quota.previewTitle') || 'Dự toán phân bổ chỉ tiêu nhiệm vụ'}",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: 'Chỉ tiêu nhiệm vụ được tính toán tự động theo trọng số tải, tính khả dụng và loại trừ các nhiệm vụ cố định.'}",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: {t('common.loading') || 'Đang tính toán chỉ tiêu...'}",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: {t('quota.empty') || 'Chưa có dữ liệu chỉ tiêu.'}",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: <span className=\"text-muted-foreground\">Tổng số giáo viên: </span>",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: <span className=\"text-muted-foreground\">Tổng chỉ tiêu phân bổ: </span>",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: <TableHead>Giáo viên</TableHead>",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: <TableHead className=\"text-center\">Trọng số tải</TableHead>",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: <TableHead className=\"text-center\">Kỳ khả dụng</TableHead>",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: <TableHead className=\"text-center\">Nhiệm vụ cố định</TableHead>",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: <TableHead className=\"text-right\">Chỉ tiêu mục tiêu (q)</TableHead>",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: Khoảng cho phép [lo, hi]",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: Cố định: {forcedCount}",[39m
+[31m+   "pages/teachers/QuotaPreviewModal.tsx: {t('common.close') || 'Đóng'}",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: t('competencies.saveSuccess') || 'Cập nhật phân công chuyên môn thành công',",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: 'Đã gán chuyên môn theo khối đang dạy cho toàn bộ giáo viên',",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: {t('competencies.modalTitle') || 'Phân công chuyên môn'}",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: 'Chỉ định các môn học và vai trò (ra đề / phản biện) giáo viên có thẩm quyền đảm nhận.'}",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: <span className=\"text-muted-foreground\">Thao tác nhanh cho toàn trường:</span>",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: 'Gán theo khối đang dạy cho tất cả giáo viên'}",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: {t('common.loading') || 'Đang tải thông tin chuyên môn...'}",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: {t('subjects.noSubjects') || 'Chưa có môn thi nào được cấu hình.'}",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: <TableHead className=\"w-40\">Môn học</TableHead>",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: <TableHead>Vai trò Ra đề (Đề)</TableHead>",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: <TableHead>Vai trò Phản biện (PB)</TableHead>",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: Đảm nhận",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value=\"taught\">Khối đang dạy</SelectItem>",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value=\"any\">Mọi khối</SelectItem>",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: Đảm nhận",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value=\"taught\">Khối đang dạy</SelectItem>",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: <SelectItem value=\"any\">Mọi khối</SelectItem>",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: {t('common.cancel') || 'Hủy'}",[39m
+[31m+   "pages/teachers/TeacherCompetenciesModal.tsx: {t('common.save') || 'Lưu chuyên môn'}",[39m
+[31m+ ][39m
+
+ ❯ src/i18n/no-hardcoded-text.test.ts:50:74
+     48|       })
+     49|     }
+     50|     expect(offenders, `hard-coded Vietnamese:\n${offenders.join('\n')}…
+       |                                                                          ^
+     51|   })
+     52| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 2 passed (5)
+   Start at  08:23:26
+   Duration  1.11s (transform 124ms, setup 306ms, collect 131ms, tests 48ms, environment 779ms, prepare 435ms)
+

@@ -99,7 +99,7 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
       setStep('preview')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      toast.error(`Lỗi đọc tệp Excel: ${msg}`)
+      toast.error(t('import.readError', { message: msg }))
     } finally {
       setLoading(false)
     }
@@ -122,7 +122,7 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
       onOpenChange(false)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      toast.error(`Lỗi áp dụng nhập dữ liệu: ${msg}`)
+      toast.error(t('import.applyError', { message: msg }))
     } finally {
       setLoading(false)
     }
@@ -259,8 +259,7 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs">
                   <AlertCircle className="h-4 w-4 shrink-0" />
                   <span>
-                    {t('import.feasibilityWarning')} (Có{' '}
-                    {preview.feasibility_report.report.errors.length} lỗi bắt buộc)
+                    {t('import.feasibilityWarning')} ({t('import.feasibilityErrorCount', { count: preview.feasibility_report.report.errors.length })})
                   </span>
                 </div>
               )}
@@ -521,7 +520,7 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                           colSpan={3}
                           className="text-center py-4 text-xs text-muted-foreground"
                         >
-                          Không có giáo viên nào bị ngưng hoạt động.
+                          {t('import.noDeactivated')}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -552,7 +551,7 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
               onClick={() => setStep('select')}
               disabled={loading}
             >
-              Quay lại chọn tệp
+              {t('import.backToFile')}
             </Button>
           ) : (
             <div />
@@ -565,7 +564,7 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              Hủy
+                            {t('common.cancel')}
             </Button>
             {step === 'select' ? (
               <Button

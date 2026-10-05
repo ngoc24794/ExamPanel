@@ -1638,7 +1638,10 @@ export class MockExamPanelApi implements ExamPanelApi {
       cancel: async () => {
         cancelled = true
         // Like the real backend (RA-011): a cancelled job rejects with `cancelled`.
-        rejectRun?.({ code: 'cancelled', params: { message: 'Optimization was cancelled' } })
+        rejectRun?.({
+          code: 'cancelled',
+          params: { message: 'Optimization was cancelled' },
+        })
         return true
       },
     }

@@ -317,9 +317,7 @@ export function useCreateSchoolYear() {
     onSuccess: (newYear) => {
       qc.invalidateQueries({ queryKey: queryKeys.schoolYears })
       qc.invalidateQueries({ queryKey: queryKeys.settings })
-      toast.success(
-        i18n.t('schoolYear.createSuccess', { defaultValue: 'Tạo năm học thành công' }),
-      )
+      toast.success(i18n.t('schoolYear.createSuccess'))
       return newYear
     },
   })
@@ -343,9 +341,7 @@ export function useSeedDemo() {
     mutationFn: () => api.seedDemo(),
     onSuccess: () => {
       qc.invalidateQueries()
-      toast.success(
-        i18n.t('dev.seedSuccess', { defaultValue: 'Đã nạp dữ liệu mẫu thành công' }),
-      )
+      toast.success(i18n.t('dev.seedSuccess'))
     },
   })
 }
@@ -525,11 +521,7 @@ export function useSaveRuleSettings(schoolYearId: number) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.ruleSettings(schoolYearId) })
       invalidateProblemData(qc, schoolYearId)
-      toast.success(
-        i18n.t('rules.saveSuccess', {
-          defaultValue: 'Đã lưu cấu hình quy tắc thành công',
-        }),
-      )
+      toast.success(i18n.t('rules.saveSuccess'))
     },
   })
 }
@@ -606,11 +598,7 @@ export function useMarkFinal(schoolYearId: number) {
     mutationFn: (id: number) => api.markFinal(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
-      toast.success(
-        i18n.t('assignments.markFinalSuccess', {
-          defaultValue: 'Đã đánh dấu phương án chính thức thành công',
-        }),
-      )
+      toast.success(i18n.t('assignments.markFinalSuccess'))
     },
     onError: (err) => {
       toast.error(getErrorMessage(err))
@@ -638,11 +626,7 @@ export function useUpdatePlanAssignments(schoolYearId: number) {
     mutationFn: ({ id, assignments }: { id: number; assignments: Assignment[] }) =>
       api.updatePlanAssignments(id, assignments),
     onSuccess: (_, vars) => {
-      toast.success(
-        i18n.t('assignments.saveAssignmentsSuccess', {
-          defaultValue: 'Đã lưu phương án phân công',
-        }),
-      )
+      toast.success(i18n.t('assignments.saveAssignmentsSuccess'))
       return Promise.all([
         qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) }),
         qc.invalidateQueries({ queryKey: queryKeys.planDetails(vars.id) }),
@@ -719,11 +703,7 @@ export function useCreateSubject() {
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: queryKeys.subjects(vars.school_year_id) })
       invalidateProblemData(qc, vars.school_year_id)
-      toast.success(
-        i18n.t('subjects.createSuccess', {
-          defaultValue: 'Đã tạo môn học thành công',
-        }),
-      )
+      toast.success(i18n.t('subjects.createSuccess'))
     },
     onError: (err) => {
       toast.error(getErrorMessage(err))
@@ -738,11 +718,7 @@ export function useUpdateSubject(schoolYearId: number) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.subjects(schoolYearId) })
       invalidateProblemData(qc, schoolYearId)
-      toast.success(
-        i18n.t('subjects.updateSuccess', {
-          defaultValue: 'Đã cập nhật môn học thành công',
-        }),
-      )
+      toast.success(i18n.t('subjects.updateSuccess'))
     },
     onError: (err) => {
       toast.error(getErrorMessage(err))
@@ -757,11 +733,7 @@ export function useDeleteSubject(schoolYearId: number) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.subjects(schoolYearId) })
       invalidateProblemData(qc, schoolYearId)
-      toast.success(
-        i18n.t('subjects.deleteSuccess', {
-          defaultValue: 'Đã xóa môn học thành công',
-        }),
-      )
+      toast.success(i18n.t('subjects.deleteSuccess'))
     },
     onError: (err) => {
       toast.error(getErrorMessage(err))

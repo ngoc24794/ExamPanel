@@ -164,7 +164,7 @@ export const CompetenciesPage: React.FC = () => {
       }
       toast.success(t('competencies.bulkAssignSuccess'))
     } catch {
-      toast.error('Lỗi khi thực hiện thao tác hàng loạt')
+      toast.error(t('competencies.bulkError'))
     }
   }
 
@@ -195,7 +195,7 @@ export const CompetenciesPage: React.FC = () => {
       }
       toast.success(t('competencies.bulkAssignAllSuccess'))
     } catch {
-      toast.error('Lỗi khi thực hiện thao tác hàng loạt')
+      toast.error(t('competencies.bulkError'))
     }
   }
 
@@ -211,7 +211,7 @@ export const CompetenciesPage: React.FC = () => {
       }
       toast.success(t('competencies.bulkClearSuccess'))
     } catch {
-      toast.error('Lỗi khi xóa chuyên môn')
+      toast.error(t('competencies.deleteError'))
     }
   }
 
@@ -326,7 +326,7 @@ export const CompetenciesPage: React.FC = () => {
               <SelectValue placeholder={t('competencies.filterSubject')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('common.all') || 'Tất cả môn'}</SelectItem>
+              <SelectItem value="all">{t('common.all')}</SelectItem>
               {subjects.map((s) => (
                 <SelectItem key={s.id} value={s.id.toString()}>
                   {s.name} ({s.code})
@@ -355,7 +355,7 @@ export const CompetenciesPage: React.FC = () => {
                 >
                   <div className="font-semibold text-foreground">{sub.name}</div>
                   <div className="text-[11px] text-muted-foreground font-mono">
-                    {sub.code} ({sub.setters}Đ+{sub.reviewers}PB)
+                    {sub.code} ({t('competencies.subjectComposition', { setters: sub.setters, reviewers: sub.reviewers })})
                   </div>
                 </TableHead>
               ))}
@@ -442,7 +442,7 @@ export const CompetenciesPage: React.FC = () => {
                                     ? 'bg-primary/20 text-primary border-primary/40 shadow-xs'
                                     : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted'
                               }`}
-                              title={`Ra đề: ${
+                              title={`${t('common.roleSetter')}: ${
                                 setterScope === 'any'
                                   ? t('competencies.stateAll')
                                   : setterScope === 'taught'
@@ -451,7 +451,7 @@ export const CompetenciesPage: React.FC = () => {
                               }`}
                               data-testid={`competency-toggle-${tg.teacher.id}-${sub.id}-setter`}
                             >
-                              <span className="font-bold">Đề:</span>
+                              <span className="font-bold">{t('assignments.roleSetterShort')}:</span>
                               <span>
                                 {setterScope === 'any'
                                   ? t('competencies.stateAll')
@@ -474,7 +474,7 @@ export const CompetenciesPage: React.FC = () => {
                                     ? 'bg-primary/20 text-primary border-primary/40 shadow-xs'
                                     : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted'
                               }`}
-                              title={`Phản biện: ${
+                              title={`${t('common.roleReviewer')}: ${
                                 reviewerScope === 'any'
                                   ? t('competencies.stateAll')
                                   : reviewerScope === 'taught'
@@ -483,7 +483,7 @@ export const CompetenciesPage: React.FC = () => {
                               }`}
                               data-testid={`competency-toggle-${tg.teacher.id}-${sub.id}-reviewer`}
                             >
-                              <span className="font-bold">PB:</span>
+                              <span className="font-bold">{t('assignments.roleReviewerShort')}:</span>
                               <span>
                                 {reviewerScope === 'any'
                                   ? t('competencies.stateAll')

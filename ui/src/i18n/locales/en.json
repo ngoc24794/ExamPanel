@@ -34,7 +34,17 @@
     "inactive": "Inactive",
     "search": "Search...",
     "placeholderNotice": "Module is currently in skeleton structure (Phase 1). Business logic will be implemented in upcoming phases.",
-    "version": "Version"
+    "version": "Version",
+    "all": "All",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "close": "Close",
+    "refresh": "Refresh",
+    "actions": "Actions",
+    "roleSetter": "Setter",
+    "roleReviewer": "Reviewer",
+    "schoolYearName": "School year {{name}}",
+    "placeholderDesc": "The in-depth features of this module will be developed in later phases following the project architecture."
   },
   "theme": {
     "toggle": "Toggle Theme",
@@ -53,7 +63,10 @@
     "coreConnectionCard": "Core Engine Connection",
     "coreDescription": "Verifying IPC communication between UI and the Rust core engine.",
     "scaleCard": "Reference Scale",
-    "scaleInfo": "11 teachers, 4 campuses, 4 exams (GK1, CK1, GK2, CK2) × 3 grades (10, 11, 12) = 12 panels, 36 assignments (24 setters, 12 reviewers)."
+    "scaleInfo": "11 teachers, 4 campuses, 4 exams (GK1, CK1, GK2, CK2) × 3 grades (10, 11, 12) = 12 panels, 36 assignments (24 setters, 12 reviewers).",
+    "issuesSummary": "{{errors}} errors, {{warnings}} warnings",
+    "campusesCount": "{{count}} campuses",
+    "teachersCount": "{{count}} teachers"
   },
   "campuses": {
     "title": "Campus Management",
@@ -72,7 +85,10 @@
     "codePlaceholder": "e.g. CS1",
     "namePlaceholder": "e.g. Central Campus",
     "selectColor": "Select color",
-    "teachersCount": "{{count}} teachers"
+    "teachersCount": "{{count}} teachers",
+    "errCodeRequired": "Code is required",
+    "errNameRequired": "Name is required",
+    "errColorRequired": "Please choose a color"
   },
   "teachers": {
     "title": "Teacher Management",
@@ -118,7 +134,32 @@
     "quotaOverridePlaceholder": "Default (automatic)",
     "maxTasksPerExamOverride": "Max tasks per exam override",
     "maxTasksPerExamOverridePlaceholder": "Default (per rule)",
-    "forcedSeatsBadge": "Forced: {{count}}"
+    "forcedSeatsBadge": "Forced: {{count}}",
+    "advancedSettings": "Advanced settings",
+    "quotaOverrideHelp": "Leave empty to compute it from the load weight; enter a number to fix this teacher's total number of tasks.",
+    "maxTasksPerExamOverrideHelp": "Leave empty to use the global rule; enter a number to cap this teacher's tasks in each exam.",
+    "quotaLoading": "Calculating quotas...",
+    "competenciesLoading": "Loading competencies...",
+    "compQuickActions": "School-wide quick actions:",
+    "compSubject": "Subject",
+    "compSetterRole": "Setter role",
+    "compReviewerRole": "Reviewer role",
+    "compTakesRole": "Takes the role",
+    "compScopeTaught": "Grades taught",
+    "compScopeAny": "Any grade",
+    "quotaTotalTeachers": "Total teachers",
+    "quotaTotalQuota": "Total allocated quota",
+    "quotaColTeacher": "Teacher",
+    "quotaColWeight": "Load weight",
+    "quotaColAvailable": "Available exams",
+    "quotaColForced": "Fixed tasks",
+    "quotaColTarget": "Target quota (q)",
+    "quotaColRange": "Allowed range [lo, hi]",
+    "quotaForcedBadge": "Fixed: {{count}}",
+    "gradeAssigned": "Assigned",
+    "gradeNotAssigned": "Not assigned",
+    "errFullNameRequired": "Full name is required",
+    "errCampusRequired": "Please choose a campus"
   },
   "schoolYear": {
     "selector": "School Year",
@@ -261,7 +302,17 @@
     "s10Title": "S10: Review Subject Coverage",
     "s10Desc": "Encourage teachers competent in reviewing multiple subjects to review each subject at least once.",
     "s10Example": "Example: A teacher competent to review both Physics and Technology should review each at least once.",
-    "weight": "Weight"
+    "weight": "Weight",
+    "h3Warning": "Turning H3 off allows panels made only of teachers from the same campus.",
+    "h4MaxTasksPerExam": "Max tasks per exam",
+    "h4MaxSetterPerExam": "Max setter tasks per exam",
+    "s1MaxTasksMode": "Task limit per exam",
+    "s1ModeAuto": "Automatic (Auto)",
+    "unsavedChanges": "Unsaved changes",
+    "numberPlaceholder": "Number",
+    "examFallback": "Exam {{id}}",
+    "gradeFallback": "Grade {{id}}",
+    "pickTeacher": "Select a teacher..."
   },
   "stats": {
     "title": "Statistics & Reports",
@@ -275,7 +326,6 @@
     "languageLabel": "Language",
     "storageSection": "Data Storage",
     "dataPath": "Data Directory Path",
-    "storageMode": "Storage Mode",
     "modePortable": "Portable Mode",
     "modeAppData": "Standard Mode (System AppData)",
     "copyPath": "Copy Path",
@@ -310,7 +360,8 @@
     "viewLicenses": "View details",
     "licensesDescription": "Third-party open-source components used in ExamPanel v0.1.0.",
     "releaseNotes": "Automated panel assignment and reviewer allocation for high school exams.",
-    "languageHelp": "Choose the interface language (Vietnamese by default, or English)."
+    "languageHelp": "Choose the interface language (Vietnamese by default, or English).",
+    "themeHelp": "Choose a light or dark appearance, or follow the operating system."
   },
   "diagnostics": {
     "duplicate_campus_id": "Duplicate campus ID: {{campus_id}}",
@@ -443,7 +494,9 @@
     "categoryCapacity": "Capacity & Quotas",
     "allGood": "All constraints and data requirements are satisfied.",
     "errorCount": "{{count}} errors",
-    "warningCount": "{{count}} warnings"
+    "warningCount": "{{count}} warnings",
+    "forcedPlacementsTitle": "Forced placements",
+    "forcedPlacementsDesc": "These seats are fixed by the configuration. The solver keeps them unchanged."
   },
   "unavailability": {
     "title": "Teacher Unavailability",
@@ -637,7 +690,35 @@
     "emptySeat": "Empty",
     "cellMenu": "Seat options",
     "keptBanner": "Kept for re-optimization: {{count}} seats",
-    "clearKept": "Clear all"
+    "clearKept": "Clear all",
+    "focusLoadWeight": "Load weight: {{weight}}",
+    "focusRoles": "Roles",
+    "focusRoleCounts": "{{setters}} setter, {{reviewers}} reviewer",
+    "focusExams": "Exams",
+    "focusGrades": "Grades",
+    "focusUnassigned": "Not assigned",
+    "focusSoftViolations": "Related soft-rule violations ({{count}}):",
+    "ruleUnits": "Penalty units: {{units}}",
+    "ruleWeight": "Weight: {{weight}}",
+    "rulePenalty": "Penalty: {{penalty}}",
+    "none": "None yet",
+    "noTeacherAssigned": "No teacher assigned",
+    "sortAsc": "Asc",
+    "sortDesc": "Desc",
+    "totalsTotalShort": "Total",
+    "totalsSum": "Grand total",
+    "ruleCriterion": "Criterion {{rule}}",
+    "ruleWeightUnits": "Weight: {{weight}} | Violation units: {{units}}",
+    "noCandidates": "No suitable teacher found",
+    "currentHolder": "Current",
+    "candidateTotal": "Total: {{total}}",
+    "candidateKeyboardHint": "Tip: use ↑ ↓ to choose and Enter to apply",
+    "copySuffix": "Copy",
+    "deleteConfirm": "Are you sure you want to delete this plan? This cannot be undone.",
+    "editSuffix": "Edited",
+    "teacherList": "Teachers",
+    "teacherListHint": "Click a teacher to see their workload and assigned seats on the matrix.",
+    "dutiesCount": "{{count}} duties"
   },
   "planImport": {
     "buttonTitle": "Import existing plan",
@@ -671,7 +752,20 @@
     "noIssues": "No errors or warnings detected.",
     "planName": "Imported from department sheet",
     "importSuccess": "Successfully imported plan",
-    "importError": "Failed to import plan: {{error}}"
+    "importError": "Failed to import plan: {{error}}",
+    "pickFileError": "Could not choose the file: {{message}}",
+    "pasteRequired": "Please paste the table content (TSV)",
+    "readError": "Could not read the data: {{message}}",
+    "fileHint": "Supports files exported by this software (“Bảng phân công (mẫu tổ)”) or the department’s original sheet.",
+    "pasteHint": "Copy the whole assignment table starting at the “Exam/Grade” corner cell and paste it here.",
+    "colExamId": "Exam ID",
+    "colGradeId": "Grade ID",
+    "colSubjectId": "Subject ID",
+    "colRole": "Role",
+    "colPosition": "Position",
+    "colTeacherId": "Teacher ID",
+    "applying": "Applying...",
+    "reading": "Reading..."
   },
   "statistics": {
     "title": "Statistics & Reports",
@@ -753,13 +847,21 @@
     "applying": "Applying...",
     "applySuccess": "Import successful! An automatic database backup was created.",
     "appliedCounts": "Created {{teachersCreated}} teachers, updated {{teachersUpdated}} teachers, deactivated {{teachersDeactivated}} teachers.",
-    "noteAutoBackup": "The system will automatically back up all data safely before applying changes."
+    "noteAutoBackup": "The system will automatically back up all data safely before applying changes.",
+    "readError": "Could not read the Excel file: {{message}}",
+    "applyError": "Could not apply the import: {{message}}",
+    "feasibilityErrorCount": "{{count}} blocking errors",
+    "noDeactivated": "No teacher will be deactivated.",
+    "backToFile": "Back to file selection",
+    "templateSuccess": "Template downloaded successfully!",
+    "templateError": "Could not create the template: {{message}}"
   },
   "export": {
     "exportExcel": "Export Excel (.xlsx)",
     "exporting": "Exporting...",
     "exportSuccess": "Excel file exported successfully",
-    "exportMockDisabled": "Excel export is only available in the Desktop application"
+    "exportMockDisabled": "Excel export is only available in the Desktop application",
+    "exportError": "Excel export failed: {{message}}"
   },
   "print": {
     "printPlan": "Print Matrix Plan",
@@ -797,7 +899,22 @@
     "plansCount": "Plans: {{count}}",
     "userVersion": "Schema version: {{version}}",
     "restoreSuccess": "Database restored successfully!",
-    "backupSuccess": "Database backup created successfully!"
+    "backupSuccess": "Database backup created successfully!",
+    "backupError": "Backup failed: {{message}}",
+    "pickFileError": "Could not choose the file: {{message}}",
+    "restoreError": "Restore failed: {{message}}",
+    "backingUp": "Backing up...",
+    "colFile": "Backup file",
+    "colSize": "Size",
+    "colTime": "Time",
+    "restoreBtn": "Restore",
+    "validating": "Checking the integrity of the backup file...",
+    "labelSchoolYears": "School years",
+    "labelTeachers": "Teachers",
+    "labelPlans": "Plans",
+    "labelVersion": "Version",
+    "restoring": "Restoring...",
+    "restoreConfirmBtn": "Confirm restore"
   },
   "trial": {
     "section_title": "Trial Mode",
@@ -837,7 +954,9 @@
     "validationNameRequired": "Subject name is required",
     "validationSettersRange": "Number of setters must be between 1 and 4",
     "validationReviewersRange": "Number of reviewers must be between 0 and 2",
-    "validationMinCampusesRange": "Minimum campuses must be between 0 and 3"
+    "validationMinCampusesRange": "Minimum campuses must be between 0 and 3",
+    "sortOrderLabel": "Sort order: {{order}}",
+    "namePlaceholder": "Physics, Technology..."
   },
   "competencies": {
     "title": "Competencies",
@@ -863,7 +982,10 @@
     "stateTaught": "Taught grades",
     "stateAll": "All grades",
     "eligibleFooter": "Eligible Teachers Summary",
-    "eligibleCount": "{{setters}} setters | {{reviewers}} reviewers"
+    "eligibleCount": "{{setters}} setters | {{reviewers}} reviewers",
+    "bulkError": "Bulk operation failed",
+    "deleteError": "Could not delete the competency",
+    "subjectComposition": "{{setters}}S+{{reviewers}}R"
   },
   "quota": {
     "previewBtn": "View Quotas",

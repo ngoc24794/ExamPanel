@@ -68,7 +68,7 @@ export function QuotaPreviewModal({
           <div className="flex items-center gap-2">
             <Calculator className="h-5 w-5 text-primary" />
             <DialogTitle className="text-base font-semibold text-foreground">
-              {t('quota.previewTitle') || 'Dự toán phân bổ chỉ tiêu nhiệm vụ'}
+              {t('quota.previewTitle')}
             </DialogTitle>
             {currentYear && (
               <Badge variant="outline" className="text-xs">
@@ -77,15 +77,14 @@ export function QuotaPreviewModal({
             )}
           </div>
           <DialogDescription className="text-xs text-muted-foreground">
-            {t('quota.previewDesc') ||
-              'Chỉ tiêu nhiệm vụ được tính toán tự động theo trọng số tải, tính khả dụng và loại trừ các nhiệm vụ cố định.'}
+            {t('quota.previewDesc')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto min-h-[300px] border rounded-md border-border">
           {isLoading ? (
             <div className="p-8 text-center text-sm text-muted-foreground">
-              {t('common.loading') || 'Đang tính toán chỉ tiêu...'}
+              {t('teachers.quotaLoading')}
             </div>
           ) : error ? (
             <div className="p-4 text-xs text-destructive bg-destructive/10 flex items-center gap-2">
@@ -94,17 +93,17 @@ export function QuotaPreviewModal({
             </div>
           ) : quotaItems.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted-foreground">
-              {t('quota.empty') || 'Chưa có dữ liệu chỉ tiêu.'}
+              {t('quota.empty')}
             </div>
           ) : (
             <div>
               <div className="p-3 bg-muted/30 border-b border-border flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-muted-foreground">Tổng số giáo viên: </span>
+                  <span className="text-muted-foreground">{t('teachers.quotaTotalTeachers')}: </span>
                   <span className="font-bold text-foreground">{quotaItems.length}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Tổng chỉ tiêu phân bổ: </span>
+                  <span className="text-muted-foreground">{t('teachers.quotaTotalQuota')}: </span>
                   <span className="font-bold text-foreground">
                     {totalQuota.toFixed(2)}
                   </span>
@@ -115,13 +114,13 @@ export function QuotaPreviewModal({
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-12 text-center">#</TableHead>
-                    <TableHead>Giáo viên</TableHead>
-                    <TableHead className="text-center">Trọng số tải</TableHead>
-                    <TableHead className="text-center">Kỳ khả dụng</TableHead>
-                    <TableHead className="text-center">Nhiệm vụ cố định</TableHead>
-                    <TableHead className="text-right">Chỉ tiêu mục tiêu (q)</TableHead>
+                    <TableHead>{t('teachers.quotaColTeacher')}</TableHead>
+                    <TableHead className="text-center">{t('teachers.quotaColWeight')}</TableHead>
+                    <TableHead className="text-center">{t('teachers.quotaColAvailable')}</TableHead>
+                    <TableHead className="text-center">{t('teachers.quotaColForced')}</TableHead>
+                    <TableHead className="text-right">{t('teachers.quotaColTarget')}</TableHead>
                     <TableHead className="text-center">
-                      Khoảng cho phép [lo, hi]
+                      {t('teachers.quotaColRange')}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -162,7 +161,7 @@ export function QuotaPreviewModal({
                               className="bg-amber-500/15 border-amber-500/40 text-amber-600 dark:text-amber-400 font-semibold gap-1 text-[11px]"
                             >
                               <Sparkles className="h-3 w-3" />
-                              Cố định: {forcedCount}
+                              {t('teachers.quotaForcedBadge', { count: forcedCount })}
                             </Badge>
                           ) : (
                             <span className="text-muted-foreground">0</span>
@@ -193,7 +192,7 @@ export function QuotaPreviewModal({
             onClick={() => onOpenChange(false)}
             className="text-xs"
           >
-            {t('common.close') || 'Đóng'}
+            {t('common.close')}
           </Button>
         </DialogFooter>
       </DialogContent>
