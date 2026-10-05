@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/settings/BackupSection.test.tsx (3 tests) 346ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  08:30:25
+   Duration  2.13s (transform 251ms, setup 121ms, collect 865ms, tests 346ms, environment 386ms, prepare 147ms)
+

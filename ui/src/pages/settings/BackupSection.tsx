@@ -135,6 +135,8 @@ export const BackupSection: React.FC = () => {
         teachers_count: 0,
         plans_count: 0,
         error: msg,
+        error_code: 'unreadable',
+        supported_version: 0,
       })
     } finally {
       setValidating(false)
@@ -263,7 +265,7 @@ export const BackupSection: React.FC = () => {
                           onClick={() => void initiateRestore(b.path)}
                           className="h-7 px-2 text-xs text-primary hover:text-primary"
                         >
-                                                    {t('backup.restoreBtn')}
+                          {t('backup.restoreBtn')}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -304,9 +306,22 @@ export const BackupSection: React.FC = () => {
                     <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive">
                       <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-semibold">{t('backup.integrityFail')}</span>
+                        <span className="font-semibold">
+                          {validationSummary.error_code === 'newer_version'
+                            ? t('backup.errorNewerVersionTitle')
+                            : t('backup.integrityFail')}
+                        </span>
                         {validationSummary.error && (
-                          <p className="text-[11px] mt-1">{validationSummary.error}</p>
+                          <p className="text-[11px] mt-1" title={validationSummary.error}>
+                            {t(
+                              `backup.err_${validationSummary.error_code ?? 'unreadable'}`,
+                              {
+                                version: validationSummary.user_version,
+                                supported: validationSummary.supported_version,
+                                defaultValue: t('backup.err_unreadable'),
+                              },
+                            )}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -315,25 +330,33 @@ export const BackupSection: React.FC = () => {
                   {validationSummary.valid && (
                     <div className="grid grid-cols-2 gap-2 p-3 rounded-md bg-muted/40 border border-border">
                       <div>
-                        <span className="text-muted-foreground">{t('backup.labelSchoolYears')}:</span>{' '}
+                        <span className="text-muted-foreground">
+                          {t('backup.labelSchoolYears')}:
+                        </span>{' '}
                         <span className="font-semibold">
                           {validationSummary.school_years_count}
                         </span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">{t('backup.labelTeachers')}:</span>{' '}
+                        <span className="text-muted-foreground">
+                          {t('backup.labelTeachers')}:
+                        </span>{' '}
                         <span className="font-semibold">
                           {validationSummary.teachers_count}
                         </span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">{t('backup.labelPlans')}:</span>{' '}
+                        <span className="text-muted-foreground">
+                          {t('backup.labelPlans')}:
+                        </span>{' '}
                         <span className="font-semibold">
                           {validationSummary.plans_count}
                         </span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">{t('backup.labelVersion')}:</span>{' '}
+                        <span className="text-muted-foreground">
+                          {t('backup.labelVersion')}:
+                        </span>{' '}
                         <span className="font-semibold font-mono">
                           v{validationSummary.user_version}
                         </span>
@@ -351,7 +374,7 @@ export const BackupSection: React.FC = () => {
                 onClick={() => setRestoreDialogOpen(false)}
                 disabled={restoring}
               >
-                                {t('common.cancel')}
+                {t('common.cancel')}
               </Button>
               <Button
                 data-testid="confirm-restore-btn"

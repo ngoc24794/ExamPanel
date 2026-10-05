@@ -159,7 +159,7 @@ export type CandidateEval = { teacher_id: number, hard_violations: Array<Violati
 
 export type ReoptimizeRequest = { plan_id: number, keep: Array<SlotRef>, request: OptimizeRequest, };
 
-export type BackupValidationSummary = { valid: boolean, user_version: number, school_years_count: number, teachers_count: number, plans_count: number, error: string | null, };
+export type BackupValidationSummary = { valid: boolean, user_version: number, school_years_count: number, teachers_count: number, plans_count: number, error: string | null, error_code: string | null, supported_version: number, };
 
 export type BackupFileInfo = { filename: string, path: string, size_bytes: bigint, modified_at: string, };
 

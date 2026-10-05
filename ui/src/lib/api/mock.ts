@@ -1954,7 +1954,21 @@ export class MockExamPanelApi implements ExamPanelApi {
         school_years_count: 0,
         teachers_count: 0,
         plans_count: 0,
-        error: 'Tệp sao lưu không hợp lệ hoặc bị hỏng (PRAGMA integrity_check failed)',
+        error: 'Database integrity failure: *** in database main ***',
+        error_code: 'corrupted',
+        supported_version: 5,
+      }
+    }
+    if (filename.includes('newer')) {
+      return {
+        valid: false,
+        user_version: 99,
+        school_years_count: 0,
+        teachers_count: 0,
+        plans_count: 0,
+        error: 'Unsupported future database version: 99 > supported 5',
+        error_code: 'newer_version',
+        supported_version: 5,
       }
     }
     return {
@@ -1964,6 +1978,8 @@ export class MockExamPanelApi implements ExamPanelApi {
       teachers_count: 18,
       plans_count: 3,
       error: null,
+      error_code: null,
+      supported_version: 5,
     }
   }
 

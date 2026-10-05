@@ -72,3 +72,32 @@ describe('BackupSection Component Tests', () => {
     })
   })
 })
+
+describe('BackupSection restore dialog errors (RA-032)', () => {
+  it('shows a Vietnamese reason, not the raw English engine text, for a newer-version file', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    vi.spyOn(mockApi, 'validateBackup').mockResolvedValue({
+      valid: false,
+      user_version: 99,
+      school_years_count: 0,
+      teachers_count: 0,
+      plans_count: 0,
+      error: 'Unsupported future database version: 99 > supported 5',
+      error_code: 'newer_version',
+      supported_version: 5,
+    })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <BackupSection />
+      </QueryClientProvider>,
+    )
+    await screen.findByText('exampanel-backup-20261001-1400.db')
+    fireEvent.click(screen.getAllByRole('button', { name: /Phục hồi/i })[0])
+
+    expect(await screen.findByText(/mới hơn bản ExamPanel này/)).toBeInTheDocument()
+    expect(screen.getByText(/phiên bản ExamPanel mới hơn/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Unsupported future database version/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/hỏng hoặc không đúng định dạng/)).not.toBeInTheDocument()
+    expect(screen.getByTestId('confirm-restore-btn')).toBeDisabled()
+  })
+})

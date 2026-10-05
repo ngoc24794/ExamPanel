@@ -21,6 +21,14 @@ pub struct BackupValidationSummary {
     pub teachers_count: usize,
     pub plans_count: usize,
     pub error: Option<String>,
+    /// Stable machine-readable reason (`file_missing`, `not_a_database`, `corrupted`,
+    /// `newer_version`, `missing_table`, `unreadable`) so the UI can show a localized message;
+    /// `error` keeps the raw technical text for the log.
+    #[serde(default)]
+    pub error_code: Option<String>,
+    /// Highest schema version this build understands.
+    #[serde(default)]
+    pub supported_version: i32,
 }
 
 /// Metadata about an automatic backup file.
@@ -70,17 +78,28 @@ pub fn backup_database(conn: &Connection, target_path: &Path) -> Result<(), Stor
     Ok(())
 }
 
+/// Builds the summary of a rejected file.
+fn invalid_summary(
+    code: &str,
+    error: String,
+    user_version: i32,
+) -> Result<BackupValidationSummary, StorageError> {
+    Ok(BackupValidationSummary {
+        valid: false,
+        user_version,
+        school_years_count: 0,
+        teachers_count: 0,
+        plans_count: 0,
+        error: Some(error),
+        error_code: Some(code.to_string()),
+        supported_version: latest_version(),
+    })
+}
+
 /// Validates an existing SQLite database file without modifying current state.
 pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, StorageError> {
     if !path.exists() {
-        return Ok(BackupValidationSummary {
-            valid: false,
-            user_version: 0,
-            school_years_count: 0,
-            teachers_count: 0,
-            plans_count: 0,
-            error: Some("File does not exist".to_string()),
-        });
+        return invalid_summary("file_missing", "File does not exist".to_string(), 0);
     }
 
     let conn = match Connection::open_with_flags(
@@ -89,14 +108,7 @@ pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, Stor
     ) {
         Ok(c) => c,
         Err(err) => {
-            return Ok(BackupValidationSummary {
-                valid: false,
-                user_version: 0,
-                school_years_count: 0,
-                teachers_count: 0,
-                plans_count: 0,
-                error: Some(format!("Cannot open database: {err}")),
-            });
+            return invalid_summary("unreadable", format!("Cannot open database: {err}"), 0)
         }
     };
 
@@ -104,55 +116,41 @@ pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, Stor
     let integrity: String = match conn.query_row("PRAGMA integrity_check", [], |row| row.get(0)) {
         Ok(s) => s,
         Err(e) => {
-            return Ok(BackupValidationSummary {
-                valid: false,
-                user_version: 0,
-                school_years_count: 0,
-                teachers_count: 0,
-                plans_count: 0,
-                error: Some(format!("Integrity check query failed: {e}")),
-            });
+            let text = e.to_string();
+            let code = if text.contains("not a database") {
+                "not_a_database"
+            } else {
+                "corrupted"
+            };
+            return invalid_summary(code, format!("Integrity check query failed: {e}"), 0);
         }
     };
 
     if integrity != "ok" {
-        return Ok(BackupValidationSummary {
-            valid: false,
-            user_version: 0,
-            school_years_count: 0,
-            teachers_count: 0,
-            plans_count: 0,
-            error: Some(format!("Database integrity failure: {integrity}")),
-        });
+        return invalid_summary(
+            "corrupted",
+            format!("Database integrity failure: {integrity}"),
+            0,
+        );
     }
 
     // 2. PRAGMA user_version <= latest_version()
     let user_version: i32 = match conn.query_row("PRAGMA user_version", [], |row| row.get(0)) {
         Ok(v) => v,
         Err(e) => {
-            return Ok(BackupValidationSummary {
-                valid: false,
-                user_version: 0,
-                school_years_count: 0,
-                teachers_count: 0,
-                plans_count: 0,
-                error: Some(format!("Failed to read user_version: {e}")),
-            });
+            return invalid_summary("unreadable", format!("Failed to read user_version: {e}"), 0)
         }
     };
 
     if user_version > latest_version() {
-        return Ok(BackupValidationSummary {
-            valid: false,
-            user_version,
-            school_years_count: 0,
-            teachers_count: 0,
-            plans_count: 0,
-            error: Some(format!(
+        return invalid_summary(
+            "newer_version",
+            format!(
                 "Unsupported future database version: {user_version} > supported {}",
                 latest_version()
-            )),
-        });
+            ),
+            user_version,
+        );
     }
 
     // 3. Expected tables check
@@ -165,14 +163,11 @@ pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, Stor
             )
             .unwrap_or(false);
         if !exists {
-            return Ok(BackupValidationSummary {
-                valid: false,
+            return invalid_summary(
+                "missing_table",
+                format!("Missing required table: {tbl}"),
                 user_version,
-                school_years_count: 0,
-                teachers_count: 0,
-                plans_count: 0,
-                error: Some(format!("Missing required table: {tbl}")),
-            });
+            );
         }
     }
 
@@ -194,6 +189,8 @@ pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, Stor
         teachers_count,
         plans_count,
         error: None,
+        error_code: None,
+        supported_version: latest_version(),
     })
 }
 

@@ -916,7 +916,14 @@
     "labelPlans": "Plans",
     "labelVersion": "Version",
     "restoring": "Restoring...",
-    "restoreConfirmBtn": "Confirm restore"
+    "restoreConfirmBtn": "Confirm restore",
+    "errorNewerVersionTitle": "The file was created by a newer ExamPanel",
+    "err_file_missing": "The selected file was not found.",
+    "err_not_a_database": "This is not an ExamPanel data file (it is not a database).",
+    "err_corrupted": "The file is damaged or truncated and cannot be read.",
+    "err_newer_version": "The file uses data version v{{version}}, newer than this ExamPanel (supports up to v{{supported}}). Update ExamPanel and try again.",
+    "err_missing_table": "The file is missing tables required by ExamPanel.",
+    "err_unreadable": "The selected file cannot be read."
   },
   "trial": {
     "section_title": "Trial Mode",

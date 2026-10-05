@@ -143,3 +143,58 @@ fn ra007_opening_a_current_database_creates_no_backup() {
     drop(Store::open_at(&db).unwrap()); // already current
     assert!(!data.join("backups").exists());
 }
+
+// ---------------------------------------------------------------------------------------------
+// RA-032: validation reports a stable error code so the UI can show a localized reason
+// ---------------------------------------------------------------------------------------------
+
+#[test]
+fn ra032_validation_errors_carry_stable_codes() {
+    let tmp = tempfile::tempdir().unwrap();
+
+    let garbage = tmp.path().join("garbage.db");
+    fs::write(&garbage, b"THIS IS NOT A DATABASE").unwrap();
+    let s = validate_backup_file(&garbage).unwrap();
+    assert!(!s.valid);
+    assert_eq!(s.error_code.as_deref(), Some("not_a_database"));
+
+    let missing = tmp.path().join("nope.db");
+    assert_eq!(
+        validate_backup_file(&missing)
+            .unwrap()
+            .error_code
+            .as_deref(),
+        Some("file_missing")
+    );
+
+    let valid = tmp.path().join("ok.db");
+    Store::open_in_memory().unwrap().backup_to(&valid).unwrap();
+    let ok = validate_backup_file(&valid).unwrap();
+    assert!(ok.valid && ok.error_code.is_none());
+
+    // newer schema
+    let newer = tmp.path().join("newer.db");
+    fs::copy(&valid, &newer).unwrap();
+    let c = rusqlite::Connection::open(&newer).unwrap();
+    c.execute_batch("PRAGMA user_version = 99;").unwrap();
+    drop(c);
+    let n = validate_backup_file(&newer).unwrap();
+    assert_eq!(n.error_code.as_deref(), Some("newer_version"));
+    assert_eq!(n.user_version, 99);
+    assert!(n.supported_version >= 5);
+
+    // truncated file
+    let trunc = tmp.path().join("trunc.db");
+    let bytes = fs::read(&valid).unwrap();
+    fs::write(&trunc, &bytes[..bytes.len() / 3]).unwrap();
+    let t = validate_backup_file(&trunc).unwrap();
+    assert!(!t.valid);
+    assert!(
+        matches!(
+            t.error_code.as_deref(),
+            Some("corrupted") | Some("not_a_database")
+        ),
+        "{:?}",
+        t.error_code
+    );
+}

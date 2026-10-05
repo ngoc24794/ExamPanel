@@ -364,6 +364,8 @@ pub struct BackupValidationSummary {
     pub teachers_count: usize,
     pub plans_count: usize,
     pub error: Option<String>,
+    pub error_code: Option<String>,
+    pub supported_version: i32,
 }
 
 impl From<exam_panel_storage::BackupValidationSummary> for BackupValidationSummary {
@@ -375,6 +377,8 @@ impl From<exam_panel_storage::BackupValidationSummary> for BackupValidationSumma
             teachers_count: s.teachers_count,
             plans_count: s.plans_count,
             error: s.error,
+            error_code: s.error_code,
+            supported_version: s.supported_version,
         }
     }
 }
