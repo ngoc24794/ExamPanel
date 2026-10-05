@@ -1,0 +1,217 @@
+{
+ "RA-001": {
+  "status": "fixed",
+  "tests": "`src-tauri/src/startup.rs` tests (`setup_does_not_block_the_event_loop_with_dialogs`, `main_window_is_created_by_the_startup_sequence_only`, classification); real app: `e2e-real/scenarios/A4-actions.mjs` (7 checks, 0/7 before → 7/7 after)",
+  "note": "Dialogs now run on a startup thread; window created after the service is ready (ADR-0044). Windows behaviour not verified (see windows-manual-checklist W1/W5)."
+ },
+ "RA-002": {
+  "status": "fixed",
+  "tests": "`ImportWizardModal.test.tsx` › shows Yes/No in the active column",
+  "note": ""
+ },
+ "RA-003": {
+  "status": "fixed",
+  "tests": "`QPlanGrid.test.tsx` › renders Q-style grid structure (no \"Khối Khối\")",
+  "note": ""
+ },
+ "RA-004": {
+  "status": "fixed",
+  "tests": "`OverviewPage.test.tsx` › does not show the developer IPC ping panel in a production build",
+  "note": ""
+ },
+ "RA-005": {
+  "status": "fixed",
+  "tests": "mock suite run (18 specs) leaves `git status` clean; `ui/e2e/artifact-dir.ts`",
+  "note": "Artefacts go to `ui/test-results/` unless `EXAMPANEL_UPDATE_DOCS=1`. The offline-CDN browser problem is an environment limit (QA wrapper config uses the preinstalled Chromium)."
+ },
+ "RA-006": {
+  "status": "fixed",
+  "tests": "docs only (`grep` output saved)",
+  "note": "`exam-panel.db` everywhere; backup file names are `exampanel-backup-…` by design."
+ },
+ "RA-007": {
+  "status": "fixed",
+  "tests": "`crates/storage/tests/backup_rotation_tests.rs` › `ra007_*`; real app `A7.mjs`",
+  "note": "Pre-migration backup (ADR-0045)."
+ },
+ "RA-008": {
+  "status": "fixed",
+  "tests": "`crates/storage/tests/reopen_tests.rs`",
+  "note": "`seed_defaults` inserts only what is missing."
+ },
+ "RA-009": {
+  "status": "fixed",
+  "tests": "`crates/service/tests/qa_regression_tests.rs` › `export::ra009_*` (names from vi.json, fractional units, lower bounds)",
+  "note": "Adds the column \"Cận dưới (đơn vị)\"."
+ },
+ "RA-010": {
+  "status": "fixed",
+  "tests": "`lib/violations.test.ts`, `GridEditing.test.tsx`",
+  "note": "Import preview uses `describeViolation` with names."
+ },
+ "RA-011": {
+  "status": "fixed",
+  "tests": "`qa_regression_tests.rs` › `ra011_*` (service), `RunOptimizeDialog.test.tsx` (UI); real app `C2b.mjs`",
+  "note": "Cancelled run = `cancelled` error, nothing saved (ADR-0047). The old service test that asserted `Ok` after cancel was changed to the new contract."
+ },
+ "RA-012": {
+  "status": "fixed",
+  "tests": "`RunOptimizeDialog.test.tsx` › progress monotonic across parallel waves",
+  "note": "Per-run events aggregated; `role=progressbar` added."
+ },
+ "RA-013": {
+  "status": "fixed",
+  "tests": "`PlanCompareModal.test.tsx`, `core::optimize::tests::test_plan_distance_is_subject_aware`",
+  "note": ""
+ },
+ "RA-014": {
+  "status": "fixed",
+  "tests": "`ui/e2e/grid-layout.spec.ts` (1024/1280/1440/1920 widths); real app `C4.mjs`",
+  "note": "Totals panel moves below the grid under 1440 px; horizontal clipping removed. The page still scrolls vertically at 1280×720 (preamble above the grid)."
+ },
+ "RA-015": {
+  "status": "fixed",
+  "tests": "`QPlanGrid.test.tsx`, `GridEditing.test.tsx` (GK1/CK1 codes, blank second CN cell)",
+  "note": ""
+ },
+ "RA-016": {
+  "status": "fixed",
+  "tests": "`QPlanGrid.test.tsx` › rounds fractional penalty units",
+  "note": ""
+ },
+ "RA-017": {
+  "status": "needs-decision",
+  "tests": "—",
+  "note": "**needs-decision.** Options: (a) auto-disable S3 when only one campus exists, (b) keep S3 but exclude it from the headline total, (c) leave as is. Not implemented."
+ },
+ "RA-018": {
+  "status": "fixed",
+  "tests": "`AssignmentsPage.race.test.tsx` (delayed list); real app `C5-copy-switch.mjs` (1/10 → 10/10)",
+  "note": ""
+ },
+ "RA-019": {
+  "status": "fixed",
+  "tests": "`core::optimize::eval_edit::tests::test_ra019_*`; real app `C5c.mjs`",
+  "note": "Candidate preview 194.4 equals the engine total 194.36."
+ },
+ "RA-020": {
+  "status": "fixed",
+  "tests": "`AssignmentsPage.edit.test.tsx`; real app `C5c.mjs` (header 194.36 right after the edit)",
+  "note": "Also: duplicate-teacher swaps rejected, save errors no longer unhandled."
+ },
+ "RA-021": {
+  "status": "fixed",
+  "tests": "`GridEditing.test.tsx`, `lib/violations.test.ts`",
+  "note": ""
+ },
+ "RA-022": {
+  "status": "fixed",
+  "tests": "`lib/query/hooks.stale.test.tsx` (17 mutations); real app `C5h.mjs`",
+  "note": ""
+ },
+ "RA-023": {
+  "status": "fixed",
+  "tests": "`core::validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2`",
+  "note": "New `is_teacher_qualified` (no absence/forbid)."
+ },
+ "RA-024": {
+  "status": "fixed",
+  "tests": "`PlansHistoryList.test.tsx` (strict WebKit-like `Date`)",
+  "note": "Verified on WebKitGTK only through the strict-Date test; real-app history screenshot not re-taken."
+ },
+ "RA-025": {
+  "status": "fixed",
+  "tests": "`hooks.stale.test.tsx` › mark-final; `qa_regression_tests.rs` › `ra025_*`",
+  "note": "`plan_invalid` now carries `count`."
+ },
+ "RA-026": {
+  "status": "fixed",
+  "tests": "`qa_regression_tests.rs` › `reoptimize::*`, `ReoptimizeDialog.test.tsx`, `AssignmentsPage.edit.test.tsx` › kept-seat banner",
+  "note": "Unique plan names, kept setter positions, banner in grid view, k/effort selectable."
+ },
+ "RA-027": {
+  "status": "fixed",
+  "tests": "`StatisticsPage.heatmaps.test.tsx`",
+  "note": ""
+ },
+ "RA-028": {
+  "status": "fixed",
+  "tests": "`qa_regression_tests.rs` › `export::ra028_*`",
+  "note": ""
+ },
+ "RA-029": {
+  "status": "needs-decision",
+  "tests": "—",
+  "note": "**needs-decision.** What should print/export show when Settings is empty: blank lines, a \"configure the school\" placeholder, or a fixed neutral text? Not implemented."
+ },
+ "RA-030": {
+  "status": "fixed",
+  "tests": "`PrintPages.test.tsx`, `tauri-shell.test.ts`; real app `D2-gtkprint.mjs`",
+  "note": "Native `print_page` command (ADR-0046). Windows print dialog not verified here."
+ },
+ "RA-031": {
+  "status": "fixed",
+  "tests": "`crates/storage/tests/backup_rotation_tests.rs` › `ra031_*`; real app `D3b.mjs`",
+  "note": ""
+ },
+ "RA-032": {
+  "status": "fixed",
+  "tests": "`backup_rotation_tests.rs` › `ra032_*`, `BackupSection.test.tsx`",
+  "note": "`error_code` + `supported_version` added to the validation summary."
+ },
+ "RA-033": {
+  "status": "fixed",
+  "tests": "`SettingsPage.test.tsx` › persists the language; real app `D4.mjs`",
+  "note": ""
+ },
+ "RA-034": {
+  "status": "fixed",
+  "tests": "`tauri-shell.test.ts`, `qa_regression_tests.rs` › `ra034_*`; real app `D4.mjs`",
+  "note": "Capability left narrow; Rust command opens the folder. Windows not verified."
+ },
+ "RA-035": {
+  "status": "fixed",
+  "tests": "`SettingsPage.test.tsx` › shows the bundled THIRD_PARTY_NOTICES text",
+  "note": ""
+ },
+ "RA-036": {
+  "status": "fixed",
+  "tests": "`qa_regression_tests.rs` › `ra036_*`; real app `E4.mjs`",
+  "note": "`seed_demo` returns `not_supported` in the release build."
+ },
+ "RA-037": {
+  "status": "needs-decision",
+  "tests": "—",
+  "note": "**needs-decision.** SPEC §6/ADR-0006 say \"writable folder ⇒ portable\", the code requires the `ExamPanel.portable` marker (ADR-0034). Which rule is the product rule? Only the factual `%APPDATA%` path in the release checklist was corrected."
+ },
+ "RA-038": {
+  "status": "fixed",
+  "tests": "docs only (diff in the commit)",
+  "note": "Checklists aligned with the product (6-sheet template, 5-sheet export, S4 instead of Avoid Pair, …)."
+ },
+ "RA-039": {
+  "status": "fixed",
+  "tests": "`QPlanGrid.test.tsx` › operable with the keyboard",
+  "note": "Roving tabindex, arrow keys, Enter/Space, `m`/Shift+F10 for the menu. Real-app `E1.mjs` not re-run."
+ },
+ "RA-040": {
+  "status": "fixed",
+  "tests": "`i18n/i18n-keys.test.ts`",
+  "note": "13 keys added (10 reported + 3 found by the new scan); a duplicated `assignments` section in both locale files was merged."
+ },
+ "RA-041": {
+  "status": "fixed",
+  "tests": "`ExamsPage.submit.test.tsx`",
+  "note": "Single-flight save guard + `reportError` (one toast per error)."
+ },
+ "RA-042": {
+  "status": "fixed",
+  "tests": "`i18n/no-hardcoded-text.test.ts`, `i18n-keys.test.ts`",
+  "note": "Print sheets, mock API/fixtures and the bilingual colour table are exempt by design."
+ },
+ "RA-043": {
+  "status": "fixed",
+  "tests": "`crates/service/tests/logging_tests.rs`; real app: `app.log` after a run",
+  "note": "Logs: startup, DB open, storage errors, backup/restore/export, startup dialogs."
+ }
+}
