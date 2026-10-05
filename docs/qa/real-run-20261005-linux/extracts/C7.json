@@ -1,0 +1,194 @@
+{
+ "id": "C7",
+ "started": "2026-10-05T05:50:49.420Z",
+ "checks": [
+  {
+   "step": "C7.per-teacher-table-equals-DB",
+   "result": "pass",
+   "observed": {
+    "rows": 12,
+    "mismatches": []
+   },
+   "expected": "12 rows; total/setter/reviewer/exams equal independent counts from assignments",
+   "evidence": [
+    "extracts/C7-ui-tables.json"
+   ]
+  },
+  {
+   "step": "C7.quota-q-values",
+   "result": "pass",
+   "observed": {
+    "bad": [],
+    "expected": "q=4.36 (=48/11) for 11 teachers, 12.00 for T Nghĩa (override)"
+   },
+   "expected": "q matches 48/11 and 12",
+   "evidence": [
+    "extracts/C7-ui-tables.json"
+   ]
+  },
+  {
+   "step": "C7.matrices-include-all-12-teachers",
+   "result": "fail",
+   "observed": {
+    "cowork_rows": 11,
+    "review_rows": 11,
+    "missing": [
+     "Thầy Nghĩa"
+    ]
+   },
+   "expected": "12x12 (T Nghĩa appears in all 12 CN panels)",
+   "evidence": [
+    "extracts/C7-ui-tables.json",
+    "screenshots/C7-stats-bottom-page.png"
+   ]
+  },
+  {
+   "step": "C7.cowork-matrix-values",
+   "result": "fail",
+   "observed": {
+    "compared": 110,
+    "mismatches": [
+     {
+      "a": "Cô Hiền",
+      "b": "Cô Lài",
+      "ui": "2",
+      "exp": 1
+     },
+     {
+      "a": "Cô Hiền",
+      "b": "Thầy Phúc",
+      "ui": "3",
+      "exp": 2
+     },
+     {
+      "a": "Cô Hiền",
+      "b": "Cô Thư",
+      "ui": "2",
+      "exp": 1
+     },
+     {
+      "a": "Cô Hiền",
+      "b": "Cô Quí",
+      "ui": "1",
+      "exp": 0
+     },
+     {
+      "a": "Cô Hiền",
+      "b": "Cô Tú",
+      "ui": "2",
+      "exp": 1
+     },
+     {
+      "a": "Cô Lài",
+      "b": "Cô Hiền",
+      "ui": "2",
+      "exp": 1
+     }
+    ],
+    "n_mismatch": 56
+   },
+   "expected": "cell = #panels containing both teachers (independent count)",
+   "evidence": [
+    "extracts/C7-ui-tables.json"
+   ]
+  },
+  {
+   "step": "C7.review-matrix-values",
+   "result": "fail",
+   "observed": {
+    "mismatches": [
+     {
+      "reviewer": "Cô Hiền",
+      "setter": "Cô Lài",
+      "ui": "1",
+      "exp": 0
+     },
+     {
+      "reviewer": "Thầy Phúc",
+      "setter": "Cô Hiền",
+      "ui": "0",
+      "exp": 1
+     },
+     {
+      "reviewer": "Thầy Phúc",
+      "setter": "Cô Lài",
+      "ui": "0",
+      "exp": 1
+     },
+     {
+      "reviewer": "Thầy Lộc",
+      "setter": "Cô Tú",
+      "ui": "0",
+      "exp": 1
+     },
+     {
+      "reviewer": "Thầy Lộc",
+      "setter": "Cô Như",
+      "ui": "0",
+      "exp": 1
+     },
+     {
+      "reviewer": "Cô Quí",
+      "setter": "Cô Na",
+      "ui": "1",
+      "exp": 0
+     }
+    ],
+    "n_mismatch": 11
+   },
+   "expected": "cell = #(panel) with reviewer row and setter col",
+   "evidence": [
+    "extracts/C7-ui-tables.json"
+   ]
+  },
+  {
+   "step": "C7.campus-composition-12-single",
+   "result": "pass",
+   "observed": "1 phân hiệu (Độc quyền - Vi phạm H3 nếu có) 12 100%",
+   "expected": "12 panels with 1 campus (single placeholder)",
+   "evidence": []
+  },
+  {
+   "step": "C7.matrix-column-headers-are-names",
+   "result": "fail",
+   "observed": [
+    "",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11"
+   ],
+   "expected": "column headers identify teachers (UI prints 1..11)",
+   "evidence": [
+    "screenshots/C7-stats-bottom-page.png"
+   ]
+  }
+ ],
+ "notes": {
+  "matrix_count": 2,
+  "matrix_dims": {
+   "cowork_rows": [
+    "Cô Hiền",
+    "Cô Lài",
+    "Thầy Phúc",
+    "Thầy Lộc",
+    "Cô Thư",
+    "Cô Na",
+    "Cô Bình",
+    "Cô Quí",
+    "Cô Tú",
+    "Cô Như",
+    "Cô Lan"
+   ],
+   "cols": 12,
+   "review_rows": 11
+  }
+ }
+}

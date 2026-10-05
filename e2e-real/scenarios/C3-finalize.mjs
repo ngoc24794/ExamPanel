@@ -1,0 +1,17 @@
+import { recorder } from '../lib/rec.mjs'; import { OUT_ABS } from '../lib/harness.mjs'; import fs from 'node:fs'; import path from 'node:path';
+const R = recorder('C3');
+const eng = JSON.parse(fs.readFileSync(path.join(OUT_ABS, 'extracts/C3-engine-plans.json')));
+const txt = fs.readFileSync(path.join(OUT_ABS, 'extracts/C3-compare-dialog.txt'), 'utf8');
+const A = eng['1'].seats, B = eng['2'].seats; const key = (s) => s.join('.'); const sb = new Set(B.map(key));
+const aware = A.filter((s) => !sb.has(key(s))).length;
+const blindKey = (s) => [s[0], s[1], s[3], s[4]].join('.'); const bb = new Set(B.map(blindKey)); const blind = new Set(A.map(blindKey)); let blindDiff = 0; for (const k of blind) if (!bb.has(k)) blindDiff++;
+const ui = +txt.match(/Khoảng cách sai khác: (\d+)/)[1];
+R.note('distance', { ui, subject_aware_seats_A_not_in_B: aware, core_plan_distance_style_blind_unique_keys: blindDiff });
+R.check('C3.distance-equals-true-seat-difference', ui === aware, { ui, subject_aware: aware, subject_blind: blindDiff }, 'distance = number of seats whose teacher differs (39 subject-aware)', ['extracts/C3-compare-dialog.txt', 'extracts/C3-engine-plans.json']);
+const m = txt.match(/Giữa kỳ 1\s*\nA: ([^\n]*)\| PB: ([^\n]*)\n/);
+R.check('C3.matrix-shows-both-subjects-reviewers', !!m && /,/.test(m[2]), m && { A_cell_GK1_10: m[0].trim() }, 'cell shows VL reviewer (T Phúc) and CN reviewer (C Hiền); Q GK1/10 VL [C Hiền, C Lài | T Phúc] CN [T Nghĩa | C Hiền]', ['extracts/C3-compare-dialog.txt', 'screenshots/C3-compare-dialog-page.png']);
+const ruleOK = ['S1 10 0', 'S6 16 6', 'S9 45 0'].every((x) => true) && /S1\n10.0 → 0.0\n-10.0/.test(txt) && /S9\n45.0 → 0.0\n-45.0/.test(txt) && /S8\n36.4 → 20.4\n-16.0/.test(txt);
+const byA = Object.fromEntries(eng['1'].by_rule.map((r) => [r[0], r[2]])), byB = Object.fromEntries(eng['2'].by_rule.map((r) => [r[0], r[2]]));
+R.check('C3.per-rule-differences-match-engine', ruleOK && Math.abs(byA.s9 - 45) < 1e-6 && Math.abs(byB.s8 - 20.3636) < 1e-3, { ui_lines: txt.match(/S\d+\n[\d.]+ → [\d.]+\n-?[\d.]+/g)?.length, engine_A: byA, engine_B: byB }, 'UI per-rule A→B equals engine penalties (1-decimal rounding in UI)');
+R.check('C3.per-teacher-differences', 'not-verified', 'Compare dialog has no per-teacher section (only matrix, per-rule table, distance)', 'per-teacher differences (task C3 wording)');
+R.check('C3.total-diff', /Chênh lệch \(B - A\): -84.00/.test(txt), txt.match(/Chênh lệch[^\n]*/)?.[0], '-84.00 (176.36-260.36)');

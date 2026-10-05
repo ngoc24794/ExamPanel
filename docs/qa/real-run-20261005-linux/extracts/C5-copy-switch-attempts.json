@@ -1,0 +1,92 @@
+[
+ {
+  "attempt": 1,
+  "views_over_time": [
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view"
+  ]
+ },
+ {
+  "attempt": 2,
+  "views_over_time": [
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view"
+  ]
+ },
+ {
+  "attempt": 3,
+  "views_over_time": [
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view"
+  ]
+ },
+ {
+  "attempt": 4,
+  "views_over_time": [
+   "edit-view",
+   "edit-view",
+   "edit-view",
+   "edit-view"
+  ]
+ },
+ {
+  "attempt": 5,
+  "views_over_time": [
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view"
+  ]
+ },
+ {
+  "attempt": 6,
+  "views_over_time": [
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view"
+  ]
+ },
+ {
+  "attempt": 7,
+  "views_over_time": [
+   "edit-view",
+   "edit-view",
+   "edit-view",
+   "edit-view"
+  ]
+ },
+ {
+  "attempt": 8,
+  "views_over_time": [
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view"
+  ]
+ },
+ {
+  "attempt": 9,
+  "views_over_time": [
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view"
+  ]
+ },
+ {
+  "attempt": 10,
+  "views_over_time": [
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view",
+   "optimizer-view"
+  ]
+ }
+]

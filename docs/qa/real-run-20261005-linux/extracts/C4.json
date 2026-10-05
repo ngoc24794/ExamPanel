@@ -1,0 +1,192 @@
+{
+ "id": "C4",
+ "started": "2026-10-05T05:30:21.837Z",
+ "checks": [
+  {
+   "step": "C4.header-cell-\"Kì thi/khối\"",
+   "result": "pass",
+   "observed": "Kì thi/khối",
+   "expected": "Kì thi/khối (DOM text; CSS uppercases it on screen)",
+   "evidence": [
+    "screenshots/C4-grid-1280x720-light-page.png"
+   ]
+  },
+  {
+   "step": "C4.grade-group-headers",
+   "result": "fail",
+   "observed": [
+    "Khối Khối 10",
+    "Khối Khối 11",
+    "Khối Khối 12"
+   ],
+   "expected": "Khối 10 | Khối 11 | Khối 12 (spec: grade groups)",
+   "evidence": [
+    "screenshots/C4-grid-1280x720-light-page.png"
+   ]
+  },
+  {
+   "step": "C4.subject-subcolumns-VL-CN",
+   "result": "pass",
+   "observed": [
+    "VL",
+    "CN",
+    "VL",
+    "CN",
+    "VL",
+    "CN"
+   ],
+   "expected": "VL,CN per grade",
+   "evidence": []
+  },
+  {
+   "step": "C4.exam-rows-Đề-Đề-P.Biện",
+   "result": "pass",
+   "observed": [
+    "Đề",
+    "Đề",
+    "P.Biện"
+   ],
+   "expected": "Đề | Đề | P.Biện",
+   "evidence": []
+  },
+  {
+   "step": "C4.exam-labels-GK1/CK1/GK2/CK2",
+   "result": "fail",
+   "observed": [
+    "Giữa kỳ 1",
+    "Cuối kỳ 1",
+    "Giữa kỳ 2",
+    "Cuối kỳ 2"
+   ],
+   "expected": "Paper header uses codes GK1, CK1, GK2, CK2; app shows full names",
+   "evidence": [
+    "screenshots/C4-grid-1280x720-light-page.png"
+   ]
+  },
+  {
+   "step": "C4.CN-second-Đề-cell-blank",
+   "result": "fail",
+   "observed": [
+    "—",
+    "—",
+    "—"
+   ],
+   "expected": "blank cell (paper); app draws \"—\"",
+   "evidence": []
+  },
+  {
+   "step": "C4.totals-header-columns",
+   "result": "fail",
+   "observed": [
+    "GV",
+    "Tổng lượt",
+    "Đề",
+    "PB",
+    "Giữa kỳ 1",
+    "Cuối kỳ 1",
+    "Giữa kỳ 2",
+    "Cuối kỳ 2"
+   ],
+   "expected": "GV | Tổng lượt | Đề | PB | GK1 | CK1 | GK2 | CK2 (app uses exam names)",
+   "evidence": []
+  },
+  {
+   "step": "C4.totals-markers-≥2/≥3",
+   "result": "pass",
+   "observed": [
+    [
+     "T Nghĩacố định",
+     "12",
+     "12",
+     "0",
+     "3**",
+     "3**",
+     "3**",
+     "3**"
+    ],
+    [
+     "C Hiền",
+     "5",
+     "3",
+     "2",
+     "1",
+     "1",
+     "1",
+     "2*"
+    ],
+    [
+     "C Na",
+     "5",
+     "2",
+     "3",
+     "2*",
+     "1",
+     "1",
+     "1"
+    ]
+   ],
+   "expected": "\"2*\" for ≥2 and \"3**\" for ≥3 per exam (test ids marker-over-2/3 exist)",
+   "evidence": []
+  },
+  {
+   "step": "C4.total-row-60",
+   "result": "pass",
+   "observed": [
+    "Tổng cộng",
+    "60",
+    "36",
+    "24",
+    "15",
+    "15",
+    "15",
+    "15"
+   ],
+   "expected": "Tổng cộng | 60 | 36 | 24 | 15 ×4",
+   "evidence": []
+  },
+  {
+   "step": "C4.fits-1280x720-without-scrolling",
+   "result": "fail",
+   "observed": {
+    "viewport": [
+     1280,
+     720
+    ],
+    "grid_bottom": 843,
+    "grid_right": 948.578125,
+    "panel_x": 872,
+    "panel_bottom": 897,
+    "main_scrollHeight": 865,
+    "main_clientHeight": 664
+   },
+   "expected": "whole grid + totals visible at 1280x720 without scrolling",
+   "evidence": [
+    "screenshots/C4-grid-1280x720-light-page.png",
+    "extracts/C4-grid-structure.json"
+   ]
+  },
+  {
+   "step": "C4.fits-1920x1080-without-scrolling",
+   "result": "pass",
+   "observed": {
+    "grid_bottom": 841,
+    "panel_right": 1656
+   },
+   "expected": "visible at 1920x1080",
+   "evidence": [
+    "screenshots/C4-grid-1920x1080-light-page.png"
+   ]
+  },
+  {
+   "step": "C4.light-and-dark-themes-render",
+   "result": "pass",
+   "observed": [
+    "screenshots/C4-grid-1280x720-dark-page.png",
+    "screenshots/C4-grid-1920x1080-dark-page.png"
+   ],
+   "expected": "screenshots captured and opened (visual review in findings)",
+   "evidence": []
+  }
+ ],
+ "notes": {}
+}

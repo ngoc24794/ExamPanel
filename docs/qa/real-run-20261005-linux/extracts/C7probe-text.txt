@@ -1,0 +1,106 @@
+Thống kê & Báo cáo phân công
+2026 - 2027
+Báo cáo phân bổ tải trọng, quan hệ hợp tác và cơ cấu phân hiệu theo phương án phân công.
+Chọn phương án xem thống kê:
+
+Nhập từ bảng của tổ
+Biểu đồ phân bổ khối lượng công việc (Lượt phân công so với Chỉ tiêu)
+So sánh số lượt phân công thực tế với chỉ tiêu phân bổ định mức
+Thực tế phân công
+Chỉ tiêu q
+Cô Hiền
+5 / 4.4
+Cô Lài
+5 / 4.4
+Thầy Phúc
+4 / 4.4
+Thầy Lộc
+4 / 4.4
+Cô Thư
+4 / 4.4
+Cô Na
+4 / 4.4
+Cô Bình
+4 / 4.4
+Cô Quí
+6 / 4.4
+Cô Tú
+4 / 4.4
+Cô Như
+4 / 4.4
+Cô Lan
+4 / 4.4
+Thầy Nghĩa
+12 / 12.0
+Bảng tổng hợp theo giáo viên
+Giáo viên
+Phân hiệu
+Tổng lượt
+Ra đề
+Phản biện
+Chỉ tiêu q
+Độ lệch (c - q)
+Khối tham gia	Kỳ tham gia
+Thầy Nghĩa
+Chưa phân hiệu	12	12	0	12.00	+0.00	Khối 11, 12, 10	GK1, CK1, GK2, CK2
+Cô Quí
+Chưa phân hiệu	6	2	4	4.36	+1.64	Khối 12, 11, 10	GK1, CK1, GK2, CK2
+Cô Hiền
+Chưa phân hiệu	5	3	2	4.36	+0.64	Khối 10, 11, 12	GK1, CK1, GK2, CK2
+Cô Lài
+Chưa phân hiệu	5	3	2	4.36	+0.64	Khối 10, 11, 12	GK1, CK1, GK2
+Thầy Phúc
+Chưa phân hiệu	4	2	2	4.36	-0.36	Khối 12, 10	GK1, GK2, CK2
+Thầy Lộc
+Chưa phân hiệu	4	2	2	4.36	-0.36	Khối 11, 12, 10	GK1, GK2, CK2
+Cô Thư
+Chưa phân hiệu	4	2	2	4.36	-0.36	Khối 11	GK1, CK1, GK2
+Cô Na
+Chưa phân hiệu	4	2	2	4.36	-0.36	Khối 11, 10	GK1, GK2, CK2
+Cô Bình
+Chưa phân hiệu	4	2	2	4.36	-0.36	Khối 12, 11	GK1, CK1, CK2
+Cô Tú
+Chưa phân hiệu	4	2	2	4.36	-0.36	Khối 10	CK1, GK2, CK2
+Cô Như
+Chưa phân hiệu	4	2	2	4.36	-0.36	Khối 10	CK1, GK2, CK2
+Cô Lan
+Chưa phân hiệu	4	2	2	4.36	-0.36	Khối 12, 11	CK1, GK2, CK2
+Cơ cấu kết hợp phân hiệu trong các ban đề
+Độ đa dạng phân hiệu trong mỗi ban đề (3 thành viên) (Tổng số: 12 ban đề)
+1 phân hiệu (Độc quyền - Vi phạm H3 nếu có)
+12
+100%
+2 phân hiệu kết hợp
+0
+0%
+3 phân hiệu kết hợp (Đa dạng tối đa)
+0
+0%
+Ma trận tần suất đồng hành (Cùng trong một ban đề)
+Số lần hai giáo viên được xếp chung vào cùng một ban đề (ra đề hoặc phản biện).
+1	2	3	4	5	6	7	8	9	10	11
+Cô Hiền	-	2	3	0	2	1	0	1	2	1	1
+Cô Lài	2	-	2	1	2	1	2	2	0	0	3
+Thầy Phúc	3	2	-	1	0	0	1	3	0	0	2
+Thầy Lộc	0	1	1	-	1	2	2	2	1	2	0
+Cô Thư	2	2	0	1	-	3	1	0	0	0	1
+Cô Na	1	1	0	2	3	-	1	2	1	1	0
+Cô Bình	0	2	1	2	1	1	-	3	0	0	2
+Cô Quí	1	2	3	2	0	2	3	-	1	1	3
+Cô Tú	2	0	0	1	0	1	0	1	-	5	0
+Cô Như	1	0	0	2	0	1	0	1	5	-	0
+Cô Lan	1	3	2	0	1	0	2	3	0	0	-
+Ma trận phản biện - ra đề (Người phản biện → Người ra đề)
+Số lần giáo viên này đóng vai trò phản biện cho bài ra đề của giáo viên kia.
+1	2	3	4	5	6	7	8	9	10	11
+Cô Hiền	-	1	0	0	1	1	0	0	0	0	0
+Cô Lài	0	-	0	0	0	0	0	1	0	0	1
+Thầy Phúc	0	0	-	0	0	0	0	0	0	0	0
+Thầy Lộc	0	0	0	-	0	0	0	0	0	0	0
+Cô Thư	0	1	0	0	-	0	1	0	0	0	0
+Cô Na	0	0	0	1	1	-	0	0	0	0	0
+Cô Bình	0	0	0	1	0	0	-	1	0	0	0
+Cô Quí	0	1	1	0	0	1	1	-	0	1	1
+Cô Tú	1	0	0	0	0	0	0	0	-	0	0
+Cô Như	0	0	0	0	0	0	0	0	1	-	0
+Cô Lan	1	0	1	0	0	0	0	0	0	0	-

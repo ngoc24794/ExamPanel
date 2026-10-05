@@ -1,0 +1,77 @@
+{
+ "panel_in_array_order": [
+  {
+   "role": "setter",
+   "position": 0,
+   "teacher": "Cô Như"
+  },
+  {
+   "role": "setter",
+   "position": 1,
+   "teacher": "Cô Na"
+  },
+  {
+   "role": "reviewer",
+   "position": 0,
+   "teacher": "Cô Tú"
+  }
+ ],
+ "rows": [
+  {
+   "slot_position": 0,
+   "candidate": "Cô Lài",
+   "incremental_delta": 11,
+   "full_delta_replacing_Cô Như(pos 0)": 18,
+   "full_delta_replacing_Cô Na(pos 1)": 11
+  },
+  {
+   "slot_position": 0,
+   "candidate": "Thầy Phúc",
+   "incremental_delta": 5,
+   "full_delta_replacing_Cô Như(pos 0)": 18,
+   "full_delta_replacing_Cô Na(pos 1)": 5
+  },
+  {
+   "slot_position": 0,
+   "candidate": "Thầy Lộc",
+   "incremental_delta": 5,
+   "full_delta_replacing_Cô Như(pos 0)": 18,
+   "full_delta_replacing_Cô Na(pos 1)": 5
+  },
+  {
+   "slot_position": 0,
+   "candidate": "Cô Như",
+   "incremental_delta": 9,
+   "full_delta_replacing_Cô Như(pos 0)": 0,
+   "full_delta_replacing_Cô Na(pos 1)": 9
+  },
+  {
+   "slot_position": 1,
+   "candidate": "Cô Lài",
+   "incremental_delta": 18,
+   "full_delta_replacing_Cô Như(pos 0)": 18,
+   "full_delta_replacing_Cô Na(pos 1)": 11
+  },
+  {
+   "slot_position": 1,
+   "candidate": "Thầy Phúc",
+   "incremental_delta": 18,
+   "full_delta_replacing_Cô Như(pos 0)": 18,
+   "full_delta_replacing_Cô Na(pos 1)": 5
+  },
+  {
+   "slot_position": 1,
+   "candidate": "Thầy Lộc",
+   "incremental_delta": 18,
+   "full_delta_replacing_Cô Như(pos 0)": 18,
+   "full_delta_replacing_Cô Na(pos 1)": 5
+  },
+  {
+   "slot_position": 1,
+   "candidate": "Cô Na",
+   "incremental_delta": 38,
+   "full_delta_replacing_Cô Như(pos 0)": 38,
+   "full_delta_replacing_Cô Na(pos 1)": 0
+  }
+ ]
+}

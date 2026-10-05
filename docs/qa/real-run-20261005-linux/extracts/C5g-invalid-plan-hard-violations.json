@@ -1,0 +1,40 @@
+[
+ {
+  "teacher": 1,
+  "code": "unqualified_grade",
+  "panel": {
+   "exam_id": 2,
+   "grade_id": 1,
+   "subject_id": 2
+  },
+  "params": {
+   "grade_id": 1,
+   "subject_id": 2
+  },
+  "rule": "h2"
+ },
+ {
+  "teacher": 1,
+  "code": "teacher_unavailable",
+  "panel": {
+   "exam_id": 2,
+   "grade_id": 1,
+   "subject_id": 2
+  },
+  "params": {
+   "exam_id": 2
+  },
+  "rule": "h5"
+ },
+ {
+  "teacher": 8,
+  "code": "max_tasks_per_exam_exceeded",
+  "panel": null,
+  "params": {
+   "exam_id": 4,
+   "count": 3,
+   "limit": 2
+  },
+  "rule": "h4"
+ }
+]

@@ -1,0 +1,106 @@
+{
+ "id": "C6",
+ "started": "2026-10-05T05:48:54.765Z",
+ "checks": [
+  {
+   "step": "C6.banner-shows-kept-count",
+   "result": "fail",
+   "expected": "Đã chọn giữ: 5 ô",
+   "evidence": []
+  },
+  {
+   "step": "C6.grid-view-feedback-for-kept-seats",
+   "result": "pass",
+   "observed": {
+    "banner_in_grid_view": false,
+    "bookmark_icons_in_cells": 5
+   },
+   "expected": "phase-8 step 9: banner \"Đã chọn giữ: N ô\" (appears only in Chi tiết view)",
+   "evidence": [
+    "screenshots/C6-kept-page.png"
+   ]
+  },
+  {
+   "step": "C6.detail-view-banner-shows-kept-count",
+   "result": "pass",
+   "observed": "Đã chọn giữ: 5 ô",
+   "expected": "Đã chọn giữ: 5 ô",
+   "evidence": []
+  },
+  {
+   "step": "C6.new-plan-created",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 5,
+     "name": "Phương án #1",
+     "source": "optimizer",
+     "score": 194.36363636363637
+    }
+   ],
+   "expected": "at least one new plan",
+   "evidence": []
+  },
+  {
+   "step": "C6.kept-seats-unchanged",
+   "result": "pass",
+   "observed": [
+    {
+     "plan": 5,
+     "kept_seats_lost": [],
+     "kept_at_same_position": 2,
+     "of": 5,
+     "seats_changed_elsewhere": 33
+    }
+   ],
+   "expected": "every kept seat still held by the same teacher in the same panel/role",
+   "evidence": [
+    "extracts/C6.json"
+   ]
+  },
+  {
+   "step": "C6.kept-seats-same-position",
+   "result": "fail",
+   "observed": [
+    {
+     "plan": 5,
+     "kept_seats_lost": [],
+     "kept_at_same_position": 2,
+     "of": 5,
+     "seats_changed_elsewhere": 33
+    }
+   ],
+   "expected": "kept setter seats keep their slot position (Đề 1 / Đề 2)",
+   "evidence": [
+    "extracts/C6.json"
+   ]
+  },
+  {
+   "step": "C6.rest-was-reoptimised",
+   "result": "pass",
+   "observed": [
+    {
+     "plan": 5,
+     "kept_seats_lost": [],
+     "kept_at_same_position": 2,
+     "of": 5,
+     "seats_changed_elsewhere": 33
+    }
+   ],
+   "expected": "other seats actually change (source plan already at LB so may legitimately stay): informational",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "dialog_text": "Tối ưu lại phần còn lại\nGiữ nguyên 5 vị trí đã chọn và tối ưu hóa lại tất cả các ô còn lại.\n5 vị trí được giữ cố định, thuật toán sẽ sắp xếp lại các vị trí còn lại để cải thiện điểm số.\nHủy\nBắt đầu tối ưu lại\nClose",
+  "kept_results": [
+   {
+    "plan": 5,
+    "kept_seats_lost": [],
+    "kept_at_same_position": 2,
+    "of": 5,
+    "seats_changed_elsewhere": 33
+   }
+  ]
+ }
+}

@@ -1,0 +1,1725 @@
+{
+ "id": "C5",
+ "started": "2026-10-05T05:32:20.381Z",
+ "checks": [
+  {
+   "step": "C5.create-edit-copy-switches-to-copy",
+   "result": "fail",
+   "observed": {
+    "switched": 2,
+    "of": 10
+   },
+   "expected": "after \"Tạo bản chỉnh sửa\" the new editable copy is shown (every time)",
+   "evidence": [
+    "extracts/C5-copy-switch-attempts.json"
+   ]
+  },
+  {
+   "step": "C5.candidate-delta-equals-engine-delta",
+   "result": "fail",
+   "observed": {
+    "compared": 10,
+    "mismatching": 3,
+    "sample_bad": [
+     {
+      "teacher": "Cô Lài",
+      "ui_delta": "+11.0",
+      "ui_total": 187.4,
+      "engine_total": 194.36,
+      "engine_delta": 18,
+      "match": false
+     },
+     {
+      "teacher": "Thầy Phúc",
+      "ui_delta": "+5.0",
+      "ui_total": 181.4,
+      "engine_total": 194.36,
+      "engine_delta": 18,
+      "match": false
+     },
+     {
+      "teacher": "Thầy Lộc",
+      "ui_delta": "+5.0",
+      "ui_total": 181.4,
+      "engine_total": 194.36,
+      "engine_delta": 18,
+      "match": false
+     }
+    ]
+   },
+   "expected": "candidate \"Tổng\" == evaluate_assignments(total) after the replacement",
+   "evidence": [
+    "extracts/C5d-candidate-delta-vs-engine.json"
+   ]
+  },
+  {
+   "step": "C5.optimizer-plan-immutable",
+   "result": "pass",
+   "observed": {
+    "candidateDialogOpened": false,
+    "draggable": "false",
+    "offersEditCopy": true
+   },
+   "expected": "cell click does nothing; \"Tạo bản chỉnh sửa\" offered",
+   "evidence": [
+    "extracts/C5.json"
+   ]
+  },
+  {
+   "step": "C5.create-edit-copy-no-name-prompt",
+   "result": "pass",
+   "observed": {
+    "copy": {
+     "id": 5,
+     "name": "Phương án #1 (Chỉnh sửa)",
+     "source": "duplicate"
+    },
+    "note": "phase-8 checklist step 4 expects a name prompt dialog; none appeared; name auto-set"
+   },
+   "expected": "source=duplicate; (checklist: asks for a name)",
+   "evidence": [
+    "extracts/C5.json"
+   ]
+  },
+  {
+   "step": "C5.forced-seat-T-Nghia-immovable",
+   "result": "pass",
+   "observed": {
+    "text": "",
+    "dialogOpened": false,
+    "draggable": "false"
+   },
+   "expected": "no candidate dialog, not draggable",
+   "evidence": []
+  },
+  {
+   "step": "C5.candidate-dialog-opens-on-click",
+   "result": "pass",
+   "observed": "Chọn giáo viên thay thế\nChọn giáo viên để thay thế vào ô này (Nhấn Enter hoặc chọn từ danh sách): (Ra đề #1)\n\nCô Hiền\n(Chưa phân hiệu)\nH4: max_setter_tasks_per_",
+   "expected": "dialog \"Chọn giáo viên thay thế\"",
+   "evidence": []
+  },
+  {
+   "step": "C5.candidate-disabled-iff-hard-violation(engine re-check)",
+   "result": "pass",
+   "observed": {
+    "checked": 12,
+    "mismatches": []
+   },
+   "expected": "disabled candidates have a hard violation; enabled ones none (independent evaluate_assignments)",
+   "evidence": [
+    "extracts/C5-candidate-dialog.txt"
+   ]
+  },
+  {
+   "step": "C5.candidate-reasons-human-readable",
+   "result": "fail",
+   "observed": [
+    "H4: max_setter_tasks_per_exam_exceeded",
+    "H2: unqualified_grade",
+    "H1: duplicate_teacher_in_panel, H4: max_tasks_per_exam_exceeded, H4: max_setter_tasks_per_exam_exceeded",
+    "H2: unqualified_grade, H4: max_setter_tasks_per_exam_exceeded",
+    "H2: unqualified_grade, H4: max_setter_tasks_per_exam_exceeded",
+    "H1: duplicate_teacher_in_panel",
+    "H2: unqualified_grade, H4: max_setter_tasks_per_exam_exceeded",
+    "H2: unqualified_grade, H4: max_tasks_per_exam_exceeded, H4: max_setter_tasks_per_exam_exceeded, H7: quota_exceeded"
+   ],
+   "expected": "reason in Vietnamese words (checklist: \"kèm lý do vi phạm\")",
+   "evidence": [
+    "extracts/C5-candidate-dialog.txt",
+    "screenshots/C5-candidate-modal-page.png"
+   ]
+  },
+  {
+   "step": "C5.keyboard-replace-in-modal",
+   "result": "pass",
+   "observed": {
+    "before": "C Như",
+    "after": "T Phúc",
+    "modalClosed": true,
+    "highlighted": null
+   },
+   "expected": "Arrow keys move, Enter applies a valid candidate, cell updates",
+   "evidence": [
+    "screenshots/C5-candidate-modal-page.png"
+   ]
+  },
+  {
+   "step": "C5.live-feedback-save-button-appears",
+   "result": "pass",
+   "observed": true,
+   "expected": "Save/Discard appear after an edit",
+   "evidence": []
+  },
+  {
+   "step": "C5.edit-not-persisted-before-save",
+   "result": "pass",
+   "observed": "unchanged in DB",
+   "expected": "DB unchanged until Save",
+   "evidence": []
+  },
+  {
+   "step": "C5.undo-redo-buttons",
+   "result": "pass",
+   "observed": {
+    "before": "C Như",
+    "afterUndo": "C Như",
+    "afterRedo": "T Phúc"
+   },
+   "expected": "undo restores, redo reapplies",
+   "evidence": []
+  },
+  {
+   "step": "C5.undo-redo-keyboard-ctrl+z/ctrl+y",
+   "result": "pass",
+   "observed": {
+    "before": "C Như",
+    "kUndo": "C Như",
+    "kRedo": "T Phúc"
+   },
+   "expected": "Ctrl+Z / Ctrl+Y (phase-8 step 7)",
+   "evidence": []
+  },
+  {
+   "step": "C5.drag-swap",
+   "result": "pass",
+   "observed": {
+    "mode": "synthetic-DragEvent (WebDriver native drag did not trigger; real mouse drag => manual-required)",
+    "a1": [
+     "C Na",
+     "->",
+     "C Như"
+    ],
+    "a2": [
+     "C Như",
+     "->",
+     "C Na"
+    ],
+    "pair": [
+     {
+      "exam_id": 1,
+      "grade_id": 1,
+      "subject_id": 2,
+      "role": "setter",
+      "position": 1
+     },
+     {
+      "exam_id": 3,
+      "grade_id": 1,
+      "subject_id": 2,
+      "role": "setter",
+      "position": 1
+     }
+    ]
+   },
+   "expected": "two seats exchange teachers (hard-valid swap chosen via evaluate_swap)",
+   "evidence": []
+  },
+  {
+   "step": "C5.save-persists",
+   "result": "pass",
+   "observed": {
+    "seats_changed": 3,
+    "score_after": 194.36363636363637
+   },
+   "expected": "DB assignments updated (1 replace + 2 swapped seats = 3)",
+   "evidence": []
+  },
+  {
+   "step": "C5.score-in-header-equals-db",
+   "result": "pass",
+   "observed": {
+    "header": "Tổng điểm phạt: 194.36",
+    "db": 194.36363636363637
+   },
+   "expected": "header score == saved score",
+   "evidence": []
+  },
+  {
+   "step": "C5.stale-flag-from-backend",
+   "result": "pass",
+   "observed": [
+    [
+     2,
+     true
+    ],
+    [
+     3,
+     true
+    ],
+    [
+     4,
+     true
+    ],
+    [
+     1,
+     true
+    ]
+   ],
+   "expected": "list_plans reports is_stale=true after unavailability change",
+   "evidence": [
+    "extracts/C5h-stale-badge.json"
+   ]
+  },
+  {
+   "step": "C5.stale-badge-visible-after-spa-navigation",
+   "result": "fail",
+   "observed": [
+    {
+     "id": "plan-item-2",
+     "stale": false
+    },
+    {
+     "id": "plan-item-3",
+     "stale": false
+    },
+    {
+     "id": "plan-item-4",
+     "stale": false
+    },
+    {
+     "id": "plan-item-1",
+     "stale": false
+    }
+   ],
+   "expected": "badge \"Dữ liệu đã đổi\" visible after returning to Phân công",
+   "evidence": [
+    "extracts/C5h-stale-badge.json",
+    "screenshots/C5h-history-after-change-page.png"
+   ]
+  },
+  {
+   "step": "C5.stale-badge-visible-after-reload",
+   "result": "pass",
+   "observed": [
+    {
+     "id": "plan-item-2",
+     "stale": true
+    },
+    {
+     "id": "plan-item-3",
+     "stale": true
+    },
+    {
+     "id": "plan-item-4",
+     "stale": true
+    },
+    {
+     "id": "plan-item-1",
+     "stale": true
+    }
+   ],
+   "expected": "badge visible after reload",
+   "evidence": [
+    "extracts/C5h-stale-badge.json"
+   ]
+  },
+  {
+   "step": "C5.mark-final-allowed-when-valid",
+   "result": "pass",
+   "observed": {
+    "toasts": [
+     "Đã đánh dấu phương án chính thức thành công"
+    ],
+    "final_rows": [
+     {
+      "id": 1,
+      "is_final": 1
+     }
+    ]
+   },
+   "expected": "valid plan (0 hard violations, not stale) becomes final; badge \"Chính thức\"",
+   "evidence": [
+    "extracts/C5g-history-before.json"
+   ]
+  },
+  {
+   "step": "C5.stale-badge-after-data-change",
+   "result": "fail",
+   "observed": [
+    "Nhập từ bảng của tổ | Chính thức | Chỉnh tay | Điểm phạt: 260.36 | Invalid Date ",
+    "Phương án #1 | Hạng #1 | Máy tạo | Điểm phạt: 176.36 | Invalid Date | Mở phương ",
+    "Phương án #2 | Hạng #2 | Máy tạo | Điểm phạt: 176.36 | Invalid Date | Mở phương ",
+    "Phương án #3 | Hạng #3 | Máy tạo | Điểm phạt: 176.36 | Invalid Date | Mở phương "
+   ],
+   "expected": "plans show \"Dữ liệu đã đổi\" after marking a teacher unavailable",
+   "evidence": [
+    "screenshots/C5g-stale-history-page.png"
+   ]
+  },
+  {
+   "step": "C5.mark-final-blocked-when-stale",
+   "result": "pass",
+   "observed": {
+    "toasts": [
+     "Không thể đánh dấu chính thức khi dữ liệu bài toán đã thay đổi | ",
+     "plan_stale"
+    ],
+    "final_rows": [
+     {
+      "id": 1
+     }
+    ]
+   },
+   "expected": "blocked with a translated message; final stays plan 1",
+   "evidence": [
+    "screenshots/C5g-stale-history-page.png"
+   ]
+  },
+  {
+   "step": "C5.mark-final-blocked-with-hard-violations",
+   "result": "pass",
+   "observed": {
+    "toasts": [
+     "Không thể đánh dấu chính thức khi còn vi phạm điều kiện bắt buộc (1 vi phạm) | ",
+     "plan_invalid"
+    ],
+    "final_rows": [
+     {
+      "id": 1
+     }
+    ],
+    "header": "Điều kiện bắt buộc: Vi phạm (3 lỗi)"
+   },
+   "expected": "blocked: \"không thể đánh dấu... vi phạm\"",
+   "evidence": [
+    "screenshots/C5g-invalid-plan-page.png"
+   ]
+  },
+  {
+   "step": "C5.pin-from-matrix-creates-lock",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 1,
+     "exam_id": 1,
+     "grade_id": 2,
+     "subject_id": 2,
+     "teacher_id": 6,
+     "role": "reviewer",
+     "kind": "pin"
+    }
+   ],
+   "expected": "locks row kind=pin for that seat",
+   "evidence": [
+    "extracts/C5.json"
+   ]
+  },
+  {
+   "step": "C5.forbid-from-matrix-creates-lock",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 1,
+     "exam_id": 1,
+     "grade_id": 2,
+     "subject_id": 2,
+     "teacher_id": 6,
+     "role": "reviewer",
+     "kind": "pin"
+    },
+    {
+     "id": 2,
+     "exam_id": 3,
+     "grade_id": 3,
+     "subject_id": 2,
+     "teacher_id": 8,
+     "role": "reviewer",
+     "kind": "forbid"
+    }
+   ],
+   "expected": "locks row kind=forbid",
+   "evidence": []
+  },
+  {
+   "step": "C5.pin-icon-shown-in-grid",
+   "result": "pass",
+   "observed": true,
+   "expected": "pin icon visible in the pinned cell",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "cell_attrs_editable": {
+   "draggable": "true",
+   "tabindex": null,
+   "role": null
+  },
+  "candidate_dialog_head": null,
+  "ui_candidates": {
+   "Cô Hiền": {
+    "disabled": true,
+    "reason": "H4: max_setter_tasks_per_exam_exceeded"
+   },
+   "Cô Lài": {
+    "disabled": false,
+    "delta": "+11.0",
+    "total": "Tổng: 187.4"
+   },
+   "Thầy Phúc": {
+    "disabled": false,
+    "delta": "+5.0",
+    "total": "Tổng: 181.4"
+   },
+   "Thầy Lộc": {
+    "disabled": false,
+    "delta": "+5.0",
+    "total": "Tổng: 181.4"
+   },
+   "Cô Thư": {
+    "disabled": true,
+    "reason": "H2: unqualified_grade"
+   },
+   "Cô Na": {
+    "disabled": true,
+    "reason": "H1: duplicate_teacher_in_panel, H4: max_tasks_per_exam_exceeded, H4: max_setter_tasks_per_exam_exceeded"
+   },
+   "Cô Bình": {
+    "disabled": true,
+    "reason": "H2: unqualified_grade, H4: max_setter_tasks_per_exam_exceeded"
+   },
+   "Cô Quí": {
+    "disabled": true,
+    "reason": "H2: unqualified_grade, H4: max_setter_tasks_per_exam_exceeded"
+   },
+   "Cô Tú": {
+    "disabled": true,
+    "reason": "H1: duplicate_teacher_in_panel"
+   },
+   "Cô Như": {
+    "disabled": false,
+    "delta": "(Chưa phân hiệu)",
+    "total": "+9.0"
+   },
+   "Cô Lan": {
+    "disabled": true,
+    "reason": "H2: unqualified_grade, H4: max_setter_tasks_per_exam_exceeded"
+   },
+   "Thầy Nghĩa": {
+    "disabled": true,
+    "reason": "H2: unqualified_grade, H4: max_tasks_per_exam_exceeded, H4: max_setter_tasks_per_exam_exceeded, H7: quota_exceeded"
+   }
+  },
+  "view_switched_to_copy_automatically": false,
+  "keyboard_selected_after_2xArrowDown": null,
+  "undo_redo_buttons_found": {
+   "undo": true,
+   "redo": true
+  },
+  "valid_swap_pair_found_by_engine": [
+   {
+    "exam_id": 1,
+    "grade_id": 1,
+    "subject_id": 2,
+    "role": "setter",
+    "position": 1
+   },
+   {
+    "exam_id": 3,
+    "grade_id": 1,
+    "subject_id": 2,
+    "role": "setter",
+    "position": 1
+   }
+  ],
+  "badges_after_final": [
+   {
+    "t": "Nhập từ bảng của tổ | Chính thức | Chỉnh tay | Điểm phạt: 260.36 | Invalid Date | Mở phương án | ",
+    "id": "plan-item-1"
+   },
+   {
+    "t": "Phương án #1 | Hạng #1 | Máy tạo | Điểm phạt: 176.36 | Invalid Date | Mở phương án | ",
+    "id": "plan-item-2"
+   },
+   {
+    "t": "Phương án #2 | Hạng #2 | Máy tạo | Điểm phạt: 176.36 | Invalid Date | Mở phương án | ",
+    "id": "plan-item-3"
+   },
+   {
+    "t": "Phương án #3 | Hạng #3 | Máy tạo | Điểm phạt: 176.36 | Invalid Date | Mở phương án | ",
+    "id": "plan-item-4"
+   }
+  ],
+  "badges_after_data_change": [
+   {
+    "t": "Nhập từ bảng của tổ | Chính thức | Chỉnh tay | Điểm phạt: 260.36 | Invalid Date | Mở phương án | ",
+    "id": "plan-item-1"
+   },
+   {
+    "t": "Phương án #1 | Hạng #1 | Máy tạo | Điểm phạt: 176.36 | Invalid Date | Mở phương án | ",
+    "id": "plan-item-2"
+   },
+   {
+    "t": "Phương án #2 | Hạng #2 | Máy tạo | Điểm phạt: 176.36 | Invalid Date | Mở phương án | ",
+    "id": "plan-item-3"
+   },
+   {
+    "t": "Phương án #3 | Hạng #3 | Máy tạo | Điểm phạt: 176.36 | Invalid Date | Mở phương án | ",
+    "id": "plan-item-4"
+   }
+  ],
+  "plan_status_1_after_change": {
+   "v": {
+    "score_now": {
+     "by_rule": [
+      {
+       "units": 1,
+       "enabled": true,
+       "penalty": 10,
+       "rule": "s1",
+       "weight": 10,
+       "lower_bound": 0
+      },
+      {
+       "units": 1,
+       "enabled": true,
+       "penalty": 3,
+       "rule": "s2",
+       "weight": 3,
+       "lower_bound": 0
+      },
+      {
+       "units": 36,
+       "enabled": true,
+       "penalty": 144,
+       "rule": "s3",
+       "weight": 4,
+       "lower_bound": 0
+      },
+      {
+       "units": 0,
+       "enabled": true,
+       "penalty": 0,
+       "rule": "s4",
+       "weight": 6,
+       "lower_bound": 0
+      },
+      {
+       "units": 1,
+       "enabled": true,
+       "penalty": 6,
+       "rule": "s5",
+       "weight": 6,
+       "lower_bound": 0
+      },
+      {
+       "units": 8,
+       "enabled": true,
+       "penalty": 16,
+       "rule": "s6",
+       "weight": 2,
+       "lower_bound": 2
+      },
+      {
+       "units": 0,
+       "enabled": true,
+       "penalty": 0,
+       "rule": "s7",
+       "weight": 1,
+       "lower_bound": 0
+      },
+      {
+       "units": 7.098972417522984,
+       "enabled": true,
+       "penalty": 56.79177934018387,
+       "rule": "s8",
+       "weight": 8,
+       "lower_bound": 2.6338561384532184
+      },
+      {
+       "units": 9,
+       "enabled": true,
+       "penalty": 45,
+       "rule": "s9",
+       "weight": 5,
+       "lower_bound": 0
+      },
+      {
+       "units": 0,
+       "enabled": true,
+       "penalty": 0,
+       "rule": "s10",
+       "weight": 4,
+       "lower_bound": 0
+      }
+     ],
+     "total": 280.7917793401839,
+     "violations": [
+      {
+       "params": {
+        "teacher": "Cô Quí",
+        "count": "4",
+        "max": "3"
+       },
+       "code": "reviewer_too_many",
+       "panel": null,
+       "teachers": [
+        8
+       ],
+       "rule": "s1"
+      },
+      {
+       "params": {
+        "diff": "1",
+        "count": "6",
+        "reviews": "4",
+        "teacher": "Cô Quí",
+        "hi": "3",
+        "lo": "3",
+        "ideal": "[3, 3]"
+       },
+       "code": "role_imbalance",
+       "panel": null,
+       "teachers": [
+        8
+       ],
+       "rule": "s2"
+      },
+      {
+       "params": {
+        "exam": "CK1",
+        "count": "1",
+        "grade": "12"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 2,
+        "grade_id": 3,
+        "subject_id": 3
+       },
+       "teachers": [
+        7,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK1",
+        "count": "1",
+        "grade": "11"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 1,
+        "grade_id": 2,
+        "subject_id": 3
+       },
+       "teachers": [
+        2,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK1",
+        "count": "1",
+        "grade": "10"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 1,
+        "grade_id": 1,
+        "subject_id": 3
+       },
+       "teachers": [
+        1,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK1",
+        "count": "2",
+        "grade": "10"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 2,
+        "grade_id": 1,
+        "subject_id": 2
+       },
+       "teachers": [
+        10,
+        1,
+        9
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK2",
+        "count": "1",
+        "grade": "12"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 3,
+        "grade_id": 3,
+        "subject_id": 3
+       },
+       "teachers": [
+        3,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK1",
+        "count": "2",
+        "grade": "12"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 1,
+        "grade_id": 3,
+        "subject_id": 2
+       },
+       "teachers": [
+        8,
+        7,
+        3
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK1",
+        "count": "1",
+        "grade": "12"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 1,
+        "grade_id": 3,
+        "subject_id": 3
+       },
+       "teachers": [
+        4,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK2",
+        "count": "2",
+        "grade": "12"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 4,
+        "grade_id": 3,
+        "subject_id": 2
+       },
+       "teachers": [
+        11,
+        3,
+        1
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK1",
+        "count": "2",
+        "grade": "12"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 2,
+        "grade_id": 3,
+        "subject_id": 2
+       },
+       "teachers": [
+        2,
+        11,
+        8
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK1",
+        "count": "1",
+        "grade": "10"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 2,
+        "grade_id": 1,
+        "subject_id": 3
+       },
+       "teachers": [
+        9,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK2",
+        "count": "2",
+        "grade": "12"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 3,
+        "grade_id": 3,
+        "subject_id": 2
+       },
+       "teachers": [
+        8,
+        11,
+        2
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK2",
+        "count": "1",
+        "grade": "11"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 3,
+        "grade_id": 2,
+        "subject_id": 3
+       },
+       "teachers": [
+        5,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK1",
+        "count": "2",
+        "grade": "10"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 1,
+        "grade_id": 1,
+        "subject_id": 2
+       },
+       "teachers": [
+        3,
+        1,
+        2
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK1",
+        "count": "2",
+        "grade": "11"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 1,
+        "grade_id": 2,
+        "subject_id": 2
+       },
+       "teachers": [
+        6,
+        4,
+        5
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK2",
+        "count": "1",
+        "grade": "10"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 3,
+        "grade_id": 1,
+        "subject_id": 3
+       },
+       "teachers": [
+        10,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK2",
+        "count": "2",
+        "grade": "10"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 3,
+        "grade_id": 1,
+        "subject_id": 2
+       },
+       "teachers": [
+        4,
+        9,
+        10
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK2",
+        "count": "2",
+        "grade": "11"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 4,
+        "grade_id": 2,
+        "subject_id": 2
+       },
+       "teachers": [
+        7,
+        4,
+        8
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK2",
+        "count": "1",
+        "grade": "11"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 4,
+        "grade_id": 2,
+        "subject_id": 3
+       },
+       "teachers": [
+        6,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK1",
+        "count": "2",
+        "grade": "11"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 2,
+        "grade_id": 2,
+        "subject_id": 2
+       },
+       "teachers": [
+        5,
+        2,
+        7
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK2",
+        "count": "1",
+        "grade": "12"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 4,
+        "grade_id": 3,
+        "subject_id": 3
+       },
+       "teachers": [
+        8,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK1",
+        "count": "1",
+        "grade": "11"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 2,
+        "grade_id": 2,
+        "subject_id": 3
+       },
+       "teachers": [
+        11,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "GK2",
+        "count": "2",
+        "grade": "11"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 3,
+        "grade_id": 2,
+        "subject_id": 2
+       },
+       "teachers": [
+        1,
+        6,
+        5
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK2",
+        "count": "1",
+        "grade": "10"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 4,
+        "grade_id": 1,
+        "subject_id": 3
+       },
+       "teachers": [
+        8,
+        12
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "exam": "CK2",
+        "count": "2",
+        "grade": "10"
+       },
+       "code": "reviewer_same_campus",
+       "panel": {
+        "exam_id": 4,
+        "grade_id": 1,
+        "subject_id": 2
+       },
+       "teachers": [
+        9,
+        6,
+        10
+       ],
+       "rule": "s3"
+      },
+      {
+       "params": {
+        "setter": "Thầy Nghĩa",
+        "count": "2",
+        "reviewer": "Cô Quí"
+       },
+       "code": "review_relation_repeated",
+       "panel": null,
+       "teachers": [
+        8,
+        12
+       ],
+       "rule": "s5"
+      },
+      {
+       "params": {
+        "exam2": "CK1",
+        "exam1": "GK1",
+        "teacher": "Cô Hiền"
+       },
+       "code": "setter_consecutive",
+       "panel": null,
+       "teachers": [
+        1
+       ],
+       "rule": "s6"
+      },
+      {
+       "params": {
+        "exam2": "CK1",
+        "exam1": "GK1",
+        "teacher": "Cô Lài"
+       },
+       "code": "setter_consecutive",
+       "panel": null,
+       "teachers": [
+        2
+       ],
+       "rule": "s6"
+      },
+      {
+       "params": {
+        "exam2": "GK2",
+        "exam1": "CK1",
+        "teacher": "Cô Lài"
+       },
+       "code": "setter_consecutive",
+       "panel": null,
+       "teachers": [
+        2
+       ],
+       "rule": "s6"
+      },
+      {
+       "params": {
+        "exam2": "CK2",
+        "exam1": "GK2",
+        "teacher": "Cô Na"
+       },
+       "code": "setter_consecutive",
+       "panel": null,
+       "teachers": [
+        6
+       ],
+       "rule": "s6"
+      },
+      {
+       "params": {
+        "exam2": "CK1",
+        "exam1": "GK1",
+        "teacher": "Cô Bình"
+       },
+       "code": "setter_consecutive",
+       "panel": null,
+       "teachers": [
+        7
+       ],
+       "rule": "s6"
+      },
+      {
+       "params": {
+        "exam2": "GK2",
+        "exam1": "CK1",
+        "teacher": "Cô Tú"
+       },
+       "code": "setter_consecutive",
+       "panel": null,
+       "teachers": [
+        9
+       ],
+       "rule": "s6"
+      },
+      {
+       "params": {
+        "exam2": "CK2",
+        "exam1": "GK2",
+        "teacher": "Cô Như"
+       },
+       "code": "setter_consecutive",
+       "panel": null,
+       "teachers": [
+        10
+       ],
+       "rule": "s6"
+      },
+      {
+       "params": {
+        "exam2": "GK2",
+        "exam1": "CK1",
+        "teacher": "Cô Lan"
+       },
+       "code": "setter_consecutive",
+       "panel": null,
+       "teachers": [
+        11
+       ],
+       "rule": "s6"
+      },
+      {
+       "params": {
+        "teacher": "Cô Hiền",
+        "quota": "3.35",
+        "count": "5",
+        "deviation": "+1.65"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        1
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Cô Lài",
+        "quota": "4.47",
+        "count": "5",
+        "deviation": "+0.53"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        2
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Thầy Phúc",
+        "quota": "4.47",
+        "count": "4",
+        "deviation": "-0.47"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        3
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Thầy Lộc",
+        "quota": "4.47",
+        "count": "4",
+        "deviation": "-0.47"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        4
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Cô Thư",
+        "quota": "4.47",
+        "count": "4",
+        "deviation": "-0.47"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        5
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Cô Na",
+        "quota": "4.47",
+        "count": "4",
+        "deviation": "-0.47"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        6
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Cô Bình",
+        "quota": "4.47",
+        "count": "4",
+        "deviation": "-0.47"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        7
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Cô Quí",
+        "quota": "4.47",
+        "count": "6",
+        "deviation": "+1.53"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        8
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Cô Tú",
+        "quota": "4.47",
+        "count": "4",
+        "deviation": "-0.47"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        9
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Cô Như",
+        "quota": "4.47",
+        "count": "4",
+        "deviation": "-0.47"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        10
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "teacher": "Cô Lan",
+        "quota": "4.47",
+        "count": "4",
+        "deviation": "-0.47"
+       },
+       "code": "load_deviation",
+       "panel": null,
+       "teachers": [
+        11
+       ],
+       "rule": "s8"
+      },
+      {
+       "params": {
+        "offset": "1",
+        "teacher": "Cô Lài",
+        "available_exams": "4",
+        "crowding": "2",
+        "tasks": "5",
+        "avoidable": "1"
+       },
+       "code": "exam_crowding",
+       "panel": null,
+       "teachers": [
+        2
+       ],
+       "rule": "s9"
+      },
+      {
+       "params": {
+        "offset": "0",
+        "teacher": "Thầy Phúc",
+        "available_exams": "4",
+        "crowding": "1",
+        "tasks": "4",
+        "avoidable": "1"
+       },
+       "code": "exam_crowding",
+       "panel": null,
+       "teachers": [
+        3
+       ],
+       "rule": "s9"
+      },
+      {
+       "params": {
+        "offset": "0",
+        "teacher": "Thầy Lộc",
+        "available_exams": "4",
+        "crowding": "1",
+        "tasks": "4",
+        "avoidable": "1"
+       },
+       "code": "exam_crowding",
+       "panel": null,
+       "teachers": [
+        4
+       ],
+       "rule": "s9"
+      },
+      {
+       "params": {
+        "offset": "0",
+        "teacher": "Cô Thư",
+        "available_exams": "4",
+        "crowding": "1",
+        "tasks": "4",
+        "avoidable": "1"
+       },
+       "code": "exam_crowding",
+       "panel": null,
+       "teachers": [
+        5
+       ],
+       "rule": "s9"
+      },
+      {
+       "params": {
+        "offset": "0",
+        "teacher": "Cô Na",
+        "available_exams": "4",
+        "crowding": "1",
+        "tasks": "4",
+        "avoidable": "1"
+       },
+       "code": "exam_crowding",
+       "panel": null,
+       "teachers": [
+        6
+       ],
+       "rule": "s9"
+      },
+      {
+       "params": {
+        "offset": "0",
+        "teacher": "Cô Bình",
+        "available_exams": "4",
+        "crowding": "1",
+        "tasks": "4",
+        "avoidable": "1"
+       },
+       "code": "exam_crowding",
+       "panel": null,
+       "teachers": [
+        7
+       ],
+       "rule": "s9"
+      },
+      {
+       "params": {
+        "offset": "0",
+        "teacher": "Cô Tú",
+        "available_exams": "4",
+        "crowding": "1",
+        "tasks": "4",
+        "avoidable": "1"
+       },
+       "code": "exam_crowding",
+       "panel": null,
+       "teachers": [
+        9
+       ],
+       "rule": "s9"
+      },
+      {
+       "params": {
+        "offset": "0",
+        "teacher": "Cô Như",
+        "available_exams": "4",
+        "crowding": "1",
+        "tasks": "4",
+        "avoidable": "1"
+       },
+       "code": "exam_crowding",
+       "panel": null,
+       "teachers": [
+        10
+       ],
+       "rule": "s9"
+      },
+      {
+       "params": {
+        "offset": "0",
+        "teacher": "Cô Lan",
+        "available_exams": "4",
+        "crowding": "1",
+        "tasks": "4",
+        "avoidable": "1"
+       },
+       "code": "exam_crowding",
+       "panel": null,
+       "teachers": [
+        11
+       ],
+       "rule": "s9"
+      }
+     ],
+     "per_teacher": [
+      {
+       "setter": 3,
+       "count": 5,
+       "reviewer": 2,
+       "teacher_id": 1,
+       "quota": 3.348837209302325,
+       "grades_assigned": [
+        1,
+        2,
+        3
+       ]
+      },
+      {
+       "setter": 3,
+       "count": 5,
+       "reviewer": 2,
+       "teacher_id": 2,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        1,
+        2,
+        3
+       ]
+      },
+      {
+       "setter": 2,
+       "count": 4,
+       "reviewer": 2,
+       "teacher_id": 3,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        1,
+        3
+       ]
+      },
+      {
+       "setter": 2,
+       "count": 4,
+       "reviewer": 2,
+       "teacher_id": 4,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        1,
+        2,
+        3
+       ]
+      },
+      {
+       "setter": 2,
+       "count": 4,
+       "reviewer": 2,
+       "teacher_id": 5,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        2
+       ]
+      },
+      {
+       "setter": 2,
+       "count": 4,
+       "reviewer": 2,
+       "teacher_id": 6,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        1,
+        2
+       ]
+      },
+      {
+       "setter": 2,
+       "count": 4,
+       "reviewer": 2,
+       "teacher_id": 7,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        2,
+        3
+       ]
+      },
+      {
+       "setter": 2,
+       "count": 6,
+       "reviewer": 4,
+       "teacher_id": 8,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        1,
+        2,
+        3
+       ]
+      },
+      {
+       "setter": 2,
+       "count": 4,
+       "reviewer": 2,
+       "teacher_id": 9,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        1
+       ]
+      },
+      {
+       "setter": 2,
+       "count": 4,
+       "reviewer": 2,
+       "teacher_id": 10,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        1
+       ]
+      },
+      {
+       "setter": 2,
+       "count": 4,
+       "reviewer": 2,
+       "teacher_id": 11,
+       "quota": 4.4651162790697665,
+       "grades_assigned": [
+        2,
+        3
+       ]
+      },
+      {
+       "setter": 12,
+       "count": 12,
+       "reviewer": 0,
+       "teacher_id": 12,
+       "quota": 12,
+       "grades_assigned": [
+        1,
+        2,
+        3
+       ]
+      }
+     ]
+    },
+    "rules_changed": false,
+    "data_changed": true,
+    "hard_violations_now": [
+     {
+      "teacher": 1,
+      "code": "unqualified_grade",
+      "panel": {
+       "exam_id": 2,
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "params": {
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "rule": "h2"
+     },
+     {
+      "teacher": 1,
+      "code": "teacher_unavailable",
+      "panel": {
+       "exam_id": 2,
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "params": {
+       "exam_id": 2
+      },
+      "rule": "h5"
+     }
+    ]
+   },
+   "ok": true
+  },
+  "import_with_hard_violation_can_apply": true,
+  "invalid_plan_header": "Điều kiện bắt buộc: Vi phạm (3 lỗi)",
+  "cell_menu_items": [
+   "Chọn giáo viên thay thế",
+   "Ghim người này ở ô này",
+   "Cấm người này ở ô này",
+   "Giữ ô này khi tối ưu lại",
+   "Tối ưu lại phần còn lại"
+  ],
+  "invalid_plan_hard_violations": [
+   "h2:unqualified_grade teacher=1 {\"grade_id\":1,\"subject_id\":2}",
+   "h5:teacher_unavailable teacher=1 {\"exam_id\":2}",
+   "h4:max_tasks_per_exam_exceeded teacher=8 {\"exam_id\":4,\"count\":3,\"limit\":2}"
+  ]
+ }
+}

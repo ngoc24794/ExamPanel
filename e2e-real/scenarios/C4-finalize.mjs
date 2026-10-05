@@ -1,0 +1,16 @@
+import { recorder } from '../lib/rec.mjs'; import { OUT_ABS } from '../lib/harness.mjs'; import fs from 'node:fs'; import path from 'node:path';
+const R = recorder('C4'); const S = JSON.parse(fs.readFileSync(path.join(OUT_ABS, 'extracts/C4-grid-structure.json')));
+const a = S['1280x720-light'], b = S['1920x1080-light'];
+const hdr = a.rows[0].map((c) => c.t);
+R.check('C4.header-cell-"Kì thi/khối"', hdr[0] === 'Kì thi/khối', hdr[0], 'Kì thi/khối (DOM text; CSS uppercases it on screen)', ['screenshots/C4-grid-1280x720-light-page.png']);
+R.check('C4.grade-group-headers', hdr.slice(1).join('|') === 'Khối 10|Khối 11|Khối 12', hdr.slice(1), 'Khối 10 | Khối 11 | Khối 12 (spec: grade groups)', ['screenshots/C4-grid-1280x720-light-page.png']);
+R.check('C4.subject-subcolumns-VL-CN', a.rows[1].map((c) => c.t).join() === 'VL,CN,VL,CN,VL,CN', a.rows[1].map((c) => c.t), 'VL,CN per grade');
+const roleRows = a.rows.slice(2, 5).map((r) => r.filter((c) => c.rs === 1).slice(0, 1)[0]?.t); R.check('C4.exam-rows-Đề-Đề-P.Biện', roleRows.join('|') === 'Đề|Đề|P.Biện', roleRows, 'Đề | Đề | P.Biện');
+const examLabels = a.rows.filter((r) => r[0].rs === 3).map((r) => r[0].t); R.check('C4.exam-labels-GK1/CK1/GK2/CK2', examLabels.join() === 'GK1,CK1,GK2,CK2', examLabels, 'Paper header uses codes GK1, CK1, GK2, CK2; app shows full names', ['screenshots/C4-grid-1280x720-light-page.png']);
+const blank = a.rows[3].slice(1).filter((_, i) => i % 2 === 1).map((c) => c.t); R.check('C4.CN-second-Đề-cell-blank', blank.every((x) => x === ''), blank, 'blank cell (paper); app draws "—"');
+const ph = a.prow[0]; R.check('C4.totals-header-columns', ph.join('|') === 'GV|Tổng lượt|Đề|PB|GK1|CK1|GK2|CK2', ph, 'GV | Tổng lượt | Đề | PB | GK1 | CK1 | GK2 | CK2 (app uses exam names)');
+R.check('C4.totals-markers-≥2/≥3', a.prow.some((r) => r.some((c) => /\*\*/.test(c))) && a.prow.some((r) => r.some((c) => /^2\*$/.test(c))), a.prow.slice(1, 4), '"2*" for ≥2 and "3**" for ≥3 per exam (test ids marker-over-2/3 exist)');
+R.check('C4.total-row-60', a.prow[a.prow.length - 1].join('|') === 'Tổng cộng|60|36|24|15|15|15|15', a.prow[a.prow.length - 1], 'Tổng cộng | 60 | 36 | 24 | 15 ×4');
+R.check('C4.fits-1280x720-without-scrolling', a.grid.bottom <= a.vh && a.grid.right <= a.panel.x + 1 && a.panelScrollers.length === 0 ? 'pass' : 'fail', { viewport: [a.vw, a.vh], grid_bottom: a.grid.bottom, grid_right: a.grid.right, panel_x: a.panel.x, panel_bottom: a.panel.bottom, main_scrollHeight: a.scrollers[0]?.sh, main_clientHeight: a.scrollers[0]?.ch }, 'whole grid + totals visible at 1280x720 without scrolling', ['screenshots/C4-grid-1280x720-light-page.png', 'extracts/C4-grid-structure.json']);
+R.check('C4.fits-1920x1080-without-scrolling', b.grid.bottom <= b.vh && b.panelScrollers.length === 0 ? 'pass' : 'fail', { grid_bottom: b.grid.bottom, panel_right: b.panel.right }, 'visible at 1920x1080', ['screenshots/C4-grid-1920x1080-light-page.png']);
+R.check('C4.light-and-dark-themes-render', 'pass', ['screenshots/C4-grid-1280x720-dark-page.png', 'screenshots/C4-grid-1920x1080-dark-page.png'], 'screenshots captured and opened (visual review in findings)');

@@ -1,0 +1,17 @@
+{
+ "label": "Nhanh",
+ "wall_ms": 491,
+ "samples": [
+  {
+   "at": 95,
+   "el": 0,
+   "w": "0%",
+   "cur": "--",
+   "best": "--"
+  }
+ ],
+ "probe_latency": [
+  56,
+  196
+ ]
+}

@@ -221,5 +221,381 @@
   "mock_gap": "Mock hard-violation fixtures may use plain text.",
   "q_notice": "Q sees a code, not who/where.",
   "id": "RA-010"
+ },
+ {
+  "title": "Cancel during optimization still saves partial plans (incl. a 312.36-penalty plan), shows both 'Đã hủy' and 'Đã tạo 3 phương án mới thành công', and closes the dialog",
+  "severity": "S2",
+  "category": "mock-vs-real gap",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C2"
+  ],
+  "repro": "Assignments > Chạy tối ưu > Kỹ > Bắt đầu > after ~0.7 s click 'Hủy bỏ'. Inspect plans table and toasts.",
+  "expected": "phase-8 checklist step 2 and task C2: run stops, 'Đã hủy' only, no plans saved.",
+  "actual": "3 plans were saved (scores 176.36, 176.36 and 312.36 — the last is an unfinished anneal) and both toasts appear within 0.5 s; dialog closes and the first plan opens. Same on a second run: plan count 9 -> 12 after Cancel.",
+  "evidence": [
+   "extracts/C2b-cancel-timeline.json",
+   "extracts/C2.json",
+   "screenshots/C2b-after-cancel-page.png"
+  ],
+  "cause_hypothesis": "crates/core/src/optimize/mod.rs optimize(): on cancel the annealers return their best-so-far and optimize() still returns Ok(plans). RunOptimizeDialog.tsx only treats error code 'cancelled' as a cancel, but only the MOCK API (ui/src/lib/api/mock.ts:1153) ever throws that code; the real backend never does. Fix: service.run_optimize should return AppError cancelled when the flag is set (and the UI must not save).",
+  "mock_gap": "YES — mock throws 'cancelled' so the mock e2e/unit tests pass; real backend returns Ok.",
+  "q_notice": "Q presses Cancel, gets a 'cancelled' message AND three new plans, one of them clearly worse.",
+  "id": "RA-011"
+ },
+ {
+  "title": "Optimization progress bar and best score go backwards with Chuẩn/Kỹ (progress is per parallel wave, not overall)",
+  "severity": "S3",
+  "category": "bug",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C2"
+  ],
+  "repro": "Run Kỹ (16 runs) and sample the dialog every ~200 ms.",
+  "expected": "Progress bar monotonic 0->100 %, 'Điểm tốt nhất' never increases, elapsed time monotonic.",
+  "actual": "Bar goes 92 % -> 40 % -> 100 % -> 49 % -> 28 % ...; best score shown 176.36 then 180.36; 'Thời gian' resets 851 ms -> 404 -> 200 ms. Samples in extracts. (16 runs execute as waves of 4 on this 4-core box; each progress event is that one run's counters.)",
+  "evidence": [
+   "extracts/C2-Ky-samples.json",
+   "extracts/C2.json"
+  ],
+  "cause_hypothesis": "Progress events carry per-run iteration/best/elapsed (anneal.rs progress sink); the dialog divides by one run's iteration budget and shows the latest event. Aggregate across runs or show 'run n/N'. The bar also has no role=progressbar (a11y).",
+  "mock_gap": "Mock emits a single synthetic monotonic stream.",
+  "q_notice": "Progress bar jumps back several times during 'Kỹ'.",
+  "id": "RA-012"
+ },
+ {
+  "title": "Plan compare dialog is subject-blind: wrong 'Khoảng cách sai khác', cells hide the VL reviewer / merge subjects' setters",
+  "severity": "S2",
+  "category": "mock-vs-real gap",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C3"
+  ],
+  "repro": "Golden Q plan (imported) vs optimizer plan #1 > Phân công > So sánh phương án.",
+  "expected": "Distance = number of seats whose teacher differs (39 for this pair, computed from the DB assignments with subject_id); each (exam,grade) cell shows the VL and CN panels separately.",
+  "actual": "'Khoảng cách sai khác: 33 ô thay đổi'; cell GK1/Khối 10 for Q's plan reads 'A: Thầy Nghĩa, Cô Hiền, Cô Lài | PB: Cô Hiền' — the VL reviewer T Phúc is not shown, both subjects' setters are merged; the spec/phase-11 checklist says per-subject. Engine per-rule numbers in the same dialog are correct. No per-teacher differences section exists.",
+  "evidence": [
+   "extracts/C3-compare-dialog.txt",
+   "extracts/C3-engine-plans.json",
+   "extracts/C3.json",
+   "screenshots/C3-compare-dialog-page.png"
+  ],
+  "cause_hypothesis": "ui/src/pages/assignments/PlanCompareModal.tsx comparison useMemo keys by exam+grade+role only (reviewerA = assignA.find(role==='reviewer')) and ignores subject_id; core plan_distance (crates/core/src/optimize/mod.rs) also keys (exam,grade,role,teacher) without subject (36 vs 39 seat-aware).",
+  "mock_gap": "Mock fixtures/tests for compare are single-subject-shaped.",
+  "q_notice": "Compare screen hides part of Q's VL panels and reports a wrong distance.",
+  "id": "RA-013"
+ },
+ {
+  "title": "Q-style grid does not fit 1280x720: Khối 12 columns and last totals column are clipped, page needs vertical scroll",
+  "severity": "S2",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic (layout/CSS widths; WebKitGTK scrollbar/font metrics may shift pixels slightly)",
+  "scenarios": [
+   "C4",
+   "A8"
+  ],
+  "repro": "Golden Q DB, window 1280x720, Phân công > Bảng tổ with any 6-column plan.",
+  "expected": "Layout spec (phase-12 checklist K1.3, task C4): whole grid visible at 1280x720 without scrolling, totals panel attached on the right.",
+  "actual": "Grid table 684 px inside a clipped container: Khối 12 header and VL/CN cells cut off at x~855; totals panel clips 'Cuối kỳ 2'; grid starts at y=364 and ends at y=843 (> 720), main scroller 865 vs 664 px. At 1920x1080 the grid fits but the totals panel still has a horizontal scrollbar overlapping the 'Tổng cộng' row and content is capped at ~1150 px wide.",
+  "evidence": [
+   "extracts/C4.json",
+   "extracts/C4-grid-structure.json",
+   "screenshots/C4-grid-1280x720-light-page.png",
+   "screenshots/C4-grid-1920x1080-dark-page.png"
+  ],
+  "cause_hypothesis": "ui/src/pages/assignments/QPlanGrid.tsx fixed min-widths + header block (title, S-chips, toolbar) occupying ~360 px above the grid; max-w container on AssignmentsPage.",
+  "mock_gap": "Mock e2e runs at 1280x800 viewport and only screenshots; no bounding-box assertion.",
+  "q_notice": "On a 1280x720 laptop Q cannot see Khối 12 without scrolling sideways.",
+  "id": "RA-014"
+ },
+ {
+  "title": "Q-grid deviations from the paper layout: 'Khối Khối 10', exam names instead of GK1/CK1/GK2/CK2, '—' instead of blank second CN 'Đề' cell",
+  "severity": "S3",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C4"
+  ],
+  "repro": "Open any plan in Bảng tổ.",
+  "expected": "Per layout spec: grade groups 'Khối 10..12'; totals columns GK1|CK1|GK2|CK2; CN's second 'Đề' cell blank.",
+  "actual": "Group headers 'Khối Khối 10/11/12' (also RA-003); rows and totals columns use 'Giữa kỳ 1'/'Cuối kỳ 1'/... ; CN second Đề cell contains '—'. Matches: header 'Kì thi/khối', VL/CN sub-columns, Đề/Đề/P.Biện rows, totals GV|Tổng lượt|Đề|PB, '2*'/'3**' markers, T Nghĩa 'cố định' tag, Tổng cộng 60/36/24/15x4.",
+  "evidence": [
+   "extracts/C4.json",
+   "extracts/C4-grid-structure.json"
+  ],
+  "cause_hypothesis": "QPlanGrid uses exam.name not exam.code; placeholder glyph for empty slots.",
+  "mock_gap": "Mock fixture exam names are the same.",
+  "q_notice": "Q's sheet says GK1/CK1; the app says 'Giữa kỳ 1'.",
+  "id": "RA-015"
+ },
+ {
+  "title": "S8 chip prints raw float '2.545454545454545' in the plan summary bar",
+  "severity": "S4",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C4"
+  ],
+  "repro": "Open an optimizer plan; look at the S-chips under 'Tổng điểm phạt'.",
+  "expected": "Rounded units (e.g. 2.55).",
+  "actual": "'S8 : 2.545454545454545 (Không thể giảm thêm)'; the detail view/compare dialog round to 1 decimal (36.4), the total to 2 decimals (260.36) so the visible parts do not add up to the total.",
+  "evidence": [
+   "screenshots/C4-grid-1920x1080-dark-page.png",
+   "extracts/C1-ui-detail-view.txt"
+  ],
+  "cause_hypothesis": "No formatting on units in the chip component.",
+  "mock_gap": "Mock units are integers.",
+  "q_notice": "A 15-digit number in the header.",
+  "id": "RA-016"
+ },
+ {
+  "title": "With a single placeholder campus, S3 adds a constant 144 penalty and puts a warning icon on every VL seat",
+  "severity": "S3",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C1",
+   "C4"
+  ],
+  "repro": "Golden Q DB (one campus 'Chưa phân hiệu'): open any plan.",
+  "expected": "A rule that cannot be improved (campus independence with 1 campus) should not dominate totals or add noise (repo comparison.md also notes S3=36 units for nocampus).",
+  "actual": "S3 = 36 units / 144.0 penalty in every plan (55 % of Q's 260.36); every VL cell shows a soft-violation triangle; users compare totals that are 144 higher than the meaningful number (116.36 for Q's plan).",
+  "evidence": [
+   "extracts/C1-ui-detail-view.txt",
+   "screenshots/C4-grid-1920x1080-dark-page.png",
+   "extracts/repo-tool-task5_comparison.md"
+  ],
+  "cause_hypothesis": "S3 stays enabled by default when campuses==1; suggest auto-disable or hide when only one campus exists.",
+  "mock_gap": "Mock demo has 2-4 campuses.",
+  "q_notice": "Q sees 260 while the real number to compare is 116, and warning triangles everywhere.",
+  "id": "RA-017"
+ },
+ {
+  "title": "'Tạo bản chỉnh sửa' creates the copy but usually leaves the view on the read-only optimizer plan (switches in 2 of 10 runs)",
+  "severity": "S2",
+  "category": "mock-vs-real gap",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Fresh app on a DB with optimizer plans > Phân công > 'Tạo bản chỉnh sửa' > wait 4 s. Repeat in 10 fresh launches.",
+  "expected": "Edit toolbar (undo/redo/save) appears on the new 'Phương án #1 (Chỉnh sửa)' copy every time (phase-8 checklist step 4).",
+  "actual": "Plan 'Phương án #N (Chỉnh sửa)' is saved (history count +1) but the page keeps showing the optimizer plan with the same button; only 2/10 attempts switched. A user clicks again and creates duplicate copies. The checklist also expects a name prompt; the app silently names the copy with a hard-coded Vietnamese suffix.",
+  "evidence": [
+   "extracts/C5-copy-switch-attempts.json",
+   "extracts/C5.json"
+  ],
+  "cause_hypothesis": "AssignmentsPage.tsx: handleCreateEditableCopy calls setSelectedPlanId(newId) right after mutateAsync, while the effect at lines 87-99 resets selection to plans[0] when the new id is not yet in the cached plans list (query invalidation race). Mock API resolves synchronously so it always works there.",
+  "mock_gap": "YES — mock suite passes.",
+  "q_notice": "Q presses 'Tạo bản chỉnh sửa' and nothing seems to happen.",
+  "id": "RA-018"
+ },
+ {
+  "title": "Candidate/replace Δ-score is computed for the OTHER setter seat when DB positions differ from the engine's internal setter order (evaluate_candidates disagrees with full evaluate)",
+  "severity": "S2",
+  "category": "bug",
+  "area": "core",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Golden Q DB (optimizer plan #1 or any plan whose setters are not stored in teacher-id order). Via UI: open an editable copy, click GK1/Khối 10/VL first 'Đề' cell (C Như, position 0) and read Δ for Cô Lài (+11.0, Tổng 187.4), Thầy Phúc (+5.0), Thầy Lộc (+5.0), Cô Như (+9.0 although she already holds the seat). Independently call evaluate_assignments after really replacing that seat: +18.0 (194.36) for all three, 0 for Cô Như. Doing the same for position 1 returns +18 — the values swap: incremental(position 0) == full(replace position 1) and vice-versa (table in extracts).",
+  "expected": "delta_score/new_total == full evaluate() of the edited plan (documented 'correctness guarantee' in eval_edit.rs and unit test test_evaluate_candidates_delta_matches_full_eval).",
+  "actual": "For valid candidates, Δ is computed for the other setter seat of the same panel; the candidate for the current holder shows a non-zero Δ; ordering of the list (sorted by Δ) is therefore wrong. Hard-violation flags are correct (12/12 match an independent re-check). After 'Áp dụng' and Save the true score is 194.36, not the previewed 181.4.",
+  "evidence": [
+   "extracts/C5f-incremental-seat-mapping.json",
+   "extracts/C5e-evaluate-candidates-vs-full.json",
+   "extracts/C5d-candidate-delta-vs-engine.json",
+   "extracts/C5c-live-feedback.json",
+   "extracts/C5.json"
+  ],
+  "cause_hypothesis": "crates/core/src/optimize/eval_edit.rs evaluate_candidates(): SlotRole::Setter1/Setter2 taken from IncrementalState::new(), which seems to order a panel's setters canonically (e.g. by teacher id) instead of by Assignment.position, while the hard-violation path replaces the n-th setter in array order. Same mapping would affect evaluate_swap and reoptimize 'keep slot' (check C6).",
+  "mock_gap": "Mock candidate evaluation is a JS stub; Rust unit test uses solver-generated plans whose order already matches.",
+  "q_notice": "The suggested replacement says +5 but really costs +18; the best-looking candidate is not the best.",
+  "id": "RA-019"
+ },
+ {
+  "title": "Header score and 'Hợp lệ' do not update after edits (replace or drag-swap); an invalid drag-swap is accepted silently and Save fails with 'Dữ liệu đã tồn tại, không thể tạo trùng lặp'",
+  "severity": "S2",
+  "category": "bug",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Editable copy: (a) replace GK1/10/VL first Đề by Thầy Phúc -> header stays 'Tổng điểm phạt: 176.36' (true 194.36 appears only after Save). (b) Drag C Na (CK1/10 VL P.Biện slot) onto T Lộc's seat in GK2/11 VL so C Na is both setter and reviewer of that panel -> header still 'Hợp lệ (0 vi phạm)', S-chips unchanged; 'Lưu thay đổi' fails with toast 'Dữ liệu đã tồn tại, không thể tạo trùng lặp' and the edit stays dirty.",
+  "expected": "phase-8 step 5/6: score and hard-violation breakdown update immediately; a swap that creates a duplicate teacher in a panel is rejected or flagged (evaluate_swap IPC exists); save error is understandable.",
+  "actual": "No live update; invalid swap applied; cryptic DB-constraint message (assignments PK is (plan,exam,grade,subject,teacher) — role is not part of the key, so the same teacher cannot be setter and reviewer of a panel; the UI never checks first).",
+  "evidence": [
+   "extracts/C5c-live-feedback.json",
+   "extracts/C5b-save-modes.json",
+   "screenshots/C5b-swap-page.png",
+   "screenshots/C5-after-save-page.png"
+  ],
+  "cause_hypothesis": "QPlanGrid.handleSwapSlots calls onUpdateAssignments without evaluate_swap/evaluate_assignments; AssignmentsPage keeps summary from loaded plan until save.",
+  "mock_gap": "Mock plans are never invalid after swap; mock e2e does not assert header after edit.",
+  "q_notice": "Q drags names around and the score at the top does not move; one swap cannot be saved and shows a database-style message.",
+  "id": "RA-020"
+ },
+ {
+  "title": "Candidate dialog shows raw engine codes as reasons (e.g. 'H4: max_setter_tasks_per_exam_exceeded', 'H2: unqualified_grade') instead of Vietnamese text",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5",
+   "E2"
+  ],
+  "repro": "Editable copy > click any seat > look at disabled candidates.",
+  "expected": "Reasons in words (phase-8 checklist step 6.4: 'kèm lý do vi phạm ràng buộc cứng').",
+  "actual": "Codes such as 'H1: duplicate_teacher_in_panel, H4: max_tasks_per_exam_exceeded, H4: max_setter_tasks_per_exam_exceeded' (also 'h4: max_tasks_per_exam_exceeded' in import preview, RA-010).",
+  "evidence": [
+   "extracts/C5-candidate-dialog.txt",
+   "extracts/C5.json",
+   "screenshots/C5-candidate-modal-page.png"
+  ],
+  "cause_hypothesis": "CandidateSelectModal prints v.rule + v.code with no i18n lookup.",
+  "mock_gap": "Mock returns pre-translated text.",
+  "q_notice": "Reasons look like programmer codes.",
+  "id": "RA-021"
+ },
+ {
+  "title": "'Dữ liệu đã đổi' (stale) badge/banner do not appear after changing data until the window is reloaded",
+  "severity": "S2",
+  "category": "mock-vs-real gap",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Open Phân công (plans listed) > Lịch bận > mark Cô Hiền absent for CK1 > back to Phân công > Lịch sử phương án.",
+  "expected": "phase-8 step 11: badge 'Dữ liệu đã đổi' + banner right after returning.",
+  "actual": "Backend list_plans reports is_stale=true for all 4 plans (and mark-final is correctly blocked with plan_stale), but the history list shows no badge and no banner after SPA navigation; they appear only after location.reload().",
+  "evidence": [
+   "extracts/C5h-stale-badge.json",
+   "screenshots/C5h-history-after-change-page.png",
+   "screenshots/C5h-history-after-reload-page.png"
+  ],
+  "cause_hypothesis": "React Query cache for plans list/plan status is not invalidated by mutations in Unavailability/Teachers/Exams (features/plans hooks).",
+  "mock_gap": "Mock API computes stale synchronously on read, mock e2e passes.",
+  "q_notice": "After editing teachers, the old plan still looks current until the app is restarted; only 'final' marking refuses.",
+  "id": "RA-022"
+ },
+ {
+  "title": "Marking a teacher unavailable produces an extra spurious H2 'unqualified_grade' hard violation for the same seat",
+  "severity": "S3",
+  "category": "bug",
+  "area": "core",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Golden Q plan (0 violations). Lịch bận: mark Cô Hiền absent in CK1 (she holds CK1/Khối 10 VL setter). Evaluate plan.",
+  "expected": "exactly one violation: h5 teacher_unavailable (exam 2).",
+  "actual": "two: h5:teacher_unavailable AND h2:unqualified_grade for teacher 1 / CK1 / grade 1 / VL, although Cô Hiền teaches Khối 10 (teacher_grades 1,2,3) and has VL competency; baseline and 'C Quí override cleared only' runs show no h2.",
+  "evidence": [
+   "extracts/C5j-hard-violation-attribution.json",
+   "extracts/C5i.json"
+  ],
+  "cause_hypothesis": "crates/core validate H2 probably uses an availability-aware eligibility helper, so absence is reported twice with a wrong reason.",
+  "mock_gap": "Mock validation is canned.",
+  "q_notice": "Violation count and explanation are inflated; the 'unqualified' reason is untrue.",
+  "id": "RA-023"
+ },
+ {
+  "title": "Plan history shows 'Invalid Date' for every plan (WebKitGTK cannot parse SQLite 'YYYY-MM-DD HH:MM:SS')",
+  "severity": "S3",
+  "category": "bug",
+  "area": "ui",
+  "engine": "webkitgtk-specific (Chromium/WebView2 parses this format; fix is still cheap: normalise to ISO 8601 'T…Z')",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Phân công > Lịch sử phương án.",
+  "expected": "Creation date/time.",
+  "actual": "'… | Điểm phạt: 176.36 | Invalid Date | Mở phương án'.",
+  "evidence": [
+   "extracts/C5g-history-before.json",
+   "screenshots/C5g-history-page.png"
+  ],
+  "cause_hypothesis": "PlansHistoryList.tsx new Date(plan.created_at).toLocaleString() on a datetime('now') string without 'T'/'Z'; Safari/WebKit returns Invalid Date.",
+  "mock_gap": "Mock created_at values are ISO strings; Chromium proxy would not show it.",
+  "q_notice": "On WebView2 probably fine (unverified); on Linux/macOS builds every plan has no date.",
+  "id": "RA-024"
+ },
+ {
+  "title": "Mark-final errors raise two toasts: the translated sentence plus the raw code ('plan_stale' / 'plan_invalid'); hard-violation count differs between toast and header",
+  "severity": "S4",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Try 'Đánh dấu chính thức' on a stale plan / a plan with violations.",
+  "expected": "One translated toast.",
+  "actual": "Toasts: 'Không thể đánh dấu chính thức khi dữ liệu bài toán đã thay đổi' + 'plan_stale'; for the invalid plan 'còn vi phạm điều kiện bắt buộc (1 vi phạm)' + 'plan_invalid' while the header says 'Vi phạm (3 lỗi)' (toast uses params.count default 1 when params lack count).",
+  "evidence": [
+   "extracts/C5.json",
+   "extracts/C5g-invalid-plan-hard-violations.json"
+  ],
+  "cause_hypothesis": "PlansHistoryList.handleMarkFinal reads errorObj.params?.count ?? violations ?? 1 — backend plan_invalid params differ; global error handler also toasts the code.",
+  "mock_gap": "Mock errors carry count.",
+  "q_notice": "Confusing double message with the wrong number.",
+  "id": "RA-025"
+ },
+ {
+  "title": "Re-optimize around kept seats: setter order (Đề 1/Đề 2) of kept seats is not preserved, new plan reuses an existing name, kept-seat banner only exists in 'Chi tiết' view, k/effort not selectable",
+  "severity": "S3",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C6"
+  ],
+  "repro": "Optimizer plan #1 > keep 5 seats via cell menu (GK1/10 VL Đề1 C Như, Đề2 C Na, CK1/11 VL P.Biện, GK2/12 CN P.Biện, CK2/10 VL Đề1) > 'Tối ưu lại phần còn lại'.",
+  "expected": "phase-8 step 9: banner 'Đã chọn giữ: N ô', choose number of plans, kept seats unchanged.",
+  "actual": "Kept (teacher, panel, role) pairs are preserved 5/5 (good) but only 2/5 are at the same slot position (the 3 setter seats come back in another order); the new plan is again named 'Phương án #1' (two plans with the same name in history); in the default 'Bảng tổ' view only small bookmark icons mark the kept seats (banner 'Đã chọn giữ: 5 ô' exists only in 'Chi tiết'); the dialog offers no k/effort (fixed k=1, 4x50k iterations).",
+  "evidence": [
+   "extracts/C6.json",
+   "screenshots/C6-kept-page.png",
+   "screenshots/C6-kept-detail-page.png"
+  ],
+  "cause_hypothesis": "reoptimize_from pins by (exam,grade,subject,teacher,role) not position and the annealer re-emits setters in canonical order (same ordering as RA-019); ReoptimizeDialog hard-codes request.",
+  "mock_gap": "Mock keeps positions.",
+  "q_notice": "Q keeps C Như as Đề 1 and gets her back as Đề 2.",
+  "id": "RA-026"
+ },
+ {
+  "title": "Statistics heatmaps are subject-blind and truncated to the first 11 teachers; columns are numbered, T Nghĩa is missing",
+  "severity": "S2",
+  "category": "bug",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C7"
+  ],
+  "repro": "Golden Q DB > Thống kê > choose Q's plan > scroll to 'Ma trận tần suất đồng hành' and 'Ma trận phản biện - ra đề'.",
+  "expected": "checklist phase-8 step 12 / task C7: matrices for all teachers; counts equal independent counts per 24 subject panels (VL 2+1, CN 1+1) — e.g. Cô Hiền & Cô Lài share 1 panel in Q's plan.",
+  "actual": "Per-teacher table is correct (12 rows; totals/Ra đề/Phản biện/exams/q equal DB counts and the Excel 'Thống kê' sheet). Both heatmaps list only 11 teachers (Thầy Nghĩa, the 12th, is absent) with column headers '1..11' (teacher ids) instead of names; values do not match any per-panel recount (e.g. Hiền–Lài shows 2, true 1; 56 of 110 co-working cells and 11 of 110 review cells differ from the per-subject-panel recount). Panel summary says 'Tổng số: 12 ban đề (3 thành viên)' although there are 24 panels (VL 3 members, CN 2).",
+  "evidence": [
+   "extracts/C7.json",
+   "extracts/C7-ui-tables.json",
+   "screenshots/C7-stats-bottom-page.png",
+   "extracts/C7probe-text.txt"
+  ],
+  "cause_hypothesis": "ui/src/pages/StatisticsPage.tsx: coWorkingMatrix keys panels by `${exam_id}_${grade_id}` (merges VL and CN, double-counts teachers present in both), reviewRelationMatrix uses panelAssign.find(role==='reviewer') (first reviewer only), campusMixStats groups by exam×grade, and the matrices render `teachers.slice(0, 11)` with header {teacher.id}.",
+  "mock_gap": "Mock demo = 11 teachers single subject, so truncation and merge are invisible.",
+  "q_notice": "T Nghĩa (12 duties) is missing from the heatmaps and the pair counts do not match Q's sheet.",
+  "id": "RA-027"
  }
 ]
