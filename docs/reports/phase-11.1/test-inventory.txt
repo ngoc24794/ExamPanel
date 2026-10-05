@@ -1,0 +1,68 @@
+# Test Inventory & Coverage Restoration Report (Task 1)
+
+## 1. Test Counts Summary per Crate
+
+| Crate | Phase 9 (Release) | Phase 11 (HEAD before fix) | Phase 11.1 (Now) | Delta vs Phase 9 | Delta vs Phase 11 |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| `exam-panel-core` | 77 (75 ok, 2 ign) | 59 (57 ok, 2 ign) | 84 (82 ok, 2 ign) | +7 (+7 ok) | +25 (+25 ok) |
+| `exam-panel-storage` | 20 (20 ok) | 28 (28 ok) | 31 (31 ok) | +11 (+11 ok) | +3 (+3 ok) |
+| `exam-panel-service` | 27 (27 ok) | 31 (31 ok) | 31 (31 ok) | +4 (+4 ok) | 0 |
+| **Total Rust Tests** | **124 (122 ok, 2 ign)** | **118 (116 ok, 2 ign)** | **146 (144 ok, 2 ign)** | **+22 (+22 ok)** | **+28 (+28 ok)** |
+
+---
+
+## 2. Inventory of Tests Dropped in Phase 11 (`bfda6a2`) and Restoration Status
+
+During commit `bfda6a2` ("feat(core): multi-subject panels, competency domain..."), 21 tests were temporarily removed or commented out during the domain refactoring to multi-subject panels. All 21 tests have been fully restored and updated to conform to multi-subject / competency domain structures:
+
+1. `feasibility::tests::test_degenerate_database_diagnostics` -> RESTORED (verified diagnostic on empty DB).
+2. `feasibility::tests::test_diagnostic_capacity_and_warnings` -> RESTORED (verified capacity shortfalls).
+3. `feasibility::tests::test_diagnostic_excess_pinned_setters_and_reviewers_and_pins` -> RESTORED (verified pin overflow diagnostics).
+4. `feasibility::tests::test_diagnostic_pinned_teacher_ineligible_due_to_unavailability` -> RESTORED (verified pinned unavailability conflicts).
+5. `feasibility::tests::test_diagnostic_pinned_quota_exceeded` -> RESTORED (verified pin quota diagnostics).
+6. `feasibility::tests::test_diagnostic_pinned_teacher_multiple_panels` -> RESTORED (verified multiple panel pin conflicts).
+7. `feasibility::tests::test_diagnostic_structural_error` -> RESTORED (verified structural error diagnostics).
+8. `score::bounds::tests::test_s6_exact_per_teacher_minimum_function` -> RESTORED (verified closed-form min S6 per teacher).
+9. `score::tests::test_lower_bounds_calculation` -> RESTORED (verified lower bounds calculation across rules).
+10. `score::tests::test_s3_independent_reviewer` -> RESTORED (verified S3 campus reviewer independence).
+11. `score::tests::test_s4_setter_pair_repeated` -> RESTORED (verified S4 setter pair repetitions).
+12. `score::tests::test_s5_review_relation_repeated` -> RESTORED (verified S5 review relation repetitions).
+13. `score::tests::test_s6_setter_consecutive` -> RESTORED (verified S6 consecutive setter relief).
+14. `score::tests::test_s7_grade_rotation` -> RESTORED (verified S7 grade rotation penalty).
+15. `score::tests::test_s8_load_deviation` -> RESTORED (verified S8 quadratic load deviation).
+16. `solver::tests::test_solve_demo_seed_returns_valid_solution` -> RESTORED (verified solver on demo seed).
+17. `solver::tests::test_solver_determinism_and_multi_seed_variation` -> RESTORED (verified determinism and seed sensitivity).
+18. `solver::tests::test_solver_stops_early_on_infeasible_problem` -> RESTORED (verified early failure on infeasible instances).
+19. `solver::tests::test_performance_timing_demo_seed` -> RESTORED (verified solve_hard timing benchmark).
+20. `solver::tests::test_performance_synthetic_40_teacher_instance` -> RESTORED (verified 40-teacher benchmark).
+21. Solver backtrack counting: `stats.backtracks += 1` -> RESTORED inside unplace loop.
+
+---
+
+## 3. New Phase 11 / Phase 11.1 Tests Added and Verified
+
+1. `solver::tests::test_cross_check_300_tiny_instances`:
+   Exhaustive multi-subject cross-check on 300 instances comparing backtracking solver with brute-force state search.
+   - Result: 201 feasible, 99 infeasible, 68 backtracks (33.8% of feasible).
+   - Agreement: 100% (0 discrepancies). See `docs/reports/phase-11.1/crosscheck-stats.txt`.
+2. `score::bounds::tests::test_lower_bounds_validity_exhaustive_tiny_instances`:
+   Tested 200 feasible multi-subject tiny instances with 2 subjects, verifying that exhaustive minimum scores for S1, S6, S8 always equal or exceed the computed lower bounds.
+   - Result: 200/200 valid. See `docs/reports/phase-11.1/bounds-validity.txt`.
+3. `domain::quota::tests::test_quota_v2_regression_legacy_demo_equals_phase_3`:
+   Asserts exact quota v2 parity on legacy demo ($q_t = 36/11$, $\text{lo} = 2$, $\text{hi} = 4$).
+4. `domain::forced::tests::test_forced_placement_cascade_propagation`:
+   Tests propagation where forcing reviewer role cascades setter role to remaining candidate.
+5. `domain::forced::tests::test_forced_placement_infeasible_zero_candidates`:
+   Asserts informative infeasible error when zero candidates available.
+6. `domain::forced::tests::test_forced_placement_infeasible_excess_pins`:
+   Asserts error when PIN locks exceed seat count.
+7. `optimize::tests::test_d1_incremental_state_consistency_demo_10k_moves`:
+   Verifies incremental vs full score equality and checks `validate_assignments` after all 10,000 accepted moves on legacy demo.
+8. `optimize::tests::test_d1_incremental_state_consistency_q_shaped_10k_moves`:
+   Verifies incremental vs full score equality and checks `validate_assignments` after all 10,000 accepted moves on Q-shaped dataset.
+9. `optimize::tests::test_d1_incremental_state_consistency_synthetic_40_10k_moves`:
+   Verifies incremental vs full score equality and checks `validate_assignments` after all 10,000 accepted moves on 40-teacher 2-subject synthetic dataset.
+10. `storage::migrations::tests::test_upgrade_from_v1_to_v5_preserves_data`:
+    Verifies migration chain from v1 schema directly to v5 schema preserving legacy data.
+11. `storage::migrations::tests::test_legacy_equivalence_v4_to_v5`:
+    Verifies that a valid v4 schedule upgraded to v5 preserves 36 assignments, has zero hard violations, and produces the exact same score. See `docs/reports/phase-11.1/migration-tests.txt`.

@@ -1,0 +1,65 @@
+ExamPanel
+Phân công ra đề
+
+Tổng quan
+Giáo viên
+Phân hiệu
+Môn thi
+Chuyên môn
+Kỳ thi
+Lịch bận
+Quy tắc
+Phân công
+Thống kê
+Cài đặt
+ExamPanel
+v0.1.0
+Phân công
+
+Có cảnh báo
+12
+
+2026 - 2027
+
+VI
+
+Hệ Thống
+Không gian phân công ban đề
+2026 - 2027
+Quản lý phương án phân công, chạy thuật toán tối ưu, chỉnh sửa ma trận và so sánh phương án.
+Chạy tối ưu
+So sánh phương án
+Nhập từ bảng có sẵn
+Lịch sử phương án (0)
+Bảng tổ
+Chi tiết
+Chưa có phương án nào cho năm học này. Hãy nhấn 'Chạy tối ưu' để bắt đầu.
+Bắt đầu tối ưu
+Nhập từ bảng có sẵn
+Nhập bảng phân công có sẵn
+Nhập ma trận phân công từ tệp Excel hoặc dán vùng dữ liệu (TSV) từ bảng tính.
+Hợp lệ
+Tổng số vị trí nạp: 60
+Điểm phạt ước tính: 260.4
+
+Đối soát giáo viên (12)
+
+Cảnh báo & Lỗi (0)
+
+Danh sách phân công (60)
+Giáo viên	Cách gọi	Số lượt nạp	Số trong tệp	Ra đề	Phản biện	Trạng thái
+Cô Hiền	C Hiền	5	5	3	2	Khớp
+Cô Lài	C Lài	5	5	3	2	Khớp
+Thầy Phúc	T Phúc	4	4	2	2	Khớp
+Thầy Lộc	T Lộc	4	4	2	2	Khớp
+Cô Thư	C Thư	4	4	2	2	Khớp
+Cô Na	C Na	4	4	2	2	Khớp
+Cô Bình	C Bình	4	4	2	2	Khớp
+Cô Quí	C Quí	6	6	2	4	Khớp
+Cô Tú	C Tú	4	4	2	2	Khớp
+Cô Như	C Như	4	4	2	2	Khớp
+Cô Lan	C Lan	4	4	2	2	Khớp
+Thầy Nghĩa	T Nghĩa	12	12	12	0	Khớp
+Quay lại
+Áp dụng phương án
+Close

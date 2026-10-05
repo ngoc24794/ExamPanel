@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import {
   AlertOctagon,
   AlertTriangle,
+  ArrowRightLeft,
   Check,
   CheckCircle2,
   Lock as LockIcon,
@@ -57,6 +58,7 @@ import {
   useRulePresets,
   useRuleSettings,
   useSchoolYears,
+  useSubjects,
   useTeachers,
   useUnavailabilities,
   useSaveRuleSettings,
@@ -70,6 +72,7 @@ import {
   type Lock,
   type LockKind,
   type Role,
+  type RuleKey,
   type RuleSetting,
   type QuotaPreviewItem,
 } from '@/lib/api'
@@ -89,6 +92,7 @@ export const RulesPage: React.FC = () => {
 
   const { data: grades = [] } = useGrades()
   const { data: exams = [] } = useExams(currentYear?.id)
+  const { data: subjects = [] } = useSubjects(currentYear?.id)
   const { data: teachersWithGrades = [] } = useTeachers(currentYear?.id)
   const { data: unavailabilities = [] } = useUnavailabilities(currentYear?.id)
   const { data: serverRuleSettings = [] } = useRuleSettings(currentYear?.id)
@@ -146,7 +150,12 @@ export const RulesPage: React.FC = () => {
     setIsDirty(true)
     setDraftSettings((prev) => {
       const idx = prev.findIndex((s) => s.key === key)
-      if (idx === -1) return prev
+      if (idx === -1) {
+        return [
+          ...prev,
+          { key: key as RuleKey, enabled: true, weight: 100, params: {}, ...updates },
+        ]
+      }
       const copy = [...prev]
       copy[idx] = { ...copy[idx], ...updates }
       return copy
@@ -237,6 +246,7 @@ export const RulesPage: React.FC = () => {
   const [lockDialogOpen, setLockDialogOpen] = React.useState(false)
   const [lockExamId, setLockExamId] = React.useState<string>('')
   const [lockGradeId, setLockGradeId] = React.useState<string>('')
+  const [lockSubjectId, setLockSubjectId] = React.useState<string>('')
   const [lockTeacherId, setLockTeacherId] = React.useState<string>('')
   const [lockRole, setLockRole] = React.useState<string>('any')
   const [lockKind, setLockKind] = React.useState<LockKind>('pin')
@@ -245,6 +255,7 @@ export const RulesPage: React.FC = () => {
   const handleOpenCreateLock = () => {
     setLockExamId(exams[0]?.id.toString() || '')
     setLockGradeId(grades[0]?.id.toString() || '')
+    setLockSubjectId(subjects[0]?.id.toString() || '')
     setLockTeacherId('')
     setLockRole('any')
     setLockKind('pin')
@@ -259,6 +270,7 @@ export const RulesPage: React.FC = () => {
       await createLockMutation.mutateAsync({
         exam_id: Number(lockExamId),
         grade_id: Number(lockGradeId),
+        subject_id: Number(lockSubjectId) || subjects[0]?.id || 1,
         teacher_id: Number(lockTeacherId),
         role: lockRole === 'any' ? null : (lockRole as Role),
         kind: lockKind,
@@ -453,12 +465,11 @@ export const RulesPage: React.FC = () => {
       {/* TAB 1: HARD RULES (H1-H7) */}
       {activeTab === 'hard' && (
         <div className="space-y-4" data-testid="hard-rules-section">
-          {/* Always-on Hard Rules: H1, H2, H3, H5, H6 */}
+          {/* Always-on Hard Rules: H1, H2, H5, H6 */}
           <div className="grid gap-4 md:grid-cols-2">
             {[
               { id: 'h1', titleKey: 'rules.h1Title', descKey: 'rules.h1Desc' },
               { id: 'h2', titleKey: 'rules.h2Title', descKey: 'rules.h2Desc' },
-              { id: 'h3', titleKey: 'rules.h3Title', descKey: 'rules.h3Desc' },
               { id: 'h5', titleKey: 'rules.h5Title', descKey: 'rules.h5Desc' },
               { id: 'h6', titleKey: 'rules.h6Title', descKey: 'rules.h6Desc' },
             ].map(({ id, titleKey, descKey }) => (
@@ -481,7 +492,37 @@ export const RulesPage: React.FC = () => {
               </Card>
             ))}
 
-            {/* H4 Toggle */}
+            {/* H3 Toggle */}
+            <Card className="bg-card border-border">
+              <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <ShieldAlert className="h-4 w-4 text-primary" />
+                  <span>{t('rules.h3Title')}</span>
+                </CardTitle>
+                <Switch
+                  checked={getRule('h3')?.enabled ?? true}
+                  onCheckedChange={(checked) => updateRule('h3', { enabled: checked })}
+                  data-testid="toggle-h3"
+                />
+              </CardHeader>
+              <CardContent className="p-4 pt-1 space-y-2 text-xs">
+                <p className="text-muted-foreground">{t('rules.h3Desc')}</p>
+                {!(getRule('h3')?.enabled ?? true) && (
+                  <div
+                    className="p-2.5 rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 flex items-start gap-2"
+                    data-testid="h3-warning-box"
+                  >
+                    <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                    <span>
+                      {t('rules.h3Warning') ||
+                        'Tắt H3 cho phép các hội đồng chỉ gồm giáo viên cùng một phân hiệu.'}
+                    </span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* H4 Toggle & Limits */}
             <Card className="bg-card border-border">
               <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -503,6 +544,52 @@ export const RulesPage: React.FC = () => {
                   >
                     <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                     <span>{t('rules.h4Warning')}</span>
+                  </div>
+                )}
+                {(getRule('h4')?.enabled ?? true) && (
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-foreground">
+                        {t('rules.h4MaxTasksPerExam') || 'Tối đa nhiệm vụ / đợt'}:
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        className="w-full h-7 px-2 rounded border border-input bg-background text-xs"
+                        value={Number(getRule('h4')?.params?.max_tasks_per_exam ?? 2)}
+                        onChange={(e) =>
+                          updateRule('h4', {
+                            params: {
+                              ...getRule('h4')?.params,
+                              max_tasks_per_exam: Number(e.target.value) || 2,
+                            },
+                          })
+                        }
+                        data-testid="input-h4-max-tasks"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-foreground">
+                        {t('rules.h4MaxSetterPerExam') || 'Tối đa ra đề / đợt'}:
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        className="w-full h-7 px-2 rounded border border-input bg-background text-xs"
+                        value={Number(getRule('h4')?.params?.max_setter_per_exam ?? 1)}
+                        onChange={(e) =>
+                          updateRule('h4', {
+                            params: {
+                              ...getRule('h4')?.params,
+                              max_setter_per_exam: Number(e.target.value) || 1,
+                            },
+                          })
+                        }
+                        data-testid="input-h4-max-setter"
+                      />
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -551,7 +638,7 @@ export const RulesPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 2: SOFT RULES (S1-S8) & PRESETS */}
+      {/* TAB 2: SOFT RULES (S1-S10) & PRESETS */}
       {activeTab === 'soft' && (
         <div className="space-y-6" data-testid="soft-rules-section">
           {/* Preset Buttons */}
@@ -594,11 +681,21 @@ export const RulesPage: React.FC = () => {
                   <Sparkles className="h-3 w-3 text-primary" />
                   <span>{t('rules.presetTeamDiversity')}</span>
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleApplyPreset('allow_task_crowding')}
+                  className="h-8 text-xs gap-1.5"
+                  data-testid="preset-crowding-btn"
+                >
+                  <ArrowRightLeft className="h-3 w-3 text-primary" />
+                  <span>{t('rules.presetAllowTaskCrowding')}</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* S1-S8 Sliders and Cards */}
+          {/* S1-S10 Sliders and Cards */}
           <div className="grid gap-4 md:grid-cols-2">
             {[
               {
@@ -648,6 +745,18 @@ export const RulesPage: React.FC = () => {
                 titleKey: 'rules.s8Title',
                 descKey: 'rules.s8Desc',
                 exKey: 'rules.s8Example',
+              },
+              {
+                key: 's9',
+                titleKey: 'rules.s9Title',
+                descKey: 'rules.s9Desc',
+                exKey: 'rules.s9Example',
+              },
+              {
+                key: 's10',
+                titleKey: 'rules.s10Title',
+                descKey: 'rules.s10Desc',
+                exKey: 'rules.s10Example',
               },
             ].map(({ key, titleKey, descKey, exKey }) => {
               const rule = getRule(key)
@@ -704,6 +813,53 @@ export const RulesPage: React.FC = () => {
                         data-testid={`slider-${key}`}
                       />
                     </div>
+
+                    {key === 's1' && (
+                      <div className="pt-2 border-t border-border space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-medium text-foreground">
+                            {t('rules.s1MaxTasksMode') || 'Giới hạn nhiệm vụ/đợt thi'}:
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateRule('s1', {
+                                  params: { ...rule?.params, max_tasks_per_exam: null },
+                                })
+                              }
+                              className={`px-2 py-0.5 rounded text-[11px] font-medium border ${
+                                rule?.params?.max_tasks_per_exam == null
+                                  ? 'bg-primary text-primary-foreground border-primary'
+                                  : 'bg-muted text-muted-foreground border-border'
+                              }`}
+                              data-testid="s1-mode-auto"
+                            >
+                              {t('rules.s1ModeAuto') || 'Tự động (Auto)'}
+                            </button>
+                            <input
+                              type="number"
+                              min="1"
+                              max="5"
+                              placeholder="Số"
+                              value={
+                                (rule?.params?.max_tasks_per_exam as
+                                  number | undefined) ?? ''
+                              }
+                              onChange={(e) => {
+                                const val =
+                                  e.target.value === '' ? null : Number(e.target.value)
+                                updateRule('s1', {
+                                  params: { ...rule?.params, max_tasks_per_exam: val },
+                                })
+                              }}
+                              className="w-16 h-6 px-1.5 text-xs rounded border border-input bg-background font-mono"
+                              data-testid="s1-max-tasks-input"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )
@@ -889,7 +1045,7 @@ export const RulesPage: React.FC = () => {
             <DialogTitle>{t('locks.createLock')}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveLock} className="space-y-4 pt-2">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">
                   {t('locks.exam')}
@@ -926,6 +1082,27 @@ export const RulesPage: React.FC = () => {
                     {grades.map((g) => (
                       <SelectItem key={g.id} value={g.id.toString()}>
                         {g.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">
+                  {t('subjects.title', { defaultValue: 'Môn học' })}
+                </label>
+                <Select value={lockSubjectId} onValueChange={setLockSubjectId}>
+                  <SelectTrigger
+                    className="text-xs bg-background"
+                    data-testid="lock-subject-select"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((s) => (
+                      <SelectItem key={s.id} value={s.id.toString()}>
+                        {s.name} ({s.code})
                       </SelectItem>
                     ))}
                   </SelectContent>

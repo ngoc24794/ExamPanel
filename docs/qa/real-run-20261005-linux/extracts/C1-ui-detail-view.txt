@@ -1,0 +1,357 @@
+ExamPanel
+Phân công ra đề
+
+Tổng quan
+Giáo viên
+Phân hiệu
+Môn thi
+Chuyên môn
+Kỳ thi
+Lịch bận
+Quy tắc
+Phân công
+Thống kê
+Cài đặt
+ExamPanel
+v0.1.0
+Phân công
+
+Có cảnh báo
+12
+
+2026 - 2027
+
+VI
+
+Hệ Thống
+Không gian phân công ban đề
+2026 - 2027
+Quản lý phương án phân công, chạy thuật toán tối ưu, chỉnh sửa ma trận và so sánh phương án.
+Chạy tối ưu
+So sánh phương án
+Nhập từ bảng có sẵn
+Lịch sử phương án (1)
+Bảng tổ
+Chi tiết
+Nhập từ bảng của tổ
+Chỉnh tay
+
+
+Xuất Excel (.xlsx)
+In / Xuất PDF
+Tổng điểm phạt: 260.36
+260.36
+Điều kiện bắt buộc: Hợp lệ (0 vi phạm)
+S1
+10.0
+S2
+3.0
+S3
+144.0
+S4
+0.0
+S5
+6.0
+S6
+16.0
+S7
+0.0
+S8
+36.4
+S9
+45.0
+S10
+0.0
+Môn học:
+common.all (2)
+VL - Vật lí
+CN - Công nghệ
+Kỳ thi / Khối	Khối 10	Khối 11	Khối 12
+Giữa kỳ 1
+GK1	
+VL (Vật lí)
+2+1
+S3
+Đề
+C Hiền
+
+Đề
+C Lài
+
+PB
+T Phúc
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Hiền
+
+VL (Vật lí)
+2+1
+S3
+Đề
+T Lộc
+
+Đề
+C Thư
+
+PB
+C Na
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Lài
+
+VL (Vật lí)
+2+1
+S3
+Đề
+C Bình
+
+Đề
+T Phúc
+
+PB
+C Quí
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+T Lộc
+
+Cuối kỳ 1
+CK1	
+VL (Vật lí)
+2+1
+S3
+Đề
+C Hiền
+
+Đề
+C Tú
+
+PB
+C Như
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Tú
+
+VL (Vật lí)
+2+1
+S3
+Đề
+C Lài
+
+Đề
+C Bình
+
+PB
+C Thư
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Lan
+
+VL (Vật lí)
+2+1
+S3
+Đề
+C Lan
+
+Đề
+C Quí
+
+PB
+C Lài
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Bình
+
+Giữa kỳ 2
+GK2	
+VL (Vật lí)
+2+1
+S3
+Đề
+C Tú
+
+Đề
+C Như
+
+PB
+T Lộc
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Như
+
+VL (Vật lí)
+2+1
+S3
+Đề
+C Na
+
+Đề
+C Thư
+
+PB
+C Hiền
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Thư
+
+VL (Vật lí)
+2+1
+S3
+Đề
+C Lan
+
+Đề
+C Lài
+
+PB
+C Quí
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+T Phúc
+
+Cuối kỳ 2
+CK2	
+VL (Vật lí)
+2+1
+S3
+Đề
+C Na
+
+Đề
+C Như
+
+PB
+C Tú
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Quí
+
+VL (Vật lí)
+2+1
+S3
+Đề
+T Lộc
+
+Đề
+C Quí
+
+PB
+C Bình
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Na
+
+VL (Vật lí)
+2+1
+S3
+Đề
+T Phúc
+
+Đề
+C Hiền
+
+PB
+C Lan
+
+CN (Công nghệ)
+1+1
+S3
+Đề
+T Nghĩa
+
+PB
+C Quí
+
+Danh sách giáo viên
+12
+Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được phân công trên ma trận.
+Cô Hiền
+5 lượt
+Cô Lài
+5 lượt
+Thầy Phúc
+4 lượt
+Thầy Lộc
+4 lượt
+Cô Thư
+4 lượt
+Cô Na
+4 lượt
+Cô Bình
+4 lượt
+Cô Quí
+6 lượt
+Cô Tú
+4 lượt
+Cô Như
+4 lượt
+Cô Lan
+4 lượt
+Thầy Nghĩa
+12 lượt
+Đã nhập bảng phân công thành công

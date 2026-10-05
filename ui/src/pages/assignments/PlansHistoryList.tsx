@@ -1,8 +1,6 @@
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  type PlanSummary,
-} from '@/lib/api'
+import { type PlanSummary } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
@@ -148,15 +146,23 @@ export function PlansHistoryList({
           >
             <div className="space-y-1.5 flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-semibold text-foreground truncate">{plan.name}</span>
+                <span className="font-semibold text-foreground truncate">
+                  {plan.name}
+                </span>
                 {plan.is_final && (
-                  <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs">
+                  <Badge
+                    variant="default"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs"
+                  >
                     <Star className="h-3 w-3 fill-current" />
                     {t('assignments.finalBadge')}
                   </Badge>
                 )}
                 {plan.is_stale && (
-                  <Badge variant="destructive" className="gap-1 text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40">
+                  <Badge
+                    variant="destructive"
+                    className="gap-1 text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40"
+                  >
                     <AlertTriangle className="h-3 w-3" />
                     {t('assignments.staleBadge')}
                   </Badge>
@@ -180,13 +186,14 @@ export function PlansHistoryList({
                       : '--'}
                   </strong>
                 </span>
-                <span>
-                  {new Date(plan.created_at).toLocaleString()}
-                </span>
+                <span>{new Date(plan.created_at).toLocaleString()}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 self-end md:self-center" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="flex items-center gap-1.5 self-end md:self-center"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Button
                 variant={isActive ? 'default' : 'outline'}
                 size="sm"
@@ -199,20 +206,34 @@ export function PlansHistoryList({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" data-testid={`plan-menu-${plan.id}`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    data-testid={`plan-menu-${plan.id}`}
+                  >
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 bg-card border-border">
-                  <DropdownMenuItem onClick={() => handleMarkFinal(plan)} className="gap-2">
+                  <DropdownMenuItem
+                    onClick={() => handleMarkFinal(plan)}
+                    className="gap-2"
+                  >
                     <CheckCircle className="h-4 w-4 text-emerald-600" />
                     <span>{t('assignments.markFinal')}</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleOpenRename(plan)} className="gap-2">
+                  <DropdownMenuItem
+                    onClick={() => handleOpenRename(plan)}
+                    className="gap-2"
+                  >
                     <Edit2 className="h-4 w-4" />
                     <span>{t('assignments.rename')}</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDuplicate(plan)} className="gap-2">
+                  <DropdownMenuItem
+                    onClick={() => handleDuplicate(plan)}
+                    className="gap-2"
+                  >
                     <Copy className="h-4 w-4" />
                     <span>{t('assignments.duplicateForEdit')}</span>
                   </DropdownMenuItem>
@@ -269,7 +290,11 @@ export function PlansHistoryList({
               Bạn có chắc chắn muốn xóa phương án này? Hành động này không thể hoàn tác.
             </p>
             <DialogFooter>
-              <Button variant="outline" size="sm" onClick={() => setDeleteConfirmId(null)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDeleteConfirmId(null)}
+              >
                 {t('common.cancel')}
               </Button>
               <Button

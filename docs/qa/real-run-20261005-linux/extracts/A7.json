@@ -1,0 +1,125 @@
+{
+ "id": "A7",
+ "started": "2026-10-05T05:01:05.220Z",
+ "checks": [
+  {
+   "step": "A7.user_version-latest",
+   "result": "pass",
+   "observed": {
+    "before": 4,
+    "after": 5
+   },
+   "expected": "user_version 5 (migrations.rs latest)",
+   "evidence": []
+  },
+  {
+   "step": "A7.rows-preserved",
+   "result": "pass",
+   "observed": [],
+   "expected": "no table loses rows",
+   "evidence": []
+  },
+  {
+   "step": "A7.teachers-identical",
+   "result": "pass",
+   "observed": {
+    "n_before": 12,
+    "n_after": 12
+   },
+   "expected": "identical teacher rows",
+   "evidence": []
+  },
+  {
+   "step": "A7.plans-identical",
+   "result": "pass",
+   "observed": {
+    "before": [
+     {
+      "id": 1,
+      "name": "Phương án v4 mẫu",
+      "source": "optimizer",
+      "is_final": 1
+     }
+    ],
+    "after": [
+     {
+      "id": 1,
+      "name": "Phương án v4 mẫu",
+      "source": "optimizer",
+      "is_final": 1
+     }
+    ]
+   },
+   "expected": "identical plan rows",
+   "evidence": []
+  },
+  {
+   "step": "A7.automatic-pre-migration-backup",
+   "result": "fail",
+   "observed": [],
+   "expected": "a pre-migration backup in data/backups (task expectation; SPEC/ADR do not promise it)",
+   "evidence": []
+  },
+  {
+   "step": "A7.ui-shows-teachers",
+   "result": "pass",
+   "observed": {
+    "shown": 12,
+    "total": 12
+   },
+   "expected": "all teachers visible",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "before": {
+   "user_version": 4,
+   "counts": {
+    "assignments": 36,
+    "campuses": 4,
+    "exams": 4,
+    "grades": 3,
+    "locks": 1,
+    "plans": 1,
+    "rule_settings": 15,
+    "school_years": 1,
+    "settings": 3,
+    "teacher_grades": 36,
+    "teachers": 12,
+    "unavailability": 1
+   }
+  },
+  "after": {
+   "user_version": 5,
+   "counts": {
+    "assignments": 36,
+    "campuses": 4,
+    "exams": 4,
+    "grades": 3,
+    "locks": 1,
+    "plans": 1,
+    "rule_settings": 15,
+    "school_years": 1,
+    "settings": 3,
+    "subjects": 1,
+    "teacher_competencies": 24,
+    "teacher_grades": 36,
+    "teachers": 12,
+    "unavailability": 1
+   }
+  },
+  "assignments_text_head": "ExamPanel\nPhân công ra đề\n\nTổng quan\nGiáo viên\nPhân hiệu\nMôn thi\nChuyên môn\nKỳ thi\nLịch bận\nQuy tắc\nPhân công\nThống kê\nCài đặt\nExamPanel\nv0.1.0\nPhân công\n\nCó cảnh báo\n1\n\n2026-2027\n\nVI\n\nSáng\nKhông gian phân công ban đề\n2026-2027\nQuản lý phương án phân công, chạy thuật toán tối ưu, chỉnh sửa ma trận và so sánh phương án.\nChạy tối ưu\nSo sánh phương án\nNhập từ bảng có sẵn\nLịch sử phương án (1)\nBảng tổ\nChi tiết\nPhương án v4 mẫu\nChính thức\nMáy tạo\nTạo bản chỉnh sửa\nXuất Excel (.xlsx)\nIn / Xuất PDF\nTổng điểm phạt: 0\nĐiều kiện bắt buộc: Hợp lệ (0 vi phạm)\nKÌ THI/KHỐI\tKhối Khối 10\tKhối Khối 11\tKhối Khối 12\nCHUNG\tCHUNG\tCHUNG\nGiữa kỳ 1\nĐề\t\nLê Văn C\n\nHoàng Văn E\n\nTrần Thị B\n\nĐề\t\nDương Thị K\n\nNgô Văn I\n\nMai Thị M\n\nP.Biện\t\nHoàng Văn E\n\nLý Văn L\n\nVũ Thị F\n\nCuối kỳ 1\nĐề\t\nLê Văn C\n\nTrần Thị B\n\nPhạm Thị D\n\n",
+  "app_info": {
+   "identifier": "vn.exampanel.app",
+   "version": "0.1.0",
+   "db_path": "/home/user/ExamPanel/.tools/qa-run/A7-2/app/data/exam-panel.db",
+   "mode": "portable",
+   "build_date": "2026-10-05",
+   "in_trial_mode": false,
+   "commit_hash": "5a19e0df",
+   "data_dir": "/home/user/ExamPanel/.tools/qa-run/A7-2/app/data",
+   "name": "ExamPanel",
+   "is_portable": true
+  }
+ }
+}

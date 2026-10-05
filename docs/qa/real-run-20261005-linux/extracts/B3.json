@@ -1,0 +1,586 @@
+{
+ "id": "B3",
+ "started": "2026-10-05T05:11:30.371Z",
+ "checks": [
+  {
+   "step": "B3.campus-create",
+   "result": "pass",
+   "observed": [
+    {
+     "code": "TST",
+     "name": "Ph\u00e2n hi\u1ec7u th\u1eed nghi\u1ec7m"
+    }
+   ],
+   "expected": "campus TST in DB",
+   "evidence": []
+  },
+  {
+   "step": "B3.subject-create",
+   "result": "pass",
+   "observed": [
+    {
+     "code": "TST",
+     "name": "M\u00f4n th\u1eed",
+     "setters": 2,
+     "reviewers": 1,
+     "min_campuses": 1
+    }
+   ],
+   "expected": "subject TST 2+1",
+   "evidence": []
+  },
+  {
+   "step": "B3.subject-duplicate-code-rejected",
+   "result": "pass",
+   "observed": {
+    "n": 1,
+    "toast_text": "\u0111\u00e3 t\u1ed3n t\u1ea1i, kh\u00f4ng th\u1ec3 t\u1ea1o tr\u00f9ng l\u1eb7p"
+   },
+   "expected": "only one TST",
+   "evidence": []
+  },
+  {
+   "step": "B3.competency-cycle",
+   "result": "pass",
+   "observed": [
+    "\u0110\u1ec1:Theo kh\u1ed1i d\u1ea1y",
+    "\u0110\u1ec1:M\u1ecdi kh\u1ed1i",
+    "[{\"subject_id\":2,\"role\":\"reviewer\",\"grade_scope\":\"taught\"},{\"subject_id\":2,\"role\":\"setter\",\"grade_scope\":\"any\"}]",
+    "\u0110\u1ec1:T\u1eaft",
+    "[{\"subject_id\":2,\"role\":\"reviewer\",\"grade_scope\":\"taught\"}]",
+    "\u0110\u1ec1:Theo kh\u1ed1i d\u1ea1y",
+    "[{\"subject_id\":2,\"role\":\"reviewer\",\"grade_scope\":\"taught\"},{\"subject_id\":2,\"role\":\"setter\",\"grade_scope\":\"taught\"}]"
+   ],
+   "expected": "taught -> all -> off -> taught, persisted each click",
+   "evidence": []
+  },
+  {
+   "step": "B3.teacher-create-overrides",
+   "result": "pass",
+   "observed": [
+    {
+     "code": "THU1",
+     "full_name": "L\u00ea V\u0103n T\u00e1m",
+     "display_name": "Th\u1ea7y T\u00e1m (To\u00e1n)",
+     "quota_override": 6,
+     "max_tasks_per_exam_override": 1
+    }
+   ],
+   "expected": "row with display name + overrides 6/1",
+   "evidence": []
+  },
+  {
+   "step": "B3.teacher-subline-cach-goi",
+   "result": "pass",
+   "observed": [
+    "C\u00e1ch g\u1ecdi: C B\u00ecnh",
+    "C\u00e1ch g\u1ecdi: C Hi\u1ec1n",
+    "C\u00e1ch g\u1ecdi: C L\u00e0i"
+   ],
+   "expected": "sub-line \"C\u00e1ch g\u1ecdi: Th\u1ea7y T\u00e1m (To\u00e1n)\" (phase-11 checklist K3 step 4)",
+   "evidence": []
+  },
+  {
+   "step": "B3.forced-badge-T-Nghia",
+   "result": "pass",
+   "observed": [
+    "C\u1ed1 \u0111\u1ecbnh: 12"
+   ],
+   "expected": "badge \"C\u1ed1 \u0111\u1ecbnh: 12\" (phase-11 checklist K3 step 5)",
+   "evidence": []
+  },
+  {
+   "step": "B3.exam-create-and-reorder",
+   "result": "pass",
+   "observed": {
+    "before_move": [
+     "GK1",
+     "CK1",
+     "GK2",
+     "CK2",
+     "TST1"
+    ],
+    "after_move": [
+     "GK1",
+     "CK1",
+     "GK2",
+     "TST1",
+     "CK2"
+    ]
+   },
+   "expected": "TST1 created, move-up changes order",
+   "evidence": []
+  },
+  {
+   "step": "B3.unavailability-toggle",
+   "result": "pass",
+   "observed": {
+    "rows": [
+     {
+      "teacher_id": 1,
+      "exam_id": 1,
+      "reason": null
+     }
+    ],
+    "cell": "V\u1eafng"
+   },
+   "expected": "row for teacher 1 / exam 1",
+   "evidence": []
+  },
+  {
+   "step": "B3.rules-h3-off-saved",
+   "result": "pass",
+   "observed": {
+    "before": [
+     {
+      "rule_key": "h3",
+      "enabled": 1,
+      "params_json": "{\"enabled\":true}"
+     },
+     {
+      "rule_key": "h4",
+      "enabled": 1,
+      "params_json": "{\"max_setter_per_exam\":1,\"max_tasks_per_exam\":2}"
+     }
+    ],
+    "after": [
+     {
+      "rule_key": "h3",
+      "enabled": 0,
+      "params_json": "{\"enabled\":true}"
+     },
+     {
+      "rule_key": "h4",
+      "enabled": 1,
+      "params_json": "{\"max_setter_per_exam\":1,\"max_tasks_per_exam\":2}"
+     }
+    ],
+    "warnBox": true
+   },
+   "expected": "H3 enabled flag flips in DB; yellow warning box shown",
+   "evidence": []
+  },
+  {
+   "step": "B3.lock-create",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 1,
+     "exam_id": 1,
+     "grade_id": 1,
+     "subject_id": 2,
+     "teacher_id": 2,
+     "role": null,
+     "kind": "pin"
+    }
+   ],
+   "expected": "a lock row exists (pin C\u00f4 Hi\u1ec1n GK1/10/VL)",
+   "evidence": []
+  },
+  {
+   "step": "B3.persistence-db-identical-after-restart",
+   "result": "pass",
+   "observed": {
+    "before": {
+     "campuses": [
+      {
+       "code": "CPH"
+      },
+      {
+       "code": "TST"
+      }
+     ],
+     "subjects": [
+      {
+       "code": "VL"
+      },
+      {
+       "code": "CN"
+      },
+      {
+       "code": "TST"
+      }
+     ],
+     "comp1": [
+      {
+       "role": "reviewer",
+       "grade_scope": "taught"
+      },
+      {
+       "role": "setter",
+       "grade_scope": "taught"
+      }
+     ],
+     "teachers": [
+      {
+       "code": "THU1",
+       "quota_override": 6,
+       "max_tasks_per_exam_override": 1
+      }
+     ],
+     "exams": [
+      {
+       "code": "GK1"
+      },
+      {
+       "code": "CK1"
+      },
+      {
+       "code": "GK2"
+      },
+      {
+       "code": "TST1"
+      },
+      {
+       "code": "CK2"
+      }
+     ],
+     "un": [
+      {
+       "teacher_id": 1,
+       "exam_id": 1
+      }
+     ],
+     "rules": [
+      {
+       "rule_key": "h3",
+       "enabled": 0,
+       "params_json": "{\"enabled\":true}"
+      }
+     ],
+     "locks": [
+      {
+       "teacher_id": 2
+      }
+     ]
+    },
+    "after": {
+     "campuses": [
+      {
+       "code": "CPH"
+      },
+      {
+       "code": "TST"
+      }
+     ],
+     "subjects": [
+      {
+       "code": "VL"
+      },
+      {
+       "code": "CN"
+      },
+      {
+       "code": "TST"
+      }
+     ],
+     "comp1": [
+      {
+       "role": "reviewer",
+       "grade_scope": "taught"
+      },
+      {
+       "role": "setter",
+       "grade_scope": "taught"
+      }
+     ],
+     "teachers": [
+      {
+       "code": "THU1",
+       "quota_override": 6,
+       "max_tasks_per_exam_override": 1
+      }
+     ],
+     "exams": [
+      {
+       "code": "GK1"
+      },
+      {
+       "code": "CK1"
+      },
+      {
+       "code": "GK2"
+      },
+      {
+       "code": "TST1"
+      },
+      {
+       "code": "CK2"
+      }
+     ],
+     "un": [
+      {
+       "teacher_id": 1,
+       "exam_id": 1
+      }
+     ],
+     "rules": [
+      {
+       "rule_key": "h3",
+       "enabled": 0,
+       "params_json": "{\"enabled\":true}"
+      }
+     ],
+     "locks": [
+      {
+       "teacher_id": 2
+      }
+     ]
+    }
+   },
+   "expected": "same business rows after restart",
+   "evidence": []
+  },
+  {
+   "step": "B3.persistence-ui-after-restart",
+   "result": "pass",
+   "observed": {
+    "teachers": true,
+    "exams": true,
+    "h3_toggle": "false",
+    "subjects": true
+   },
+   "expected": "teacher, exam, subject visible; H3 toggle off",
+   "evidence": []
+  },
+  {
+   "step": "B3.rules-h4-fields-and-h3-warning",
+   "result": "pass",
+   "observed": {
+    "h4": {
+     "tasks": "2",
+     "setter": "1"
+    },
+    "h3_before": "false",
+    "warning_when_off": false,
+    "warning_when_on": true
+   },
+   "expected": "H4 defaults 2/1; yellow warning box only when H3 is off (phase-11 step 4.2)",
+   "evidence": []
+  },
+  {
+   "step": "B3.rules-s1-auto-and-s9-s10",
+   "result": "pass",
+   "observed": {
+    "has_S9_S10": true,
+    "s1_auto_button": true,
+    "s1_numeric_input": true
+   },
+   "expected": "S1 auto/numeric; S9 and S10 cards exist (phase-11 step 4.3)",
+   "evidence": []
+  },
+  {
+   "step": "B3.rules-presets-change-weights-as-documented",
+   "result": "pass",
+   "observed": {
+    "base_s1_s8_s9": [
+     "10",
+     "8",
+     "5"
+    ],
+    "workload_s1_s8_s9": [
+     "12",
+     "16",
+     "8"
+    ],
+    "diversity_s3_s4_s5_s10": [
+     "8",
+     "12",
+     "12",
+     "6"
+    ],
+    "crowding_s9": "0 (off)",
+    "balanced_s9": "5"
+   },
+   "expected": "workload raises S1,S8,S9; diversity raises S3,S4,S5,S10; crowding turns S9 down/off; balanced restores defaults (phase-11 step 4.4)",
+   "evidence": [
+    "extracts/B3b-presets-weights.json"
+   ]
+  },
+  {
+   "step": "B3.rules-balanced-restores-default-soft-weights",
+   "result": "pass",
+   "observed": {
+    "balanced_soft": {
+     "s1": "10",
+     "s10": "4",
+     "s2": "3",
+     "s3": "4",
+     "s4": "6",
+     "s5": "6",
+     "s6": "2",
+     "s7": "1",
+     "s8": "8",
+     "s9": "5"
+    },
+    "initial_soft": {
+     "s1": "10",
+     "s10": "4",
+     "s2": "3",
+     "s3": "4",
+     "s4": "6",
+     "s5": "6",
+     "s6": "2",
+     "s7": "1",
+     "s8": "8",
+     "s9": "5"
+    }
+   },
+   "expected": "S1..S10 weights == defaults after \"C\u00e2n b\u1eb1ng\" (my first expectation compared H3 too: initial DB had H3 OFF but the preset switches H3 back ON \u2014 recorded below)",
+   "evidence": [
+    "extracts/B3b-presets-weights.json"
+   ]
+  },
+  {
+   "step": "B3.competencies-bulk-clear-and-assign-all-persist-footer-updates",
+   "result": "pass",
+   "observed": {
+    "rows_before": 34,
+    "after_clear": 0,
+    "after_assign_all": 44,
+    "footer": [
+     "Th\u1ed1ng k\u00ea \u0111\u1ee7 \u0111i\u1ec1u ki\u1ec7n:V\u1eadt l\u00ed:11 ra \u0111\u1ec1|11 ph\u1ea3n bi\u1ec7nC\u00f4ng ngh\u1ec7:1 ra \u0111\u1ec1|11 ph\u1ea3n bi\u1ec7n",
+     "Th\u1ed1ng k\u00ea \u0111\u1ee7 \u0111i\u1ec1u ki\u1ec7n:V\u1eadt l\u00ed:0 ra \u0111\u1ec1|0 ph\u1ea3n bi\u1ec7nC\u00f4ng ngh\u1ec7:0 ra \u0111\u1ec1|0 ph\u1ea3n bi\u1ec7n",
+     "Th\u1ed1ng k\u00ea \u0111\u1ee7 \u0111i\u1ec1u ki\u1ec7n:V\u1eadt l\u00ed:10 ra \u0111\u1ec1|10 ph\u1ea3n bi\u1ec7nC\u00f4ng ngh\u1ec7:10 ra \u0111\u1ec1|10 ph\u1ea3n bi\u1ec7n"
+    ],
+    "indicator_after_assign": "C\u00f3 c\u1ea3nh b\u00e1o 2 ",
+    "confirm_dialog_seen": false
+   },
+   "expected": "bulk actions persist at once; footer counts update (phase-11 step 2.5/2.6)",
+   "evidence": [
+    "extracts/B3b.json"
+   ]
+  },
+  {
+   "step": "B3.competencies-search-filter",
+   "result": "pass",
+   "observed": {
+    "teacher_ids_visible_after_search_Qu\u00ed": [
+     "8"
+    ]
+   },
+   "expected": "one teacher row",
+   "evidence": []
+  },
+  {
+   "step": "B3.feasibility-sheet-forced-placements",
+   "result": "pass",
+   "observed": {
+    "forced_group_present": true,
+    "mentions_of_T_Nghia": 12,
+    "head": "Trung t\u00e2m ki\u1ec3m tra t\u00ednh kh\u1ea3 thi | KH\u1ea2 THI | Chi ti\u1ebft c\u00e1c c\u1ea3nh b\u00e1o v\u00e0 \u0111i\u1ec1u ki\u1ec7n ch\u01b0a th\u1ecfa m\u00e3n cho n\u0103m h\u1ecdc hi\u1ec7n t\u1ea1i. (2026 - 2027) | T\u1ea5t c\u1ea3 c\u00e1c \u0111i\u1ec1u ki\u1ec7n v\u00e0 d\u1eef li\u1ec7u \u0111\u1ec1u th\u1ecfa m\u00e3n. | feasibility.forcedPlacementsTitle | 12 | feasibility.forcedPlacementsDesc | Th\u1ea7y Ngh\u0129a | GK1 \u2022 Kh\u1ed1i 10 \u2022 CN \u2022 Ra \u0111\u1ec1 | Th\u1ea7y Ngh\u0129a | GK1 \u2022 Kh\u1ed1i"
+   },
+   "expected": "lists forced seats of T Ngh\u0129a (teacher, exam, grade, subject, role) (phase-11 step 5)",
+   "evidence": [
+    "extracts/B3b-feasibility-sheet.txt",
+    "screenshots/B3b-feasibility-sheet-page.png"
+   ]
+  },
+  {
+   "step": "B3.assignments-subject-filter-narrows-matrix",
+   "result": "pass",
+   "observed": {
+    "res": {
+     "all": {
+      "setter_lines": 36,
+      "reviewer_lines": 24,
+      "len": 1412
+     },
+     "VL": {
+      "setter_lines": 24,
+      "reviewer_lines": 12,
+      "len": 691
+     },
+     "CN": {
+      "setter_lines": 12,
+      "reviewer_lines": 12,
+      "len": 593
+     }
+    },
+    "raw_label": [
+     "common.all (2)"
+    ]
+   },
+   "expected": "seat lines: all 36 setters + 24 reviewers; VL filter 24 + 12; CN filter 12 + 12 (my first regex counted block titles that the filtered view omits)",
+   "evidence": [
+    "extracts/B3c-subject-filter.json"
+   ]
+  }
+ ],
+ "notes": {
+  "lock_dialog_comboboxes": 6,
+  "lock_teacher_options": [
+   {
+    "tx": "C\u00f4 Hi\u1ec1n (V\u1eafng k\u1ef3 thi n\u00e0y)",
+    "dis": "true"
+   },
+   {
+    "tx": "C\u00f4 L\u00e0i",
+    "dis": null
+   },
+   {
+    "tx": "Th\u1ea7y Ph\u00fac",
+    "dis": null
+   },
+   {
+    "tx": "Th\u1ea7y L\u1ed9c",
+    "dis": null
+   },
+   {
+    "tx": "C\u00f4 Th\u01b0 (Kh\u00f4ng d\u1ea1y kh\u1ed1i n\u00e0y)",
+    "dis": "true"
+   },
+   {
+    "tx": "C\u00f4 Na",
+    "dis": null
+   },
+   {
+    "tx": "C\u00f4 B\u00ecnh (Kh\u00f4ng d\u1ea1y kh\u1ed1i n\u00e0y)",
+    "dis": "true"
+   },
+   {
+    "tx": "C\u00f4 Qu\u00ed (Kh\u00f4ng d\u1ea1y kh\u1ed1i n\u00e0y)",
+    "dis": "true"
+   },
+   {
+    "tx": "C\u00f4 T\u00fa",
+    "dis": null
+   },
+   {
+    "tx": "C\u00f4 Nh\u01b0",
+    "dis": null
+   },
+   {
+    "tx": "C\u00f4 Lan (Kh\u00f4ng d\u1ea1y kh\u1ed1i n\u00e0y)",
+    "dis": "true"
+   },
+   {
+    "tx": "Th\u1ea7y Ngh\u0129a",
+    "dis": null
+   },
+   {
+    "tx": "L\u00ea V\u0103n T\u00e1m",
+    "dis": null
+   }
+  ],
+  "s9_slider": {
+   "before": "5",
+   "after": "12",
+   "max_attr": "20"
+  },
+  "bulk_clear_confirm_dialog": null,
+  "subject_filter_options": [
+   "common.all",
+   "V\u1eadt l\u00ed (VL)",
+   "C\u00f4ng ngh\u1ec7 (CN)"
+  ],
+  "forced_items_count": 13,
+  "presets_touch_hard_rule_flags": {
+   "initial_h3": "100 (off)",
+   "after_workload_h3": "100",
+   "after_diversity_h3": "100",
+   "after_crowding_h3": "100",
+   "after_balanced_h3": "100"
+  }
+ }
+}

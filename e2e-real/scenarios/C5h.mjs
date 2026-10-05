@@ -1,0 +1,25 @@
+import { prepareRunDir, withApp, sleep, OUT_ABS } from '../lib/harness.mjs';
+import { recorder } from '../lib/rec.mjs';
+import { clickTid, tid } from '../lib/ui.mjs';
+import fs from 'node:fs'; import path from 'node:path';
+const R = recorder('C5');
+const run = prepareRunDir('C5h', { portable: true, seedDb: path.resolve('../.tools/golden/q-plans.db') });
+const out = {};
+const badges = (app) => app.b.execute(() => [...document.querySelectorAll('[data-testid^="plan-item-"]')].map((e) => ({ id: e.getAttribute('data-testid'), stale: /Dữ liệu đã đổi/.test(e.innerText) })));
+await withApp({ scenario: 'C5h', run }, async (app) => {
+  await app.nav('/assignments'); await sleep(1500); await clickTid(app.b, 'history-plans-button'); await sleep(700); out.before = await badges(app); await app.b.keys('Escape'); await sleep(400);
+  await app.nav('/unavailability'); await sleep(900); await clickTid(app.b, 'unavail-cell-1-2'); await sleep(900);
+  const st = await app.invoke('plan_status', { id: 2 }); out.plan_status_keys = st.ok ? Object.keys(st.v) : st; out.is_stale_backend = st.ok ? st.v.is_stale ?? st.v.stale : null;
+  const lp = await app.invoke('list_plans', { schoolYearId: 1 }); out.list_plans_is_stale = lp.ok ? lp.v.map((p) => [p.id, p.is_stale]) : lp;
+  await app.nav('/assignments'); await sleep(1500);
+  out.banner_text = await app.b.execute(() => document.querySelector('[data-testid="assignments-page"]').innerText.match(/(Dữ liệu đã đổi|thay đổi|lỗi thời)[^\n]*/g));
+  await clickTid(app.b, 'history-plans-button'); await sleep(700); out.after_spa_nav = await badges(app); await app.shot('C5h-history-after-change', { screen: false }); await app.b.keys('Escape');
+  await app.b.execute(() => location.reload()); await sleep(3000); await app.ensureHook();
+  await app.nav('/assignments'); await sleep(1500); out.banner_after_reload = await app.b.execute(() => document.querySelector('[data-testid="assignments-page"]').innerText.match(/(Dữ liệu đã đổi|thay đổi|lỗi thời)[^\n]*/g));
+  await clickTid(app.b, 'history-plans-button'); await sleep(700); out.after_reload = await badges(app); await app.shot('C5h-history-after-reload', { screen: false });
+});
+fs.writeFileSync(path.join(OUT_ABS, 'extracts/C5h-stale-badge.json'), JSON.stringify(out, null, 1)); console.log(JSON.stringify(out, null, 1));
+const backendStale = JSON.stringify(out.list_plans_is_stale).includes('true');
+R.check('C5.stale-flag-from-backend', backendStale, out.list_plans_is_stale, 'list_plans reports is_stale=true after unavailability change', ['extracts/C5h-stale-badge.json']);
+R.check('C5.stale-badge-visible-after-spa-navigation', out.after_spa_nav.some((b) => b.stale), out.after_spa_nav, 'badge "Dữ liệu đã đổi" visible after returning to Phân công', ['extracts/C5h-stale-badge.json', 'screenshots/C5h-history-after-change-page.png']);
+R.check('C5.stale-badge-visible-after-reload', out.after_reload.some((b) => b.stale), out.after_reload, 'badge visible after reload', ['extracts/C5h-stale-badge.json']);

@@ -1,0 +1,8 @@
+
+(process:15218): dconf-WARNING **: 04:56:22.268: Unable to open /root/.nix-profile/share/dconf/profile/user: Permission denied
+
+(ExamPanel:15220): dconf-WARNING **: 04:56:22.393: Unable to open /root/.nix-profile/share/dconf/profile/user: Permission denied
+
+(process:15290): dconf-WARNING **: 04:56:23.081: Unable to open /root/.nix-profile/share/dconf/profile/user: Permission denied
+
+Session terminated, killing shell... ...killed.

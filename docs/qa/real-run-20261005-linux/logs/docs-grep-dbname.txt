@@ -1,0 +1,10 @@
+docs/release/v0.1.0-checklist.md:19:  - [ ] Thư mục `data/` được tạo tự động ngay cạnh `ExamPanel.exe` trên USB (chứa `exampanel.db`, `logs/`, `backups/`).
+docs/release/v0.1.0-checklist.md:89:- [ ] Chép tệp `exampanel.db` từ phiên bản Phase 9 vào thư mục dữ liệu của bản v0.1.0.
+docs/user-guide/vi/08-che-do-dung-thu.md:33:2. Hệ thống tự động chuyển kết nối trở lại tệp dữ liệu chính của nhà trường (`exampanel.db`).
+DOC-TOI.txt:36:     liệu exam-panel.db và các bản sao lưu tự động trong data/backups/).
+crates/storage/src/paths.rs:4://! - If the directory containing the executable is writable -> `./data/exam-panel.db`
+crates/storage/src/paths.rs:11:pub const DB_FILENAME: &str = "exam-panel.db";
+docs/SPEC.md:294:  - If writable: Database is stored at `<exe_dir>/data/exam-panel.db`.
+docs/DECISIONS.md:36:- **Decision:** Probe writability of `<exe_dir>/data`. If writable, use `<exe_dir>/data/exam-panel.db`. Otherwise, fall back to `%APPDATA%/ExamPanel/data` (Windows) or `~/.local/share/ExamPanel/data` (Linux/macOS).
+docs/DECISIONS.md:49:- **Consequences:** The entire SQLite database resides strictly in a single portable file (`data/exam-panel.db`). Safe to copy, move, back up, or execute directly from external storage drives without sidecar synchronization risks.
+ui/src/lib/api/mock.ts:160:      db_path: this.inTrialMode ? '/mock/data/demo.db' : '/mock/data/exampanel.db',

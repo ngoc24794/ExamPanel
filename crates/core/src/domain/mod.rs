@@ -4,11 +4,15 @@
 //! teachers, panels, exams, constraints, plans, and the single-year problem snapshot.
 
 pub mod entities;
+pub mod fixtures;
+pub mod forced;
 pub mod ids;
 pub mod problem;
 pub mod quota;
 
 pub use entities::*;
+pub use fixtures::*;
+pub use forced::*;
 pub use ids::*;
 pub use problem::*;
 pub use quota::*;

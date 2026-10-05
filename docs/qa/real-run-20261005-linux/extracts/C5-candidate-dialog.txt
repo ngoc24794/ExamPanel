@@ -1,0 +1,51 @@
+Chọn giáo viên thay thế
+Chọn giáo viên để thay thế vào ô này (Nhấn Enter hoặc chọn từ danh sách): (Ra đề #1)
+
+Cô Hiền
+(Chưa phân hiệu)
+H4: max_setter_tasks_per_exam_exceeded
+Cô Lài
+(Chưa phân hiệu)
++11.0
+Tổng: 187.4
+Áp dụng
+Thầy Phúc
+(Chưa phân hiệu)
++5.0
+Tổng: 181.4
+Áp dụng
+Thầy Lộc
+(Chưa phân hiệu)
++5.0
+Tổng: 181.4
+Áp dụng
+Cô Thư
+(Chưa phân hiệu)
+H2: unqualified_grade
+Cô Na
+(Chưa phân hiệu)
+H1: duplicate_teacher_in_panel, H4: max_tasks_per_exam_exceeded, H4: max_setter_tasks_per_exam_exceeded
+Cô Bình
+(Chưa phân hiệu)
+H2: unqualified_grade, H4: max_setter_tasks_per_exam_exceeded
+Cô Quí
+(Chưa phân hiệu)
+H2: unqualified_grade, H4: max_setter_tasks_per_exam_exceeded
+Cô Tú
+(Chưa phân hiệu)
+H1: duplicate_teacher_in_panel
+Cô Như
+Hiện tại
+(Chưa phân hiệu)
++9.0
+Tổng: 185.4
+Áp dụng
+Cô Lan
+(Chưa phân hiệu)
+H2: unqualified_grade, H4: max_setter_tasks_per_exam_exceeded
+Thầy Nghĩa
+(Chưa phân hiệu)
+H2: unqualified_grade, H4: max_tasks_per_exam_exceeded, H4: max_setter_tasks_per_exam_exceeded, H7: quota_exceeded
+Gợi ý: Dùng phím ↑ ↓ để chọn, Enter để áp dụng
+Hủy
+Close

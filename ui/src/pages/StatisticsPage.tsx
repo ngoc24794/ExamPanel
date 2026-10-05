@@ -1,9 +1,6 @@
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  type PlanDetails,
-  api,
-} from '@/lib/api'
+import { type PlanDetails, api } from '@/lib/api'
 import {
   useSchoolYears,
   usePlans,
@@ -20,15 +17,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import {
-  BarChart3,
-  Users,
-  Building2,
-  Layers,
-  ArrowUpDown,
-  Loader2,
-} from 'lucide-react'
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
+import { BarChart3, Users, Building2, Layers, ArrowUpDown, Loader2 } from 'lucide-react'
 
 export function StatisticsPage() {
   const { t } = useTranslation()
@@ -68,7 +64,8 @@ export function StatisticsPage() {
   }, [selectedPlanId])
 
   // Sort state for teacher table
-  type SortKey = 'name' | 'campus' | 'count' | 'setter' | 'reviewer' | 'quota' | 'deviation'
+  type SortKey =
+    'name' | 'campus' | 'count' | 'setter' | 'reviewer' | 'quota' | 'deviation'
   const [sortKey, setSortKey] = React.useState<SortKey>('count')
   const [sortAsc, setSortAsc] = React.useState<boolean>(false)
 
@@ -195,7 +192,9 @@ export function StatisticsPage() {
           (a) => a.exam_id === exam.id && a.grade_id === grade.id,
         )
         const reviewer = panelAssign.find((a) => a.role === 'reviewer')?.teacher_id
-        const setters = panelAssign.filter((a) => a.role === 'setter').map((a) => a.teacher_id)
+        const setters = panelAssign
+          .filter((a) => a.role === 'setter')
+          .map((a) => a.teacher_id)
 
         if (reviewer) {
           for (const s of setters) {
@@ -228,7 +227,10 @@ export function StatisticsPage() {
 
         const campusIds = new Set(
           panelAssign
-            .map((a) => teachers.find((t) => t.teacher.id === a.teacher_id)?.teacher.campus_id)
+            .map(
+              (a) =>
+                teachers.find((t) => t.teacher.id === a.teacher_id)?.teacher.campus_id,
+            )
             .filter(Boolean),
         )
 
@@ -277,7 +279,9 @@ export function StatisticsPage() {
               ))}
             </SelectContent>
           </Select>
-          {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground shrink-0" />}
+          {isLoading && (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground shrink-0" />
+          )}
         </div>
       </div>
 
@@ -323,7 +327,10 @@ export function StatisticsPage() {
                   const quotaPct = (row.quota / maxVal) * 100
 
                   return (
-                    <div key={row.id} className="grid grid-cols-12 items-center gap-2 text-xs">
+                    <div
+                      key={row.id}
+                      className="grid grid-cols-12 items-center gap-2 text-xs"
+                    >
                       <div className="col-span-3 truncate font-medium text-foreground flex items-center gap-1.5">
                         <div
                           className="w-2 h-2 rounded-full shrink-0"
@@ -346,7 +353,8 @@ export function StatisticsPage() {
                       </div>
 
                       <div className="col-span-2 text-right text-[11px] font-mono">
-                        <span className="font-bold text-foreground">{row.count}</span> / {row.quota.toFixed(1)}
+                        <span className="font-bold text-foreground">{row.count}</span> /{' '}
+                        {row.quota.toFixed(1)}
                       </div>
                     </div>
                   )
@@ -457,9 +465,15 @@ export function StatisticsPage() {
                             </div>
                           </td>
                           <td className="p-2.5 text-muted-foreground">{r.campusName}</td>
-                          <td className="p-2.5 text-center font-bold text-foreground">{r.count}</td>
-                          <td className="p-2.5 text-center text-muted-foreground">{r.setter}</td>
-                          <td className="p-2.5 text-center text-muted-foreground">{r.reviewer}</td>
+                          <td className="p-2.5 text-center font-bold text-foreground">
+                            {r.count}
+                          </td>
+                          <td className="p-2.5 text-center text-muted-foreground">
+                            {r.setter}
+                          </td>
+                          <td className="p-2.5 text-center text-muted-foreground">
+                            {r.reviewer}
+                          </td>
                           <td className="p-2.5 text-center font-mono text-muted-foreground">
                             {r.quota.toFixed(2)}
                           </td>
@@ -471,11 +485,17 @@ export function StatisticsPage() {
                                   : 'text-amber-600 dark:text-amber-400'
                               }
                             >
-                              {r.deviation >= 0 ? `+${r.deviation.toFixed(2)}` : r.deviation.toFixed(2)}
+                              {r.deviation >= 0
+                                ? `+${r.deviation.toFixed(2)}`
+                                : r.deviation.toFixed(2)}
                             </span>
                           </td>
-                          <td className="p-2.5 text-muted-foreground">Khối {r.gradesStr || '--'}</td>
-                          <td className="p-2.5 text-muted-foreground">{r.examsStr || '--'}</td>
+                          <td className="p-2.5 text-muted-foreground">
+                            Khối {r.gradesStr || '--'}
+                          </td>
+                          <td className="p-2.5 text-muted-foreground">
+                            {r.examsStr || '--'}
+                          </td>
                         </tr>
                       )
                     })}
@@ -563,7 +583,10 @@ export function StatisticsPage() {
                       <tr>
                         <th className="p-1"></th>
                         {teachers.slice(0, 11).map((tW) => (
-                          <th key={tW.teacher.id} className="p-1 font-normal text-muted-foreground w-6 text-center truncate">
+                          <th
+                            key={tW.teacher.id}
+                            className="p-1 font-normal text-muted-foreground w-6 text-center truncate"
+                          >
                             {tW.teacher.id}
                           </th>
                         ))}
@@ -577,9 +600,18 @@ export function StatisticsPage() {
                           </td>
                           {teachers.slice(0, 11).map((tB) => {
                             if (tA.teacher.id === tB.teacher.id) {
-                              return <td key={tB.teacher.id} className="p-1 bg-muted/40 text-center">-</td>
+                              return (
+                                <td
+                                  key={tB.teacher.id}
+                                  className="p-1 bg-muted/40 text-center"
+                                >
+                                  -
+                                </td>
+                              )
                             }
-                            const count = coWorkingMatrix?.get(`${tA.teacher.id}_${tB.teacher.id}`) || 0
+                            const count =
+                              coWorkingMatrix?.get(`${tA.teacher.id}_${tB.teacher.id}`) ||
+                              0
                             return (
                               <td
                                 key={tB.teacher.id}
@@ -587,8 +619,8 @@ export function StatisticsPage() {
                                   count > 2
                                     ? 'bg-primary text-primary-foreground font-bold'
                                     : count > 0
-                                    ? 'bg-primary/30 text-foreground'
-                                    : 'bg-card text-muted-foreground/40'
+                                      ? 'bg-primary/30 text-foreground'
+                                      : 'bg-card text-muted-foreground/40'
                                 }`}
                               >
                                 {count}
@@ -621,7 +653,10 @@ export function StatisticsPage() {
                       <tr>
                         <th className="p-1"></th>
                         {teachers.slice(0, 11).map((tW) => (
-                          <th key={tW.teacher.id} className="p-1 font-normal text-muted-foreground w-6 text-center truncate">
+                          <th
+                            key={tW.teacher.id}
+                            className="p-1 font-normal text-muted-foreground w-6 text-center truncate"
+                          >
                             {tW.teacher.id}
                           </th>
                         ))}
@@ -635,9 +670,19 @@ export function StatisticsPage() {
                           </td>
                           {teachers.slice(0, 11).map((tB) => {
                             if (tA.teacher.id === tB.teacher.id) {
-                              return <td key={tB.teacher.id} className="p-1 bg-muted/40 text-center">-</td>
+                              return (
+                                <td
+                                  key={tB.teacher.id}
+                                  className="p-1 bg-muted/40 text-center"
+                                >
+                                  -
+                                </td>
+                              )
                             }
-                            const count = reviewRelationMatrix?.get(`${tA.teacher.id}_${tB.teacher.id}`) || 0
+                            const count =
+                              reviewRelationMatrix?.get(
+                                `${tA.teacher.id}_${tB.teacher.id}`,
+                              ) || 0
                             return (
                               <td
                                 key={tB.teacher.id}
@@ -645,8 +690,8 @@ export function StatisticsPage() {
                                   count > 1
                                     ? 'bg-amber-500 text-white font-bold'
                                     : count > 0
-                                    ? 'bg-amber-500/30 text-foreground'
-                                    : 'bg-card text-muted-foreground/40'
+                                      ? 'bg-amber-500/30 text-foreground'
+                                      : 'bg-card text-muted-foreground/40'
                                 }`}
                               >
                                 {count}

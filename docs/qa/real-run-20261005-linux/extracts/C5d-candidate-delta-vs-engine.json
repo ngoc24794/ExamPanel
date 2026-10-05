@@ -1,0 +1,100 @@
+{
+ "slots": [
+  {
+   "cell": "q-grid-cell-1-1-VL-setter-0",
+   "rows": [
+    {
+     "teacher": "Cô Lài",
+     "ui_delta": "+11.0",
+     "ui_total": 187.4,
+     "engine_total": 194.36,
+     "engine_delta": 18,
+     "match": false
+    },
+    {
+     "teacher": "Thầy Phúc",
+     "ui_delta": "+5.0",
+     "ui_total": 181.4,
+     "engine_total": 194.36,
+     "engine_delta": 18,
+     "match": false
+    },
+    {
+     "teacher": "Thầy Lộc",
+     "ui_delta": "+5.0",
+     "ui_total": 181.4,
+     "engine_total": 194.36,
+     "engine_delta": 18,
+     "match": false
+    }
+   ]
+  },
+  {
+   "cell": "q-grid-cell-3-2-VL-reviewer-0",
+   "rows": [
+    {
+     "teacher": "Cô Hiền",
+     "ui_delta": "+36.0",
+     "ui_total": 212.4,
+     "engine_total": 212.36,
+     "engine_delta": 36,
+     "match": true
+    },
+    {
+     "teacher": "Cô Lài",
+     "ui_delta": "+26.0",
+     "ui_total": 202.4,
+     "engine_total": 202.36,
+     "engine_delta": 26,
+     "match": true
+    },
+    {
+     "teacher": "Cô Thư",
+     "ui_delta": "+20.0",
+     "ui_total": 196.4,
+     "engine_total": 196.36,
+     "engine_delta": 20,
+     "match": true
+    },
+    {
+     "teacher": "Cô Bình",
+     "ui_delta": "+20.0",
+     "ui_total": 196.4,
+     "engine_total": 196.36,
+     "engine_delta": 20,
+     "match": true
+    }
+   ]
+  },
+  {
+   "cell": "q-grid-cell-2-3-CN-reviewer-0",
+   "rows": [
+    {
+     "teacher": "Cô Hiền",
+     "ui_delta": "+16.0",
+     "ui_total": 192.4,
+     "engine_total": 192.36,
+     "engine_delta": 16,
+     "match": true
+    },
+    {
+     "teacher": "Cô Na",
+     "ui_delta": "+29.0",
+     "ui_total": 205.4,
+     "engine_total": 205.36,
+     "engine_delta": 29,
+     "match": true
+    },
+    {
+     "teacher": "Cô Quí",
+     "ui_delta": "+16.0",
+     "ui_total": 192.4,
+     "engine_total": 192.36,
+     "engine_delta": 16,
+     "match": true
+    }
+   ]
+  }
+ ],
+ "base": 176.36363636363637
+}

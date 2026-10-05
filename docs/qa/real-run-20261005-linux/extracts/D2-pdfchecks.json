@@ -1,0 +1,131 @@
+{
+ "id": "D2pdf",
+ "checks": [
+  {
+   "step": "D2.plan-1-page-A4-landscape",
+   "result": "pass",
+   "observed": {
+    "final": {
+     "pages": 1,
+     "size": "841.92 x 594.96 pts (A4)"
+    },
+    "draft": {
+     "pages": 1,
+     "size": "841.92 x 594.96 pts (A4)"
+    }
+   },
+   "expected": "1 page, A4 landscape (841.9 x 595 pt)  [Chromium replay, MOCK-DATA-REPLAY]",
+   "evidence": [
+    "pdfs/D2-chromium-replay-plan-final.pdf",
+    "extracts/D2-chromium-replay-plan-final.txt"
+   ]
+  },
+  {
+   "step": "D2.plan-draft-marker-and-final-without",
+   "result": "pass",
+   "observed": {
+    "draft_has_marker": true,
+    "final_has_marker": false
+   },
+   "expected": "draft has [BẢN NHÁP] + diagonal watermark (see page PNG); final has neither",
+   "evidence": [
+    "pdfs/D2-chromium-replay-plan-draft.pdf",
+    "extracts/D2-chromium-replay-plan-draft.txt",
+    "screenshots/D2-pdf-plan-draft-1.png",
+    "screenshots/D2-pdf-plan-final-1.png"
+   ]
+  },
+  {
+   "step": "D2.plan-diacritics-and-signature-block",
+   "result": "pass",
+   "observed": {
+    "missing": [],
+    "replacement_chars": false
+   },
+   "expected": "Vietnamese strings extract intact; org/place/signer from Settings printed",
+   "evidence": [
+    "pdfs/D2-chromium-replay-plan-final.pdf",
+    "extracts/D2-chromium-replay-plan-final.txt"
+   ]
+  },
+  {
+   "step": "D2.plan-print-totals",
+   "result": "pass",
+   "observed": [
+    60,
+    36,
+    24,
+    15,
+    15,
+    15,
+    15
+   ],
+   "expected": "60/36/24/15x4",
+   "evidence": [
+    "pdfs/D2-chromium-replay-plan-final.pdf",
+    "extracts/D2-chromium-replay-plan-final.txt"
+   ]
+  },
+  {
+   "step": "D2.notices-one-page-per-teacher",
+   "result": "pass",
+   "observed": {
+    "final": {
+     "pages": 12,
+     "size": "594.96 x 841.92 pts (A4)"
+    },
+    "draft": {
+     "pages": 12,
+     "size": "594.96 x 841.92 pts (A4)"
+    }
+   },
+   "expected": "12 pages (12 teachers with duties), A4 portrait",
+   "evidence": [
+    "pdfs/D2-chromium-replay-notices-final.pdf",
+    "extracts/D2-chromium-replay-notices-final.txt"
+   ]
+  },
+  {
+   "step": "D2.notices-each-page-single-teacher",
+   "result": "pass",
+   "observed": {
+    "bad_pages": []
+   },
+   "expected": "each page has exactly one \"Kính gửi\" block (no table split across pages)",
+   "evidence": [
+    "pdfs/D2-chromium-replay-notices-final.pdf",
+    "extracts/D2-chromium-replay-notices-final.txt"
+   ]
+  },
+  {
+   "step": "D2.notice-content-Hien-5-tasks",
+   "result": "pass",
+   "observed": [
+    "1 Giữa 1 10 Vật lí",
+    "2 Giữa 1 10 Công nghệ",
+    "3 Cuối 1 10 Vật lí",
+    "4 Giữa 2 11 Vật lí",
+    "5 Cuối 2 12 Vật lí"
+   ],
+   "expected": "5 duties for Cô Hiền (Q totals)",
+   "evidence": [
+    "pdfs/D2-chromium-replay-notices-final.pdf",
+    "extracts/D2-chromium-replay-notices-final.txt"
+   ]
+  },
+  {
+   "step": "D2.notices-draft-marker",
+   "result": "pass",
+   "observed": {
+    "draft": true,
+    "final": false
+   },
+   "expected": "draft marker on non-final notices; none on final",
+   "evidence": [
+    "pdfs/D2-chromium-replay-notices-draft.pdf",
+    "extracts/D2-chromium-replay-notices-draft.txt"
+   ]
+  }
+ ],
+ "notes": {}
+}

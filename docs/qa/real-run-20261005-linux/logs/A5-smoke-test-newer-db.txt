@@ -1,0 +1,11 @@
+
+thread 'main' (17177) panicked at src-tauri/src/lib.rs:20:46:
+failed to initialize database in smoke mode: AppError { code: "unsupported_database_version", params: {"version": String("99")} }
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::result::unwrap_failed
+   3: exam_panel_app::run_smoke_test
+   4: exam_panel_app::run
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+EXIT=101

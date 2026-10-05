@@ -1,0 +1,10 @@
+Xác nhận phục hồi dữ liệu
+Hệ thống sẽ tự động sao lưu dữ liệu hiện tại trước khi phục hồi. Ứng dụng sẽ nạp lại dữ liệu sau khi hoàn tất.
+Tệp dữ liệu hợp lệ (Kiểm tra toàn vẹn thành công)
+Năm học: 1
+Giáo viên: 12
+Phương án: 4
+Phiên bản: v5
+Hủy
+Xác nhận phục hồi
+Close

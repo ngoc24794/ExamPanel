@@ -1,0 +1,285 @@
+{
+ "id": "C1",
+ "started": "2026-10-05T05:16:20.161Z",
+ "checks": [
+  {
+   "step": "C1.excel-open-dialog",
+   "result": "pass",
+   "observed": {
+    "ok": true,
+    "dialog": "Open File",
+    "stillOpen": false
+   },
+   "expected": "GTK open dialog accepts path",
+   "evidence": [
+    "screenshots/C1-open-dialog.png"
+   ]
+  },
+  {
+   "step": "C1.excel-preview-60-seats",
+   "result": "pass",
+   "observed": "60",
+   "expected": "60",
+   "evidence": [
+    "extracts/C1-plan-preview-excel.txt"
+   ]
+  },
+  {
+   "step": "C1.excel-preview-total-score-260.36",
+   "result": "pass",
+   "observed": "260.4",
+   "expected": "260.36 (116.36 + S3 144)  [preview shows 1 decimal]",
+   "evidence": []
+  },
+  {
+   "step": "C1.plan-saved-source-manual-origin-import",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 1,
+     "name": "Nhập từ bảng của tổ",
+     "source": "manual",
+     "run_params_json": "{\"origin\":\"import\"}"
+    }
+   ],
+   "expected": "one plan, source=manual, origin=import",
+   "evidence": []
+  },
+  {
+   "step": "C1.ui-S1-penalty",
+   "result": "pass",
+   "observed": 10,
+   "expected": 10,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-S2-penalty",
+   "result": "pass",
+   "observed": 3,
+   "expected": 3,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-S3-penalty",
+   "result": "pass",
+   "observed": 144,
+   "expected": 144,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-S4-penalty",
+   "result": "pass",
+   "observed": 0,
+   "expected": 0,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-S5-penalty",
+   "result": "pass",
+   "observed": 6,
+   "expected": 6,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-S6-penalty",
+   "result": "pass",
+   "observed": 16,
+   "expected": 16,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-S7-penalty",
+   "result": "pass",
+   "observed": 0,
+   "expected": 0,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-S8-penalty",
+   "result": "pass",
+   "observed": 36.4,
+   "expected": 36.36,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-S9-penalty",
+   "result": "pass",
+   "observed": 45,
+   "expected": 45,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-S10-penalty",
+   "result": "pass",
+   "observed": 0,
+   "expected": 0,
+   "evidence": [
+    "extracts/C1-ui-detail-view.txt"
+   ]
+  },
+  {
+   "step": "C1.ui-total",
+   "result": "pass",
+   "observed": "260.36",
+   "expected": "260.36",
+   "evidence": []
+  },
+  {
+   "step": "C1.ui-hard-valid",
+   "result": "pass",
+   "observed": "Điều kiện bắt buộc: Hợp lệ (0 vi phạm)",
+   "expected": "Hợp lệ (0 vi phạm)",
+   "evidence": []
+  },
+  {
+   "step": "C1.export-dialog-and-file",
+   "result": "pass",
+   "observed": {
+    "dr": {
+     "ok": true,
+     "dialog": "Save File",
+     "stillOpen": false
+    },
+    "size": 15329
+   },
+   "expected": "xlsx written",
+   "evidence": [
+    "screenshots/C1-export-save-dialog.png"
+   ]
+  },
+  {
+   "step": "C1.tsv-paste-via-xclip-ctrl+v",
+   "result": "pass",
+   "observed": {
+    "len_pasted": 536,
+    "len_expected": 536
+   },
+   "expected": "textarea content equals clipboard TSV",
+   "evidence": []
+  },
+  {
+   "step": "C1.tsv-preview-60-seats-and-score",
+   "result": "pass",
+   "observed": {
+    "seats": "60",
+    "score": "260.4"
+   },
+   "expected": "60 seats, 260.4 (260.36)",
+   "evidence": [
+    "extracts/C1-plan-preview-tsv.txt"
+   ]
+  },
+  {
+   "step": "C1.tsv-preview-valid",
+   "result": "pass",
+   "observed": "Hợp lệ",
+   "expected": "Hợp lệ",
+   "evidence": []
+  },
+  {
+   "step": "C1.quí-override-cleared-via-ui",
+   "result": "pass",
+   "observed": [
+    {
+     "display_name": "C Quí",
+     "max_tasks_per_exam_override": null
+    }
+   ],
+   "expected": "override NULL",
+   "evidence": []
+  },
+  {
+   "step": "C1.no-override-exactly-one-hard-violation-tasks-per-exam",
+   "result": "pass",
+   "observed": "Cảnh báo & Lỗi (1)\n\nDanh sách phân công (60)\nh4: max_tasks_per_exam_exceeded\nQuay lại\nÁp dụng phương án\nClose",
+   "expected": "single hard violation: tasks per exam exceeded (C Quí, CK2, 3 > 2)",
+   "evidence": [
+    "extracts/C1-issues-no-qui-override.txt",
+    "screenshots/C1-issues-no-qui-override-page.png"
+   ]
+  },
+  {
+   "step": "C1.threeway-ui-engine-excel-repo",
+   "result": "fail",
+   "observed": [
+    [
+     "S8",
+     "units",
+     [
+      4.545454545454545,
+      4,
+      4.55
+     ]
+    ]
+   ],
+   "expected": "no mismatch across UI / IPC engine / Excel Tiêu chí / repo task5_comparison (units tolerance 0.011, penalty 0.06)",
+   "evidence": [
+    "extracts/C1-threeway.json",
+    "extracts/repo-tool-task5_comparison.md",
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "C1.engine-total-260.36-without-S3-116.36",
+   "result": "pass",
+   "observed": {
+    "total": 260.3636363636364,
+    "without_S3": 116.36363636363637
+   },
+   "expected": "260.36 / 116.36",
+   "evidence": [
+    "extracts/C1-threeway.json"
+   ]
+  }
+ ],
+ "notes": {
+  "plans_after_import": [
+   {
+    "id": 1,
+    "name": "Nhập từ bảng của tổ",
+    "source": "manual",
+    "score": 260.3636363636364,
+    "is_final": 0,
+    "run_params_json": "{\"origin\":\"import\"}"
+   }
+  ],
+  "ui_penalties": {
+   "S1": 10,
+   "S2": 3,
+   "S3": 144,
+   "S4": 0,
+   "S5": 6,
+   "S6": 16,
+   "S7": 0,
+   "S8": 36.4,
+   "S9": 45,
+   "S10": 0
+  },
+  "ipc_has_score_report": true,
+  "ipc_evaluate_shape": [
+   "hard_violations",
+   "score_report"
+  ],
+  "quí-edit-clicked": true,
+  "quí_override_before": "3",
+  "issues_text": "Cảnh báo & Lỗi (1)\n\nDanh sách phân công (60)\nh4: max_tasks_per_exam_exceeded\nQuay lại\nÁp dụng phương án\nClose"
+ }
+}

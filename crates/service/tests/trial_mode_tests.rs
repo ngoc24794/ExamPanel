@@ -50,6 +50,9 @@ fn test_trial_mode_isolation_real_db_untouched() {
             load_weight: 1.0,
             active: true,
             note: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .expect("create real teacher");
 
@@ -79,6 +82,9 @@ fn test_trial_mode_isolation_real_db_untouched() {
             load_weight: 1.0,
             active: true,
             note: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .expect("create trial teacher");
     assert_eq!(trial_teacher.full_name, "Giaovien Dungthu");

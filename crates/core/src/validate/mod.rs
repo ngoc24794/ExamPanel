@@ -4,7 +4,8 @@
 //! Supports both complete plans and partial plans during manual construction.
 
 use crate::domain::{
-    calculate_quotas, Assignment, LockKind, PanelKey, Problem, Role, RuleKey, TeacherId,
+    calculate_quotas, is_teacher_eligible, Assignment, LockKind, PanelKey, Problem, Role, RuleKey,
+    TeacherId,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -87,47 +88,72 @@ pub fn validate_assignments(
     let teacher_map: HashMap<TeacherId, &crate::domain::Teacher> =
         problem.teachers.iter().map(|t| (t.id, t)).collect();
 
-    let teacher_grades_set: HashSet<(TeacherId, crate::domain::GradeId)> = problem
-        .teacher_grades
-        .iter()
-        .filter(|tg| tg.school_year_id == problem.school_year.id)
-        .map(|tg| (tg.teacher_id, tg.grade_id))
-        .collect();
-
     let unavailability_set: HashSet<(TeacherId, crate::domain::ExamId)> = problem
         .unavailabilities
         .iter()
         .map(|u| (u.teacher_id, u.exam_id))
         .collect();
 
-    let h4_enabled = problem
-        .rule_settings
-        .iter()
-        .find(|s| s.key == RuleKey::H4)
-        .is_none_or(|s| s.enabled);
+    let subjects = problem.effective_subjects();
+    let subject_map: HashMap<crate::domain::SubjectId, &crate::domain::Subject> =
+        subjects.iter().map(|s| (s.id, s)).collect();
+
+    let h3_setting = problem.rule_settings.iter().find(|s| s.key == RuleKey::H3);
+    let h3_enabled = h3_setting.is_none_or(|s| s.enabled);
+
+    let h4_setting = problem.rule_settings.iter().find(|s| s.key == RuleKey::H4);
+    let h4_enabled = h4_setting.is_none_or(|s| s.enabled);
+    let default_max_tasks_per_exam = h4_setting
+        .and_then(|s| {
+            s.params
+                .get("max_tasks_per_exam")
+                .and_then(serde_json::Value::as_u64)
+        })
+        .map_or(2, |v| v as usize);
+    let default_max_setter_per_exam = h4_setting
+        .and_then(|s| {
+            s.params
+                .get("max_setter_per_exam")
+                .and_then(serde_json::Value::as_u64)
+        })
+        .map_or(1, |v| v as usize);
+
+    let forced_placements =
+        crate::domain::forced::find_forced_placements(problem).unwrap_or_default();
+    let mut forced_tasks_map: HashMap<(TeacherId, crate::domain::ExamId), usize> = HashMap::new();
+    let mut forced_setters_map: HashMap<(TeacherId, crate::domain::ExamId), usize> = HashMap::new();
+    for p in &forced_placements {
+        *forced_tasks_map
+            .entry((p.teacher_id, p.panel.exam_id))
+            .or_default() += 1;
+        if p.role == Role::Setter {
+            *forced_setters_map
+                .entry((p.teacher_id, p.panel.exam_id))
+                .or_default() += 1;
+        }
+    }
 
     // Group assignments by panel
     let mut panel_assignments: HashMap<PanelKey, Vec<&Assignment>> = HashMap::new();
     for a in assignments {
-        let key = PanelKey::new(a.exam_id, a.grade_id);
+        let key = PanelKey::new(a.exam_id, a.grade_id, a.subject_id);
         panel_assignments.entry(key).or_default().push(a);
     }
 
     // All valid panels defined by the problem
-    let mut all_panels = Vec::new();
-    for exam in &problem.exams {
-        for grade in &problem.grades {
-            all_panels.push(PanelKey::new(exam.id, grade.id));
-        }
-    }
+    let all_panels = problem.all_panels();
 
     // -------------------------------------------------------------------------
     // H1: Panel Composition & Distinct Teachers
-    // H2: Grade Qualification
+    // H2: Grade / Subject Qualification
     // H3: Multi-Campus Diversity
     // -------------------------------------------------------------------------
     for panel in &all_panels {
         let list = panel_assignments.get(panel).map_or(&[][..], |v| &v[..]);
+        let subject = match subject_map.get(&panel.subject_id) {
+            Some(s) => s,
+            None => continue,
+        };
 
         let mut setters_count = 0usize;
         let mut reviewers_count = 0usize;
@@ -165,12 +191,20 @@ pub fn validate_assignments(
                             .with_teacher(a.teacher_id),
                     );
                 }
-                if !teacher_grades_set.contains(&(a.teacher_id, a.grade_id)) {
+                if !is_teacher_eligible(
+                    problem,
+                    a.teacher_id,
+                    a.exam_id,
+                    a.grade_id,
+                    a.subject_id,
+                    a.role,
+                ) {
                     violations.push(
                         Violation::new(RuleKey::H2, "unqualified_grade")
                             .with_panel(*panel)
                             .with_teacher(a.teacher_id)
-                            .with_param("grade_id", a.grade_id.value()),
+                            .with_param("grade_id", a.grade_id.value())
+                            .with_param("subject_id", a.subject_id.0),
                     );
                 }
                 campus_ids.insert(teacher.campus_id);
@@ -178,23 +212,32 @@ pub fn validate_assignments(
         }
 
         // Excess roles (reported in both partial and complete modes)
-        if setters_count > 2 {
+        let expected_setters = subject.setters as usize;
+        let expected_reviewers = subject.reviewers as usize;
+
+        if setters_count > expected_setters {
             violations.push(
                 Violation::new(RuleKey::H1, "excess_setters")
                     .with_panel(*panel)
-                    .with_param("count", setters_count),
+                    .with_param("count", setters_count)
+                    .with_param("limit", expected_setters),
             );
         }
-        if reviewers_count > 1 {
+        if reviewers_count > expected_reviewers {
             violations.push(
                 Violation::new(RuleKey::H1, "excess_reviewers")
                     .with_panel(*panel)
-                    .with_param("count", reviewers_count),
+                    .with_param("count", reviewers_count)
+                    .with_param("limit", expected_reviewers),
             );
         }
 
         // Completeness check (only when require_complete)
-        if opts.require_complete && (setters_count != 2 || reviewers_count != 1 || list.len() != 3)
+        let expected_total = expected_setters + expected_reviewers;
+        if opts.require_complete
+            && (setters_count != expected_setters
+                || reviewers_count != expected_reviewers
+                || list.len() != expected_total)
         {
             violations.push(
                 Violation::new(RuleKey::H1, "panel_incomplete")
@@ -206,30 +249,39 @@ pub fn validate_assignments(
         }
 
         // Multi-campus diversity (H3)
-        // If panel has 3 assignments (or complete mode with assignments), check campus diversity
-        if (list.len() == 3 || (opts.require_complete && !list.is_empty())) && campus_ids.len() < 2
+        let min_campuses = subject.min_campuses as usize;
+        if h3_enabled
+            && min_campuses > 0
+            && (list.len() == expected_total || (opts.require_complete && !list.is_empty()))
+            && campus_ids.len() < min_campuses
         {
             violations.push(
                 Violation::new(RuleKey::H3, "single_campus_panel")
                     .with_panel(*panel)
-                    .with_param("campus_count", campus_ids.len()),
+                    .with_param("campus_count", campus_ids.len())
+                    .with_param("min_campuses", min_campuses),
             );
         }
     }
 
     // -------------------------------------------------------------------------
-    // H4: Single Panel Per Exam
+    // H4: Per-exam task limits and setter limits
     // H5: Exam Availability
     // -------------------------------------------------------------------------
-    let mut exam_teacher_assignments: HashMap<(crate::domain::ExamId, TeacherId), Vec<PanelKey>> =
+    let mut exam_teacher_tasks: HashMap<(crate::domain::ExamId, TeacherId), usize> = HashMap::new();
+    let mut exam_teacher_setters: HashMap<(crate::domain::ExamId, TeacherId), usize> =
         HashMap::new();
 
     for a in assignments {
-        let pkey = PanelKey::new(a.exam_id, a.grade_id);
-        exam_teacher_assignments
+        let pkey = PanelKey::new(a.exam_id, a.grade_id, a.subject_id);
+        *exam_teacher_tasks
             .entry((a.exam_id, a.teacher_id))
-            .or_default()
-            .push(pkey);
+            .or_default() += 1;
+        if a.role == Role::Setter {
+            *exam_teacher_setters
+                .entry((a.exam_id, a.teacher_id))
+                .or_default() += 1;
+        }
 
         // H5: Unavailability
         if unavailability_set.contains(&(a.teacher_id, a.exam_id)) {
@@ -243,13 +295,47 @@ pub fn validate_assignments(
     }
 
     if h4_enabled {
-        for ((exam_id, teacher_id), panels) in exam_teacher_assignments {
-            if panels.len() > 1 {
+        for ((exam_id, teacher_id), count) in exam_teacher_tasks {
+            let teacher = teacher_map.get(&teacher_id);
+            let configured_tasks = teacher
+                .and_then(|t| t.max_tasks_per_exam_override)
+                .map_or(default_max_tasks_per_exam, |v| v as usize);
+            let forced_tasks = forced_tasks_map
+                .get(&(teacher_id, exam_id))
+                .copied()
+                .unwrap_or(0);
+            let eff_max_tasks = configured_tasks.max(forced_tasks);
+
+            if count > eff_max_tasks {
+                let code = if eff_max_tasks == 1 {
+                    "multiple_panels_in_exam"
+                } else {
+                    "max_tasks_per_exam_exceeded"
+                };
                 violations.push(
-                    Violation::new(RuleKey::H4, "multiple_panels_in_exam")
+                    Violation::new(RuleKey::H4, code)
                         .with_teacher(teacher_id)
                         .with_param("exam_id", exam_id.value())
-                        .with_param("count", panels.len()),
+                        .with_param("count", count)
+                        .with_param("limit", eff_max_tasks),
+                );
+            }
+        }
+
+        for ((exam_id, teacher_id), setter_count) in exam_teacher_setters {
+            let forced_setters = forced_setters_map
+                .get(&(teacher_id, exam_id))
+                .copied()
+                .unwrap_or(0);
+            let eff_max_setters = default_max_setter_per_exam.max(forced_setters);
+
+            if setter_count > eff_max_setters {
+                violations.push(
+                    Violation::new(RuleKey::H4, "max_setter_tasks_per_exam_exceeded")
+                        .with_teacher(teacher_id)
+                        .with_param("exam_id", exam_id.value())
+                        .with_param("count", setter_count)
+                        .with_param("limit", eff_max_setters),
                 );
             }
         }
@@ -266,13 +352,14 @@ pub fn validate_assignments(
                 let matching = assignments.iter().any(|a| {
                     a.exam_id == lock.exam_id
                         && a.grade_id == lock.grade_id
+                        && a.subject_id == lock.subject_id
                         && a.teacher_id == lock.teacher_id
                         && (lock.role.is_none() || lock.role == Some(a.role))
                 });
                 if matching {
                     violations.push(
                         Violation::new(RuleKey::H6, "forbid_violation")
-                            .with_panel(PanelKey::new(lock.exam_id, lock.grade_id))
+                            .with_panel(PanelKey::new(lock.exam_id, lock.grade_id, lock.subject_id))
                             .with_teacher(lock.teacher_id),
                     );
                 }
@@ -284,13 +371,18 @@ pub fn validate_assignments(
                 if let Some(existing) = assignments.iter().find(|a| {
                     a.exam_id == lock.exam_id
                         && a.grade_id == lock.grade_id
+                        && a.subject_id == lock.subject_id
                         && a.teacher_id == lock.teacher_id
                 }) {
                     if let Some(pinned_role) = lock.role {
                         if existing.role != pinned_role {
                             violations.push(
                                 Violation::new(RuleKey::H6, "pin_role_mismatch")
-                                    .with_panel(PanelKey::new(lock.exam_id, lock.grade_id))
+                                    .with_panel(PanelKey::new(
+                                        lock.exam_id,
+                                        lock.grade_id,
+                                        lock.subject_id,
+                                    ))
                                     .with_teacher(lock.teacher_id)
                                     .with_param("expected_role", pinned_role.as_str())
                                     .with_param("actual_role", existing.role.as_str()),
@@ -303,6 +395,7 @@ pub fn validate_assignments(
                 let satisfied = assignments.iter().any(|a| {
                     a.exam_id == lock.exam_id
                         && a.grade_id == lock.grade_id
+                        && a.subject_id == lock.subject_id
                         && a.teacher_id == lock.teacher_id
                         && (lock.role.is_none() || lock.role == Some(a.role))
                 });
@@ -319,7 +412,7 @@ pub fn validate_assignments(
             {
                 violations.push(
                     Violation::new(RuleKey::H6, "pin_missing")
-                        .with_panel(PanelKey::new(lock.exam_id, lock.grade_id))
+                        .with_panel(PanelKey::new(lock.exam_id, lock.grade_id, lock.subject_id))
                         .with_teacher(lock.teacher_id),
                 );
             }
@@ -367,8 +460,8 @@ pub fn validate_assignments(
 mod tests {
     use super::*;
     use crate::domain::{
-        Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockId, Role, SchoolYear,
-        SchoolYearId, Teacher, TeacherGrade, Unavailability,
+        Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, GradeScope, Lock, LockId, Role,
+        SchoolYear, SchoolYearId, Subject, SubjectId, Teacher, TeacherGrade, Unavailability,
     };
 
     fn make_test_problem() -> Problem {
@@ -395,6 +488,16 @@ mod tests {
             name: "Khối 10".to_string(),
             sort_order: 1,
         };
+        let sub1 = Subject {
+            id: SubjectId(1),
+            code: "CHUNG".to_string(),
+            name: "Chung".to_string(),
+            color: "slate".to_string(),
+            sort_order: 1,
+            setters: 2,
+            reviewers: 1,
+            min_campuses: 2,
+        };
         let e1 = Exam {
             id: ExamId(1),
             school_year_id: sy.id,
@@ -406,29 +509,38 @@ mod tests {
         let t1 = Teacher {
             id: TeacherId(1),
             full_name: "Teacher 1".to_string(),
+            display_name: None,
             campus_id: CampusId(1),
             load_weight: 1.0,
             active: true,
             note: None,
             code: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         };
         let t2 = Teacher {
             id: TeacherId(2),
             full_name: "Teacher 2".to_string(),
+            display_name: None,
             campus_id: CampusId(1),
             load_weight: 1.0,
             active: true,
             note: None,
             code: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         };
         let t3 = Teacher {
             id: TeacherId(3),
             full_name: "Teacher 3".to_string(),
+            display_name: None,
             campus_id: CampusId(2),
             load_weight: 1.0,
             active: true,
             note: None,
             code: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         };
 
         let tg1 = TeacherGrade {
@@ -447,13 +559,54 @@ mod tests {
             grade_id: GradeId(10),
         };
 
+        let comps = vec![
+            Competency {
+                teacher_id: TeacherId(1),
+                subject_id: SubjectId(1),
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            },
+            Competency {
+                teacher_id: TeacherId(1),
+                subject_id: SubjectId(1),
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            },
+            Competency {
+                teacher_id: TeacherId(2),
+                subject_id: SubjectId(1),
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            },
+            Competency {
+                teacher_id: TeacherId(2),
+                subject_id: SubjectId(1),
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            },
+            Competency {
+                teacher_id: TeacherId(3),
+                subject_id: SubjectId(1),
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            },
+            Competency {
+                teacher_id: TeacherId(3),
+                subject_id: SubjectId(1),
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            },
+        ];
+
         Problem {
             school_year: sy,
             campuses: vec![c1, c2],
             grades: vec![g10],
+            subjects: vec![sub1],
             exams: vec![e1],
             teachers: vec![t1, t2, t3],
             teacher_grades: vec![tg1, tg2, tg3],
+            competencies: comps,
             unavailabilities: vec![],
             locks: vec![],
             rule_settings: crate::domain::RuleSetting::default_settings(),
@@ -464,9 +617,30 @@ mod tests {
     fn test_valid_complete_assignment() {
         let problem = make_test_problem();
         let assignments = vec![
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(1), Role::Setter),
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(2), Role::Setter),
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(3), Role::Reviewer),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(3),
+                Role::Reviewer,
+                0,
+            ),
         ];
 
         let violations = validate_assignments(
@@ -488,8 +662,10 @@ mod tests {
         let assignments = vec![Assignment::new(
             ExamId(1),
             GradeId(10),
+            SubjectId(1),
             TeacherId(1),
             Role::Setter,
+            0,
         )];
 
         let violations_partial = validate_assignments(
@@ -517,8 +693,22 @@ mod tests {
     fn test_h1_duplicate_teacher_in_panel() {
         let problem = make_test_problem();
         let assignments = vec![
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(1), Role::Setter),
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(1), Role::Reviewer),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Reviewer,
+                0,
+            ),
         ];
 
         let violations = validate_assignments(
@@ -544,8 +734,10 @@ mod tests {
         let assignments = vec![Assignment::new(
             ExamId(1),
             GradeId(10),
+            SubjectId(1),
             TeacherId(3),
             Role::Reviewer,
+            0,
         )];
 
         let violations = validate_assignments(
@@ -565,8 +757,22 @@ mod tests {
         problem.teachers[1].load_weight = 0.0;
 
         let assignments = vec![
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(1), Role::Setter),
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(2), Role::Setter),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                1,
+            ),
         ];
 
         let violations = validate_assignments(
@@ -583,27 +789,56 @@ mod tests {
     #[test]
     fn test_h3_single_campus_panel() {
         let problem = make_test_problem();
-        // Teacher 1 (CS1), Teacher 2 (CS1) - add another CS1 teacher
         let mut p = problem;
         p.teachers.push(Teacher {
             id: TeacherId(4),
             full_name: "Teacher 4".to_string(),
+            display_name: None,
             campus_id: CampusId(1),
             load_weight: 1.0,
             active: true,
             note: None,
             code: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         });
         p.teacher_grades.push(TeacherGrade {
             teacher_id: TeacherId(4),
             school_year_id: p.school_year.id,
             grade_id: GradeId(10),
         });
+        p.competencies.push(Competency {
+            teacher_id: TeacherId(4),
+            subject_id: SubjectId(1),
+            role: Role::Reviewer,
+            grade_scope: GradeScope::Taught,
+        });
 
         let assignments = vec![
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(1), Role::Setter),
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(2), Role::Setter),
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(4), Role::Reviewer),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Setter,
+                1,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(4),
+                Role::Reviewer,
+                0,
+            ),
         ];
 
         let violations = validate_assignments(
@@ -631,10 +866,32 @@ mod tests {
             school_year_id: problem.school_year.id,
             grade_id: GradeId(11),
         });
+        // Set H4 max_tasks_per_exam to 1 so 2 tasks triggers violation
+        if let Some(s) = problem
+            .rule_settings
+            .iter_mut()
+            .find(|s| s.key == RuleKey::H4)
+        {
+            s.params["max_tasks_per_exam"] = serde_json::json!(1);
+        }
 
         let assignments = vec![
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(1), Role::Setter),
-            Assignment::new(ExamId(1), GradeId(11), TeacherId(1), Role::Setter),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(11),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
         ];
 
         let violations = validate_assignments(
@@ -644,9 +901,9 @@ mod tests {
                 require_complete: false,
             },
         );
-        assert!(violations
-            .iter()
-            .any(|v| v.code == "multiple_panels_in_exam"));
+        assert!(violations.iter().any(
+            |v| v.code == "multiple_panels_in_exam" || v.code == "max_tasks_per_exam_exceeded"
+        ));
     }
 
     #[test]
@@ -661,8 +918,10 @@ mod tests {
         let assignments = vec![Assignment::new(
             ExamId(1),
             GradeId(10),
+            SubjectId(1),
             TeacherId(1),
             Role::Setter,
+            0,
         )];
 
         let violations = validate_assignments(
@@ -682,6 +941,7 @@ mod tests {
             id: LockId(1),
             exam_id: ExamId(1),
             grade_id: GradeId(10),
+            subject_id: SubjectId(1),
             teacher_id: TeacherId(1),
             role: Some(Role::Setter),
             kind: LockKind::Forbid,
@@ -690,6 +950,7 @@ mod tests {
             id: LockId(2),
             exam_id: ExamId(1),
             grade_id: GradeId(10),
+            subject_id: SubjectId(1),
             teacher_id: TeacherId(2),
             role: Some(Role::Setter),
             kind: LockKind::Pin,
@@ -699,8 +960,10 @@ mod tests {
         let assignments = vec![Assignment::new(
             ExamId(1),
             GradeId(10),
+            SubjectId(1),
             TeacherId(1),
             Role::Setter,
+            0,
         )];
         let violations = validate_assignments(
             &problem,
@@ -716,8 +979,10 @@ mod tests {
         let assignments_mismatch = vec![Assignment::new(
             ExamId(1),
             GradeId(10),
+            SubjectId(1),
             TeacherId(2),
             Role::Reviewer,
+            0,
         )];
         let violations_mismatch = validate_assignments(
             &problem,
@@ -733,11 +998,31 @@ mod tests {
 
     #[test]
     fn test_h7_quota_exceeded_and_unmet() {
-        let problem = make_test_problem();
-        // For 1 exam and 1 grade (3 slots), 3 teachers: quotas are ~1 slot each, hi=1 (under H4)
+        let mut problem = make_test_problem();
+        if let Some(s) = problem
+            .rule_settings
+            .iter_mut()
+            .find(|s| s.key == RuleKey::H4)
+        {
+            s.params["max_tasks_per_exam"] = serde_json::json!(1);
+        }
         let assignments = vec![
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(1), Role::Setter),
-            Assignment::new(ExamId(1), GradeId(10), TeacherId(1), Role::Reviewer),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(10),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Reviewer,
+                0,
+            ),
         ];
 
         let violations = validate_assignments(

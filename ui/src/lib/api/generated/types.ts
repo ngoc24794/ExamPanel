@@ -5,7 +5,7 @@ export type Role = "setter" | "reviewer";
 
 export type LockKind = "pin" | "forbid";
 
-export type RuleKey = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "h7" | "s1" | "s2" | "s3" | "s4" | "s5" | "s6" | "s7" | "s8";
+export type RuleKey = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "h7" | "s1" | "s2" | "s3" | "s4" | "s5" | "s6" | "s7" | "s8" | "s9" | "s10";
 
 export type OptimizationEffort = "fast" | "standard" | "thorough";
 
@@ -23,9 +23,27 @@ export type CreateGradeInput = { code: number, name: string, sort_order: number,
 
 export type Grade = { id: number, code: number, name: string, sort_order: number, };
 
-export type CreateTeacherInput = { full_name: string, campus_id: number, load_weight: number, active: boolean, note: string | null, code?: string, };
+export type CreateSubjectInput = { school_year_id: number, code: string, name: string, color: string, sort_order: number, setters: number, reviewers: number, min_campuses: number, };
 
-export type Teacher = { id: number, full_name: string, campus_id: number, load_weight: number, active: boolean, note: string | null, code: string | null, };
+export type UpdateSubjectInput = { id: number, code: string, name: string, color: string, sort_order: number, setters: number, reviewers: number, min_campuses: number, };
+
+export type Subject = { id: number, code: string, name: string, color: string, sort_order: number, setters: number, reviewers: number, min_campuses: number, };
+
+export type GradeScope = "taught" | "any";
+
+export type Competency = { teacher_id: number, subject_id: number, role: Role, grade_scope: GradeScope, };
+
+export type SetCompetencyInput = { teacher_id: number, subject_id: number, role: Role, grade_scope: GradeScope, };
+
+export type DeleteCompetencyInput = { teacher_id: number, subject_id: number, role: Role, };
+
+export type ReplaceTeacherCompetenciesInput = { teacher_id: number, school_year_id: number, competencies: Array<Competency>, };
+
+export type CreateTeacherInput = { full_name: string, campus_id: number, load_weight: number, active: boolean, note: string | null, code?: string, display_name?: string, quota_override?: number, max_tasks_per_exam_override?: number, };
+
+export type Teacher = { id: number, full_name: string, campus_id: number, load_weight: number, active: boolean, note: string | null, code?: string, display_name?: string, quota_override?: number, max_tasks_per_exam_override?: number, };
+
+export type TeacherGrade = { teacher_id: number, school_year_id: number, grade_id: number, };
 
 export type TeacherWithGrades = { teacher: Teacher, grade_ids: Array<number>, };
 
@@ -39,9 +57,9 @@ export type Exam = { id: number, school_year_id: number, code: string, name: str
 
 export type Unavailability = { teacher_id: number, exam_id: number, reason: string | null, };
 
-export type CreateLockInput = { exam_id: number, grade_id: number, teacher_id: number, role: Role | null, kind: LockKind, };
+export type CreateLockInput = { exam_id: number, grade_id: number, subject_id: number, teacher_id: number, role: Role | null, kind: LockKind, };
 
-export type Lock = { id: number, exam_id: number, grade_id: number, teacher_id: number, role: Role | null, kind: LockKind, };
+export type Lock = { id: number, exam_id: number, grade_id: number, subject_id: number, teacher_id: number, role: Role | null, kind: LockKind, };
 
 export type RuleSetting = { key: RuleKey, enabled: boolean, weight: number, params: Record<string, unknown>, };
 
@@ -51,7 +69,13 @@ export type PreviewQuotasInput = { school_year_id: number, rule_settings: Array<
 
 export type RulePresetItem = { id: string, name: string, settings: Array<RuleSetting>, };
 
-export type PanelKey = { exam_id: number, grade_id: number, };
+export type PanelKey = { exam_id: number, grade_id: number, subject_id: number, };
+
+export type Placement = { panel: PanelKey, role: Role, position: number, teacher_id: number, };
+
+export type Problem = { school_year: SchoolYear, campuses: Array<Campus>, grades: Array<Grade>, subjects: Array<Subject>, teachers: Array<Teacher>, teacher_grades: Array<TeacherGrade>, competencies: Array<Competency>, exams: Array<Exam>, unavailabilities: Array<Unavailability>, locks: Array<Lock>, rule_settings: Array<RuleSetting>, };
+
+export type ProblemDetails = { problem: Problem, forced: Array<Placement>, };
 
 export type Violation = { rule: RuleKey, code: string, panel?: PanelKey, teacher?: number, params: Record<string, unknown>, };
 
@@ -79,7 +103,7 @@ quotas: Array<TeacherQuota>, };
 
 export type FeasibilityReportWithQuotas = { report: FeasibilityReport, quotas: Array<TeacherQuota>, };
 
-export type Assignment = { plan_id: number, exam_id: number, grade_id: number, teacher_id: number, role: Role, };
+export type Assignment = { plan_id: number, exam_id: number, grade_id: number, subject_id: number, teacher_id: number, role: Role, position: number, };
 
 export type SoftViolation = { rule: RuleKey, code: string, panel: PanelKey | null, teachers: Array<number>, params: { [key in string]: string }, };
 
@@ -93,7 +117,7 @@ export type ScoreReport = {
  */
 total: number, 
 /**
- * Detailed score breakdown per soft rule (S1..S8).
+ * Detailed score breakdown per soft rule (S1..S10).
  */
 by_rule: Array<RuleScore>, 
 /**
@@ -129,7 +153,7 @@ export type PlanDetails = { plan: Plan, assignments: Array<Assignment>, score_re
 
 export type PlanStatus = { data_changed: boolean, rules_changed: boolean, hard_violations_now: Array<Violation>, score_now: ScoreReport, };
 
-export type SlotRef = { exam_id: number, grade_id: number, role: Role, position: number, };
+export type SlotRef = { exam_id: number, grade_id: number, subject_id: number, role: Role, position: number, };
 
 export type CandidateEval = { teacher_id: number, hard_violations: Array<Violation>, delta_score: number, new_total: number, };
 
@@ -145,15 +169,25 @@ export type ImportCellError = { sheet: string, row: number, column: string, code
 
 export type CampusImportRow = { row_index: number, status: ImportRowStatus, code: string, name: string, errors: Array<ImportCellError>, };
 
-export type TeacherImportRow = { row_index: number, status: ImportRowStatus, code: string | null, full_name: string, campus_code: string, grades_str: string, grade_codes: Array<number>, load_weight: number, active: boolean, note: string | null, matched_teacher_id: bigint | null, errors: Array<ImportCellError>, };
+export type TeacherImportRow = { row_index: number, status: ImportRowStatus, code: string | null, full_name: string, display_name: string | null, campus_code: string, grades_str: string, grade_codes: Array<number>, load_weight: number, active: boolean, note: string | null, quota_override: number | null, max_tasks_per_exam_override: number | null, matched_teacher_id: bigint | null, errors: Array<ImportCellError>, };
 
 export type UnavailabilityImportRow = { row_index: number, status: ImportRowStatus, teacher_ref: string, exam_code: string, reason: string | null, matched_teacher_id: bigint | null, errors: Array<ImportCellError>, };
+
+export type SubjectImportRow = { row_index: number, status: ImportRowStatus, code: string, name: string, setters: number, reviewers: number, min_campuses: number, color: string, errors: Array<ImportCellError>, };
+
+export type CompetencyImportRow = { row_index: number, status: ImportRowStatus, teacher_ref: string, subject_code: string, role: string, grade_scope: string, matched_teacher_id: bigint | null, matched_subject_id: bigint | null, errors: Array<ImportCellError>, };
 
 export type ImportSummaryCounts = { new_count: number, update_count: number, unchanged_count: number, error_count: number, };
 
 export type DeactivatedTeacherPreview = { id: bigint, code: string | null, full_name: string, campus_name: string, };
 
-export type ImportPreviewResult = { mode: string, can_apply: boolean, campuses: Array<CampusImportRow>, teachers: Array<TeacherImportRow>, unavailabilities: Array<UnavailabilityImportRow>, campuses_summary: ImportSummaryCounts, teachers_summary: ImportSummaryCounts, unavailabilities_summary: ImportSummaryCounts, deactivated_teachers: Array<DeactivatedTeacherPreview>, feasibility_report: FeasibilityReportWithQuotas | null, };
+export type ImportPreviewResult = { mode: string, can_apply: boolean, campuses: Array<CampusImportRow>, teachers: Array<TeacherImportRow>, unavailabilities: Array<UnavailabilityImportRow>, subjects: Array<SubjectImportRow>, competencies: Array<CompetencyImportRow>, campuses_summary: ImportSummaryCounts, teachers_summary: ImportSummaryCounts, unavailabilities_summary: ImportSummaryCounts, subjects_summary: ImportSummaryCounts, competencies_summary: ImportSummaryCounts, deactivated_teachers: Array<DeactivatedTeacherPreview>, feasibility_report: FeasibilityReportWithQuotas | null, };
 
-export type ImportApplyResult = { backup_path: string, campuses_created: number, campuses_updated: number, teachers_created: number, teachers_updated: number, teachers_deactivated: number, unavailabilities_created: number, };
+export type ImportApplyResult = { backup_path: string, campuses_created: number, campuses_updated: number, teachers_created: number, teachers_updated: number, teachers_deactivated: number, unavailabilities_created: number, subjects_created: number, subjects_updated: number, competencies_created: number, };
+
+export type PlanImportTeacherTotal = { teacher_id: number, teacher_name: string, display_name: string, file_total: number | null, computed_total: number, setter_count: number, reviewer_count: number, };
+
+export type PlanImportPreview = { assignments: Array<Assignment>, teacher_totals: Array<PlanImportTeacherTotal>, errors: Array<ImportCellError>, warnings: Array<string>, can_apply: boolean, hard_violations: Array<Violation>, score_report: ScoreReport | null, };
+
+export type ApplyPlanImportInput = { school_year_id: number, plan_name: string | null, assignments: Array<Assignment>, };
 

@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_core-28c72d77f7bbea70.exe)
+
+running 1 test
+Tested 200 feasible multi-subject tiny instances, all satisfied S1, S6, S8 lower bounds.
+test score::bounds::tests::test_lower_bounds_validity_exhaustive_tiny_instances ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 88 filtered out; finished in 0.82s
+

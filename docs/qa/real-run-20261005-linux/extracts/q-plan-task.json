@@ -1,0 +1,523 @@
+{
+ "seats": [
+  {
+   "exam": "GK1",
+   "grade": 10,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "C Hiền"
+  },
+  {
+   "exam": "GK1",
+   "grade": 10,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Lài"
+  },
+  {
+   "exam": "GK1",
+   "grade": 10,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "T Phúc"
+  },
+  {
+   "exam": "GK1",
+   "grade": 10,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "GK1",
+   "grade": 10,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Hiền"
+  },
+  {
+   "exam": "GK1",
+   "grade": 11,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Lộc"
+  },
+  {
+   "exam": "GK1",
+   "grade": 11,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Thư"
+  },
+  {
+   "exam": "GK1",
+   "grade": 11,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Na"
+  },
+  {
+   "exam": "GK1",
+   "grade": 11,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "GK1",
+   "grade": 11,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Lài"
+  },
+  {
+   "exam": "GK1",
+   "grade": 12,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "C Bình"
+  },
+  {
+   "exam": "GK1",
+   "grade": 12,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "T Phúc"
+  },
+  {
+   "exam": "GK1",
+   "grade": 12,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Quí"
+  },
+  {
+   "exam": "GK1",
+   "grade": 12,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "GK1",
+   "grade": 12,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "T Lộc"
+  },
+  {
+   "exam": "CK1",
+   "grade": 10,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "C Hiền"
+  },
+  {
+   "exam": "CK1",
+   "grade": 10,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Tú"
+  },
+  {
+   "exam": "CK1",
+   "grade": 10,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Như"
+  },
+  {
+   "exam": "CK1",
+   "grade": 10,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "CK1",
+   "grade": 10,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Tú"
+  },
+  {
+   "exam": "CK1",
+   "grade": 11,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "C Lài"
+  },
+  {
+   "exam": "CK1",
+   "grade": 11,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Bình"
+  },
+  {
+   "exam": "CK1",
+   "grade": 11,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Thư"
+  },
+  {
+   "exam": "CK1",
+   "grade": 11,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "CK1",
+   "grade": 11,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Lan"
+  },
+  {
+   "exam": "CK1",
+   "grade": 12,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "C Lan"
+  },
+  {
+   "exam": "CK1",
+   "grade": 12,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Quí"
+  },
+  {
+   "exam": "CK1",
+   "grade": 12,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Lài"
+  },
+  {
+   "exam": "CK1",
+   "grade": 12,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "CK1",
+   "grade": 12,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Bình"
+  },
+  {
+   "exam": "GK2",
+   "grade": 10,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "C Tú"
+  },
+  {
+   "exam": "GK2",
+   "grade": 10,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Như"
+  },
+  {
+   "exam": "GK2",
+   "grade": 10,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "T Lộc"
+  },
+  {
+   "exam": "GK2",
+   "grade": 10,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "GK2",
+   "grade": 10,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Như"
+  },
+  {
+   "exam": "GK2",
+   "grade": 11,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "C Na"
+  },
+  {
+   "exam": "GK2",
+   "grade": 11,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Thư"
+  },
+  {
+   "exam": "GK2",
+   "grade": 11,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Hiền"
+  },
+  {
+   "exam": "GK2",
+   "grade": 11,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "GK2",
+   "grade": 11,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Thư"
+  },
+  {
+   "exam": "GK2",
+   "grade": 12,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "C Lan"
+  },
+  {
+   "exam": "GK2",
+   "grade": 12,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Lài"
+  },
+  {
+   "exam": "GK2",
+   "grade": 12,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Quí"
+  },
+  {
+   "exam": "GK2",
+   "grade": 12,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "GK2",
+   "grade": 12,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "T Phúc"
+  },
+  {
+   "exam": "CK2",
+   "grade": 10,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "C Na"
+  },
+  {
+   "exam": "CK2",
+   "grade": 10,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Như"
+  },
+  {
+   "exam": "CK2",
+   "grade": 10,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Tú"
+  },
+  {
+   "exam": "CK2",
+   "grade": 10,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "CK2",
+   "grade": 10,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Quí"
+  },
+  {
+   "exam": "CK2",
+   "grade": 11,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Lộc"
+  },
+  {
+   "exam": "CK2",
+   "grade": 11,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Quí"
+  },
+  {
+   "exam": "CK2",
+   "grade": 11,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Bình"
+  },
+  {
+   "exam": "CK2",
+   "grade": 11,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "CK2",
+   "grade": 11,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Na"
+  },
+  {
+   "exam": "CK2",
+   "grade": 12,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Phúc"
+  },
+  {
+   "exam": "CK2",
+   "grade": 12,
+   "subject": "VL",
+   "role": "setter",
+   "pos": 1,
+   "teacher": "C Hiền"
+  },
+  {
+   "exam": "CK2",
+   "grade": 12,
+   "subject": "VL",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Lan"
+  },
+  {
+   "exam": "CK2",
+   "grade": 12,
+   "subject": "CN",
+   "role": "setter",
+   "pos": 0,
+   "teacher": "T Nghĩa"
+  },
+  {
+   "exam": "CK2",
+   "grade": 12,
+   "subject": "CN",
+   "role": "reviewer",
+   "pos": 0,
+   "teacher": "C Quí"
+  }
+ ],
+ "check": {
+  "n_seats": 60,
+  "totals": {
+   "C Hiền": 5,
+   "C Lài": 5,
+   "T Phúc": 4,
+   "T Nghĩa": 12,
+   "T Lộc": 4,
+   "C Thư": 4,
+   "C Na": 4,
+   "C Bình": 4,
+   "C Quí": 6,
+   "C Tú": 4,
+   "C Như": 4,
+   "C Lan": 4
+  },
+  "stated_totals": {
+   "C Hiền": 5,
+   "C Lài": 5,
+   "T Lộc": 4,
+   "C Tú": 4,
+   "C Lan": 4,
+   "C Bình": 4,
+   "C Như": 4,
+   "C Thư": 4,
+   "T Phúc": 4,
+   "C Na": 4,
+   "C Quí": 6,
+   "T Nghĩa": 12
+  },
+  "totals_match_statement": true,
+  "max_tasks_per_exam": {
+   "T Nghĩa/GK1": 3,
+   "T Nghĩa/CK1": 3,
+   "T Nghĩa/GK2": 3,
+   "T Nghĩa/CK2": 3,
+   "C Quí/CK2": 3
+  }
+ }
+}

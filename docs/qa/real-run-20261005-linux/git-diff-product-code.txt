@@ -1,0 +1,5 @@
+# git diff --stat 5a19e0df1fa9345f51abd9d8e126d27fa2f43793..HEAD -- crates src-tauri ui/src   (expected: empty)
+# (end)
+# working tree vs start commit, same paths:
+# also migrations/locales:
+# (end)

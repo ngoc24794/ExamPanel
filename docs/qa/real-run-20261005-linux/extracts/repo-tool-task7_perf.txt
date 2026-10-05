@@ -1,0 +1,50 @@
+===============================================================================
+TASK 7 PERFORMANCE BENCHMARK REPORT
+===============================================================================
+
+Platform Information:
+  - Target: x86_64-pc-windows-msvc
+  - Hardware Concurrency: 4 logical cores
+  - Problem: Q-shaped dataset (4 synthetic campuses, 12 teachers, 2 subjects, 4 exams, 24 panels, 60 seats)
+
+## 1. Stage 1: solve_hard Performance
+  - Run 1: 1.629 ms (60 assignments, 25 nodes)
+  - Run 2: 1.402 ms (60 assignments, 25 nodes)
+  - Run 3: 1.418 ms (60 assignments, 25 nodes)
+  - Run 4: 1.347 ms (60 assignments, 25 nodes)
+  - Run 5: 1.366 ms (60 assignments, 25 nodes)
+solve_hard Summary (5 runs):
+  - Min:    1.347 ms
+  - Median: 1.402 ms
+  - Max:    1.629 ms
+  - Target: <= 50.0 ms
+  - Status: PASSED (median 1.402 ms <= 50.0 ms target)
+
+## 2. Stage 2: optimize (R = 8, 200,000 iterations per run = 1,600,000 iters)
+  - Run 1: 0.635 s (Best score: 69.36, Throughput: 2519659 iters/s)
+  - Run 2: 0.657 s (Best score: 69.36, Throughput: 2436730 iters/s)
+  - Run 3: 0.587 s (Best score: 69.36, Throughput: 2723511 iters/s)
+
+optimize Summary (3 runs of 8 x 200k iterations):
+  - Min:        0.587 s
+  - Median:     0.635 s
+  - Max:        0.657 s
+  - Throughput: 2519659 it/s
+  - Target:     1.500 s
+  - Status: PASSED (median 0.635 s <= 1.5 s target)
+
+## 3. Stage 3: Calamine Excel Import Benchmark (Informational, 5 runs)
+  - Run 1: 0.679 ms (257 cells read across all sheets)
+  - Run 2: 0.433 ms (257 cells read across all sheets)
+  - Run 3: 0.349 ms (257 cells read across all sheets)
+  - Run 4: 0.365 ms (257 cells read across all sheets)
+  - Run 5: 0.339 ms (257 cells read across all sheets)
+
+Calamine Import Summary (5 runs, informational only):
+  - Min:    0.339 ms
+  - Median: 0.365 ms
+  - Max:    0.679 ms
+
+## 4. Analysis of Timing Variations versus Phase 11.1
+  - solve_hard timing in Phase 11.1 was ~0.18 ms on a smaller single-subject problem model.
+  - In Phase 12 and 12.1, solve_hard evaluates the 2-subject Q dataset (Vật lí + Công nghệ, 24 panels, 60 seats) with subject qualifications and multi-campus availability pruning, resulting in ~0.78 ms, well within the target budget (<= 50.0 ms).

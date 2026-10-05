@@ -1,0 +1,63 @@
+{
+ "id": "A2",
+ "started": "2026-10-05T04:56:29.659Z",
+ "checks": [
+  {
+   "step": "A2.data-in-xdg",
+   "result": "pass",
+   "observed": [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ],
+   "expected": "exam-panel.db under $XDG_DATA_HOME/ExamPanel/data",
+   "evidence": []
+  },
+  {
+   "step": "A2.nothing-next-to-exe",
+   "result": "pass",
+   "observed": [
+    "ExamPanel"
+   ],
+   "expected": "no data/ beside exe",
+   "evidence": []
+  },
+  {
+   "step": "A2.app_info.is_portable=false",
+   "result": "pass",
+   "observed": {
+    "is_portable": false,
+    "data_dir": "/home/user/ExamPanel/.tools/qa-run/A2-1/home/.local/share/ExamPanel/data"
+   },
+   "expected": "is_portable false",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "trees": {
+   "next_to_exe": [
+    "ExamPanel"
+   ],
+   "xdg": [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ]
+  },
+  "get_app_info": {
+   "v": {
+    "identifier": "vn.exampanel.app",
+    "version": "0.1.0",
+    "db_path": "/home/user/ExamPanel/.tools/qa-run/A2-1/home/.local/share/ExamPanel/data/exam-panel.db",
+    "mode": "installed",
+    "build_date": "2026-10-05",
+    "in_trial_mode": false,
+    "commit_hash": "5a19e0df",
+    "data_dir": "/home/user/ExamPanel/.tools/qa-run/A2-1/home/.local/share/ExamPanel/data",
+    "name": "ExamPanel",
+    "is_portable": false
+   },
+   "ok": true
+  }
+ }
+}

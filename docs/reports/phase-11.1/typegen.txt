@@ -1,0 +1,9 @@
+   Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.88s
+     Running tests\generate_types.rs (target\debug\deps\generate_types-c193e04e409e8ec0.exe)
+
+running 1 test
+test test_typescript_types_freshness ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

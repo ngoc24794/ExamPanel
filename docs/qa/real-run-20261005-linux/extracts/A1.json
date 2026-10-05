@@ -1,0 +1,163 @@
+{
+ "id": "A1",
+ "started": "2026-10-05T04:55:50.763Z",
+ "checks": [
+  {
+   "step": "A1.tree",
+   "result": "pass",
+   "observed": [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ],
+   "expected": [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ],
+   "evidence": []
+  },
+  {
+   "step": "A1.db-name-matches-docs",
+   "result": "pass",
+   "observed": "exam-panel.db",
+   "expected": "DOC-TOI.txt/SPEC/ADR: exam-panel.db (v0.1.0-checklist & user-guide 08 say exampanel.db)",
+   "evidence": []
+  },
+  {
+   "step": "A1.no-backups-dir-on-fresh-start",
+   "result": "pass",
+   "observed": [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ],
+   "expected": "informational",
+   "evidence": []
+  },
+  {
+   "step": "A1.timing",
+   "result": "pass",
+   "observed": {
+    "driver": {
+     "min": 1596,
+     "median": 1600,
+     "max": 1634,
+     "all": [
+      1634,
+      1632,
+      1600,
+      1596,
+      1597
+     ]
+    },
+    "app": {
+     "min": 1450,
+     "median": 1450,
+     "max": 1480,
+     "all": [
+      1460,
+      1480,
+      1450,
+      1450,
+      1450
+     ]
+    }
+   },
+   "expected": "informational only (<1.5 s on a user PC per v0.1.0 checklist; sandbox not comparable)",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "rss_procs_run1": [
+   {
+    "pid": 14662,
+    "comm": "tauri-driver",
+    "rss_kb": 3624
+   },
+   {
+    "pid": 14663,
+    "comm": "WebKitWebDriver",
+    "rss_kb": 18712
+   },
+   {
+    "pid": 14665,
+    "comm": "ExamPanel",
+    "rss_kb": 182452
+   },
+   {
+    "pid": 14730,
+    "comm": "WebKitNetworkPr",
+    "rss_kb": 48980
+   },
+   {
+    "pid": 14735,
+    "comm": "WebKitWebProces",
+    "rss_kb": 206036
+   }
+  ],
+  "ready_ms_from_driver_launch": {
+   "min": 1596,
+   "median": 1600,
+   "max": 1634,
+   "all": [
+    1634,
+    1632,
+    1600,
+    1596,
+    1597
+   ]
+  },
+  "ready_ms_from_app_process_start(approx)": {
+   "min": 1450,
+   "median": 1450,
+   "max": 1480,
+   "all": [
+    1460,
+    1480,
+    1450,
+    1450,
+    1450
+   ]
+  },
+  "idle_rss_kb_total_after_5s(app+webkit+driver)": {
+   "min": 455620,
+   "median": 456384,
+   "max": 459804,
+   "all": [
+    459804,
+    456004,
+    456384,
+    456912,
+    455620
+   ]
+  },
+  "data_trees": [
+   [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ],
+   [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ],
+   [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ],
+   [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ],
+   [
+    "exam-panel.db",
+    "logs",
+    "logs/app.log"
+   ]
+  ]
+ }
+}

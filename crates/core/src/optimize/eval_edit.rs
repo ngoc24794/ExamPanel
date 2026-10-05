@@ -2,7 +2,7 @@
 
 use super::moves::LocalMove;
 use super::state::{IncrementalState, SlotRole};
-use crate::domain::{Assignment, ExamId, GradeId, Problem, Role, TeacherId};
+use crate::domain::{Assignment, ExamId, GradeId, Problem, Role, SubjectId, TeacherId};
 use crate::score::evaluate;
 use crate::validate::{validate_assignments, ValidateOptions, Violation};
 use serde::{Deserialize, Serialize};
@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 pub struct SlotRef {
     pub exam_id: ExamId,
     pub grade_id: GradeId,
+    pub subject_id: SubjectId,
     pub role: Role,
     pub position: usize,
 }
@@ -60,7 +61,14 @@ pub fn evaluate_candidates(
         Some(&idx) => idx,
         None => return Vec::new(),
     };
-    let panel_idx = e_idx * state.grade_ids.len() + g_idx;
+    let s_idx = match state.subject_map.get(&slot.subject_id) {
+        Some(&idx) => idx,
+        None => return Vec::new(),
+    };
+    let panel_idx = match state.find_panel_idx(e_idx, g_idx, s_idx) {
+        Some(idx) => idx,
+        None => return Vec::new(),
+    };
 
     let slot_role = match slot.role {
         Role::Reviewer => SlotRole::Reviewer,
@@ -88,7 +96,11 @@ pub fn evaluate_candidates(
         let mut replaced = false;
         let mut setter_count = 0;
         for a in &mut modified {
-            if a.exam_id == slot.exam_id && a.grade_id == slot.grade_id && a.role == slot.role {
+            if a.exam_id == slot.exam_id
+                && a.grade_id == slot.grade_id
+                && a.subject_id == slot.subject_id
+                && a.role == slot.role
+            {
                 if slot.role == Role::Reviewer {
                     a.teacher_id = teacher.id;
                     replaced = true;
@@ -105,15 +117,18 @@ pub fn evaluate_candidates(
         }
 
         if !replaced {
-            modified.push(Assignment {
-                plan_id: assignments
-                    .first()
-                    .map_or(crate::domain::PlanId(0), |a| a.plan_id),
-                exam_id: slot.exam_id,
-                grade_id: slot.grade_id,
-                teacher_id: teacher.id,
-                role: slot.role,
-            });
+            let mut a = Assignment::new(
+                slot.exam_id,
+                slot.grade_id,
+                slot.subject_id,
+                teacher.id,
+                slot.role,
+                slot.position,
+            );
+            a.plan_id = assignments
+                .first()
+                .map_or(crate::domain::PlanId(0), |a| a.plan_id);
+            modified.push(a);
         }
 
         // Validate hard violations specifically relevant to this placement
@@ -125,7 +140,10 @@ pub fn evaluate_candidates(
                     return true;
                 }
                 if let Some(ref p) = v.panel {
-                    if p.exam_id == slot.exam_id && p.grade_id == slot.grade_id {
+                    if p.exam_id == slot.exam_id
+                        && p.grade_id == slot.grade_id
+                        && p.subject_id == slot.subject_id
+                    {
                         return true;
                     }
                 }
@@ -189,11 +207,21 @@ pub fn evaluate_swap(
 
     let e1 = exam_map.get(&slot_a.exam_id).copied().unwrap_or(0);
     let g1 = grade_map.get(&slot_a.grade_id).copied().unwrap_or(0);
-    let p1 = e1 * state.grade_ids.len() + g1;
+    let s1 = state
+        .subject_map
+        .get(&slot_a.subject_id)
+        .copied()
+        .unwrap_or(0);
+    let p1 = state.find_panel_idx(e1, g1, s1).unwrap_or(0);
 
     let e2 = exam_map.get(&slot_b.exam_id).copied().unwrap_or(0);
     let g2 = grade_map.get(&slot_b.grade_id).copied().unwrap_or(0);
-    let p2 = e2 * state.grade_ids.len() + g2;
+    let s2 = state
+        .subject_map
+        .get(&slot_b.subject_id)
+        .copied()
+        .unwrap_or(0);
+    let p2 = state.find_panel_idx(e2, g2, s2).unwrap_or(0);
 
     let role1 = match slot_a.role {
         Role::Reviewer => SlotRole::Reviewer,
@@ -236,13 +264,18 @@ pub fn evaluate_swap(
     let mut setter1_count = 0;
     let mut setter2_count = 0;
     for a in &mut modified {
-        if a.exam_id == slot_a.exam_id && a.grade_id == slot_a.grade_id && a.role == slot_a.role {
+        if a.exam_id == slot_a.exam_id
+            && a.grade_id == slot_a.grade_id
+            && a.subject_id == slot_a.subject_id
+            && a.role == slot_a.role
+        {
             if slot_a.role == Role::Reviewer || setter1_count == slot_a.position {
                 a.teacher_id = t2_id;
             }
             setter1_count += 1;
         } else if a.exam_id == slot_b.exam_id
             && a.grade_id == slot_b.grade_id
+            && a.subject_id == slot_b.subject_id
             && a.role == slot_b.role
         {
             if slot_b.role == Role::Reviewer || setter2_count == slot_b.position {
@@ -260,8 +293,12 @@ pub fn evaluate_swap(
                 return true;
             }
             if let Some(ref p) = v.panel {
-                if (p.exam_id == slot_a.exam_id && p.grade_id == slot_a.grade_id)
-                    || (p.exam_id == slot_b.exam_id && p.grade_id == slot_b.grade_id)
+                if (p.exam_id == slot_a.exam_id
+                    && p.grade_id == slot_a.grade_id
+                    && p.subject_id == slot_a.subject_id)
+                    || (p.exam_id == slot_b.exam_id
+                        && p.grade_id == slot_b.grade_id
+                        && p.subject_id == slot_b.subject_id)
                 {
                     return true;
                 }
@@ -346,10 +383,13 @@ mod tests {
 
         let base_report = evaluate(&problem, &sol.assignments);
 
+        let sid = problem.effective_subjects()[0].id;
+
         // Test slot 1: Setter 0 on Exam 1, Grade 1
         let slot = SlotRef {
             exam_id: ExamId(1),
             grade_id: GradeId(1),
+            subject_id: sid,
             role: Role::Setter,
             position: 0,
         };
@@ -406,6 +446,7 @@ mod tests {
         let rev_slot = SlotRef {
             exam_id: ExamId(1),
             grade_id: GradeId(2),
+            subject_id: sid,
             role: Role::Reviewer,
             position: 0,
         };
@@ -441,17 +482,20 @@ mod tests {
         .expect("solve hard demo");
 
         let base_report = evaluate(&problem, &sol.assignments);
+        let sid = problem.effective_subjects()[0].id;
 
         // Case 1: Intra-exam swap (two panels in Exam 1)
         let slot_a = SlotRef {
             exam_id: ExamId(1),
             grade_id: GradeId(1),
+            subject_id: sid,
             role: Role::Setter,
             position: 0,
         };
         let slot_b = SlotRef {
             exam_id: ExamId(1),
             grade_id: GradeId(2),
+            subject_id: sid,
             role: Role::Setter,
             position: 1,
         };
@@ -516,6 +560,7 @@ mod tests {
         let slot_c = SlotRef {
             exam_id: ExamId(2),
             grade_id: GradeId(1),
+            subject_id: sid,
             role: Role::Reviewer,
             position: 0,
         };
@@ -530,6 +575,7 @@ mod tests {
             })
             .unwrap()
             .teacher_id;
+
         for a in &mut modified2 {
             if a.exam_id == slot_a.exam_id
                 && a.grade_id == slot_a.grade_id
@@ -573,29 +619,34 @@ mod tests {
         )
         .expect("solve hard demo");
 
+        let sid = problem.effective_subjects()[0].id;
         // Keep 4 slots fixed
         let kept_slots = vec![
             SlotRef {
                 exam_id: ExamId(1),
                 grade_id: GradeId(1),
+                subject_id: sid,
                 role: Role::Setter,
                 position: 0,
             },
             SlotRef {
                 exam_id: ExamId(1),
                 grade_id: GradeId(1),
+                subject_id: sid,
                 role: Role::Reviewer,
                 position: 0,
             },
             SlotRef {
                 exam_id: ExamId(2),
                 grade_id: GradeId(2),
+                subject_id: sid,
                 role: Role::Setter,
                 position: 1,
             },
             SlotRef {
                 exam_id: ExamId(3),
                 grade_id: GradeId(3),
+                subject_id: sid,
                 role: Role::Reviewer,
                 position: 0,
             },
@@ -605,12 +656,17 @@ mod tests {
         for slot in &kept_slots {
             let mut s_count = 0;
             for a in &sol.assignments {
-                if a.exam_id == slot.exam_id && a.grade_id == slot.grade_id && a.role == slot.role {
+                if a.exam_id == slot.exam_id
+                    && a.grade_id == slot.grade_id
+                    && a.subject_id == slot.subject_id
+                    && a.role == slot.role
+                {
                     if slot.role == Role::Reviewer || s_count == slot.position {
                         problem_with_pins.locks.push(crate::domain::Lock {
                             id: crate::domain::LockId(0),
                             exam_id: slot.exam_id,
                             grade_id: slot.grade_id,
+                            subject_id: slot.subject_id,
                             teacher_id: a.teacher_id,
                             role: Some(slot.role),
                             kind: crate::domain::LockKind::Pin,

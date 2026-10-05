@@ -52,7 +52,9 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
   const [mode, setMode] = React.useState<'upsert' | 'sync'>('upsert')
   const [loading, setLoading] = React.useState(false)
   const [preview, setPreview] = React.useState<ImportPreviewResult | null>(null)
-  const [activeTab, setActiveTab] = React.useState<'teachers' | 'campuses' | 'unavailabilities' | 'deactivated'>('teachers')
+  const [activeTab, setActiveTab] = React.useState<
+    'teachers' | 'campuses' | 'unavailabilities' | 'deactivated'
+  >('teachers')
   const [statusFilter, setStatusFilter] = React.useState<ImportRowStatus | 'all'>('all')
 
   // Reset when dialog opens
@@ -129,11 +131,23 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
   const renderStatusBadge = (status: ImportRowStatus) => {
     switch (status) {
       case 'new':
-        return <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/20">{t('import.statusNew')}</Badge>
+        return (
+          <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/20">
+            {t('import.statusNew')}
+          </Badge>
+        )
       case 'update':
-        return <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/20">{t('import.statusUpdate')}</Badge>
+        return (
+          <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/20">
+            {t('import.statusUpdate')}
+          </Badge>
+        )
       case 'unchanged':
-        return <Badge variant="outline" className="text-muted-foreground">{t('import.statusUnchanged')}</Badge>
+        return (
+          <Badge variant="outline" className="text-muted-foreground">
+            {t('import.statusUnchanged')}
+          </Badge>
+        )
       case 'error':
         return <Badge variant="destructive">{t('import.statusError')}</Badge>
       case 'skipped':
@@ -220,9 +234,7 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                     <span className="font-semibold text-sm text-foreground">
                       {t('import.modeSync')}
                     </span>
-                    {mode === 'sync' && (
-                      <CheckCircle2 className="h-4 w-4 text-primary" />
-                    )}
+                    {mode === 'sync' && <CheckCircle2 className="h-4 w-4 text-primary" />}
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {t('import.modeSyncDesc')}
@@ -242,14 +254,16 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
         {step === 'preview' && preview && (
           <div className="flex-1 flex flex-col space-y-4 overflow-hidden py-2">
             {/* Feasibility Alert */}
-            {preview.feasibility_report && !preview.feasibility_report.report.is_feasible && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>
-                  {t('import.feasibilityWarning')} (Có {preview.feasibility_report.report.errors.length} lỗi bắt buộc)
-                </span>
-              </div>
-            )}
+            {preview.feasibility_report &&
+              !preview.feasibility_report.report.is_feasible && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>
+                    {t('import.feasibilityWarning')} (Có{' '}
+                    {preview.feasibility_report.report.errors.length} lỗi bắt buộc)
+                  </span>
+                </div>
+              )}
 
             {/* Error Banner */}
             {!preview.can_apply && (
@@ -358,7 +372,9 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                   </TableHeader>
                   <TableBody>
                     {preview.teachers
-                      .filter((row) => statusFilter === 'all' || row.status === statusFilter)
+                      .filter(
+                        (row) => statusFilter === 'all' || row.status === statusFilter,
+                      )
                       .map((row) => {
                         const hasErr = row.errors.length > 0
                         return (
@@ -366,9 +382,13 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                             key={row.row_index}
                             className={hasErr ? 'bg-destructive/5' : undefined}
                           >
-                            <TableCell className="font-mono text-xs">{row.row_index}</TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {row.row_index}
+                            </TableCell>
                             <TableCell>{renderStatusBadge(row.status)}</TableCell>
-                            <TableCell className="font-mono text-xs">{row.code || '-'}</TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {row.code || '-'}
+                            </TableCell>
                             <TableCell className="font-medium text-xs">
                               {row.full_name}
                               {hasErr && (
@@ -381,7 +401,9 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                             <TableCell className="text-xs">{row.grades_str}</TableCell>
                             <TableCell className="text-xs">{row.load_weight}</TableCell>
                             <TableCell className="text-xs">
-                              {row.active ? t('import.statusNew') : t('import.statusSkipped')}
+                              {row.active
+                                ? t('import.statusNew')
+                                : t('import.statusSkipped')}
                             </TableCell>
                             <TableCell className="text-xs text-muted-foreground">
                               {row.note || '-'}
@@ -405,7 +427,9 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                   </TableHeader>
                   <TableBody>
                     {preview.campuses
-                      .filter((row) => statusFilter === 'all' || row.status === statusFilter)
+                      .filter(
+                        (row) => statusFilter === 'all' || row.status === statusFilter,
+                      )
                       .map((row) => {
                         const hasErr = row.errors.length > 0
                         return (
@@ -413,9 +437,13 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                             key={row.row_index}
                             className={hasErr ? 'bg-destructive/5' : undefined}
                           >
-                            <TableCell className="font-mono text-xs">{row.row_index}</TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {row.row_index}
+                            </TableCell>
                             <TableCell>{renderStatusBadge(row.status)}</TableCell>
-                            <TableCell className="font-mono text-xs">{row.code}</TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {row.code}
+                            </TableCell>
                             <TableCell className="text-xs">
                               {row.name}
                               {hasErr && (
@@ -444,7 +472,9 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                   </TableHeader>
                   <TableBody>
                     {preview.unavailabilities
-                      .filter((row) => statusFilter === 'all' || row.status === statusFilter)
+                      .filter(
+                        (row) => statusFilter === 'all' || row.status === statusFilter,
+                      )
                       .map((row) => {
                         const hasErr = row.errors.length > 0
                         return (
@@ -452,7 +482,9 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                             key={row.row_index}
                             className={hasErr ? 'bg-destructive/5' : undefined}
                           >
-                            <TableCell className="font-mono text-xs">{row.row_index}</TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {row.row_index}
+                            </TableCell>
                             <TableCell>{renderStatusBadge(row.status)}</TableCell>
                             <TableCell className="text-xs font-medium">
                               {row.teacher_ref}
@@ -485,14 +517,19 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                   <TableBody>
                     {preview.deactivated_teachers.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center py-4 text-xs text-muted-foreground">
+                        <TableCell
+                          colSpan={3}
+                          className="text-center py-4 text-xs text-muted-foreground"
+                        >
                           Không có giáo viên nào bị ngưng hoạt động.
                         </TableCell>
                       </TableRow>
                     ) : (
                       preview.deactivated_teachers.map((t) => (
                         <TableRow key={t.id.toString()}>
-                          <TableCell className="font-mono text-xs">{t.code || '-'}</TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {t.code || '-'}
+                          </TableCell>
                           <TableCell className="font-medium text-xs text-destructive">
                             {t.full_name}
                           </TableCell>

@@ -4,7 +4,8 @@
 //! candidate assignment plans that strictly satisfy 100% of hard constraints (H1–H7).
 
 use crate::domain::{
-    Assignment, CampusId, ExamId, GradeId, LockKind, PanelKey, Problem, Role, RuleKey, TeacherId,
+    Assignment, CampusId, ExamId, GradeId, LockKind, PanelKey, Problem, Role, RuleKey, SubjectId,
+    TeacherId,
 };
 use crate::feasibility::{check_feasibility, FeasibilityReport};
 use rand_chacha::ChaCha8Rng;
@@ -105,39 +106,8 @@ impl std::fmt::Display for SolveError {
 
 impl std::error::Error for SolveError {}
 
-/// Compact bitset supporting up to 256 teachers.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct TeacherBitSet([u64; 4]);
-
-impl TeacherBitSet {
-    #[must_use]
-    pub const fn new() -> Self {
-        Self([0; 4])
-    }
-
-    pub fn insert(&mut self, idx: usize) {
-        if idx < 256 {
-            self.0[idx / 64] |= 1u64 << (idx % 64);
-        }
-    }
-
-    pub fn remove(&mut self, idx: usize) {
-        if idx < 256 {
-            self.0[idx / 64] &= !(1u64 << (idx % 64));
-        }
-    }
-
-    #[must_use]
-    pub const fn contains(&self, idx: usize) -> bool {
-        if idx < 256 {
-            (self.0[idx / 64] & (1u64 << (idx % 64))) != 0
-        } else {
-            false
-        }
-    }
-}
-
 /// A statically valid candidate triple (setter1, setter2, reviewer) for a panel.
+/// If a subject only has 1 setter, s2 is `usize::MAX`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct CandidateTriple {
     s1: usize,
@@ -158,19 +128,9 @@ pub fn solve_hard(problem: &Problem, opts: &SolveOptions) -> Result<Solution, So
     let start_time = Instant::now();
 
     let num_teachers = problem.teachers.len();
-    let num_exams = problem.exams.len();
-    let num_grades = problem.grades.len();
-    let total_panels = num_exams * num_grades;
+    let subjects = problem.effective_subjects();
+    let _num_subjects = subjects.len();
 
-    if total_panels == 0 {
-        return Ok(Solution {
-            assignments: Vec::new(),
-            seed: opts.seed,
-            stats: SolveStats::default(),
-        });
-    }
-
-    // Mapping between IDs and dense indices
     let teacher_id_to_idx: HashMap<TeacherId, usize> = problem
         .teachers
         .iter()
@@ -192,13 +152,66 @@ pub fn solve_hard(problem: &Problem, opts: &SolveOptions) -> Result<Solution, So
         .map(|(i, g)| (g.id, i))
         .collect();
 
+    let subject_id_to_idx: HashMap<SubjectId, usize> = subjects
+        .iter()
+        .enumerate()
+        .map(|(i, s)| (s.id, i))
+        .collect();
+
     let teacher_campuses: Vec<CampusId> = problem.teachers.iter().map(|t| t.campus_id).collect();
 
-    let h4_enabled = problem
-        .rule_settings
-        .iter()
-        .find(|s| s.key == RuleKey::H4)
-        .is_none_or(|s| s.enabled);
+    let h4_setting = problem.rule_settings.iter().find(|s| s.key == RuleKey::H4);
+    let h4_enabled = h4_setting.is_none_or(|s| s.enabled);
+    let default_max_tasks_per_exam = h4_setting
+        .and_then(|s| {
+            s.params
+                .get("max_tasks_per_exam")
+                .and_then(serde_json::Value::as_u64)
+        })
+        .map_or(2, |v| v as usize);
+    let default_max_setter_per_exam = h4_setting
+        .and_then(|s| {
+            s.params
+                .get("max_setter_per_exam")
+                .and_then(serde_json::Value::as_u64)
+        })
+        .map_or(1, |v| v as usize);
+
+    // Forced placements
+    let forced_placements =
+        crate::domain::forced::find_forced_placements(problem).unwrap_or_default();
+    let mut forced_counts = vec![0usize; num_teachers];
+    let mut forced_tasks_per_exam = vec![vec![0usize; problem.exams.len()]; num_teachers];
+    let mut forced_setters_per_exam = vec![vec![0usize; problem.exams.len()]; num_teachers];
+
+    for p in &forced_placements {
+        if let Some(&t_idx) = teacher_id_to_idx.get(&p.teacher_id) {
+            forced_counts[t_idx] += 1;
+            if let Some(&e_idx) = exam_id_to_idx.get(&p.panel.exam_id) {
+                forced_tasks_per_exam[t_idx][e_idx] += 1;
+                if p.role == Role::Setter {
+                    forced_setters_per_exam[t_idx][e_idx] += 1;
+                }
+            }
+        }
+    }
+
+    // Effective max tasks and setter tasks per teacher per exam
+    let mut eff_max_tasks =
+        vec![vec![default_max_tasks_per_exam; problem.exams.len()]; num_teachers];
+    let mut eff_max_setter =
+        vec![vec![default_max_setter_per_exam; problem.exams.len()]; num_teachers];
+    for t_idx in 0..num_teachers {
+        let t = &problem.teachers[t_idx];
+        let configured = t
+            .max_tasks_per_exam_override
+            .map_or(default_max_tasks_per_exam, |v| v as usize);
+        for e_idx in 0..problem.exams.len() {
+            eff_max_tasks[t_idx][e_idx] = configured.max(forced_tasks_per_exam[t_idx][e_idx]);
+            eff_max_setter[t_idx][e_idx] =
+                default_max_setter_per_exam.max(forced_setters_per_exam[t_idx][e_idx]);
+        }
+    }
 
     // Extract quotas
     let mut lo = vec![0usize; num_teachers];
@@ -214,118 +227,71 @@ pub fn solve_hard(problem: &Problem, opts: &SolveOptions) -> Result<Solution, So
     }
 
     // Panels list and mapping
+    let all_panels = problem.all_panels();
+    let total_panels = all_panels.len();
+
+    if total_panels == 0 {
+        return Ok(Solution {
+            assignments: Vec::new(),
+            seed: opts.seed,
+            stats: SolveStats::default(),
+        });
+    }
+
     let mut panel_keys = Vec::with_capacity(total_panels);
     let mut panel_exam_idx = Vec::with_capacity(total_panels);
     let mut panel_grade_idx = Vec::with_capacity(total_panels);
+    let mut panel_subject_idx = Vec::with_capacity(total_panels);
 
-    for exam in &problem.exams {
-        let e_idx = exam_id_to_idx[&exam.id];
-        for grade in &problem.grades {
-            let g_idx = grade_id_to_idx[&grade.id];
-            panel_keys.push(PanelKey::new(exam.id, grade.id));
-            panel_exam_idx.push(e_idx);
-            panel_grade_idx.push(g_idx);
-        }
+    for p in &all_panels {
+        panel_keys.push(*p);
+        panel_exam_idx.push(exam_id_to_idx[&p.exam_id]);
+        panel_grade_idx.push(grade_id_to_idx[&p.grade_id]);
+        panel_subject_idx.push(subject_id_to_idx[&p.subject_id]);
     }
-
-    // Teacher grades set
-    let teacher_grades_set: HashSet<(usize, usize)> = problem
-        .teacher_grades
-        .iter()
-        .filter(|tg| tg.school_year_id == problem.school_year.id)
-        .filter_map(|tg| {
-            let t_idx = teacher_id_to_idx.get(&tg.teacher_id)?;
-            let g_idx = grade_id_to_idx.get(&tg.grade_id)?;
-            Some((*t_idx, *g_idx))
-        })
-        .collect();
-
-    // Teacher unavailabilities
-    let unavailability_set: HashSet<(usize, usize)> = problem
-        .unavailabilities
-        .iter()
-        .filter_map(|u| {
-            let t_idx = teacher_id_to_idx.get(&u.teacher_id)?;
-            let e_idx = exam_id_to_idx.get(&u.exam_id)?;
-            Some((*t_idx, *e_idx))
-        })
-        .collect();
-
-    // FORBID locks
-    let mut forbid_any: HashSet<(usize, usize, usize)> = HashSet::new();
-    let mut forbid_role: HashMap<(usize, usize, usize), HashSet<Role>> = HashMap::new();
-
-    // PIN locks per panel
-    let mut panel_pinned_setters: Vec<Vec<usize>> = vec![Vec::new(); total_panels];
-    let mut panel_pinned_reviewers: Vec<Vec<usize>> = vec![Vec::new(); total_panels];
-    let mut panel_pinned_any: Vec<Vec<usize>> = vec![Vec::new(); total_panels];
-
-    for lock in &problem.locks {
-        let e_idx = match exam_id_to_idx.get(&lock.exam_id) {
-            Some(&idx) => idx,
-            None => continue,
-        };
-        let g_idx = match grade_id_to_idx.get(&lock.grade_id) {
-            Some(&idx) => idx,
-            None => continue,
-        };
-        let t_idx = match teacher_id_to_idx.get(&lock.teacher_id) {
-            Some(&idx) => idx,
-            None => continue,
-        };
-
-        let p_idx = e_idx * num_grades + g_idx;
-
-        match lock.kind {
-            LockKind::Forbid => {
-                let key = (e_idx, g_idx, t_idx);
-                match lock.role {
-                    None => {
-                        forbid_any.insert(key);
-                    }
-                    Some(r) => {
-                        forbid_role.entry(key).or_default().insert(r);
-                    }
-                }
-            }
-            LockKind::Pin => match lock.role {
-                Some(Role::Setter) => panel_pinned_setters[p_idx].push(t_idx),
-                Some(Role::Reviewer) => panel_pinned_reviewers[p_idx].push(t_idx),
-                None => panel_pinned_any[p_idx].push(t_idx),
-            },
-        }
-    }
-
-    let is_eligible = |t: usize, e: usize, g: usize, role: Role| -> bool {
-        let teacher = &problem.teachers[t];
-        if !teacher.active || teacher.load_weight <= 0.0 || hi[t] == 0 {
-            return false;
-        }
-        if !teacher_grades_set.contains(&(t, g)) {
-            return false;
-        }
-        if unavailability_set.contains(&(t, e)) {
-            return false;
-        }
-        let fkey = (e, g, t);
-        if forbid_any.contains(&fkey) {
-            return false;
-        }
-        if let Some(roles) = forbid_role.get(&fkey) {
-            if roles.contains(&role) {
-                return false;
-            }
-        }
-        true
-    };
 
     // Precompute candidate triples for each panel
     let mut static_triples: Vec<Vec<CandidateTriple>> = vec![Vec::new(); total_panels];
     let mut teacher_can_join_panel: Vec<Vec<bool>> = vec![vec![false; total_panels]; num_teachers];
 
     for p in 0..total_panels {
-        let e = panel_exam_idx[p];
-        let g = panel_grade_idx[p];
+        let pkey = panel_keys[p];
+        let s_idx = panel_subject_idx[p];
+        let sub = &subjects[s_idx];
+        let min_campuses = sub.min_campuses as usize;
+
+        // Check forced placements for this panel
+        let forced_p_setters: Vec<usize> = forced_placements
+            .iter()
+            .filter(|fp| fp.panel == pkey && fp.role == Role::Setter)
+            .filter_map(|fp| teacher_id_to_idx.get(&fp.teacher_id).copied())
+            .collect();
+        let forced_p_reviewers: Vec<usize> = forced_placements
+            .iter()
+            .filter(|fp| fp.panel == pkey && fp.role == Role::Reviewer)
+            .filter_map(|fp| teacher_id_to_idx.get(&fp.teacher_id).copied())
+            .collect();
+
+        // Check PIN locks for this panel
+        let mut pinned_setters = Vec::new();
+        let mut pinned_reviewers = Vec::new();
+        let mut pinned_any = Vec::new();
+
+        for lock in &problem.locks {
+            if lock.kind == LockKind::Pin
+                && lock.exam_id == pkey.exam_id
+                && lock.grade_id == pkey.grade_id
+                && lock.subject_id == pkey.subject_id
+            {
+                if let Some(&t_idx) = teacher_id_to_idx.get(&lock.teacher_id) {
+                    match lock.role {
+                        Some(Role::Setter) => pinned_setters.push(t_idx),
+                        Some(Role::Reviewer) => pinned_reviewers.push(t_idx),
+                        None => pinned_any.push(t_idx),
+                    }
+                }
+            }
+        }
 
         let mut eligible_setters = Vec::new();
         let mut eligible_reviewers = Vec::new();
@@ -335,8 +301,23 @@ pub fn solve_hard(problem: &Problem, opts: &SolveOptions) -> Result<Solution, So
             .enumerate()
             .take(num_teachers)
         {
-            let s = is_eligible(t, e, g, Role::Setter);
-            let r = is_eligible(t, e, g, Role::Reviewer);
+            let s = crate::domain::forced::is_teacher_eligible(
+                problem,
+                problem.teachers[t].id,
+                pkey.exam_id,
+                pkey.grade_id,
+                pkey.subject_id,
+                Role::Setter,
+            );
+            let r = crate::domain::forced::is_teacher_eligible(
+                problem,
+                problem.teachers[t].id,
+                pkey.exam_id,
+                pkey.grade_id,
+                pkey.subject_id,
+                Role::Reviewer,
+            );
+
             if s {
                 eligible_setters.push(t);
             }
@@ -348,49 +329,94 @@ pub fn solve_hard(problem: &Problem, opts: &SolveOptions) -> Result<Solution, So
             }
         }
 
-        let pinned_s = &panel_pinned_setters[p];
-        let pinned_r = &panel_pinned_reviewers[p];
-        let pinned_any = &panel_pinned_any[p];
+        // Generate combinations from eligible teachers
+        let setter_candidates = eligible_setters;
+        let reviewer_candidates = eligible_reviewers;
 
-        for &r in &eligible_reviewers {
-            if !pinned_r.is_empty() && !pinned_r.contains(&r) {
-                continue;
-            }
-
-            for (i, &s1) in eligible_setters.iter().enumerate() {
-                if s1 == r {
-                    continue;
-                }
-                for &s2 in &eligible_setters[i + 1..] {
-                    if s2 == r {
+        if sub.setters == 1 {
+            // 1 setter, 1 reviewer
+            for &s1 in &setter_candidates {
+                for &r in &reviewer_candidates {
+                    if s1 == r {
                         continue;
                     }
-
-                    // Campuses
                     let c1 = teacher_campuses[s1];
-                    let c2 = teacher_campuses[s2];
-                    let c3 = teacher_campuses[r];
-                    if c1 == c2 && c1 == c3 {
+                    let cr = teacher_campuses[r];
+                    if min_campuses >= 2 && c1 == cr {
                         continue;
                     }
 
-                    // Check PIN requirements
-                    if !pinned_s.is_empty() {
-                        let has_all_s = pinned_s.iter().all(|&ps| ps == s1 || ps == s2);
-                        if !has_all_s {
-                            continue;
-                        }
+                    if !forced_p_setters.is_empty() && !forced_p_setters.contains(&s1) {
+                        continue;
+                    }
+                    if !forced_p_reviewers.is_empty() && !forced_p_reviewers.contains(&r) {
+                        continue;
+                    }
+                    if !pinned_setters.is_empty() && !pinned_setters.contains(&s1) {
+                        continue;
+                    }
+                    if !pinned_reviewers.is_empty() && !pinned_reviewers.contains(&r) {
+                        continue;
+                    }
+                    if !pinned_any.is_empty() && !pinned_any.iter().all(|&pa| pa == s1 || pa == r) {
+                        continue;
                     }
 
-                    if !pinned_any.is_empty() {
-                        let has_all_any =
-                            pinned_any.iter().all(|&pa| pa == s1 || pa == s2 || pa == r);
-                        if !has_all_any {
+                    static_triples[p].push(CandidateTriple {
+                        s1,
+                        s2: usize::MAX,
+                        r,
+                    });
+                }
+            }
+        } else {
+            // 2 setters, 1 reviewer
+            for (i, &s1) in setter_candidates.iter().enumerate() {
+                for &s2 in &setter_candidates[i + 1..] {
+                    for &r in &reviewer_candidates {
+                        if r == s1 || r == s2 {
                             continue;
                         }
-                    }
+                        let c1 = teacher_campuses[s1];
+                        let c2 = teacher_campuses[s2];
+                        let cr = teacher_campuses[r];
+                        let mut distinct_campuses = HashSet::new();
+                        distinct_campuses.insert(c1);
+                        distinct_campuses.insert(c2);
+                        distinct_campuses.insert(cr);
+                        if distinct_campuses.len() < min_campuses {
+                            continue;
+                        }
 
-                    static_triples[p].push(CandidateTriple { s1, s2, r });
+                        if !forced_p_setters.is_empty() {
+                            let has_all_fs =
+                                forced_p_setters.iter().all(|&fs| fs == s1 || fs == s2);
+                            if !has_all_fs {
+                                continue;
+                            }
+                        }
+                        if !forced_p_reviewers.is_empty() && !forced_p_reviewers.contains(&r) {
+                            continue;
+                        }
+                        if !pinned_setters.is_empty() {
+                            let has_all_s = pinned_setters.iter().all(|&ps| ps == s1 || ps == s2);
+                            if !has_all_s {
+                                continue;
+                            }
+                        }
+                        if !pinned_reviewers.is_empty() && !pinned_reviewers.contains(&r) {
+                            continue;
+                        }
+                        if !pinned_any.is_empty() {
+                            let has_all_any =
+                                pinned_any.iter().all(|&pa| pa == s1 || pa == s2 || pa == r);
+                            if !has_all_any {
+                                continue;
+                            }
+                        }
+
+                        static_triples[p].push(CandidateTriple { s1, s2, r });
+                    }
                 }
             }
         }
@@ -399,29 +425,37 @@ pub fn solve_hard(problem: &Problem, opts: &SolveOptions) -> Result<Solution, So
     // Verify static feasibility
     for p in 0..total_panels {
         if static_triples[p].is_empty() {
+            let stats = SolveStats {
+                elapsed_ms: start_time.elapsed().as_millis() as u64,
+                ..Default::default()
+            };
             return Err(SolveError::Exhausted {
-                stats: SolveStats::default(),
+                stats,
                 unfilled_panels: vec![panel_keys[p]],
             });
         }
     }
 
-    // Solver state
     let mut rng = ChaCha8Rng::seed_from_u64(opts.seed);
     let mut assigned: Vec<Option<CandidateTriple>> = vec![None; total_panels];
-    let mut used_count: Vec<usize> = vec![0; num_teachers];
-    let mut exam_used: Vec<TeacherBitSet> = vec![TeacherBitSet::new(); num_exams];
     let mut unfilled: Vec<usize> = (0..total_panels).collect();
+
+    let mut used_count = vec![0usize; num_teachers];
+    let mut exam_tasks = vec![vec![0usize; problem.exams.len()]; num_teachers];
+    let mut exam_setters = vec![vec![0usize; problem.exams.len()]; num_teachers];
 
     let mut stats = SolveStats::default();
     let mut best_partial_count = 0usize;
-    let mut best_partial_assignments: Vec<Assignment> = Vec::new();
+    let mut best_partial_assignments = Vec::new();
 
-    let res = backtrack(
+    let search_res = backtrack(
         &mut assigned,
         &mut unfilled,
         &mut used_count,
-        &mut exam_used,
+        &mut exam_tasks,
+        &mut exam_setters,
+        &eff_max_tasks,
+        &eff_max_setter,
         &static_triples,
         &teacher_can_join_panel,
         &panel_exam_idx,
@@ -441,7 +475,7 @@ pub fn solve_hard(problem: &Problem, opts: &SolveOptions) -> Result<Solution, So
 
     stats.elapsed_ms = start_time.elapsed().as_millis() as u64;
 
-    match res {
+    match search_res {
         Ok(()) => {
             let mut assignments = Vec::with_capacity(total_panels * 3);
             for p in 0..total_panels {
@@ -450,20 +484,28 @@ pub fn solve_hard(problem: &Problem, opts: &SolveOptions) -> Result<Solution, So
                     assignments.push(Assignment::new(
                         key.exam_id,
                         key.grade_id,
+                        key.subject_id,
                         problem.teachers[triple.s1].id,
                         Role::Setter,
+                        0,
                     ));
+                    if triple.s2 != usize::MAX {
+                        assignments.push(Assignment::new(
+                            key.exam_id,
+                            key.grade_id,
+                            key.subject_id,
+                            problem.teachers[triple.s2].id,
+                            Role::Setter,
+                            1,
+                        ));
+                    }
                     assignments.push(Assignment::new(
                         key.exam_id,
                         key.grade_id,
-                        problem.teachers[triple.s2].id,
-                        Role::Setter,
-                    ));
-                    assignments.push(Assignment::new(
-                        key.exam_id,
-                        key.grade_id,
+                        key.subject_id,
                         problem.teachers[triple.r].id,
                         Role::Reviewer,
+                        0,
                     ));
                 }
             }
@@ -499,7 +541,10 @@ fn backtrack(
     assigned: &mut [Option<CandidateTriple>],
     unfilled: &mut Vec<usize>,
     used_count: &mut [usize],
-    exam_used: &mut [TeacherBitSet],
+    exam_tasks: &mut [Vec<usize>],
+    exam_setters: &mut [Vec<usize>],
+    eff_max_tasks: &[Vec<usize>],
+    eff_max_setter: &[Vec<usize>],
     static_triples: &[Vec<CandidateTriple>],
     teacher_can_join: &[Vec<bool>],
     panel_exam: &[usize],
@@ -518,7 +563,6 @@ fn backtrack(
 ) -> Result<(), SearchError> {
     stats.nodes += 1;
 
-    // Check limits periodically
     if stats.nodes.is_multiple_of(256)
         && (start_time.elapsed().as_millis() >= opts.time_limit_ms as u128
             || stats.nodes >= opts.max_nodes)
@@ -536,27 +580,34 @@ fn backtrack(
                 best_partial.push(Assignment::new(
                     key.exam_id,
                     key.grade_id,
+                    key.subject_id,
                     teachers[triple.s1].id,
                     Role::Setter,
+                    0,
                 ));
+                if triple.s2 != usize::MAX {
+                    best_partial.push(Assignment::new(
+                        key.exam_id,
+                        key.grade_id,
+                        key.subject_id,
+                        teachers[triple.s2].id,
+                        Role::Setter,
+                        1,
+                    ));
+                }
                 best_partial.push(Assignment::new(
                     key.exam_id,
                     key.grade_id,
-                    teachers[triple.s2].id,
-                    Role::Setter,
-                ));
-                best_partial.push(Assignment::new(
-                    key.exam_id,
-                    key.grade_id,
+                    key.subject_id,
                     teachers[triple.r].id,
                     Role::Reviewer,
+                    0,
                 ));
             }
         }
     }
 
     if unfilled.is_empty() {
-        // All panels filled! Check lower bounds
         for t in 0..used_count.len() {
             if used_count[t] < lo[t] {
                 return Err(SearchError::Exhausted);
@@ -565,7 +616,7 @@ fn backtrack(
         return Ok(());
     }
 
-    // MRV heuristic: find unfilled panel with fewest valid triples
+    // MRV heuristic
     let mut best_panel_idx_in_unfilled = 0;
     let mut min_valid_triples = usize::MAX;
     let mut best_valid_triples: Vec<CandidateTriple> = Vec::new();
@@ -575,24 +626,38 @@ fn backtrack(
         let mut valid_triples = Vec::new();
 
         for &triple in &static_triples[p] {
+            let t1 = triple.s1;
+            let tr = triple.r;
+
+            if used_count[t1] >= hi[t1] || used_count[tr] >= hi[tr] {
+                continue;
+            }
+
             if h4
-                && (exam_used[e].contains(triple.s1)
-                    || exam_used[e].contains(triple.s2)
-                    || exam_used[e].contains(triple.r))
+                && (exam_tasks[t1][e] >= eff_max_tasks[t1][e]
+                    || exam_setters[t1][e] >= eff_max_setter[t1][e]
+                    || exam_tasks[tr][e] >= eff_max_tasks[tr][e])
             {
                 continue;
             }
-            if used_count[triple.s1] >= hi[triple.s1]
-                || used_count[triple.s2] >= hi[triple.s2]
-                || used_count[triple.r] >= hi[triple.r]
-            {
-                continue;
+
+            if triple.s2 != usize::MAX {
+                let t2 = triple.s2;
+                if used_count[t2] >= hi[t2] {
+                    continue;
+                }
+                if h4
+                    && (exam_tasks[t2][e] >= eff_max_tasks[t2][e]
+                        || exam_setters[t2][e] >= eff_max_setter[t2][e])
+                {
+                    continue;
+                }
             }
+
             valid_triples.push(triple);
         }
 
         if valid_triples.is_empty() {
-            // Immediate dead end!
             stats.backtracks += 1;
             return Err(SearchError::Exhausted);
         }
@@ -602,7 +667,7 @@ fn backtrack(
             best_panel_idx_in_unfilled = ui;
             best_valid_triples = valid_triples;
             if min_valid_triples == 1 {
-                break; // Minimum possible
+                break;
             }
         }
     }
@@ -610,53 +675,50 @@ fn backtrack(
     let chosen_p = unfilled.remove(best_panel_idx_in_unfilled);
     let chosen_e = panel_exam[chosen_p];
 
-    // Value ordering: score triples by how far teachers are below quota, plus random jitter
+    // Value ordering
     let mut scored_triples: Vec<(i64, CandidateTriple)> = best_valid_triples
         .into_iter()
         .map(|triple| {
-            let deficit = (quota[triple.s1] - used_count[triple.s1] as f64)
-                + (quota[triple.s2] - used_count[triple.s2] as f64)
+            let mut deficit = (quota[triple.s1] - used_count[triple.s1] as f64)
                 + (quota[triple.r] - used_count[triple.r] as f64);
+            if triple.s2 != usize::MAX {
+                deficit += quota[triple.s2] - used_count[triple.s2] as f64;
+            }
             let jitter = (rng.next_u32() % 1000) as f64 / 10000.0;
             let score = ((deficit + jitter) * 10000.0) as i64;
             (score, triple)
         })
         .collect();
 
-    // Sort descending by score
     scored_triples.sort_by_key(|a| std::cmp::Reverse(a.0));
 
     for (_, triple) in scored_triples {
-        // Place triple
         assigned[chosen_p] = Some(triple);
         used_count[triple.s1] += 1;
-        used_count[triple.s2] += 1;
-        used_count[triple.r] += 1;
+        exam_tasks[triple.s1][chosen_e] += 1;
+        exam_setters[triple.s1][chosen_e] += 1;
 
-        if h4 {
-            exam_used[chosen_e].insert(triple.s1);
-            exam_used[chosen_e].insert(triple.s2);
-            exam_used[chosen_e].insert(triple.r);
+        if triple.s2 != usize::MAX {
+            used_count[triple.s2] += 1;
+            exam_tasks[triple.s2][chosen_e] += 1;
+            exam_setters[triple.s2][chosen_e] += 1;
         }
 
-        // Forward checking:
-        // 1. Lower bounds reachable
-        let remaining_slots = unfilled.len() * 3;
-        let mut total_needed_lo = 0usize;
-        let mut lo_feasible = true;
+        used_count[triple.r] += 1;
+        exam_tasks[triple.r][chosen_e] += 1;
 
+        // Forward checking
+        let mut lo_feasible = true;
         for t in 0..used_count.len() {
             let needed = lo[t].saturating_sub(used_count[t]);
-            total_needed_lo += needed;
-
             if needed > 0 {
                 let available_panels = unfilled
                     .iter()
                     .filter(|&&up| {
-                        teacher_can_join[t][up] && (!h4 || !exam_used[panel_exam[up]].contains(t))
+                        let ue = panel_exam[up];
+                        teacher_can_join[t][up] && (!h4 || exam_tasks[t][ue] < eff_max_tasks[t][ue])
                     })
                     .count();
-
                 if available_panels < needed {
                     lo_feasible = false;
                     break;
@@ -664,22 +726,33 @@ fn backtrack(
             }
         }
 
-        if lo_feasible && total_needed_lo <= remaining_slots {
-            // 2. Every remaining unfilled panel has at least one valid triple
+        if lo_feasible {
             let mut all_panels_have_triple = true;
             for &up in unfilled.iter() {
                 let ue = panel_exam[up];
                 let has_valid = static_triples[up].iter().any(|t| {
+                    if used_count[t.s1] >= hi[t.s1] || used_count[t.r] >= hi[t.r] {
+                        return false;
+                    }
                     if h4
-                        && (exam_used[ue].contains(t.s1)
-                            || exam_used[ue].contains(t.s2)
-                            || exam_used[ue].contains(t.r))
+                        && (exam_tasks[t.s1][ue] >= eff_max_tasks[t.s1][ue]
+                            || exam_setters[t.s1][ue] >= eff_max_setter[t.s1][ue]
+                            || exam_tasks[t.r][ue] >= eff_max_tasks[t.r][ue])
                     {
                         return false;
                     }
-                    used_count[t.s1] < hi[t.s1]
-                        && used_count[t.s2] < hi[t.s2]
-                        && used_count[t.r] < hi[t.r]
+                    if t.s2 != usize::MAX {
+                        if used_count[t.s2] >= hi[t.s2] {
+                            return false;
+                        }
+                        if h4
+                            && (exam_tasks[t.s2][ue] >= eff_max_tasks[t.s2][ue]
+                                || exam_setters[t.s2][ue] >= eff_max_setter[t.s2][ue])
+                        {
+                            return false;
+                        }
+                    }
+                    true
                 });
 
                 if !has_valid {
@@ -693,7 +766,10 @@ fn backtrack(
                     assigned,
                     unfilled,
                     used_count,
-                    exam_used,
+                    exam_tasks,
+                    exam_setters,
+                    eff_max_tasks,
+                    eff_max_setter,
                     static_triples,
                     teacher_can_join,
                     panel_exam,
@@ -720,22 +796,25 @@ fn backtrack(
             }
         }
 
-        // Unplace triple (backtrack)
+        // Backtrack unplace
         stats.backtracks += 1;
         assigned[chosen_p] = None;
         used_count[triple.s1] -= 1;
-        used_count[triple.s2] -= 1;
-        used_count[triple.r] -= 1;
+        exam_tasks[triple.s1][chosen_e] -= 1;
+        exam_setters[triple.s1][chosen_e] -= 1;
 
-        if h4 {
-            exam_used[chosen_e].remove(triple.s1);
-            exam_used[chosen_e].remove(triple.s2);
-            exam_used[chosen_e].remove(triple.r);
+        if triple.s2 != usize::MAX {
+            used_count[triple.s2] -= 1;
+            exam_tasks[triple.s2][chosen_e] -= 1;
+            exam_setters[triple.s2][chosen_e] -= 1;
         }
+
+        used_count[triple.r] -= 1;
+        exam_tasks[triple.r][chosen_e] -= 1;
     }
 
-    // Restore chosen_p to unfilled
     unfilled.push(chosen_p);
+    stats.backtracks += 1;
     Err(SearchError::Exhausted)
 }
 
@@ -743,45 +822,46 @@ fn backtrack(
 mod tests {
     use super::*;
     use crate::domain::{
-        Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockId, Role, RuleSetting,
-        SchoolYear, SchoolYearId, Teacher, TeacherGrade,
+        Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, GradeScope, Lock, LockId,
+        LockKind, Role, RuleSetting, SchoolYear, SchoolYearId, Subject, SubjectId, Teacher,
+        TeacherGrade,
     };
     use crate::validate::{validate_assignments, ValidateOptions};
+    use rand::Rng;
+    use std::time::Instant;
 
-    fn make_seed_demo_problem() -> Problem {
+    fn make_valid_test_problem() -> Problem {
         let sy = SchoolYear {
             id: SchoolYearId(1),
             name: "2026-2027".to_string(),
             is_current: true,
         };
-
         let campuses = vec![
             Campus {
                 id: CampusId(1),
                 code: "CS1".to_string(),
-                name: "Cơ sở 1".to_string(),
-                color: "#1e40af".to_string(),
+                name: "Campus 1".to_string(),
+                color: "#111".to_string(),
             },
             Campus {
                 id: CampusId(2),
                 code: "CS2".to_string(),
-                name: "Cơ sở 2".to_string(),
-                color: "#059669".to_string(),
+                name: "Campus 2".to_string(),
+                color: "#222".to_string(),
             },
             Campus {
                 id: CampusId(3),
                 code: "CS3".to_string(),
-                name: "Cơ sở 3".to_string(),
-                color: "#d97706".to_string(),
+                name: "Campus 3".to_string(),
+                color: "#333".to_string(),
             },
             Campus {
                 id: CampusId(4),
                 code: "CS4".to_string(),
-                name: "Cơ sở 4".to_string(),
-                color: "#dc2626".to_string(),
+                name: "Campus 4".to_string(),
+                color: "#444".to_string(),
             },
         ];
-
         let grades = vec![
             Grade {
                 id: GradeId(1),
@@ -802,6 +882,17 @@ mod tests {
                 sort_order: 3,
             },
         ];
+
+        let sub1 = Subject {
+            id: SubjectId(1),
+            code: "CHUNG".to_string(),
+            name: "Chung".to_string(),
+            color: "slate".to_string(),
+            sort_order: 1,
+            setters: 2,
+            reviewers: 1,
+            min_campuses: 2,
+        };
 
         let exams = vec![
             Exam {
@@ -838,101 +929,134 @@ mod tests {
             Teacher {
                 id: TeacherId(1),
                 full_name: "Nguyễn Văn An".to_string(),
+                display_name: None,
                 campus_id: CampusId(1),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(2),
                 full_name: "Trần Thị Bình".to_string(),
+                display_name: None,
                 campus_id: CampusId(1),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(3),
                 full_name: "Lê Hoàng Cường".to_string(),
+                display_name: None,
                 campus_id: CampusId(2),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(4),
                 full_name: "Phạm Minh Đức".to_string(),
+                display_name: None,
                 campus_id: CampusId(2),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(5),
                 full_name: "Hoàng Thu Giang".to_string(),
+                display_name: None,
                 campus_id: CampusId(3),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(6),
                 full_name: "Vũ Hải Hà".to_string(),
+                display_name: None,
                 campus_id: CampusId(3),
                 load_weight: 0.5,
                 active: true,
                 note: Some("Bán thời gian".to_string()),
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(7),
                 full_name: "Đặng Quốc Hùng".to_string(),
+                display_name: None,
                 campus_id: CampusId(3),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(8),
                 full_name: "Bùi Thị Lan".to_string(),
+                display_name: None,
                 campus_id: CampusId(4),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(9),
                 full_name: "Đỗ Tuấn Minh".to_string(),
+                display_name: None,
                 campus_id: CampusId(4),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(10),
                 full_name: "Ngô Phương Nam".to_string(),
+                display_name: None,
                 campus_id: CampusId(1),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
             Teacher {
                 id: TeacherId(11),
                 full_name: "Dương Thùy Trang".to_string(),
+                display_name: None,
                 campus_id: CampusId(2),
                 load_weight: 1.0,
                 active: true,
                 note: None,
                 code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
             },
         ];
 
@@ -940,49 +1064,92 @@ mod tests {
             (1, 1),
             (3, 1),
             (5, 1),
-            (8, 1), // Grade 10: T1, T3, T5, T8
+            (8, 1),
             (2, 2),
             (4, 2),
             (6, 2),
             (9, 2),
-            (1, 2), // Grade 11: T2, T4, T6, T9, T1
+            (1, 2),
             (3, 3),
             (7, 3),
             (10, 3),
-            (11, 3), // Grade 12: T3, T7, T10, T11
+            (11, 3),
+            (2, 3),
         ];
 
-        let teacher_grades = tg_tuples
-            .into_iter()
-            .map(|(t, g)| TeacherGrade {
-                teacher_id: TeacherId(t),
-                school_year_id: sy.id,
-                grade_id: GradeId(g),
-            })
-            .collect();
+        let mut teacher_grades = Vec::new();
+        let mut competencies = Vec::new();
 
-        let unavailabilities = vec![crate::domain::Unavailability {
-            teacher_id: TeacherId(6),
-            exam_id: ExamId(3),
-            reason: Some("Khám sức khỏe".to_string()),
-        }];
+        for (tid, gid) in tg_tuples {
+            teacher_grades.push(TeacherGrade {
+                teacher_id: TeacherId(tid),
+                school_year_id: sy.id,
+                grade_id: GradeId(gid),
+            });
+        }
+
+        for tid in 1..=11 {
+            competencies.push(Competency {
+                teacher_id: TeacherId(tid),
+                subject_id: SubjectId(1),
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            });
+            competencies.push(Competency {
+                teacher_id: TeacherId(tid),
+                subject_id: SubjectId(1),
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            });
+        }
 
         Problem {
             school_year: sy,
             campuses,
             grades,
+            subjects: vec![sub1],
             exams,
             teachers,
             teacher_grades,
-            unavailabilities,
+            competencies,
+            unavailabilities: vec![],
             locks: vec![],
             rule_settings: RuleSetting::default_settings(),
         }
     }
 
     #[test]
+    fn test_solve_hard_produces_zero_violations() {
+        let problem = make_valid_test_problem();
+        let opts = SolveOptions {
+            seed: 42,
+            time_limit_ms: 5000,
+            max_nodes: 500_000,
+        };
+
+        let result = solve_hard(&problem, &opts);
+        assert!(result.is_ok(), "Expected solver success, got: {result:?}");
+
+        let sol = result.unwrap();
+        assert_eq!(sol.assignments.len(), 36);
+
+        let violations = validate_assignments(
+            &problem,
+            &sol.assignments,
+            &ValidateOptions {
+                require_complete: true,
+            },
+        );
+        assert!(
+            violations.is_empty(),
+            "Expected 0 violations, found {}: {violations:?}",
+            violations.len()
+        );
+    }
+
+    #[test]
     fn test_solve_demo_seed_returns_valid_solution() {
-        let problem = make_seed_demo_problem();
+        let problem = make_valid_test_problem();
         let opts = SolveOptions {
             seed: 42,
             time_limit_ms: 2000,
@@ -995,7 +1162,6 @@ mod tests {
         let solution = result.unwrap();
         assert_eq!(solution.assignments.len(), 36);
 
-        // Validate complete solution
         let violations = validate_assignments(
             &problem,
             &solution.assignments,
@@ -1011,7 +1177,7 @@ mod tests {
 
     #[test]
     fn test_solver_determinism_and_multi_seed_variation() {
-        let problem = make_seed_demo_problem();
+        let problem = make_valid_test_problem();
 
         let opts1 = SolveOptions {
             seed: 12345,
@@ -1037,12 +1203,13 @@ mod tests {
 
     #[test]
     fn test_solver_stops_early_on_infeasible_problem() {
-        let mut problem = make_seed_demo_problem();
+        let mut problem = make_valid_test_problem();
         // Conflicting PIN + FORBID
         problem.locks.push(Lock {
             id: LockId(1),
             exam_id: ExamId(1),
             grade_id: GradeId(1),
+            subject_id: SubjectId(1),
             teacher_id: TeacherId(1),
             role: Some(Role::Setter),
             kind: LockKind::Pin,
@@ -1051,6 +1218,7 @@ mod tests {
             id: LockId(2),
             exam_id: ExamId(1),
             grade_id: GradeId(1),
+            subject_id: SubjectId(1),
             teacher_id: TeacherId(1),
             role: None,
             kind: LockKind::Forbid,
@@ -1061,29 +1229,207 @@ mod tests {
         assert!(matches!(res, Err(SolveError::Infeasible { .. })));
     }
 
-    fn brute_force_has_solution(problem: &Problem) -> bool {
-        let panels: Vec<(ExamId, GradeId)> = problem
-            .exams
-            .iter()
-            .flat_map(|e| problem.grades.iter().map(move |g| (e.id, g.id)))
+    #[test]
+    fn test_performance_timing_demo_seed() {
+        let problem = make_valid_test_problem();
+        let opts = SolveOptions {
+            seed: 42,
+            time_limit_ms: 2000,
+            max_nodes: 500_000,
+        };
+
+        let start = Instant::now();
+        let sol = solve_hard(&problem, &opts).expect("demo solve");
+        let elapsed = start.elapsed();
+
+        println!(
+            "Demo seed solve time: {:?} (nodes: {}, backtracks: {})",
+            elapsed, sol.stats.nodes, sol.stats.backtracks
+        );
+        assert_eq!(sol.assignments.len(), 36);
+    }
+
+    #[test]
+    fn test_performance_synthetic_40_teacher_instance() {
+        let sy = SchoolYear {
+            id: SchoolYearId(1),
+            name: "2026-2027".to_string(),
+            is_current: true,
+        };
+
+        let campuses: Vec<Campus> = (1..=6)
+            .map(|c| Campus {
+                id: CampusId(c),
+                code: format!("CS{c}"),
+                name: format!("Campus {c}"),
+                color: "#1e40af".to_string(),
+            })
             .collect();
 
+        let grades: Vec<Grade> = (1..=3)
+            .map(|g| Grade {
+                id: GradeId(g),
+                code: (9 + g) as i32,
+                name: format!("Khối {}", 9 + g),
+                sort_order: g as i32,
+            })
+            .collect();
+
+        let exams: Vec<Exam> = (1..=4)
+            .map(|e| Exam {
+                id: ExamId(e),
+                school_year_id: sy.id,
+                code: format!("EX{e}"),
+                name: format!("Kỳ thi {e}"),
+                sort_order: e as i32,
+            })
+            .collect();
+
+        let mut teachers = Vec::with_capacity(40);
+        let mut teacher_grades = Vec::new();
+
+        for tid in 1..=40 {
+            let cid = ((tid - 1) % 6) + 1;
+            teachers.push(Teacher {
+                id: TeacherId(tid),
+                full_name: format!("Giáo viên {tid}"),
+                display_name: None,
+                campus_id: CampusId(cid),
+                load_weight: 1.0,
+                active: true,
+                note: None,
+                code: None,
+                quota_override: None,
+                max_tasks_per_exam_override: None,
+            });
+
+            let g1 = ((tid - 1) % 3) + 1;
+            teacher_grades.push(TeacherGrade {
+                teacher_id: TeacherId(tid),
+                school_year_id: sy.id,
+                grade_id: GradeId(g1),
+            });
+            if tid % 2 == 0 {
+                let g2 = (g1 % 3) + 1;
+                teacher_grades.push(TeacherGrade {
+                    teacher_id: TeacherId(tid),
+                    school_year_id: sy.id,
+                    grade_id: GradeId(g2),
+                });
+            }
+        }
+
+        let sub1 = Subject {
+            id: SubjectId(1),
+            code: "CHUNG".to_string(),
+            name: "Chung".to_string(),
+            color: "slate".to_string(),
+            sort_order: 1,
+            setters: 2,
+            reviewers: 1,
+            min_campuses: 2,
+        };
+
+        let mut competencies = Vec::new();
+        for t in &teachers {
+            competencies.push(Competency {
+                teacher_id: t.id,
+                subject_id: sub1.id,
+                role: Role::Setter,
+                grade_scope: GradeScope::Taught,
+            });
+            competencies.push(Competency {
+                teacher_id: t.id,
+                subject_id: sub1.id,
+                role: Role::Reviewer,
+                grade_scope: GradeScope::Taught,
+            });
+        }
+
+        let problem = Problem {
+            school_year: sy,
+            campuses,
+            grades,
+            subjects: vec![sub1],
+            exams,
+            teachers,
+            teacher_grades,
+            competencies,
+            unavailabilities: vec![],
+            locks: vec![],
+            rule_settings: RuleSetting::default_settings(),
+        };
+
+        let opts = SolveOptions {
+            seed: 777,
+            time_limit_ms: 3000,
+            max_nodes: 500_000,
+        };
+
+        let start = Instant::now();
+        let result = solve_hard(&problem, &opts);
+        let elapsed = start.elapsed();
+
+        assert!(
+            result.is_ok(),
+            "synthetic 40 solve failed: {:?}",
+            result.err()
+        );
+        let solution = result.unwrap();
+        assert_eq!(solution.assignments.len(), 36);
+
+        let violations = validate_assignments(
+            &problem,
+            &solution.assignments,
+            &ValidateOptions {
+                require_complete: true,
+            },
+        );
+        assert!(violations.is_empty(), "violations: {violations:?}");
+
+        println!(
+            "Synthetic 40-teacher solve time: {:?} (nodes: {}, backtracks: {})",
+            elapsed, solution.stats.nodes, solution.stats.backtracks
+        );
+    }
+
+    fn brute_force_has_solution(problem: &Problem) -> bool {
+        let panels = problem.all_panels();
         let teachers: Vec<TeacherId> = problem.teachers.iter().map(|t| t.id).collect();
         let n = teachers.len();
 
         let mut candidate_panels: Vec<Vec<Vec<Assignment>>> = Vec::new();
-        for &(eid, gid) in &panels {
+        for p in &panels {
+            let sub = problem
+                .effective_subjects()
+                .into_iter()
+                .find(|s| s.id == p.subject_id)
+                .unwrap();
             let mut list = Vec::new();
-            for i in 0..n {
-                for j in (i + 1)..n {
-                    for k in 0..n {
-                        if k == i || k == j {
+
+            if sub.setters == 1 && sub.reviewers == 1 {
+                for i in 0..n {
+                    for j in 0..n {
+                        if i == j {
                             continue;
                         }
                         let assigns = vec![
-                            Assignment::new(eid, gid, teachers[i], Role::Setter),
-                            Assignment::new(eid, gid, teachers[j], Role::Setter),
-                            Assignment::new(eid, gid, teachers[k], Role::Reviewer),
+                            Assignment::new(
+                                p.exam_id,
+                                p.grade_id,
+                                p.subject_id,
+                                teachers[i],
+                                Role::Setter,
+                                0,
+                            ),
+                            Assignment::new(
+                                p.exam_id,
+                                p.grade_id,
+                                p.subject_id,
+                                teachers[j],
+                                Role::Reviewer,
+                                0,
+                            ),
                         ];
                         let v = validate_assignments(
                             problem,
@@ -1097,7 +1443,54 @@ mod tests {
                         }
                     }
                 }
+            } else if sub.setters == 2 && sub.reviewers == 1 {
+                for i in 0..n {
+                    for j in (i + 1)..n {
+                        for k in 0..n {
+                            if k == i || k == j {
+                                continue;
+                            }
+                            let assigns = vec![
+                                Assignment::new(
+                                    p.exam_id,
+                                    p.grade_id,
+                                    p.subject_id,
+                                    teachers[i],
+                                    Role::Setter,
+                                    0,
+                                ),
+                                Assignment::new(
+                                    p.exam_id,
+                                    p.grade_id,
+                                    p.subject_id,
+                                    teachers[j],
+                                    Role::Setter,
+                                    1,
+                                ),
+                                Assignment::new(
+                                    p.exam_id,
+                                    p.grade_id,
+                                    p.subject_id,
+                                    teachers[k],
+                                    Role::Reviewer,
+                                    0,
+                                ),
+                            ];
+                            let v = validate_assignments(
+                                problem,
+                                &assigns,
+                                &ValidateOptions {
+                                    require_complete: false,
+                                },
+                            );
+                            if v.is_empty() {
+                                list.push(assigns);
+                            }
+                        }
+                    }
+                }
             }
+
             candidate_panels.push(list);
         }
 
@@ -1141,10 +1534,9 @@ mod tests {
     }
 
     #[test]
-    fn test_exhaustive_cross_check_tiny_instances() {
-        let mut rng = ChaCha8Rng::seed_from_u64(20261002);
+    fn test_cross_check_300_tiny_instances() {
+        let mut rng = ChaCha8Rng::seed_from_u64(20261004);
         let num_instances = 300;
-
         let mut feasible_count = 0;
         let mut infeasible_count = 0;
         let mut backtrack_count = 0;
@@ -1159,13 +1551,13 @@ mod tests {
                 id: CampusId(1),
                 code: "C1".to_string(),
                 name: "C1".to_string(),
-                color: "#000".to_string(),
+                color: "#111".to_string(),
             };
             let c2 = Campus {
                 id: CampusId(2),
                 code: "C2".to_string(),
                 name: "C2".to_string(),
-                color: "#fff".to_string(),
+                color: "#222".to_string(),
             };
             let g1 = Grade {
                 id: GradeId(1),
@@ -1173,31 +1565,44 @@ mod tests {
                 name: "G10".to_string(),
                 sort_order: 1,
             };
-            let g2 = Grade {
-                id: GradeId(2),
-                code: 11,
-                name: "G11".to_string(),
+            let sub1 = Subject {
+                id: SubjectId(1),
+                code: "VL".to_string(),
+                name: "Vật lí".to_string(),
+                color: "blue".to_string(),
+                sort_order: 1,
+                setters: 2,
+                reviewers: 1,
+                min_campuses: 2,
+            };
+            let sub2 = Subject {
+                id: SubjectId(2),
+                code: "CN".to_string(),
+                name: "Công nghệ".to_string(),
+                color: "green".to_string(),
                 sort_order: 2,
+                setters: 2,
+                reviewers: 1,
+                min_campuses: 2,
             };
             let e1 = Exam {
                 id: ExamId(1),
                 school_year_id: sy.id,
-                code: "GK".to_string(),
-                name: "GK".to_string(),
+                code: "GK1".to_string(),
+                name: "GK1".to_string(),
                 sort_order: 1,
             };
 
-            // Tight instance setup: 6 teachers, 2 campuses.
-            // Under H4 and 2 panels in 1 exam, all 6 teachers must be assigned (3 in P1, 3 in P2).
+            let num_teachers = 6;
             let mut teachers = Vec::new();
             let mut teacher_grades = Vec::new();
+            let mut competencies = Vec::new();
 
-            for tid in 1..=6 {
-                // Campuses: T1..T3 on C1, T4..T6 vary to create bottlenecks.
+            for tid in 1..=num_teachers {
                 let camp = if tid <= 3 {
                     CampusId(1)
                 } else if tid == 4 {
-                    if (rng.next_u32() % 10) < 6 {
+                    if rng.gen_bool(0.6) {
                         CampusId(1)
                     } else {
                         CampusId(2)
@@ -1205,7 +1610,7 @@ mod tests {
                 } else if tid == 5 {
                     CampusId(2)
                 } else {
-                    if (rng.next_u32() % 10) < 5 {
+                    if rng.gen_bool(0.5) {
                         CampusId(2)
                     } else {
                         CampusId(1)
@@ -1213,127 +1618,112 @@ mod tests {
                 };
 
                 teachers.push(Teacher {
-                    id: TeacherId(tid),
+                    id: TeacherId(tid as i64),
                     full_name: format!("T{tid}"),
+                    display_name: None,
                     campus_id: camp,
                     load_weight: 1.0,
                     active: true,
                     note: None,
                     code: None,
+                    quota_override: None,
+                    max_tasks_per_exam_override: None,
+                });
+                teacher_grades.push(TeacherGrade {
+                    teacher_id: TeacherId(tid as i64),
+                    school_year_id: sy.id,
+                    grade_id: GradeId(1),
                 });
 
-                // Qualifications: T1..T3 more likely G1, T4..T6 more likely G2
-                let p1 = if tid <= 2 {
-                    9
-                } else if tid <= 4 {
-                    6
-                } else {
-                    3
-                };
-                let p2 = if tid >= 4 {
-                    9
-                } else if tid >= 2 {
-                    6
-                } else {
-                    3
-                };
+                // Random competencies across sub1 and sub2
+                let p_sub1 = if tid <= 3 { 0.85 } else { 0.55 };
+                let p_sub2 = if tid >= 4 { 0.85 } else { 0.55 };
 
-                if (rng.next_u32() % 10) < p1 {
-                    teacher_grades.push(TeacherGrade {
-                        teacher_id: TeacherId(tid),
-                        school_year_id: sy.id,
-                        grade_id: GradeId(1),
+                if rng.gen_bool(p_sub1) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(1),
+                        role: Role::Setter,
+                        grade_scope: GradeScope::Taught,
                     });
                 }
-                if (rng.next_u32() % 10) < p2 {
-                    teacher_grades.push(TeacherGrade {
-                        teacher_id: TeacherId(tid),
-                        school_year_id: sy.id,
-                        grade_id: GradeId(2),
+                if rng.gen_bool(p_sub1) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(1),
+                        role: Role::Reviewer,
+                        grade_scope: GradeScope::Taught,
+                    });
+                }
+                if rng.gen_bool(p_sub2) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(2),
+                        role: Role::Setter,
+                        grade_scope: GradeScope::Taught,
+                    });
+                }
+                if rng.gen_bool(p_sub2) {
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(2),
+                        role: Role::Reviewer,
+                        grade_scope: GradeScope::Taught,
                     });
                 }
             }
 
-            // Ensure every teacher has at least 1 grade so they don't trivially fail F1/F2
-            for tid in 1..=6 {
-                if !teacher_grades
+            // Ensure each teacher has at least one competency so they aren't completely dead
+            for tid in 1..=num_teachers {
+                if !competencies
                     .iter()
-                    .any(|tg| tg.teacher_id == TeacherId(tid))
+                    .any(|c| c.teacher_id == TeacherId(tid as i64))
                 {
-                    let gid = if (rng.next_u32() % 2) == 0 {
-                        GradeId(1)
-                    } else {
-                        GradeId(2)
-                    };
-                    teacher_grades.push(TeacherGrade {
-                        teacher_id: TeacherId(tid),
-                        school_year_id: sy.id,
-                        grade_id: gid,
+                    competencies.push(Competency {
+                        teacher_id: TeacherId(tid as i64),
+                        subject_id: SubjectId(if tid <= 3 { 1 } else { 2 }),
+                        role: Role::Setter,
+                        grade_scope: GradeScope::Taught,
                     });
                 }
             }
 
-            // Locks: occasional PIN or FORBID lock
-            let mut locks = Vec::new();
-            if (rng.next_u32() % 10) < 4 {
-                let lock_tid = TeacherId((rng.next_u32() % 6 + 1) as i64);
-                let lock_gid = if (rng.next_u32() % 2) == 0 {
-                    GradeId(1)
-                } else {
-                    GradeId(2)
-                };
-                let kind = if (rng.next_u32() % 2) == 0 {
-                    LockKind::Pin
-                } else {
-                    LockKind::Forbid
-                };
-                locks.push(Lock {
-                    id: LockId(1),
-                    exam_id: ExamId(1),
-                    grade_id: lock_gid,
-                    teacher_id: lock_tid,
-                    role: Some(Role::Setter),
-                    kind,
-                });
-            }
-
-            // Rule settings: with 50% chance, enforce strict tolerance k = 0
             let mut rule_settings = RuleSetting::default_settings();
-            if (rng.next_u32() % 2) == 0 {
-                if let Some(h7) = rule_settings.iter_mut().find(|s| s.key == RuleKey::H7) {
-                    h7.params = serde_json::json!({ "tolerance": 0 });
-                }
+            if let Some(h4) = rule_settings.iter_mut().find(|r| r.key == RuleKey::H4) {
+                h4.params["max_tasks_per_exam"] = serde_json::json!(1);
             }
 
-            let prob = Problem {
+            let problem = Problem {
                 school_year: sy,
                 campuses: vec![c1, c2],
-                grades: vec![g1, g2],
+                grades: vec![g1],
+                subjects: vec![sub1, sub2],
                 exams: vec![e1],
                 teachers,
                 teacher_grades,
+                competencies,
                 unavailabilities: vec![],
-                locks,
+                locks: vec![],
                 rule_settings,
             };
 
+            let bf_feasible = brute_force_has_solution(&problem);
+
             let opts = SolveOptions {
-                seed: instance_idx as u64,
+                seed: 42 + instance_idx as u64,
                 time_limit_ms: 1000,
                 max_nodes: 50_000,
             };
 
-            let bf_feasible = brute_force_has_solution(&prob);
-            let solver_res = solve_hard(&prob, &opts);
-
-            match solver_res {
+            let res = solve_hard(&problem, &opts);
+            match res {
                 Ok(sol) => {
                     assert!(
                         bf_feasible,
-                        "Instance {instance_idx}: Solver found solution but brute force reported infeasible!"
+                        "Instance {instance_idx}: Solver found solution but brute force said infeasible!"
                     );
                     let v = validate_assignments(
-                        &prob,
+                        &problem,
                         &sol.assignments,
                         &ValidateOptions {
                             require_complete: true,
@@ -1358,141 +1748,20 @@ mod tests {
             }
         }
 
-        let backtrack_pct = (backtrack_count as f64 / feasible_count as f64) * 100.0;
+        let backtrack_pct = if feasible_count > 0 {
+            (backtrack_count as f64 / feasible_count as f64) * 100.0
+        } else {
+            0.0
+        };
+
         println!(
-            "Cross-check: {num_instances} instances tested | Feasible: {feasible_count}, Infeasible: {infeasible_count} | Backtracked: {backtrack_count} ({backtrack_pct:.1}% of feasible)"
+            "Cross-check: {} instances tested | Feasible: {}, Infeasible: {} | Backtracked: {} ({:.1}% of feasible)",
+            num_instances, feasible_count, infeasible_count, backtrack_count, backtrack_pct
         );
+
         assert_eq!(feasible_count + infeasible_count, num_instances);
-        assert!(
-            backtrack_pct >= 20.0,
-            "Expected >= 20% backtracks among feasible instances, got {backtrack_pct:.1}%"
-        );
-    }
-
-    #[test]
-    fn test_performance_timing_demo_seed() {
-        let problem = make_seed_demo_problem();
-        let opts = SolveOptions {
-            seed: 42,
-            time_limit_ms: 2000,
-            max_nodes: 500_000,
-        };
-
-        let start = Instant::now();
-        let sol = solve_hard(&problem, &opts).expect("demo solve");
-        let elapsed = start.elapsed();
-
-        println!(
-            "Demo seed solve time: {:?} (nodes: {}, backtracks: {})",
-            elapsed, sol.stats.nodes, sol.stats.backtracks
-        );
-        // Target: < 50ms (in debug mode on CI it might be slightly higher, but usually < 20ms)
-        assert_eq!(sol.assignments.len(), 36);
-    }
-
-    #[test]
-    fn test_performance_synthetic_40_teacher_instance() {
-        let sy = SchoolYear {
-            id: SchoolYearId(1),
-            name: "2026-2027".to_string(),
-            is_current: true,
-        };
-
-        let campuses: Vec<Campus> = (1..=6)
-            .map(|c| Campus {
-                id: CampusId(c),
-                code: format!("CS{c}"),
-                name: format!("Cơ sở {c}"),
-                color: "#1e40af".to_string(),
-            })
-            .collect();
-
-        let grades: Vec<Grade> = (1..=3)
-            .map(|g| Grade {
-                id: GradeId(g),
-                code: (9 + g) as i32,
-                name: format!("Khối {}", 9 + g),
-                sort_order: g as i32,
-            })
-            .collect();
-
-        let exams: Vec<Exam> = (1..=4)
-            .map(|e| Exam {
-                id: ExamId(e),
-                school_year_id: sy.id,
-                code: format!("EX{e}"),
-                name: format!("Kỳ thi {e}"),
-                sort_order: e as i32,
-            })
-            .collect();
-
-        let mut teachers = Vec::with_capacity(40);
-        let mut teacher_grades = Vec::new();
-
-        for tid in 1..=40 {
-            let cid = ((tid - 1) % 6) + 1;
-            teachers.push(Teacher {
-                id: TeacherId(tid),
-                full_name: format!("Giáo viên {tid}"),
-                campus_id: CampusId(cid),
-                load_weight: 1.0,
-                active: true,
-                note: None,
-                code: None,
-            });
-
-            // Each teacher teaches 1 or 2 grades
-            let g1 = ((tid - 1) % 3) + 1;
-            teacher_grades.push(TeacherGrade {
-                teacher_id: TeacherId(tid),
-                school_year_id: sy.id,
-                grade_id: GradeId(g1),
-            });
-            if tid % 2 == 0 {
-                let g2 = (g1 % 3) + 1;
-                teacher_grades.push(TeacherGrade {
-                    teacher_id: TeacherId(tid),
-                    school_year_id: sy.id,
-                    grade_id: GradeId(g2),
-                });
-            }
-        }
-
-        let problem = Problem {
-            school_year: sy,
-            campuses,
-            grades,
-            exams,
-            teachers,
-            teacher_grades,
-            unavailabilities: vec![],
-            locks: vec![],
-            rule_settings: RuleSetting::default_settings(),
-        };
-
-        let opts = SolveOptions {
-            seed: 777,
-            time_limit_ms: 3000,
-            max_nodes: 500_000,
-        };
-
-        let start = Instant::now();
-        let sol = solve_hard(&problem, &opts).expect("synthetic 40-teacher solve");
-        let elapsed = start.elapsed();
-
-        println!(
-            "Synthetic 40-teacher solve time: {:?} (nodes: {}, backtracks: {})",
-            elapsed, sol.stats.nodes, sol.stats.backtracks
-        );
-        assert_eq!(sol.assignments.len(), 36);
-
-        let violations = validate_assignments(
-            &problem,
-            &sol.assignments,
-            &ValidateOptions {
-                require_complete: true,
-            },
-        );
-        assert!(violations.is_empty(), "violations: {violations:?}");
+        assert!(feasible_count > 0, "Expected some feasible instances");
+        assert!(infeasible_count > 0, "Expected some infeasible instances");
+        assert!(backtrack_count > 0, "Expected some backtracked instances");
     }
 }

@@ -1,0 +1,72 @@
+So sánh 2 phương án
+So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án
+Phương án A
+Nhập từ bảng của tổ (Điểm: 260.4)
+Phương án B
+Phương án #1 (Điểm: 176.4)
+Khoảng cách sai khác: 33 ô thay đổi
+Điểm A: 260.36
+Điểm B: 176.36
+Chênh lệch (B - A): -84.00
+Ô có thay đổi giữa 2 phương án (12 ban đề có thay đổi)
+Kỳ / Khối	Khối 10	Khối 11	Khối 12
+Giữa kỳ 1	
+A: Thầy Nghĩa, Cô Hiền, Cô Lài | PB: Cô Hiền
+B: Cô Như, Cô Na, Thầy Nghĩa | PB: Cô Tú
+A: Thầy Lộc, Thầy Nghĩa, Cô Thư | PB: Cô Na
+B: Cô Hiền, Cô Bình, Thầy Nghĩa | PB: Cô Thư
+A: Cô Bình, Thầy Nghĩa, Thầy Phúc | PB: Cô Quí
+B: Cô Lan, Cô Quí, Thầy Nghĩa | PB: Cô Lài
+Cuối kỳ 1	
+A: Thầy Nghĩa, Cô Hiền, Cô Tú | PB: Cô Tú
+B: Cô Hiền, Cô Tú, Thầy Nghĩa | PB: Cô Na
+A: Cô Lài, Thầy Nghĩa, Cô Bình | PB: Cô Thư
+B: Cô Thư, Thầy Lộc, Thầy Nghĩa | PB: Cô Quí
+A: Cô Lan, Thầy Nghĩa, Cô Quí | PB: Cô Lài
+B: Thầy Phúc, Cô Lài, Thầy Nghĩa | PB: Cô Lan
+Giữa kỳ 2	
+A: Thầy Nghĩa, Cô Tú, Cô Như | PB: Cô Như
+B: Cô Lài, Cô Như, Thầy Nghĩa | PB: Thầy Phúc
+A: Cô Na, Thầy Nghĩa, Cô Thư | PB: Cô Hiền
+B: Cô Quí, Cô Na, Thầy Nghĩa | PB: Thầy Lộc
+A: Cô Lan, Thầy Nghĩa, Cô Lài | PB: Cô Quí
+B: Cô Bình, Cô Lan, Thầy Nghĩa | PB: Cô Hiền
+Cuối kỳ 2	
+A: Thầy Nghĩa, Cô Na, Cô Như | PB: Cô Quí
+B: Cô Tú, Thầy Lộc, Thầy Nghĩa | PB: Cô Như
+A: Thầy Lộc, Thầy Nghĩa, Cô Quí | PB: Cô Bình
+B: Cô Thư, Cô Quí, Thầy Nghĩa | PB: Cô Na
+A: Thầy Phúc, Thầy Nghĩa, Cô Hiền | PB: Cô Lan
+B: Thầy Phúc, Cô Hiền, Thầy Nghĩa | PB: Cô Bình
+Chênh lệch điểm phạt
+S1
+10.0 → 0.0
+-10.0
+S2
+3.0 → 0.0
+-3.0
+S3
+144.0 → 144.0
+0.0
+S4
+0.0 → 0.0
+0.0
+S5
+6.0 → 6.0
+0.0
+S6
+16.0 → 6.0
+-10.0
+S7
+0.0 → 0.0
+0.0
+S8
+36.4 → 20.4
+-16.0
+S9
+45.0 → 0.0
+-45.0
+S10
+0.0 → 0.0
+0.0
+Close

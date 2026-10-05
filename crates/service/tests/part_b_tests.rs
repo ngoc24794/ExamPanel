@@ -1,4 +1,4 @@
-use exam_panel_core::domain::{CampusId, ExamId, GradeId, Role, RuleKey, SchoolYearId};
+use exam_panel_core::domain::{CampusId, ExamId, GradeId, Role, RuleKey, SchoolYearId, SubjectId};
 use exam_panel_core::optimize::{OptimizationEffort, SlotRef};
 use exam_panel_service::dto::{OptimizeBudget, OptimizeRequest};
 use exam_panel_service::service::AppService;
@@ -45,6 +45,9 @@ fn test_part_b_plan_status_and_staleness() {
             active: true,
             note: None,
             code: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .expect("create teacher");
 
@@ -134,6 +137,9 @@ fn test_part_a1_staleness_split_data_vs_rules() {
             active: true,
             note: None,
             code: Some("GV_TEST_A1".to_string()),
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
         })
         .expect("create teacher");
 
@@ -215,6 +221,7 @@ fn test_part_b_manual_editing_and_immutability() {
     let slot = SlotRef {
         exam_id: ExamId(1),
         grade_id: GradeId(1),
+        subject_id: SubjectId(1),
         role: Role::Setter,
         position: 0,
     };
@@ -227,6 +234,7 @@ fn test_part_b_manual_editing_and_immutability() {
     let slot_b = SlotRef {
         exam_id: ExamId(1),
         grade_id: GradeId(1),
+        subject_id: SubjectId(1),
         role: Role::Setter,
         position: 1,
     };
@@ -236,9 +244,13 @@ fn test_part_b_manual_editing_and_immutability() {
     assert!(swap_eval.new_total >= 0.0);
 
     // 5. Apply an invalid assignment (H4 violation: same teacher assigned to multiple panels in same exam)
-    let first_exam = assignments[0].exam_id;
-    let first_grade = assignments[0].grade_id;
-    let t_id = assignments[0].teacher_id;
+    let (first_exam, first_grade, t_id) = {
+        let a = assignments
+            .iter()
+            .find(|a| a.teacher_id.0 != 8 && a.teacher_id.0 != 12)
+            .unwrap();
+        (a.exam_id, a.grade_id, a.teacher_id)
+    };
     for a in &mut assignments {
         if a.exam_id == first_exam && a.grade_id != first_grade {
             a.teacher_id = t_id;
@@ -287,12 +299,14 @@ fn test_part_b_reoptimize_from_plan() {
         SlotRef {
             exam_id: ExamId(1),
             grade_id: GradeId(1),
+            subject_id: SubjectId(1),
             role: Role::Setter,
             position: 0,
         },
         SlotRef {
             exam_id: ExamId(1),
             grade_id: GradeId(1),
+            subject_id: SubjectId(1),
             role: Role::Reviewer,
             position: 0,
         },

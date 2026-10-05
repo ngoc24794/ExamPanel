@@ -1,0 +1,100 @@
+{
+ "id": "C6",
+ "started": "2026-10-05T05:48:54.765Z",
+ "checks": [
+  {
+   "step": "C6.grid-view-feedback-for-kept-seats",
+   "result": "pass",
+   "observed": {
+    "banner_in_grid_view": false,
+    "bookmark_icons_in_cells": 5
+   },
+   "expected": "phase-8 step 9: banner \"\u0110\u00e3 ch\u1ecdn gi\u1eef: N \u00f4\" (appears only in Chi ti\u1ebft view)",
+   "evidence": [
+    "screenshots/C6-kept-page.png"
+   ]
+  },
+  {
+   "step": "C6.detail-view-banner-shows-kept-count",
+   "result": "pass",
+   "observed": "\u0110\u00e3 ch\u1ecdn gi\u1eef: 5 \u00f4",
+   "expected": "\u0110\u00e3 ch\u1ecdn gi\u1eef: 5 \u00f4",
+   "evidence": []
+  },
+  {
+   "step": "C6.new-plan-created",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 5,
+     "name": "Ph\u01b0\u01a1ng \u00e1n #1",
+     "source": "optimizer",
+     "score": 194.36363636363637
+    }
+   ],
+   "expected": "at least one new plan",
+   "evidence": []
+  },
+  {
+   "step": "C6.kept-seats-unchanged",
+   "result": "pass",
+   "observed": [
+    {
+     "plan": 5,
+     "kept_seats_lost": [],
+     "kept_at_same_position": 2,
+     "of": 5,
+     "seats_changed_elsewhere": 33
+    }
+   ],
+   "expected": "every kept seat still held by the same teacher in the same panel/role",
+   "evidence": [
+    "extracts/C6.json"
+   ]
+  },
+  {
+   "step": "C6.kept-seats-same-position",
+   "result": "fail",
+   "observed": [
+    {
+     "plan": 5,
+     "kept_seats_lost": [],
+     "kept_at_same_position": 2,
+     "of": 5,
+     "seats_changed_elsewhere": 33
+    }
+   ],
+   "expected": "kept setter seats keep their slot position (\u0110\u1ec1 1 / \u0110\u1ec1 2)",
+   "evidence": [
+    "extracts/C6.json"
+   ]
+  },
+  {
+   "step": "C6.rest-was-reoptimised",
+   "result": "pass",
+   "observed": [
+    {
+     "plan": 5,
+     "kept_seats_lost": [],
+     "kept_at_same_position": 2,
+     "of": 5,
+     "seats_changed_elsewhere": 33
+    }
+   ],
+   "expected": "other seats actually change (source plan already at LB so may legitimately stay): informational",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "dialog_text": "T\u1ed1i \u01b0u l\u1ea1i ph\u1ea7n c\u00f2n l\u1ea1i\nGi\u1eef nguy\u00ean 5 v\u1ecb tr\u00ed \u0111\u00e3 ch\u1ecdn v\u00e0 t\u1ed1i \u01b0u h\u00f3a l\u1ea1i t\u1ea5t c\u1ea3 c\u00e1c \u00f4 c\u00f2n l\u1ea1i.\n5 v\u1ecb tr\u00ed \u0111\u01b0\u1ee3c gi\u1eef c\u1ed1 \u0111\u1ecbnh, thu\u1eadt to\u00e1n s\u1ebd s\u1eafp x\u1ebfp l\u1ea1i c\u00e1c v\u1ecb tr\u00ed c\u00f2n l\u1ea1i \u0111\u1ec3 c\u1ea3i thi\u1ec7n \u0111i\u1ec3m s\u1ed1.\nH\u1ee7y\nB\u1eaft \u0111\u1ea7u t\u1ed1i \u01b0u l\u1ea1i\nClose",
+  "kept_results": [
+   {
+    "plan": 5,
+    "kept_seats_lost": [],
+    "kept_at_same_position": 2,
+    "of": 5,
+    "seats_changed_elsewhere": 33
+   }
+  ]
+ }
+}

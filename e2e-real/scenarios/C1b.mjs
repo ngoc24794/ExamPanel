@@ -1,0 +1,30 @@
+import { prepareRunDir, withApp, sleep, REPO, OUT_ABS } from '../lib/harness.mjs';
+import { recorder } from '../lib/rec.mjs';
+import { driveFileDialog, sql } from '../lib/native.mjs';
+import { clickTid, bodyText, tid } from '../lib/ui.mjs';
+import fs from 'node:fs'; import path from 'node:path';
+const R = recorder('C1');
+const run = prepareRunDir('C1', { portable: true, seedDb: path.resolve('../.tools/golden/q-ready.db') });
+const db = path.join(run.dataDir, 'exam-panel.db');
+await withApp({ scenario: 'C1', run }, async (app) => {
+  await app.nav('/assignments'); await sleep(1200);
+  await clickTid(app.b, 'import-plan-button'); await sleep(700);
+  await clickTid(app.b, 'btn-browse-plan-file');
+  await driveFileDialog(path.join(REPO, 'docs/reports/phase-12/plan-grid.xlsx'));
+  await sleep(500); await clickTid(app.b, 'btn-plan-import-preview'); await sleep(2500);
+  await clickTid(app.b, 'btn-plan-import-apply'); await sleep(3000);
+  await app.shot('C1-plan-applied');
+  const txt = await bodyText(app.b); fs.writeFileSync(path.join(OUT_ABS, 'extracts/C1-plan-applied-grid.txt'), txt);
+  const plans = sql(db, 'select id,name,source,score,is_final,run_params_json from plans');
+  R.note('plans_after_import', plans);
+  const ids = plans.map((p) => p.id); const pid = ids[ids.length - 1];
+  const gp = await app.invoke('get_plan', { planId: pid });
+  fs.writeFileSync(path.join(OUT_ABS, 'extracts/C1-get_plan-excel-import.json'), JSON.stringify(gp, null, 1));
+  const sr = gp.ok ? gp.v.score_report : null;
+  console.log(JSON.stringify(sr && sr.by_rule.map((r) => [r.rule, r.units, r.penalty, r.lower_bound]) ), sr && sr.total);
+  const hv = await app.invoke('plan_status', { planId: pid }); console.log('plan_status', JSON.stringify(hv).slice(0, 600));
+  console.log((await app.b.execute(() => [...document.querySelectorAll('[data-testid]')].map((e) => e.getAttribute('data-testid')))).join(' '));
+  // detail view
+  await clickTid(app.b, 'view-toggle-detail'); await sleep(800); await app.shot('C1-plan-detail-view');
+  fs.writeFileSync(path.join(OUT_ABS, 'extracts/C1-plan-detail-view.txt'), await bodyText(app.b));
+});

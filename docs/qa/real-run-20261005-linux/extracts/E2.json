@@ -1,0 +1,126 @@
+{
+ "id": "E2",
+ "started": "2026-10-05T06:15:37.111Z",
+ "checks": [
+  {
+   "step": "E2.no-raw-i18n-keys",
+   "result": "fail",
+   "observed": {
+    "common.all": [
+     "vi:/competencies",
+     "en:/competencies"
+    ],
+    "rules.h3Warning": [
+     "vi:/rules#tab-hard-rules",
+     "en:/rules#tab-hard-rules"
+    ],
+    "rules.h4MaxTasksPerExam": [
+     "vi:/rules#tab-hard-rules",
+     "en:/rules#tab-hard-rules"
+    ],
+    "rules.h4MaxSetterPerExam": [
+     "vi:/rules#tab-hard-rules",
+     "en:/rules#tab-hard-rules"
+    ],
+    "rules.s1MaxTasksMode": [
+     "vi:/rules#tab-soft-rules",
+     "en:/rules#tab-soft-rules"
+    ],
+    "rules.s1ModeAuto": [
+     "vi:/rules#tab-soft-rules",
+     "en:/rules#tab-soft-rules"
+    ],
+    "demo.db": [
+     "vi:/settings",
+     "en:/settings"
+    ],
+    "teachers.advancedSettings": [
+     "vi:teacher-dialog",
+     "en:teacher-dialog"
+    ],
+    "common.close": [
+     "vi:quota-dialog",
+     "en:quota-dialog"
+    ],
+    "feasibility.forcedPlacementsTitle": [
+     "vi:feasibility-sheet",
+     "en:feasibility-sheet"
+    ],
+    "feasibility.forcedPlacementsDesc": [
+     "vi:feasibility-sheet",
+     "en:feasibility-sheet"
+    ],
+    "e.g": [
+     "en:/settings",
+     "en:teacher-dialog",
+     "en:exam-dialog"
+    ]
+   },
+   "expected": "no untranslated key patterns a.b.c / {{",
+   "evidence": [
+    "extracts/E2-i18n-findings.json"
+   ]
+  },
+  {
+   "step": "E2.forbidden-terms-vi",
+   "result": "pass",
+   "observed": {},
+   "expected": "no \"cơ sở\", \"Kế hoạch\", \"Ràng buộc cứng/mềm\" in vi UI",
+   "evidence": [
+    "extracts/E2-i18n-findings.json"
+   ]
+  },
+  {
+   "step": "E2.en-mode-has-no-vietnamese",
+   "result": "fail",
+   "observed": [
+    "en-page-has-vietnamese: Phân công ra đề",
+    "en-page-has-vietnamese: Năm học 2026 - 2027",
+    "en-page-has-vietnamese: 0 lỗi, 12 cảnh báo",
+    "en-page-has-vietnamese: 1 phân hiệu",
+    "en-page-has-vietnamese: 12 giáo viên",
+    "en-page-has-vietnamese: CPH\tChưa phân hiệu\t12 teachers",
+    "en-page-has-vietnamese: VL (2Đ+1PB)",
+    "en-page-has-vietnamese: CN (1Đ+1PB)",
+    "en-page-has-vietnamese: Đề:",
+    "en-page-has-vietnamese: Thao tác",
+    "en-page-has-vietnamese: Giảm",
+    "en-page-has-vietnamese: Teacher\tTotal\tSet\tRev\tGiữa kỳ 1\tCuối kỳ 1\tGiữa kỳ 2\tCuối kỳ 2",
+    "en-page-has-vietnamese: So sánh số lượt phân công thực tế với chỉ tiêu phân bổ định mức",
+    "en-page-has-vietnamese: Chưa phân hiệu\t12\t12\t0\t12.00\t+0.00\tKhối 10, 11, 12\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t5\t3\t2\t4.36\t+0.64\tKhối 11, 10, 12\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t5\t2\t3\t4.36\t+0.64\tKhối 10, 11\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t5\t3\t2\t4.36\t+0.64\tKhối 12, 11\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t5\t2\t3\t4.36\t+0.64\tKhối 12, 10\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 12, 10, 11\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 10, 12\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 12, 11, 10\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 11, 10\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 11, 10, 12\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 10, 11\tGK1, CK1, GK2, CK2",
+    "en-page-has-vietnamese: Campus diversity breakdown across each 3-member panel (Tổng số: 12 ban đề)",
+    "en-page-has-vietnamese: Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.",
+    "en-page-has-vietnamese: Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).",
+    "en-page-has-vietnamese: Tệp sao lưu\tDung lượng\tThời gian\tThao tác",
+    "en-page-has-vietnamese: Grades Taught (Năm học 2026 - 2027)",
+    "en-page-has-vietnamese: So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án"
+   ],
+   "expected": "EN pages contain no Vietnamese strings",
+   "evidence": [
+    "extracts/E2-i18n-findings.json"
+   ]
+  },
+  {
+   "step": "E2.vi-mode-has-no-english",
+   "result": "fail",
+   "observed": [
+    "vi-page-has-english: Close"
+   ],
+   "expected": "VI pages contain no English UI words",
+   "evidence": [
+    "extracts/E2-i18n-findings.json"
+   ]
+  }
+ ],
+ "notes": {}
+}

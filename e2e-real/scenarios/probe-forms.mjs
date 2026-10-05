@@ -1,0 +1,20 @@
+import { prepareRunDir, withApp, sleep, OUT_ABS } from '../lib/harness.mjs';
+import { clickTid, clickText } from '../lib/ui.mjs';
+import fs from 'node:fs'; import path from 'node:path';
+const run = prepareRunDir('probeforms', { portable: true, seedDb: path.resolve('../.tools/golden/q-after-import.db') });
+const dump = (b) => b.execute(() => { const d = document.querySelector('[role="dialog"]'); if (!d) return null; return { text: d.innerText.slice(0, 600), fields: [...d.querySelectorAll('input,select,textarea,button,[role=combobox],[role=switch]')].map((e) => ({ tag: e.tagName, id: e.id, name: e.getAttribute('name'), tid: e.getAttribute('data-testid'), ph: e.getAttribute('placeholder'), type: e.type, txt: (e.innerText || '').trim().slice(0, 30), aria: e.getAttribute('aria-label') })) }; });
+const out = {};
+await withApp({ scenario: 'probeforms', run }, async (app) => {
+  await app.nav('/campuses'); await sleep(800); await app.b.$('button=Thêm phân hiệu').then((e) => e.click()); await sleep(600); out.campus = await dump(app.b); await app.b.keys('Escape'); await sleep(400);
+  await app.nav('/teachers'); await sleep(800); await clickTid(app.b, 'create-teacher-btn'); await sleep(600); out.teacher = await dump(app.b); await app.b.keys('Escape'); await sleep(400);
+  await app.nav('/exams'); await sleep(800); await clickTid(app.b, 'add-exam-btn'); await sleep(600); out.exam = await dump(app.b); await app.b.keys('Escape'); await sleep(400);
+  await app.nav('/subjects'); await sleep(800); await clickTid(app.b, 'create-subject-btn'); await sleep(600); out.subject = await dump(app.b); await app.b.keys('Escape'); await sleep(400);
+  await app.nav('/rules'); await sleep(800); await clickTid(app.b, 'tab-soft-rules'); await sleep(500);
+  out.rules_soft = await app.b.execute(() => ({ text: document.body.innerText.slice(300, 3500), inputs: [...document.querySelectorAll('input,[role=slider],[role=switch]')].map((e) => ({ tid: e.getAttribute('data-testid'), id: e.id, type: e.type, aria: e.getAttribute('aria-label'), role: e.getAttribute('role') })) }));
+  await clickTid(app.b, 'tab-locks'); await sleep(500);
+  out.rules_locks = await app.b.execute(() => document.body.innerText.slice(300, 2500));
+  await clickTid(app.b, 'tab-quotas'); await sleep(800);
+  out.rules_quotas = await app.b.execute(() => document.body.innerText.slice(300, 2500));
+});
+fs.writeFileSync(path.join(OUT_ABS, 'extracts/probe-forms.json'), JSON.stringify(out, null, 1));
+for (const k of Object.keys(out)) console.log('==', k, JSON.stringify(out[k]).slice(0, 1800));

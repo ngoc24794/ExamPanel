@@ -1,0 +1,21 @@
+$ playwright test
+[WebServer] $ vite
+
+Running 14 tests using 1 worker
+
+  ok  1 [chromium] › e2e\phase-11.spec.ts:22:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › full Phase 11 flow: create subject, grant competencies, forced badge, run, edit VL seat, compare (2.5s)
+  ok  2 [chromium] › e2e\phase-11.spec.ts:97:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › capture light/dark x vi/en screenshots into docs/screenshots/phase-11/ (10.5s)
+  ok  3 [chromium] › e2e\phase-12.spec.ts:38:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › flow: import Q table -> compare with optimizer plan -> edit seat in grid -> export (2.0s)
+  ok  4 [chromium] › e2e\phase-12.spec.ts:112:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › capture light/dark x vi/en screenshots into docs/screenshots/phase-12/ (13.9s)
+  ok  5 [chromium] › e2e\phase-6.spec.ts:15:3 › Phase 6 E2E & Visual Verification › navigates all screens and verifies placeholders & features (1.4s)
+  ok  6 [chromium] › e2e\phase-6.spec.ts:50:3 › Phase 6 E2E & Visual Verification › performs campus CRUD, teacher CRUD, and optimistic grade toggle (1.3s)
+  ok  7 [chromium] › e2e\phase-6.spec.ts:94:3 › Phase 6 E2E & Visual Verification › captures screenshots in light/dark × vi/en for Campuses and Teachers screens (6.3s)
+  ok  8 [chromium] › e2e\phase-7.spec.ts:21:3 › Phase 7 E2E Full Workflow & Visual Verification › full phase 7 workflow: unavailability, indicator, feasibility sheet, go to fix, locks, and presets (2.3s)
+  ok  9 [chromium] › e2e\phase-7.spec.ts:93:3 › Phase 7 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 7 screens and feasibility sheet (13.0s)
+  ok 10 [chromium] › e2e\phase-8.spec.ts:21:3 › Phase 8 E2E Full Workflow & Visual Verification › full phase 8 workflow: run optimize → compare → duplicate → keyboard replace → undo → save → statistics (3.8s)
+  ok 11 [chromium] › e2e\phase-8.spec.ts:109:3 › Phase 8 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 8 screens (15.7s)
+  ok 12 [chromium] › e2e\phase-9.spec.ts:26:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › full phase 9 workflow: import wizard preview & apply, export/print menu, backup & restore in settings (1.6s)
+  ok 13 [chromium] › e2e\phase-9.spec.ts:99:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › generate sample print PDFs: plan-print.pdf and notices.pdf (2.2s)
+  ok 14 [chromium] › e2e\phase-9.spec.ts:141:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › capture light/dark x vi/en visual verification screenshots for Phase 9 (12.0s)
+
+  14 passed (1.5m)

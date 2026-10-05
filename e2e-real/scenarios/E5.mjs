@@ -1,0 +1,30 @@
+// E5 perf (informational, sandbox numbers): export / import / backup / restore / IPC round-trips + DB sizes.
+import { prepareRunDir, withApp, sleep, OUT_ABS, sampleRss } from '../lib/harness.mjs';
+import { recorder } from '../lib/rec.mjs';
+import { sql } from '../lib/native.mjs';
+import fs from 'node:fs'; import path from 'node:path'; import { execSync } from 'node:child_process';
+const R = recorder('E5');
+const run = prepareRunDir('E5', { portable: true, seedDb: path.resolve('../.tools/golden/q-plans.db') }); const db = path.join(run.dataDir, 'exam-panel.db');
+const filled = path.join(run.dir, 'out/q-filled.xlsx'); fs.copyFileSync(path.join(OUT_ABS, 'extracts/B2-q-filled.xlsx'), filled); execSync(`chown -R qauser:qauser ${run.dir}`);
+const stats = (a) => { const s = [...a].sort((x, y) => x - y); return { min: +s[0].toFixed(1), median: +s[Math.floor(s.length / 2)].toFixed(1), max: +s[s.length - 1].toFixed(1), n: s.length }; };
+const out = {};
+await withApp({ scenario: 'E5', run }, async (app) => {
+  const time = async (name, n, fn) => { const a = []; for (let i = 0; i < n; i++) { const t0 = Date.now(); const r = await fn(i); a.push(Date.now() - t0); if (r && r.ok === false) throw new Error(name + ' ' + JSON.stringify(r.e)); } out[name] = stats(a); };
+  out.idle_rss_kb = sampleRss().total_kb;
+  await time('generate_import_template_ms', 5, (i) => app.invoke('generate_import_template', { targetPath: path.join(run.dir, `out/t${i}.xlsx`) }));
+  await time('export_plan_excel_ms', 5, (i) => app.invoke('export_plan_excel', { planId: 1, targetPath: path.join(run.dir, `out/e${i}.xlsx`) }));
+  await time('preview_import_ms', 5, () => app.invoke('preview_import', { schoolYearId: 1, filePath: filled, mode: 'upsert' }));
+  const pv = (await app.invoke('preview_import', { schoolYearId: 1, filePath: filled, mode: 'upsert' })).v;
+  await time('apply_import_ms (incl. automatic backup)', 5, async () => { await sleep(1100); return app.invoke('apply_import', { schoolYearId: 1, preview: pv }); });
+  await time('backup_database_ms', 5, (i) => app.invoke('backup_database', { targetPath: path.join(run.dir, `out/b${i}.db`) }));
+  await time('restore_database_ms (incl. pre-restore backup)', 5, async (i) => { await sleep(1100); return app.invoke('restore_database', { sourcePath: path.join(run.dir, 'out/b0.db') }); });
+  await time('get_plan_ms', 20, () => app.invoke('get_plan', { id: 1 }));
+  await time('evaluate_assignments_ms', 20, async () => app.invoke('evaluate_assignments', { schoolYearId: 1, assignments: (await app.invoke('get_plan', { id: 1 })).v.assignments }));
+  await time('check_feasibility_ms', 10, () => app.invoke('check_feasibility', { schoolYearId: 1 }));
+  await time('route_change_to_rendered_ms (Phân công)', 5, async (i) => { await app.nav(i % 2 ? '/teachers' : '/'); const t0 = Date.now(); await app.nav('/assignments'); await app.b.$('[data-testid="q-plan-grid-table"]').then((e) => e.waitForExist({ timeout: 8000 })); return null; });
+  out.rss_after_kb = sampleRss().total_kb;
+});
+out.db_size_bytes = fs.statSync(db).size; out.export_xlsx_bytes = fs.statSync(path.join(run.dir, 'out/e0.xlsx')).size; out.backup_bytes = fs.statSync(path.join(run.dir, 'out/b0.db')).size;
+const bdir = path.join(run.dataDir, 'backups'); out.backups_dir_bytes = fs.readdirSync(bdir).reduce((s, f) => s + fs.statSync(path.join(bdir, f)).size, 0);
+fs.writeFileSync(path.join(OUT_ABS, 'extracts/E5-perf.json'), JSON.stringify(out, null, 1));
+R.check('E5.perf-numbers-collected', 'pass', out, 'informational (sandbox 4 vCPU, software GL)', ['extracts/E5-perf.json']);

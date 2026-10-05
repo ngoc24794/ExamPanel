@@ -8,6 +8,7 @@ import {
   isTauriEnvironment,
 } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
+import { getCampusDotColor } from '@/lib/theme/campus-colors'
 import {
   useSchoolYears,
   usePlans,
@@ -16,6 +17,7 @@ import {
   useCampuses,
   useGrades,
   useExams,
+  useSubjects,
   useTeachers,
   useLocks,
   useFeasibility,
@@ -49,14 +51,18 @@ import {
   AlertTriangle,
   FileSpreadsheet,
   Printer,
+  RefreshCw,
+  FileUp,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { RunOptimizeDialog } from './assignments/RunOptimizeDialog'
 import { PlansHistoryList } from './assignments/PlansHistoryList'
 import { PlanMatrixView } from './assignments/PlanMatrixView'
+import { QPlanGrid } from './assignments/QPlanGrid'
 import { TeacherFocusPanel } from './assignments/TeacherFocusPanel'
 import { PlanCompareModal } from './assignments/PlanCompareModal'
 import { ReoptimizeDialog } from './assignments/ReoptimizeDialog'
+import { ImportPlanModal } from './assignments/ImportPlanModal'
 import { FeasibilitySheet } from '@/components/FeasibilitySheet'
 
 export function AssignmentsPage() {
@@ -71,6 +77,7 @@ export function AssignmentsPage() {
   const { data: campuses = [] } = useCampuses()
   const { data: grades = [] } = useGrades()
   const { data: exams = [] } = useExams(schoolYearId)
+  const { data: subjects = [] } = useSubjects(schoolYearId)
   const { data: teachers = [] } = useTeachers(schoolYearId)
   const { data: locks = [] } = useLocks(schoolYearId)
   const { data: feasibilityReport } = useFeasibility(schoolYearId)
@@ -139,6 +146,20 @@ export function AssignmentsPage() {
   const [showCompareModal, setShowCompareModal] = React.useState(false)
   const [showReoptimizeDialog, setShowReoptimizeDialog] = React.useState(false)
   const [showFeasibilitySheet, setShowFeasibilitySheet] = React.useState(false)
+  const [showImportPlanModal, setShowImportPlanModal] = React.useState(false)
+
+  // View mode toggle: 'grid' (Bảng tổ) | 'detail' (Chi tiết)
+  const [viewMode, setViewMode] = React.useState<'grid' | 'detail'>(() => {
+    return (
+      (localStorage.getItem('exam_panel_assignment_view_mode') as 'grid' | 'detail') ||
+      'grid'
+    )
+  })
+
+  const handleViewModeChange = (mode: 'grid' | 'detail') => {
+    setViewMode(mode)
+    localStorage.setItem('exam_panel_assignment_view_mode', mode)
+  }
 
   // Mutations
   const updateAssignmentsMutation = useUpdatePlanAssignments(schoolYearId)
@@ -157,7 +178,9 @@ export function AssignmentsPage() {
   }, [loadedPlanDetails])
 
   const activePlan = plans.find((p) => p.id === selectedPlanId)
-  const isEditable = activePlan ? ['manual', 'duplicate'].includes(activePlan.source) && !activePlan.is_final : false
+  const isEditable = activePlan
+    ? ['manual', 'duplicate'].includes(activePlan.source) && !activePlan.is_final
+    : false
 
   // Apply assignment changes with undo/redo recording
   const handleUpdateAssignments = (newAssignments: Assignment[]) => {
@@ -239,6 +262,7 @@ export function AssignmentsPage() {
         (s) =>
           s.exam_id === slot.exam_id &&
           s.grade_id === slot.grade_id &&
+          s.subject_id === slot.subject_id &&
           s.role === slot.role &&
           s.position === slot.position,
       )
@@ -248,6 +272,7 @@ export function AssignmentsPage() {
             !(
               s.exam_id === slot.exam_id &&
               s.grade_id === slot.grade_id &&
+              s.subject_id === slot.subject_id &&
               s.role === slot.role &&
               s.position === slot.position
             ),
@@ -258,16 +283,23 @@ export function AssignmentsPage() {
     })
   }
 
-  const handleCreateLock = async (slot: SlotRef, teacherId: number, kind: 'pin' | 'forbid') => {
+  const handleCreateLock = async (
+    slot: SlotRef,
+    teacherId: number,
+    kind: 'pin' | 'forbid',
+  ) => {
     await createLockMutation.mutateAsync({
       exam_id: slot.exam_id,
       grade_id: slot.grade_id,
+      subject_id: slot.subject_id,
       teacher_id: teacherId,
       role: slot.role,
       kind,
     })
     toast.success(
-      kind === 'pin' ? t('assignments.pinTeacherSlot') : t('assignments.forbidTeacherSlot'),
+      kind === 'pin'
+        ? t('assignments.pinTeacherSlot')
+        : t('assignments.forbidTeacherSlot'),
     )
   }
 
@@ -343,6 +375,18 @@ export function AssignmentsPage() {
             {t('assignments.compare')}
           </Button>
 
+          {/* Import Existing Plan Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowImportPlanModal(true)}
+            className="gap-1.5"
+            data-testid="import-plan-button"
+          >
+            <FileUp className="h-4 w-4" />
+            {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+          </Button>
+
           {/* Plans History Toggle */}
           <Button
             variant={showHistory ? 'default' : 'outline'}
@@ -354,6 +398,34 @@ export function AssignmentsPage() {
             <History className="h-4 w-4" />
             {t('assignments.history')} ({plans.length})
           </Button>
+
+          {/* View Mode Toggle: Bảng tổ | Chi tiết */}
+          <div className="flex items-center rounded-md border border-border p-0.5 bg-muted/40">
+            <button
+              type="button"
+              onClick={() => handleViewModeChange('grid')}
+              className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${
+                viewMode === 'grid'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              data-testid="view-toggle-grid"
+            >
+              {t('assignments.viewModeGrid') || 'Bảng tổ'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleViewModeChange('detail')}
+              className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${
+                viewMode === 'detail'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              data-testid="view-toggle-detail"
+            >
+              {t('assignments.viewModeDetail') || 'Chi tiết'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -385,176 +457,193 @@ export function AssignmentsPage() {
       {plans.length === 0 ? (
         <div className="p-12 text-center rounded-lg border border-dashed border-border bg-card space-y-4">
           <p className="text-sm text-muted-foreground">{t('assignments.noPlans')}</p>
-          <Button onClick={() => setShowRunDialog(true)} className="gap-2">
-            <Play className="h-4 w-4" />
-            {t('assignments.startRun')}
-          </Button>
+          <div className="flex items-center justify-center gap-2">
+            <Button onClick={() => setShowRunDialog(true)} className="gap-2">
+              <Play className="h-4 w-4" />
+              {t('assignments.startRun')}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowImportPlanModal(true)}
+              className="gap-2"
+              data-testid="empty-import-plan-button"
+            >
+              <FileUp className="h-4 w-4" />
+              {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+            </Button>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Matrix View (3 columns on lg) */}
-          <div className="lg:col-span-3 space-y-4">
-            {/* Active Plan Header & Controls */}
-            {activePlan && (
-              <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-bold text-base text-foreground">
-                    {activePlan.name}
-                  </span>
-                  {activePlan.is_final && (
-                    <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs">
-                      <Star className="h-3 w-3 fill-current" />
-                      {t('assignments.finalBadge')}
-                    </Badge>
-                  )}
-                  {activePlan.is_stale && (
-                    <Badge variant="destructive" className="gap-1 text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40">
-                      <AlertTriangle className="h-3 w-3" />
-                      {t('assignments.staleBadge')}
-                    </Badge>
-                  )}
-                  <Badge variant="secondary" className="text-xs">
-                    {activePlan.source === 'optimizer'
-                      ? t('assignments.sourceOptimizer')
-                      : activePlan.source === 'duplicate'
+        <div className="space-y-4">
+          {/* Active Plan Header & Controls */}
+          {activePlan && (
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-bold text-base text-foreground">
+                  {activePlan.name}
+                </span>
+                {activePlan.is_final && (
+                  <Badge
+                    variant="default"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs"
+                  >
+                    <Star className="h-3 w-3 fill-current" />
+                    {t('assignments.finalBadge')}
+                  </Badge>
+                )}
+                {activePlan.is_stale && (
+                  <Badge
+                    variant="destructive"
+                    className="gap-1 text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40"
+                  >
+                    <AlertTriangle className="h-3 w-3" />
+                    {t('assignments.staleBadge')}
+                  </Badge>
+                )}
+                <Badge variant="secondary" className="text-xs">
+                  {activePlan.source === 'optimizer'
+                    ? t('assignments.sourceOptimizer')
+                    : activePlan.source === 'duplicate'
                       ? t('assignments.sourceDuplicate')
                       : t('assignments.sourceManual')}
-                  </Badge>
-                </div>
+                </Badge>
+              </div>
 
-                {/* Edit Mode & Actions */}
-                <div className="flex items-center gap-2">
-                  {/* Optimizer plans: Show "Tạo bản chỉnh sửa" */}
-                  {activePlan.source === 'optimizer' && (
+              {/* Edit Mode & Actions */}
+              <div className="flex items-center gap-2">
+                {/* Optimizer plans: Show "Tạo bản chỉnh sửa" */}
+                {activePlan.source === 'optimizer' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCreateEditableCopy}
+                    className="gap-1.5 text-xs"
+                    data-testid="create-edit-copy-button"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    {t('assignments.createEditCopy')}
+                  </Button>
+                )}
+
+                {/* Manual/Duplicate plans: Show Edit controls */}
+                {isEditable && (
+                  <>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handleCreateEditableCopy}
-                      className="gap-1.5 text-xs"
-                      data-testid="create-edit-copy-button"
+                      onClick={handleUndo}
+                      disabled={undoStack.length === 0}
+                      title={t('assignments.undo')}
+                      className="h-8 w-8 p-0"
                     >
-                      <Copy className="h-3.5 w-3.5" />
-                      {t('assignments.createEditCopy')}
+                      <Undo2 className="h-4 w-4" />
                     </Button>
-                  )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRedo}
+                      disabled={redoStack.length === 0}
+                      title={t('assignments.redo')}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Redo2 className="h-4 w-4" />
+                    </Button>
 
-                  {/* Manual/Duplicate plans: Show Edit controls */}
-                  {isEditable && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleUndo}
-                        disabled={undoStack.length === 0}
-                        title={t('assignments.undo')}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Undo2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRedo}
-                        disabled={redoStack.length === 0}
-                        title={t('assignments.redo')}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Redo2 className="h-4 w-4" />
-                      </Button>
+                    {isDirty && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleDiscard}
+                          className="text-xs text-muted-foreground"
+                        >
+                          {t('assignments.discard')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleSave}
+                          className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                          data-testid="save-plan-assignments-button"
+                        >
+                          <Save className="h-3.5 w-3.5" />
+                          {t('assignments.save')}
+                        </Button>
+                      </>
+                    )}
+                  </>
+                )}
 
-                      {isDirty && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleDiscard}
-                            className="text-xs text-muted-foreground"
-                          >
-                            {t('assignments.discard')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={handleSave}
-                            className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
-                            data-testid="save-plan-assignments-button"
-                          >
-                            <Save className="h-3.5 w-3.5" />
-                            {t('assignments.save')}
-                          </Button>
-                        </>
-                      )}
-                    </>
-                  )}
+                {/* Export Excel Button */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleExportExcel}
+                          disabled={!isTauri}
+                          className="gap-1.5 text-xs"
+                          data-testid="export-excel-button"
+                        >
+                          <FileSpreadsheet className="h-3.5 w-3.5" />
+                          {t('export.exportExcel')}
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {!isTauri && (
+                      <TooltipContent>
+                        <p className="text-xs">{t('export.exportMockDisabled')}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
 
-                  {/* Export Excel Button */}
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleExportExcel}
-                            disabled={!isTauri}
-                            className="gap-1.5 text-xs"
-                            data-testid="export-excel-button"
-                          >
-                            <FileSpreadsheet className="h-3.5 w-3.5" />
-                            {t('export.exportExcel')}
-                          </Button>
-                        </span>
-                      </TooltipTrigger>
-                      {!isTauri && (
-                        <TooltipContent>
-                          <p className="text-xs">{t('export.exportMockDisabled')}</p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  {/* Print Dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 text-xs"
-                        data-testid="print-menu-button"
-                      >
-                        <Printer className="h-3.5 w-3.5" />
-                        {t('print.printBtn')}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        data-testid="print-plan-item"
-                        onClick={() => navigate(`/print/plan/${activePlan.id}`)}
-                        className="gap-2 cursor-pointer text-xs"
-                      >
-                        <Printer className="h-3.5 w-3.5" />
-                        {t('print.printPlan')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        data-testid="print-notices-item"
-                        onClick={() => navigate(`/print/notices/${activePlan.id}`)}
-                        className="gap-2 cursor-pointer text-xs"
-                      >
-                        <Printer className="h-3.5 w-3.5" />
-                        {t('print.printNotices')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                {/* Print Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      data-testid="print-menu-button"
+                    >
+                      <Printer className="h-3.5 w-3.5" />
+                      {t('print.printBtn')}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      data-testid="print-plan-item"
+                      onClick={() => navigate(`/print/plan/${activePlan.id}`)}
+                      className="gap-2 cursor-pointer text-xs"
+                    >
+                      <Printer className="h-3.5 w-3.5" />
+                      {t('print.printPlan')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      data-testid="print-notices-item"
+                      onClick={() => navigate(`/print/notices/${activePlan.id}`)}
+                      className="gap-2 cursor-pointer text-xs"
+                    >
+                      <Printer className="h-3.5 w-3.5" />
+                      {t('print.printNotices')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Matrix Component */}
-            {activePlanDetails && (
-              <PlanMatrixView
+          {/* Conditional View: Q-Style Grid (Bảng tổ) vs Detailed Matrix (Chi tiết) */}
+          {viewMode === 'grid' ? (
+            activePlanDetails && (
+              <QPlanGrid
                 planDetails={activePlanDetails}
                 planStatus={planStatus ?? null}
                 exams={exams}
                 grades={grades}
+                subjects={subjects}
                 teachers={teachers}
                 campuses={campuses}
                 locks={locks}
@@ -567,88 +656,121 @@ export function AssignmentsPage() {
                 onUpdateAssignments={handleUpdateAssignments}
                 onCreateLock={handleCreateLock}
               />
-            )}
-          </div>
+            )
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Detailed Matrix View (3 columns on lg) */}
+              <div className="lg:col-span-3 space-y-4">
+                {activePlanDetails && (
+                  <PlanMatrixView
+                    planDetails={activePlanDetails}
+                    planStatus={planStatus ?? null}
+                    exams={exams}
+                    grades={grades}
+                    subjects={subjects}
+                    teachers={teachers}
+                    campuses={campuses}
+                    locks={locks}
+                    isEditable={isEditable}
+                    focusedTeacherId={focusedTeacherId}
+                    keptSlots={keptSlots}
+                    onSelectTeacherFocus={setFocusedTeacherId}
+                    onToggleKeepSlot={handleToggleKeepSlot}
+                    onReoptimizeRemaining={() => setShowReoptimizeDialog(true)}
+                    onUpdateAssignments={handleUpdateAssignments}
+                    onCreateLock={handleCreateLock}
+                  />
+                )}
+              </div>
 
-          {/* Right Side Panel: Teacher Focus or Information (1 column on lg) */}
-          <div className="space-y-4">
-            {focusedTeacherId !== null ? (
-              <TeacherFocusPanel
-                teacherId={focusedTeacherId}
-                teachers={teachers}
-                campuses={campuses}
-                exams={exams}
-                grades={grades}
-                assignments={currentAssignments}
-                scoreReport={activePlanDetails?.score_report}
-                onClose={() => setFocusedTeacherId(null)}
-              />
-            ) : (
-              <div className="p-4 rounded-lg border border-border bg-card shadow-sm space-y-3 text-xs">
-                <h4 className="font-semibold text-foreground text-sm flex items-center gap-1.5">
-                  <span>Danh sách giáo viên</span>
-                  <Badge variant="outline" className="text-xs">{teachers.length}</Badge>
-                </h4>
-                <p className="text-muted-foreground">
-                  Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được phân công trên ma trận.
-                </p>
-                <div className="max-h-[500px] overflow-y-auto space-y-1 pr-1">
-                  {teachers.map((twg) => {
-                    const tRec = twg.teacher
-                    const campus = campuses.find((c) => c.id === tRec.campus_id)
-                    const count = currentAssignments.filter(
-                      (a) => a.teacher_id === tRec.id,
-                    ).length
+              {/* Right Side Panel: Teacher Focus or Information (1 column on lg) */}
+              <div className="space-y-4">
+                {focusedTeacherId !== null ? (
+                  <TeacherFocusPanel
+                    teacherId={focusedTeacherId}
+                    teachers={teachers}
+                    campuses={campuses}
+                    exams={exams}
+                    grades={grades}
+                    assignments={currentAssignments}
+                    scoreReport={activePlanDetails?.score_report}
+                    onClose={() => setFocusedTeacherId(null)}
+                  />
+                ) : (
+                  <div className="p-4 rounded-lg border border-border bg-card shadow-sm space-y-3 text-xs">
+                    <h4 className="font-semibold text-foreground text-sm flex items-center gap-1.5">
+                      <span>Danh sách giáo viên</span>
+                      <Badge variant="outline" className="text-xs">
+                        {teachers.length}
+                      </Badge>
+                    </h4>
+                    <p className="text-muted-foreground">
+                      Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được
+                      phân công trên ma trận.
+                    </p>
+                    <div className="max-h-[500px] overflow-y-auto space-y-1 pr-1">
+                      {teachers.map((twg) => {
+                        const tRec = twg.teacher
+                        const campus = campuses.find((c) => c.id === tRec.campus_id)
+                        const count = currentAssignments.filter(
+                          (a) => a.teacher_id === tRec.id,
+                        ).length
 
-                    return (
-                      <div
-                        key={tRec.id}
-                        onClick={() => setFocusedTeacherId(tRec.id)}
-                        className="p-2 rounded border border-border bg-card hover:bg-accent/40 flex items-center justify-between cursor-pointer transition-colors"
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
+                        return (
                           <div
-                            className="w-2.5 h-2.5 rounded-full shrink-0"
-                            style={{ backgroundColor: campus?.color ?? '#94a3b8' }}
-                          />
-                          <span className="font-medium text-foreground truncate">
-                            {tRec.full_name}
-                          </span>
-                        </div>
-                        <Badge variant="secondary" className="text-[10px]">
-                          {count} lượt
-                        </Badge>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
+                            key={tRec.id}
+                            onClick={() => setFocusedTeacherId(tRec.id)}
+                            className="p-2 rounded border border-border bg-card hover:bg-accent/40 flex items-center justify-between cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <div
+                                className="w-2.5 h-2.5 rounded-full shrink-0"
+                                style={{
+                                  backgroundColor: getCampusDotColor(campus?.color),
+                                }}
+                              />
+                              <span className="font-medium text-foreground truncate">
+                                {tRec.full_name}
+                              </span>
+                            </div>
+                            <Badge variant="secondary" className="text-[10px]">
+                              {count} lượt
+                            </Badge>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
 
-            {/* Kept Slots Banner for B3 */}
-            {keptSlots.length > 0 && (
-              <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs space-y-2">
-                <div className="flex items-center justify-between font-semibold text-amber-700 dark:text-amber-300">
-                  <span>Đã chọn giữ: {keptSlots.length} ô</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 text-[10px] px-1 text-muted-foreground"
-                    onClick={() => setKeptSlots([])}
-                  >
-                    Bỏ chọn tất cả
-                  </Button>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => setShowReoptimizeDialog(true)}
-                  className="w-full text-xs"
-                >
-                  Tối ưu lại phần còn lại
-                </Button>
+                {/* Kept Slots Banner for B3 */}
+                {keptSlots.length > 0 && (
+                  <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs space-y-2">
+                    <div className="flex items-center justify-between font-semibold text-amber-700 dark:text-amber-300">
+                      <span>Đã chọn giữ: {keptSlots.length} ô</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-[10px] px-1 text-muted-foreground"
+                        onClick={() => setKeptSlots([])}
+                      >
+                        Bỏ chọn tất cả
+                      </Button>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => setShowReoptimizeDialog(true)}
+                      className="w-full text-xs gap-1.5 bg-amber-600 hover:bg-amber-700 text-white"
+                      data-testid="reoptimize-kept-button"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      <span>{t('assignments.reoptimizeRest')}</span>
+                    </Button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -700,7 +822,19 @@ export function AssignmentsPage() {
         open={showFeasibilitySheet}
         onOpenChange={setShowFeasibilitySheet}
         report={feasibilityReport?.report}
+        schoolYearId={schoolYearId}
         schoolYearName={currentYear?.name}
+      />
+
+      {/* Import Existing Plan Modal (Part D) */}
+      <ImportPlanModal
+        open={showImportPlanModal}
+        onOpenChange={setShowImportPlanModal}
+        schoolYearId={schoolYearId}
+        onSuccess={async (newPlanId) => {
+          await refetchPlans()
+          setSelectedPlanId(newPlanId)
+        }}
       />
     </div>
   )

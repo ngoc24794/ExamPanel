@@ -1,0 +1,10 @@
+== before-launch vs idle
+208c208
+< INSERT INTO sqlite_sequence VALUES('grades',3);
+---
+> INSERT INTO sqlite_sequence VALUES('grades',6);
+== idle vs after-exit
+208c208
+< INSERT INTO sqlite_sequence VALUES('grades',6);
+---
+> INSERT INTO sqlite_sequence VALUES('grades',9);

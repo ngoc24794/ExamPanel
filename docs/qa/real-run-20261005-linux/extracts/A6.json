@@ -1,0 +1,46 @@
+{
+ "id": "A6",
+ "started": "2026-10-05T05:00:22.922Z",
+ "checks": [
+  {
+   "step": "A6.restore-offer-dialog",
+   "result": "fail",
+   "observed": {
+    "windows": [
+     "ExamPanel"
+    ],
+    "main_thread": {
+     "state": "S",
+     "wchan": "futex_do_wait"
+    }
+   },
+   "expected": "dialog offering restore from latest backup",
+   "evidence": [
+    "screenshots/A6-after-12s.png"
+   ]
+  },
+  {
+   "step": "A6.restore-works",
+   "result": "blocked",
+   "observed": "dialog never rendered",
+   "expected": "DB restored from backups/",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "A6_observed": {
+   "pids": [
+    17321
+   ],
+   "windows": [
+    "ExamPanel"
+   ],
+   "exited": null,
+   "main_thread": {
+    "state": "S",
+    "wchan": "futex_do_wait"
+   },
+   "log_tail": ""
+  }
+ }
+}

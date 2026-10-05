@@ -1,0 +1,604 @@
+{
+ "1024x700": {
+  "/": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 644,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/teachers": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 1326,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/campuses": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 644,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/subjects": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 644,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/competencies": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 1430,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/exams": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 644,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/unavailability": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 1054,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/rules": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 800,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/assignments": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 1414,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/statistics": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 2087,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  },
+  "/settings": {
+   "docW": 1024,
+   "clipped": [],
+   "vw": 1024,
+   "mainScroll": {
+    "cw": 784,
+    "sh": 1921,
+    "ch": 644,
+    "sw": 784
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 700,
+   "vp": [
+    1024,
+    700
+   ]
+  }
+ },
+ "1280x720": {
+  "/": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 664,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/teachers": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 1254,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/campuses": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 664,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/subjects": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 664,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/competencies": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 944,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/exams": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 664,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/unavailability": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 1010,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/rules": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 749,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/assignments": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 865,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [
+    " (child right 940 > card right 856)"
+   ],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/statistics": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 1807,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  },
+  "/settings": {
+   "docW": 1280,
+   "clipped": [],
+   "vw": 1280,
+   "mainScroll": {
+    "cw": 1040,
+    "sh": 1900,
+    "ch": 664,
+    "sw": 1040
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 720,
+   "vp": [
+    1280,
+    720
+   ]
+  }
+ },
+ "1920x1080": {
+  "/": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1024,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/teachers": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1234,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/campuses": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1024,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/subjects": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1024,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/competencies": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1024,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/exams": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1024,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/unavailability": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1024,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/rules": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1024,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/assignments": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1024,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/statistics": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1791,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  },
+  "/settings": {
+   "docW": 1920,
+   "clipped": [],
+   "vw": 1920,
+   "mainScroll": {
+    "cw": 1680,
+    "sh": 1900,
+    "ch": 1024,
+    "sw": 1680
+   },
+   "child_overflows_card": [],
+   "hscroll": false,
+   "vh": 1080,
+   "vp": [
+    1920,
+    1080
+   ]
+  }
+ }
+}

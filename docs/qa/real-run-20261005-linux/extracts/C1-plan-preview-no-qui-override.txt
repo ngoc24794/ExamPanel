@@ -1,0 +1,259 @@
+ExamPanel
+Phân công ra đề
+
+Tổng quan
+Giáo viên
+Phân hiệu
+Môn thi
+Chuyên môn
+Kỳ thi
+Lịch bận
+Quy tắc
+Phân công
+Thống kê
+Cài đặt
+ExamPanel
+v0.1.0
+Phân công
+
+Có cảnh báo
+12
+
+2026 - 2027
+
+VI
+
+Hệ Thống
+Không gian phân công ban đề
+2026 - 2027
+Quản lý phương án phân công, chạy thuật toán tối ưu, chỉnh sửa ma trận và so sánh phương án.
+Chạy tối ưu
+So sánh phương án
+Nhập từ bảng có sẵn
+Lịch sử phương án (1)
+Bảng tổ
+Chi tiết
+Nhập từ bảng của tổ
+Chỉnh tay
+
+
+Xuất Excel (.xlsx)
+In / Xuất PDF
+Tổng điểm phạt: 260.36
+Điều kiện bắt buộc: Hợp lệ (0 vi phạm)
+S1
+: 1
+S2
+: 1
+S3
+: 36
+S4
+: 0
+S5
+: 1
+S6
+: 8
+S7
+: 0
+S8
+: 4.545454545454545
+S9
+: 9
+S10
+: 0
+KÌ THI/KHỐI	Khối Khối 10	Khối Khối 11	Khối Khối 12
+VL	CN	VL	CN	VL	CN
+Giữa kỳ 1
+Đề	
+C Hiền
+
+T Nghĩa
+
+T Lộc
+
+T Nghĩa
+
+C Bình
+
+T Nghĩa
+
+Đề	
+C Lài
+
+—	
+C Thư
+
+—	
+T Phúc
+
+—
+P.Biện	
+T Phúc
+
+C Hiền
+
+C Na
+
+C Lài
+
+C Quí
+
+T Lộc
+
+Cuối kỳ 1
+Đề	
+C Hiền
+
+T Nghĩa
+
+C Lài
+
+T Nghĩa
+
+C Lan
+
+T Nghĩa
+
+Đề	
+C Tú
+
+—	
+C Bình
+
+—	
+C Quí
+
+—
+P.Biện	
+C Như
+
+C Tú
+
+C Thư
+
+C Lan
+
+C Lài
+
+C Bình
+
+Giữa kỳ 2
+Đề	
+C Tú
+
+T Nghĩa
+
+C Na
+
+T Nghĩa
+
+C Lan
+
+T Nghĩa
+
+Đề	
+C Như
+
+—	
+C Thư
+
+—	
+C Lài
+
+—
+P.Biện	
+T Lộc
+
+C Như
+
+C Hiền
+
+C Thư
+
+C Quí
+
+T Phúc
+
+Cuối kỳ 2
+Đề	
+C Na
+
+T Nghĩa
+
+T Lộc
+
+T Nghĩa
+
+T Phúc
+
+T Nghĩa
+
+Đề	
+C Như
+
+—	
+C Quí
+
+—	
+C Hiền
+
+—
+P.Biện	
+C Tú
+
+C Quí
+
+C Bình
+
+C Na
+
+C Lan
+
+C Quí
+
+BẢNG TỔNG HỢP LƯỢT
+
+Giảm
+
+GV	Tổng lượt	Đề	PB	Giữa kỳ 1	Cuối kỳ 1	Giữa kỳ 2	Cuối kỳ 2
+T Nghĩa
+cố định
+12	12	0	3**	3**	3**	3**
+C Quí
+6	2	4	1	1	1	3**
+C Hiền
+5	3	2	2*	1	1	1
+C Lài
+5	3	2	2*	2*	1	0
+T Phúc
+4	2	2	2*	0	1	1
+T Lộc
+4	2	2	2*	0	1	1
+C Thư
+4	2	2	1	1	2*	0
+C Na
+4	2	2	1	0	1	2*
+C Bình
+4	2	2	1	2*	0	1
+C Tú
+4	2	2	0	2*	1	1
+C Như
+4	2	2	0	1	2*	1
+C Lan
+4	2	2	0	2*	1	1
+Tổng cộng	60	36	24	15	15	15	15
+Nhập bảng phân công có sẵn
+Nhập ma trận phân công từ tệp Excel hoặc dán vùng dữ liệu (TSV) từ bảng tính.
+Hợp lệ
+Tổng số vị trí nạp: 60
+Điểm phạt ước tính: 260.4
+
+Đối soát giáo viên (12)
+
+Cảnh báo & Lỗi (1)
+
+Danh sách phân công (60)
+h4: max_tasks_per_exam_exceeded
+Quay lại
+Áp dụng phương án
+Close

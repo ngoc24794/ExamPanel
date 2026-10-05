@@ -1,0 +1,35 @@
+[
+ {
+  "at": "2026-10-05T04:56:13.167Z",
+  "errors": [],
+  "csp": [],
+  "rejections": [],
+  "console": [],
+  "requests": [
+   {
+    "u": "ipc://localhost/teachers_with_grades",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_subjects",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_competencies",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/check_feasibility",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_problem_details",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_exams",
+    "k": "fetch"
+   }
+  ]
+ }
+]

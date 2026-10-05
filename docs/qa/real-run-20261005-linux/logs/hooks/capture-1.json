@@ -1,0 +1,107 @@
+[
+ {
+  "at": "2026-10-05T05:55:48.152Z",
+  "errors": [],
+  "csp": [],
+  "rejections": [],
+  "console": [],
+  "requests": [
+   {
+    "u": "ipc://localhost/teachers_with_grades",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_subjects",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_competencies",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/check_feasibility",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_problem_details",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_exams",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/set_setting",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/set_setting",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/set_setting",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/set_setting",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/set_setting",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/mark_final",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_school_years",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_settings",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_campuses",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_grades",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_exams",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_subjects",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/teachers_with_grades",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_teachers",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_plan",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_plan",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_plans",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_app_info",
+    "k": "fetch"
+   }
+  ]
+ }
+]

@@ -1,0 +1,558 @@
+{
+ "id": "C2",
+ "started": "2026-10-05T05:24:04.547Z",
+ "checks": [
+  {
+   "step": "C2.real-cancel-saves-partial-plans(finding)",
+   "result": "fail",
+   "observed": {
+    "plans_saved": 3,
+    "rows": [
+     {
+      "id": 1,
+      "score": 176.36363636363637
+     },
+     {
+      "id": 2,
+      "score": 176.36363636363637
+     },
+     {
+      "id": 3,
+      "score": 312.3636363636364
+     }
+    ],
+    "first_toasts": [
+     {
+      "t": 46,
+      "toasts": [
+       "Đã hủy tiến trình tối ưu | "
+      ],
+      "dialog": true,
+      "plans": 3,
+      "hash": "#/assignments"
+     },
+     {
+      "t": 511,
+      "toasts": [
+       "Đã tạo 3 phương án mới thành công | ",
+       "Đã hủy tiến trình tối ưu"
+      ],
+      "dialog": false,
+      "plans": 3,
+      "hash": "#/assignments"
+     },
+     {
+      "t": 771,
+      "toasts": [
+       "Đã tạo 3 phương án mới thành công | ",
+       "Đã hủy tiến trình tối ưu"
+      ],
+      "dialog": false,
+      "plans": 3,
+      "hash": "#/assignments"
+     }
+    ]
+   },
+   "expected": "expected 0 plans after Cancel (phase-8 checklist step 2; task C2)",
+   "evidence": [
+    "extracts/C2b-cancel-timeline.json",
+    "screenshots/C2b-after-cancel-page.png"
+   ]
+  },
+  {
+   "step": "C2.Nhanh.completes-and-saves-k<=3",
+   "result": "pass",
+   "observed": {
+    "saved": 3,
+    "wall_ms": 281
+   },
+   "expected": "1..3 plans saved as drafts",
+   "evidence": [
+    "extracts/C2-Nhanh-samples.json"
+   ]
+  },
+  {
+   "step": "C2.Nhanh.progress-monotonic",
+   "result": "not-verified",
+   "observed": {
+    "samples": 1,
+    "monoW": true,
+    "monoBest": true
+   },
+   "expected": "run too short to sample (<0.5s)",
+   "evidence": []
+  },
+  {
+   "step": "C2.Nhanh.scores>=lower-bounds",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 3,
+     "total": 176.36363636363637,
+     "below_lb": [],
+     "hard": null
+    },
+    {
+     "id": 2,
+     "total": 176.36363636363637,
+     "below_lb": [],
+     "hard": null
+    },
+    {
+     "id": 1,
+     "total": 176.36363636363637,
+     "below_lb": [],
+     "hard": null
+    }
+   ],
+   "expected": "no rule units below its lower bound",
+   "evidence": []
+  },
+  {
+   "step": "C2.Chuẩn.completes-and-saves-k<=3",
+   "result": "pass",
+   "observed": {
+    "saved": 3,
+    "wall_ms": 853
+   },
+   "expected": "1..3 plans saved as drafts",
+   "evidence": [
+    "extracts/C2-Chuan-samples.json"
+   ]
+  },
+  {
+   "step": "C2.Chuẩn.progress-monotonic",
+   "result": "fail",
+   "observed": {
+    "samples": 3,
+    "monoW": false,
+    "monoBest": true
+   },
+   "expected": "progress % non-decreasing and best score non-increasing",
+   "evidence": []
+  },
+  {
+   "step": "C2.Chuẩn.scores>=lower-bounds",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 6,
+     "total": 176.36363636363637,
+     "below_lb": [],
+     "hard": null
+    },
+    {
+     "id": 5,
+     "total": 176.36363636363637,
+     "below_lb": [],
+     "hard": null
+    },
+    {
+     "id": 4,
+     "total": 176.36363636363637,
+     "below_lb": [],
+     "hard": null
+    }
+   ],
+   "expected": "no rule units below its lower bound",
+   "evidence": []
+  },
+  {
+   "step": "C2.Chuẩn.plans-are-distinct",
+   "result": "pass",
+   "observed": [
+    {
+     "i": 0,
+     "j": 1,
+     "differing_seats": 45
+    },
+    {
+     "i": 0,
+     "j": 2,
+     "differing_seats": 34
+    },
+    {
+     "i": 1,
+     "j": 2,
+     "differing_seats": 40
+    }
+   ],
+   "expected": "K plans differ pairwise (diversity_threshold 0.2)",
+   "evidence": []
+  },
+  {
+   "step": "C2.Kỹ.completes-and-saves-k<=3",
+   "result": "pass",
+   "observed": {
+    "saved": 3,
+    "wall_ms": 3808
+   },
+   "expected": "1..3 plans saved as drafts",
+   "evidence": [
+    "extracts/C2-Ky-samples.json"
+   ]
+  },
+  {
+   "step": "C2.Kỹ.progress-monotonic",
+   "result": "fail",
+   "observed": {
+    "samples": 16,
+    "monoW": false,
+    "monoBest": false
+   },
+   "expected": "progress % non-decreasing and best score non-increasing",
+   "evidence": []
+  },
+  {
+   "step": "C2.Kỹ.scores>=lower-bounds",
+   "result": "pass",
+   "observed": [
+    {
+     "id": 9,
+     "total": 176.36363636363637,
+     "below_lb": [],
+     "hard": null
+    },
+    {
+     "id": 8,
+     "total": 176.36363636363637,
+     "below_lb": [],
+     "hard": null
+    },
+    {
+     "id": 7,
+     "total": 176.36363636363637,
+     "below_lb": [],
+     "hard": null
+    }
+   ],
+   "expected": "no rule units below its lower bound",
+   "evidence": []
+  },
+  {
+   "step": "C2.second-run-rejected-cleanly",
+   "result": "pass",
+   "observed": {
+    "ok": false,
+    "e": {
+     "params": {},
+     "code": "optimize_busy"
+    }
+   },
+   "expected": "AppError optimize_busy; first run unaffected",
+   "evidence": []
+  },
+  {
+   "step": "C2.cancel-leaves-no-partial-plans",
+   "result": "fail",
+   "observed": {
+    "before": 9,
+    "after": 12
+   },
+   "expected": "plan count unchanged",
+   "evidence": []
+  },
+  {
+   "step": "C2.cancel-single-toast",
+   "result": "pass",
+   "observed": 1,
+   "expected": "at most one \"Đã hủy\" toast (handleCancel and catch both toast)",
+   "evidence": []
+  },
+  {
+   "step": "C2.run-after-cancel-works",
+   "result": "pass",
+   "observed": {
+    "plans": 15,
+    "wall_ms": 291
+   },
+   "expected": "new run after cancel completes and saves (no stale cancel flag)",
+   "evidence": []
+  },
+  {
+   "step": "C2.10-runs-memory-growth",
+   "result": "pass",
+   "observed": {
+    "first": 538920,
+    "last": 539344,
+    "growth_kb": 424,
+    "wall": {
+     "min": 807,
+     "median": 944,
+     "max": 1049,
+     "n": 10
+    }
+   },
+   "expected": "informational: RSS (app+webkit+driver) after each standard run",
+   "evidence": []
+  },
+  {
+   "step": "C2.ui-responsive-during-run",
+   "result": "pass",
+   "observed": {
+    "Kỹ": {
+     "maxFrameGapMs": 124,
+     "p95": 46,
+     "maxTimerDriftMs": 82.99999999999636,
+     "ipcRoundtripMs": {
+      "min": 7,
+      "median": 28,
+      "max": 62,
+      "n": 17
+     }
+    },
+    "Chuẩn": {
+     "maxFrameGapMs": 73,
+     "maxTimerDriftMs": 80
+    }
+   },
+   "expected": "main-thread stalls < 250 ms while optimizer saturates 4 cores (no idle baseline taken: informational)",
+   "evidence": [
+    "extracts/C2.json"
+   ]
+  },
+  {
+   "step": "C2.wall-time-vs-CLI",
+   "result": "pass",
+   "observed": {
+    "ui_standard_ms": [
+     1027,
+     1049,
+     945,
+     977,
+     807,
+     907,
+     939,
+     939,
+     919,
+     944
+    ],
+    "cli_median_s_task7_perf": "see extracts/repo-tool-task7_perf.txt (0.635 s, SyntheticCampuses fixture)"
+   },
+   "expected": "informational: UI wall includes DB save + IPC + polling cadence (200 ms)",
+   "evidence": [
+    "extracts/repo-tool-task7_perf.txt"
+   ]
+  }
+ ],
+ "notes": {
+  "run_Nhanh": {
+   "wall_ms": 281,
+   "n_samples": 1,
+   "progress_width_samples": [
+    0
+   ],
+   "best_first_last": [
+    null,
+    null
+   ],
+   "probe": null,
+   "ipc_roundtrip_ms": {
+    "min": 15,
+    "median": 25,
+    "max": 25,
+    "n": 2
+   }
+  },
+  "quality_Nhanh": [
+   {
+    "id": 3,
+    "total": 176.36363636363637,
+    "below_lb": [],
+    "hard": null
+   },
+   {
+    "id": 2,
+    "total": 176.36363636363637,
+    "below_lb": [],
+    "hard": null
+   },
+   {
+    "id": 1,
+    "total": 176.36363636363637,
+    "below_lb": [],
+    "hard": null
+   }
+  ],
+  "run_Chuẩn": {
+   "wall_ms": 853,
+   "n_samples": 3,
+   "progress_width_samples": [
+    0,
+    100,
+    68
+   ],
+   "best_first_last": [
+    176.36,
+    176.36
+   ],
+   "probe": {
+    "p95": 26,
+    "maxDrift": 80,
+    "n": 203,
+    "maxGap": 73
+   },
+   "ipc_roundtrip_ms": {
+    "min": 5,
+    "median": 60,
+    "max": 80,
+    "n": 4
+   }
+  },
+  "quality_Chuẩn": [
+   {
+    "id": 6,
+    "total": 176.36363636363637,
+    "below_lb": [],
+    "hard": null
+   },
+   {
+    "id": 5,
+    "total": 176.36363636363637,
+    "below_lb": [],
+    "hard": null
+   },
+   {
+    "id": 4,
+    "total": 176.36363636363637,
+    "below_lb": [],
+    "hard": null
+   }
+  ],
+  "plan_pairwise_distance_standard": [
+   {
+    "i": 0,
+    "j": 1,
+    "differing_seats": 45
+   },
+   {
+    "i": 0,
+    "j": 2,
+    "differing_seats": 34
+   },
+   {
+    "i": 1,
+    "j": 2,
+    "differing_seats": 40
+   }
+  ],
+  "run_Kỹ": {
+   "wall_ms": 3808,
+   "n_samples": 16,
+   "progress_width_samples": [
+    0,
+    13,
+    41,
+    56,
+    84,
+    42,
+    72,
+    42,
+    41,
+    25,
+    50,
+    57,
+    91,
+    27,
+    100,
+    90
+   ],
+   "best_first_last": [
+    220.36,
+    176.36
+   ],
+   "probe": {
+    "p95": 46,
+    "maxDrift": 82.99999999999636,
+    "n": 436,
+    "maxGap": 124
+   },
+   "ipc_roundtrip_ms": {
+    "min": 7,
+    "median": 28,
+    "max": 62,
+    "n": 17
+   }
+  },
+  "quality_Kỹ": [
+   {
+    "id": 9,
+    "total": 176.36363636363637,
+    "below_lb": [],
+    "hard": null
+   },
+   {
+    "id": 8,
+    "total": 176.36363636363637,
+    "below_lb": [],
+    "hard": null
+   },
+   {
+    "id": 7,
+    "total": 176.36363636363637,
+    "below_lb": [],
+    "hard": null
+   }
+  ],
+  "after_cancel": {
+   "plans_before": 9,
+   "plans_after": 12,
+   "toast_cancel_count": 1,
+   "dialog_present": null
+  },
+  "mem_10_standard_runs": {
+   "rss_kb": [
+    538920,
+    540044,
+    539908,
+    539828,
+    541024,
+    542752,
+    540480,
+    542444,
+    541932,
+    539344
+   ],
+   "wall_ms": [
+    1027,
+    1049,
+    945,
+    977,
+    807,
+    907,
+    939,
+    939,
+    919,
+    944
+   ]
+  },
+  "plans_total": 45,
+  "plans_after_cancel": [
+   {
+    "id": 1,
+    "name": "Phương án #1",
+    "source": "optimizer",
+    "score": 176.36363636363637,
+    "rank": 1,
+    "run_params_json": "{\"app_version\":\"0.1.0\",\"base_seed\":42,\"budget\":{\"type\":\"Iterations\",\"value\":500000},\"diversity_threshold\":0.2,\"k\":3,\"runs\":16}"
+   },
+   {
+    "id": 2,
+    "name": "Phương án #2",
+    "source": "optimizer",
+    "score": 176.36363636363637,
+    "rank": 2,
+    "run_params_json": "{\"app_version\":\"0.1.0\",\"base_seed\":42,\"budget\":{\"type\":\"Iterations\",\"value\":500000},\"diversity_threshold\":0.2,\"k\":3,\"runs\":16}"
+   },
+   {
+    "id": 3,
+    "name": "Phương án #3",
+    "source": "optimizer",
+    "score": 312.3636363636364,
+    "rank": 3,
+    "run_params_json": "{\"app_version\":\"0.1.0\",\"base_seed\":42,\"budget\":{\"type\":\"Iterations\",\"value\":500000},\"diversity_threshold\":0.2,\"k\":3,\"runs\":16}"
+   }
+  ],
+  "superseded_first_run_note": "first C2 run RSS values (~1.04 GB) were inflated by a stray app from a failed earlier scenario (found later); C2 was re-run after adding a stray-process kill to the harness"
+ }
+}

@@ -12,7 +12,43 @@ console.log('==========================================================');
 const pkgJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 const version = pkgJson.version || '0.1.0';
 
+// Tự động thêm ~/.cargo/bin vào PATH nếu đang chạy trên macOS/Unix
+if (process.env.HOME) {
+  const cargoBin = path.join(process.env.HOME, '.cargo', 'bin');
+  if (fs.existsSync(cargoBin)) {
+    process.env.PATH = `${cargoBin}:${process.env.PATH || ''}`;
+  }
+}
+
 if (!skipBuild) {
+  try {
+    execSync('cargo --version', { stdio: 'ignore' });
+  } catch {
+    console.error('\n==========================================================');
+    console.error('LỖI: Không tìm thấy công cụ biên dịch Rust ("cargo") trên macOS!');
+    console.error('==========================================================');
+    console.error('Để biên dịch ứng dụng Tauri, bạn cần cài đặt Rust và Xcode Command Line Tools.');
+    console.error('\n1. Cài đặt Rust (nếu chưa cài):');
+    console.error('   curl --proto \'=https\' --tlsv1.2 -sSf https://sh.rustup.rs | sh');
+    console.error('\n2. Kích hoạt môi trường Cargo trong Terminal hiện tại:');
+    console.error('   source "$HOME/.cargo/env"');
+    console.error('\n3. Cài đặt công cụ lập trình của Apple (nếu chưa có):');
+    console.error('   xcode-select --install');
+    console.error('==========================================================\n');
+    process.exit(1);
+  }
+
+  // Tự động cài đặt dependencies nếu chưa cài đặt (cả root và ui)
+  if (!fs.existsSync('node_modules')) {
+    console.log('\n[0/4] Chưa tìm thấy root dependencies, đang chạy pnpm install...');
+    execSync('pnpm install', { stdio: 'inherit' });
+  }
+
+  if (!fs.existsSync('ui/node_modules') || !fs.existsSync('ui/node_modules/.bin/tsc')) {
+    console.log('\n[0/4] Chưa tìm thấy frontend UI dependencies, đang chạy pnpm -C ui install...');
+    execSync('pnpm -C ui install', { stdio: 'inherit' });
+  }
+
   console.log('\n[1/4] Đang biên dịch frontend và ứng dụng Tauri (Release cho macOS)...');
   execSync('pnpm tauri build', { stdio: 'inherit' });
 } else {

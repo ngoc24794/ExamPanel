@@ -1,0 +1,119 @@
+{
+ "rows": [
+  {
+   "rule": "S1",
+   "ui_pen": 10.0,
+   "engine_units": 1,
+   "engine_pen": 10,
+   "excel_viol": 1,
+   "excel_pen": 10,
+   "repo_units": 1.0,
+   "repo_pen": 10.0
+  },
+  {
+   "rule": "S2",
+   "ui_pen": 3.0,
+   "engine_units": 1,
+   "engine_pen": 3,
+   "excel_viol": 1,
+   "excel_pen": 3,
+   "repo_units": 1.0,
+   "repo_pen": 3.0
+  },
+  {
+   "rule": "S3",
+   "ui_pen": 144.0,
+   "engine_units": 36,
+   "engine_pen": 144,
+   "excel_viol": 36,
+   "excel_pen": 144,
+   "repo_units": 36.0,
+   "repo_pen": 144.0
+  },
+  {
+   "rule": "S4",
+   "ui_pen": 0.0,
+   "engine_units": 0,
+   "engine_pen": 0,
+   "excel_viol": 0,
+   "excel_pen": 0,
+   "repo_units": 0.0,
+   "repo_pen": 0.0
+  },
+  {
+   "rule": "S5",
+   "ui_pen": 6.0,
+   "engine_units": 1,
+   "engine_pen": 6,
+   "excel_viol": 1,
+   "excel_pen": 6,
+   "repo_units": 1.0,
+   "repo_pen": 6.0
+  },
+  {
+   "rule": "S6",
+   "ui_pen": 16.0,
+   "engine_units": 8,
+   "engine_pen": 16,
+   "excel_viol": 8,
+   "excel_pen": 16,
+   "repo_units": 8.0,
+   "repo_pen": 16.0
+  },
+  {
+   "rule": "S7",
+   "ui_pen": 0.0,
+   "engine_units": 0,
+   "engine_pen": 0,
+   "excel_viol": 0,
+   "excel_pen": 0,
+   "repo_units": 0.0,
+   "repo_pen": 0.0
+  },
+  {
+   "rule": "S8",
+   "ui_pen": 36.4,
+   "engine_units": 4.545454545454545,
+   "engine_pen": 36.36363636363636,
+   "excel_viol": 4,
+   "excel_pen": 36.36,
+   "repo_units": 4.55,
+   "repo_pen": 36.36
+  },
+  {
+   "rule": "S9",
+   "ui_pen": 45.0,
+   "engine_units": 9,
+   "engine_pen": 45,
+   "excel_viol": 9,
+   "excel_pen": 45,
+   "repo_units": 9.0,
+   "repo_pen": 45.0
+  },
+  {
+   "rule": "S10",
+   "ui_pen": 0.0,
+   "engine_units": 0,
+   "engine_pen": 0,
+   "excel_viol": 0,
+   "excel_pen": 0,
+   "repo_units": 0.0,
+   "repo_pen": 0.0
+  }
+ ],
+ "totals": {
+  "engine": 260.3636363636364,
+  "ui": 260.36
+ },
+ "mismatches": [
+  [
+   "S8",
+   "units",
+   [
+    4.545454545454545,
+    4,
+    4.55
+   ]
+  ]
+ ]
+}

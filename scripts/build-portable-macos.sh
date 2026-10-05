@@ -18,12 +18,45 @@ for arg in "$@"; do
   esac
 done
 
+# Nạp môi trường Cargo nếu có
+if [ -f "$HOME/.cargo/env" ]; then
+  # shellcheck source=/dev/null
+  source "$HOME/.cargo/env"
+fi
+export PATH="$HOME/.cargo/bin:$PATH"
+
 echo "=========================================================="
 echo "   BẮT ĐẦU ĐÓNG GÓI EXAMPANEL PHIÊN BẢN PORTABLE (macOS)"
 echo "=========================================================="
 
 # 1. Biên dịch ứng dụng nếu không bật --skip-build
 if [ "$SKIP_BUILD" = false ]; then
+  if ! command -v cargo >/dev/null 2>&1; then
+    echo "" >&2
+    echo "==========================================================" >&2
+    echo "LỖI: Không tìm thấy công cụ biên dịch Rust ('cargo')!" >&2
+    echo "==========================================================" >&2
+    echo "Vui lòng cài đặt Rust và Xcode Command Line Tools trên macOS:" >&2
+    echo "  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh" >&2
+    echo "  source \"\$HOME/.cargo/env\"" >&2
+    echo "  xcode-select --install" >&2
+    echo "==========================================================" >&2
+    exit 1
+  fi
+
+  # Tự động cài đặt dependencies nếu chưa có
+  if [ ! -d "node_modules" ]; then
+    echo ""
+    echo "[0/4] Chưa tìm thấy root dependencies, đang chạy pnpm install..."
+    pnpm install
+  fi
+
+  if [ ! -d "ui/node_modules" ] || [ ! -f "ui/node_modules/.bin/tsc" ]; then
+    echo ""
+    echo "[0/4] Chưa tìm thấy frontend UI dependencies, đang chạy pnpm -C ui install..."
+    pnpm -C ui install
+  fi
+
   echo ""
   echo "[1/4] Đang biên dịch frontend và ứng dụng Tauri (Release cho macOS)..."
   pnpm tauri build

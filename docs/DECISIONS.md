@@ -222,3 +222,94 @@
 - **Decision:** Enhance `crates/storage/src/paths.rs` with `inspect_data_location_for_exe` to recognize macOS `.app` bundle hierarchies: if the executable path resides within an `.app` directory and `ExamPanel.portable` is present in the parent directory containing the `.app` bundle, the portable data path resolves to `./data` beside `ExamPanel.app`. Support read-only fallback (`PortableReadOnly`) if running on read-only mounted disk images. Add platform-specific `src-tauri/tauri.macos.conf.json` for `app` and `dmg` targets, automated packaging scripts (`scripts/build-portable-macos.sh`, `scripts/build-portable-macos.mjs`), and CI release pipeline steps.
 - **Consequences:** Consistent, zero-configuration portable execution across macOS and Windows, honoring USB drive isolation and macOS bundle conventions.
 
+## ADR-0035: Multi-Subject Exam Panels, Competencies with Grade Scoping, and Structural Forced Propagation
+- **Status:** Accepted
+- **Context:** Prior to Phase 11, panels were defined strictly as (Exam × Grade) with a hard-coded 2 setters + 1 reviewer composition, and teachers were restricted to teaching their assigned grades. Real-world high school operation (such as the manual schedule constructed by Coordinator Q) requires multiple subjects (e.g., Physics "VL" and Technology "CN"), subject-specific compositions (VL 2+1, CN 1+1, customizable min campuses), and qualifications where a teacher can review across grades outside their direct teaching assignment (`GradeScope::Any`), or serve as the sole specialized setter across all panels (e.g. Teacher Nghĩa setting all 12 CN panels).
+- **Decision:**
+  1. Introduce `Subject` entity with configurable `setters`, `reviewers`, and `min_campuses`.
+  2. Redefine `PanelKey` as `(ExamId, GradeId, SubjectId)`, with seats identified by `(PanelKey, Role, position)`.
+  3. Introduce `Competency` mapping `(TeacherId, SubjectId, Role, GradeScope)` per academic year, where `GradeScope::Taught` requires the teacher to teach the grade in that school year, and `GradeScope::Any` allows assignment across all grades.
+  4. Implement fixpoint forced placement propagation (`find_forced_placements`): when a panel role has exactly as many eligible candidates as seats, those assignments are permanently forced, removing them from consideration in other roles for that panel, repeating until fixpoint. Forced placements are immutable in solver, optimizer, and manual drag-drop editing.
+- **Consequences:** Accurate modeling of multi-subject schools; automated handling of specialized teachers without manual locks; zero hard violations when evaluating real school schedules under configurable process constraints.
+
+## ADR-0036: Workload Quota Formula v2 with Capacity Bounds and Bisection Balancing
+- **Status:** Accepted
+- **Context:** The Phase 3 quota formula assumed equal distribution among active teachers with single-panel-per-exam limits. With multi-subject scheduling, per-exam task limits (Rule H4) allowing up to $M$ tasks (and setter tasks) per teacher per exam, manual quota overrides, and structural forced placements (e.g., 12 forced setter tasks for Teacher Nghĩa), the legacy quota calculation led to unachievable bounds and violated total demand $D = \sum \text{seats}$.
+- **Decision:** Implement Quota Formula v2 in `crates/core::domain::quota`:
+  1. For each teacher $t$, compute forced seats $F_t$, effective exam limit $\text{eff\_max\_tasks}(t, e)$, and capacity bound $\text{cap}_t = \min(\text{eligible\_seats}_t, \sum_{e \in \text{avail}_t} \text{eff\_max\_tasks}(t, e))$.
+  2. For teachers without manual overrides, set $q_t(\lambda) = \text{clamp}(\lambda \cdot w'_t, F_t, \text{cap}_t)$, where $w'_t = \text{load\_weight}_t \times \text{avail}_t / E$.
+  3. Solve for $\lambda$ using binary search / bisection until $\sum q_t(\lambda) = D$.
+  4. Set integer tolerance bounds: $\text{lo}_t = \max(F_t, \lfloor q_t \rfloor - k)$ and $\text{hi}_t = \min(\text{cap}_t, \max(F_t, \lceil q_t \rceil + k))$.
+  5. Add soft rules S9 (Exam Crowding Relief: penalizing teachers holding > 1 task in a single exam when unnecessary) and S10 (Review Subject Coverage: encouraging reviewer-qualified teachers to review every competent subject at least once).
+- **Consequences:** Mathematically sound quota balancing that perfectly absorbs forced workloads, honors capacity limits and overrides, preserves exact backward compatibility with single-subject legacy databases, and optimizes cross-subject fairness.
+
+## ADR-0037: Configurable Per-Exam and Per-Setter Task Limits (H4 Redefinition)
+- **Status:** Accepted
+- **Context:** Prior to Phase 11, hard constraint H4 strictly prohibited any teacher from serving on more than 1 panel in the same exam period. In multi-subject departments or specialized schools where some faculty members hold dual competencies (e.g. Physics and Technology), teachers must occasionally handle 2 assignments within one exam term (e.g. authoring a Physics paper and reviewing a Technology paper). A rigid binary cap rendered multi-subject instances infeasible.
+- **Decision:** Redefine Rule H4 with configurable global parameters:
+  - `max_tasks_per_exam` (default: 2, system upper limit per exam term).
+  - `max_setter_per_exam` (default: 1, ensuring no teacher authors more than 1 paper per term).
+  - Support per-teacher override `max_tasks_per_exam_override` in the database to accommodate specialized faculty (or medical/administrative restrictions).
+- **Consequences:** Enables realistic multi-subject scheduling, guarantees authoring sanity by preventing multi-paper authoring in the same term, and gives coordinators granular per-teacher control.
+
+## ADR-0038: S9 Avoidable Crowding Penalty with Teacher Unavoidable Offset
+- **Status:** Accepted
+- **Context:** Teachers whose total quota $c_t$ exceeds their available exam count $m_t$ (e.g. $c_t = 5$ tasks across $m_t = 4$ exams) must unavoidably hold at least $c_t - m_t$ doubled-up tasks in some exam. Penalizing gross crowding without accounting for this structural lower bound penalizes the optimizer for unavoidable reality, distorting objective function trade-offs against Coordinator Q's manual schedule.
+- **Decision:** Formulate the S9 soft constraint strictly around avoidable crowding:
+  $$\text{avoidable}_t = \max(0, \text{crowding}_t - \max(0, c_t - m_t))$$
+  where $\text{crowding}_t = \sum_{e \in E} \max(0, \text{tasks}_{t, e} - 1)$.
+  Total S9 penalty is $W_{S9} \sum_t \text{avoidable}_t$. When a plan achieves the theoretical minimum crowding for all teachers, S9 evaluates to exactly 0.0. Maintain $O(1)$ incremental state updates during local search.
+- **Consequences:** Fair multi-objective optimization, correct assessment of Coordinator Q's manual plan (13 gross crowding, 4 offset, 9 avoidable units = 45.00 penalty), and 0.0 score when local search attains the structural minimum.
+
+## ADR-0039: S10 Review Subject Diversity Penalty
+- **Status:** Accepted
+- **Context:** In departments managing multiple subjects, reviewer oversight should promote cross-disciplinary perspective and prevent siloed peer reviews. If a teacher qualified to review both Physics and Technology is only assigned to Physics reviews, the department loses cross-subject review balance.
+- **Decision:** Introduce soft constraint S10 (`review_subject_coverage`):
+  For each active teacher $t$ with reviewer competency in two or more subjects, penalize $W_{S10}$ for each competent subject in which teacher $t$ is assigned 0 review tasks across the academic year:
+  $$\text{S10 penalty} = W_{S10} \sum_{t \in T_{\text{multi}}} \sum_{s \in \text{CompRev}(t)} [\text{reviews}_{t, s} == 0]$$
+- **Consequences:** The provable lower bound is 0.0 whenever task counts allow each multi-competent teacher at least one review per subject. Drives simulated annealing to balance review distribution across disciplines.
+
+## ADR-0040: Dynamic S1 Auto-Max Pacing Mode
+- **Status:** Accepted
+- **Context:** Rule S1 penalizes assignment concentration above an ideal threshold. In single-subject schools with 4 exams, 1 task per exam was the obvious target. In multi-subject schedules where average quota is 4.36 tasks, setting a hardcoded threshold of 1 or 2 either causes universal penalties or provides zero gradient.
+- **Decision:** Support an "Auto" mode for Rule S1:
+  - When `max_tasks_per_exam` is unset (default/Auto), the pacing threshold is dynamically calculated as $\lceil q_t \rceil$, penalizing only assignments that exceed the teacher's individual quota-paced expectation.
+  - When an explicit integer is configured by the user, S1 penalizes assignments exceeding that specific integer.
+- **Consequences:** Smooth, adaptive pacing across any faculty size, exam schedule, or multi-subject workload density without manual parameter recalibration.
+
+## ADR-0041: Database Migration 0005 and Zero-Drift Legacy Equivalence
+- **Status:** Accepted
+- **Context:** Upgrading ExamPanel to support multiple subjects, competencies, teacher display names, and quota overrides required altering the SQLite schema. Existing v1–v4 databases and automated backup files must upgrade deterministically on startup or restore, and historical plans must maintain identical validity and score before and after migration.
+- **Decision:** Create migration `0005_subjects_and_competencies.sql`:
+  1. Add `subjects` table and create default record `"CHUNG"` (`setters=2, reviewers=1, min_campuses=2`).
+  2. Add `competencies` table and auto-populate active teachers with `"CHUNG"` competency (`grade_scope='taught'`).
+  3. Add `display_name`, `quota_override`, and `max_tasks_per_exam_override` to `teachers`.
+  4. Add `subject_id` references to `assignments`, `locks`, and `unavailabilities`, backfilled to `"CHUNG"`.
+  5. Enforce legacy equivalence via automated tests verifying that all historical plans have identical hard violations and penalty scores before and after applying migration 0005.
+- **Consequences:** 100% backward compatibility, zero schema drift, and safe automated restoration of legacy backup archives.
+
+## ADR-0042: Canonical Test Fixture Variants (`nocampus` and `synthetic_campuses`)
+- **Status:** Accepted
+- **Context:** Phase 11 previously introduced invented campuses with non-standard names ("Cơ sở 1/2"), conflicting with official school terminology (the school operates 4 phân hiệu). Furthermore, the actual academic schedule constructed by Coordinator Q operates in a unified setting without campus boundaries, while multi-campus constraint H3 requires deterministic synthetic distribution for testing.
+- **Decision:** Establish two canonical dataset variants:
+  1. `nocampus`: Single placeholder campus `"Chưa phân hiệu"`, Rule H3 disabled. Represents the authentic baseline for Coordinator Q's manual plan comparison.
+  2. `synthetic_campuses`: Four campuses `"Phân hiệu 1"`, `"Phân hiệu 2"`, `"Phân hiệu 3"`, `"Phân hiệu 4"` (labeled `(giả lập)`), with deterministic assignment spread and Teacher Nghĩa in Phân hiệu 1. Used for H3 multi-campus verification and spatial diversity benchmarks.
+  3. Permanently remove all "Cơ sở" terminology across code, fixtures, and tests, enforced by automated scanning in `test_no_forbidden_terms_in_fixtures_and_seeds`.
+- **Consequences:** Consistent, reproducible benchmark environments matching authentic institutional structures, and strict adherence to prohibited term policies.
+
+## ADR-0043: Q-Style Grid, Import-As-Plan Architecture, and Template v2
+- **Status:** Accepted
+- **Context:**
+  1. Department coordinator Q organizes schedules in a compact paper-based layout with grade columns grouped under exam blocks, showing roles ("Đề", "P.Biện") and an attached workload totals panel. The application previously only offered a per-panel list view.
+  2. Coordinators frequently receive existing schedules from past semesters or external spreadsheets and need to import them directly as functional plans without re-typing 60 assignments.
+  3. Previews in desktop software must never mutate persistent state or generate phantom database records prior to user confirmation.
+  4. Multi-subject panels require explicit configuration of subjects (setters, reviewers, min campuses) and teacher competencies (role, taught grade scope vs all grades).
+- **Decision:**
+  1. **Q-Style Assignment Grid (`/assignments` default view):** Replicate coordinator Q's layout with a view toggle persisted in settings ("Bảng tổ" default vs "Chi tiết"). Attach a live workload summary table to the right with non-color task density markers (>=2, >=3 tasks). Full editing parity through existing `ExamPanelApi` (candidate evaluation with delta score, swap, pin, forbid).
+  2. **Re-use Source `'manual'` with Origin `'import'`:** Imported plans reuse the existing `'manual'` plan status and table schema. Metadata `run_params_json.origin = "import"` records the import provenance without requiring database migrations.
+  3. **Multi-Stage Teacher Name Matching:** When importing plans or rosters, match names by: (a) exact teacher code, (b) display name (`cách gọi`), (c) full name, (d) accent-folded and case-normalized matching (both NFC and NFD Unicode normalization supported).
+  4. **Strict Read-Only Preview Architecture:** Both plan import and template import parse and simulate feasibility strictly in-memory without issuing database writes. Apply actions execute atomically inside a single SQLite transaction with an automated pre-import backup.
+  5. **Excel Template v2:** Add sheets `"Môn"` and `"Môn đảm nhiệm"` alongside teacher columns `"Cách gọi"`, `"Chỉ tiêu riêng"`, and `"Số việc tối đa mỗi kỳ"`. For backwards compatibility, files omitting `"Môn đảm nhiệm"` automatically assign default setter and reviewer competencies for taught grades.
+- **Consequences:** Seamless UX matching the department's authentic workflow, robust error-resistant import pipelines, 100% database integrity with zero schema bloat, and complete backward compatibility with template v1 files.
+
+

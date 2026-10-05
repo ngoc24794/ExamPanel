@@ -28,7 +28,9 @@ describe('BackupSection Component Tests', () => {
     expect(screen.getByTestId('restore-file-btn')).toBeInTheDocument()
 
     // Wait for backups to load from mockApi
-    expect(await screen.findByText('exampanel-backup-20261001-1400.db')).toBeInTheDocument()
+    expect(
+      await screen.findByText('exampanel-backup-20261001-1400.db'),
+    ).toBeInTheDocument()
   })
 
   it('validates backup and executes restore flow on confirm', async () => {
@@ -41,7 +43,9 @@ describe('BackupSection Component Tests', () => {
       </QueryClientProvider>,
     )
 
-    expect(await screen.findByText('exampanel-backup-20261001-1400.db')).toBeInTheDocument()
+    expect(
+      await screen.findByText('exampanel-backup-20261001-1400.db'),
+    ).toBeInTheDocument()
 
     // Click "Phục hồi" on the first backup row
     const restoreButtons = screen.getAllByRole('button', { name: /Phục hồi/i })

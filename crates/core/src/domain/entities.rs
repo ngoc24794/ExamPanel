@@ -1,6 +1,6 @@
 //! Domain entities, enums, and configuration constants.
 
-use super::ids::{CampusId, ExamId, GradeId, LockId, PlanId, SchoolYearId, TeacherId};
+use super::ids::{CampusId, ExamId, GradeId, LockId, PlanId, SchoolYearId, SubjectId, TeacherId};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
@@ -23,6 +23,19 @@ pub struct Grade {
     pub sort_order: i32,
 }
 
+/// An academic subject taught at the school (e.g. Physics 'VL', Technology 'CN').
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+pub struct Subject {
+    pub id: SubjectId,
+    pub code: String,
+    pub name: String,
+    pub color: String,
+    pub sort_order: u32,
+    pub setters: u8,
+    pub reviewers: u8,
+    pub min_campuses: u8,
+}
+
 /// A teaching staff member eligible for assignment.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Teacher {
@@ -33,7 +46,17 @@ pub struct Teacher {
     pub active: bool,
     pub note: Option<String>,
     #[serde(default)]
+    #[ts(optional)]
     pub code: Option<String>,
+    #[serde(default)]
+    #[ts(optional)]
+    pub display_name: Option<String>,
+    #[serde(default)]
+    #[ts(optional)]
+    pub quota_override: Option<u32>,
+    #[serde(default)]
+    #[ts(optional)]
+    pub max_tasks_per_exam_override: Option<u32>,
 }
 
 /// An academic year under management (e.g., "2026-2027").
@@ -56,7 +79,7 @@ pub struct Exam {
 
 /// Grade qualifications taught by a teacher in a specific school year.
 /// Note: Grades taught can change every school year.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
 pub struct TeacherGrade {
     pub teacher_id: TeacherId,
     pub school_year_id: SchoolYearId,
@@ -107,6 +130,51 @@ impl FromStr for Role {
     }
 }
 
+/// Scope of grades a teacher is qualified for in a competency.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
+#[serde(rename_all = "snake_case")]
+pub enum GradeScope {
+    Taught,
+    Any,
+}
+
+impl GradeScope {
+    #[must_use]
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::Taught => "taught",
+            Self::Any => "any",
+        }
+    }
+}
+
+impl fmt::Display for GradeScope {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+impl FromStr for GradeScope {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "taught" => Ok(Self::Taught),
+            "any" => Ok(Self::Any),
+            other => Err(format!("unknown grade scope: {other}")),
+        }
+    }
+}
+
+/// Teacher qualification for a specific subject and role with grade scope.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
+pub struct Competency {
+    pub teacher_id: TeacherId,
+    pub subject_id: SubjectId,
+    pub role: Role,
+    pub grade_scope: GradeScope,
+}
+
 /// Lock override kind: mandatory PIN or prohibited FORBID.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
@@ -149,6 +217,7 @@ pub struct Lock {
     pub id: LockId,
     pub exam_id: ExamId,
     pub grade_id: GradeId,
+    pub subject_id: SubjectId,
     pub teacher_id: TeacherId,
     pub role: Option<Role>,
     pub kind: LockKind,
@@ -192,6 +261,10 @@ pub enum RuleKey {
         alias = "s8_workload_balance"
     )]
     S8,
+    #[serde(rename = "s9", alias = "s9_exam_crowding")]
+    S9,
+    #[serde(rename = "s10", alias = "s10_review_subject_missing")]
+    S10,
 }
 
 impl ts_rs::TS for RuleKey {
@@ -201,7 +274,7 @@ impl ts_rs::TS for RuleKey {
         "RuleKey".to_string()
     }
     fn decl(_: &ts_rs::Config) -> String {
-        "type RuleKey = \"h1\" | \"h2\" | \"h3\" | \"h4\" | \"h5\" | \"h6\" | \"h7\" | \"s1\" | \"s2\" | \"s3\" | \"s4\" | \"s5\" | \"s6\" | \"s7\" | \"s8\";".to_string()
+        "type RuleKey = \"h1\" | \"h2\" | \"h3\" | \"h4\" | \"h5\" | \"h6\" | \"h7\" | \"s1\" | \"s2\" | \"s3\" | \"s4\" | \"s5\" | \"s6\" | \"s7\" | \"s8\" | \"s9\" | \"s10\";".to_string()
     }
     fn inline(_: &ts_rs::Config) -> String {
         "RuleKey".to_string()
@@ -212,8 +285,8 @@ impl ts_rs::TS for RuleKey {
 }
 
 impl RuleKey {
-    /// All 15 recognized rule keys (H1..H7 and S1..S8).
-    pub const ALL: [Self; 15] = [
+    /// All 17 recognized rule keys (H1..H7 and S1..S10).
+    pub const ALL: [Self; 17] = [
         Self::H1,
         Self::H2,
         Self::H3,
@@ -229,6 +302,8 @@ impl RuleKey {
         Self::S6,
         Self::S7,
         Self::S8,
+        Self::S9,
+        Self::S10,
     ];
 
     #[must_use]
@@ -249,6 +324,8 @@ impl RuleKey {
             Self::S6 => "s6",
             Self::S7 => "s7",
             Self::S8 => "s8",
+            Self::S9 => "s9",
+            Self::S10 => "s10",
         }
     }
 }
@@ -267,7 +344,7 @@ impl FromStr for RuleKey {
             "h1" | "h1_panel_composition" => Ok(Self::H1),
             "h2" | "h2_grade_qualification" => Ok(Self::H2),
             "h3" | "h3_multi_campus_diversity" => Ok(Self::H3),
-            "h4" | "h4_single_panel_per_exam" => Ok(Self::H4),
+            "h4" | "h4_single_panel_per_exam" | "h4_task_limits_per_exam" => Ok(Self::H4),
             "h5" | "h5_exam_availability" => Ok(Self::H5),
             "h6" | "h6_lock_compliance" => Ok(Self::H6),
             "h7" | "h7_workload_quota" => Ok(Self::H7),
@@ -279,9 +356,112 @@ impl FromStr for RuleKey {
             "s6" | "s6_consecutive_exam_relief" => Ok(Self::S6),
             "s7" | "s7_multi_grade_rotation" => Ok(Self::S7),
             "s8" | "s8_load_balance" | "s8_workload_balance" => Ok(Self::S8),
+            "s9" | "s9_exam_crowding" => Ok(Self::S9),
+            "s10" | "s10_review_subject_missing" => Ok(Self::S10),
             other => Err(format!("unknown rule key: {other}")),
         }
     }
+}
+
+/// Cap on reviewer assignments in soft rule S1.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ReviewerCap {
+    #[default]
+    Auto,
+    Fixed(u32),
+}
+
+impl ts_rs::TS for ReviewerCap {
+    type WithoutGenerics = Self;
+    type OptionInnerType = Self;
+    fn name(_: &ts_rs::Config) -> String {
+        "ReviewerCap".to_string()
+    }
+    fn decl(_: &ts_rs::Config) -> String {
+        "type ReviewerCap = \"auto\" | number | { type: \"auto\" } | { type: \"fixed\", value: number };".to_string()
+    }
+    fn inline(_: &ts_rs::Config) -> String {
+        "ReviewerCap".to_string()
+    }
+    fn dependencies(_: &ts_rs::Config) -> Vec<ts_rs::Dependency> {
+        vec![]
+    }
+}
+
+impl Serialize for ReviewerCap {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self {
+            Self::Auto => serializer.serialize_str("auto"),
+            Self::Fixed(n) => serializer.serialize_u32(*n),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for ReviewerCap {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde_json::Value;
+        let v = Value::deserialize(deserializer)?;
+        match v {
+            Value::String(s) if s.eq_ignore_ascii_case("auto") => Ok(Self::Auto),
+            Value::Number(n) => {
+                if let Some(u) = n.as_u64() {
+                    Ok(Self::Fixed(u as u32))
+                } else {
+                    Err(serde::de::Error::custom("invalid reviewer cap number"))
+                }
+            }
+            Value::Object(map) => {
+                if let Some(t) = map.get("type").and_then(Value::as_str) {
+                    if t.eq_ignore_ascii_case("auto") {
+                        return Ok(Self::Auto);
+                    }
+                    if t.eq_ignore_ascii_case("fixed") {
+                        if let Some(val) = map.get("value").and_then(Value::as_u64) {
+                            return Ok(Self::Fixed(val as u32));
+                        }
+                    }
+                }
+                Err(serde::de::Error::custom("invalid reviewer cap object"))
+            }
+            _ => Err(serde::de::Error::custom(
+                "expected auto or number for reviewer cap",
+            )),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+pub struct H3Params {
+    pub enabled: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+pub struct H4Params {
+    pub max_tasks_per_exam: u32,
+    pub max_setter_per_exam: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+pub struct H7Params {
+    pub tolerance: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+pub struct S1Params {
+    #[serde(default = "default_s1_min")]
+    pub min: u32,
+    #[serde(default)]
+    pub max: ReviewerCap,
+}
+
+const fn default_s1_min() -> u32 {
+    1
 }
 
 /// Configuration settings for a specific constraint rule.
@@ -300,10 +480,16 @@ impl RuleSetting {
     pub fn default_settings() -> Vec<Self> {
         vec![
             Self {
+                key: RuleKey::H3,
+                enabled: true,
+                weight: 100.0,
+                params: serde_json::json!({ "enabled": true }),
+            },
+            Self {
                 key: RuleKey::H4,
                 enabled: true,
                 weight: 100.0,
-                params: serde_json::json!({}),
+                params: serde_json::json!({ "max_tasks_per_exam": 2, "max_setter_per_exam": 1 }),
             },
             Self {
                 key: RuleKey::H7,
@@ -315,13 +501,13 @@ impl RuleSetting {
                 key: RuleKey::S1,
                 enabled: true,
                 weight: 10.0,
-                params: serde_json::json!({ "min": 1, "max": 2 }),
+                params: serde_json::json!({ "min": 1, "max": "auto" }),
             },
             Self {
                 key: RuleKey::S2,
                 enabled: true,
                 weight: 3.0,
-                params: serde_json::json!({ "ratio": [2, 1] }),
+                params: serde_json::json!({}),
             },
             Self {
                 key: RuleKey::S3,
@@ -359,6 +545,18 @@ impl RuleSetting {
                 weight: 8.0,
                 params: serde_json::json!({}),
             },
+            Self {
+                key: RuleKey::S9,
+                enabled: true,
+                weight: 5.0,
+                params: serde_json::json!({}),
+            },
+            Self {
+                key: RuleKey::S10,
+                enabled: true,
+                weight: 4.0,
+                params: serde_json::json!({}),
+            },
         ]
     }
 }
@@ -369,12 +567,18 @@ pub enum RulePreset {
     Balanced,
     WorkloadFairness,
     TeamDiversity,
+    AllowTaskCrowding,
 }
 
 impl RulePreset {
     #[must_use]
-    pub fn all() -> [Self; 3] {
-        [Self::Balanced, Self::WorkloadFairness, Self::TeamDiversity]
+    pub fn all() -> [Self; 4] {
+        [
+            Self::Balanced,
+            Self::WorkloadFairness,
+            Self::TeamDiversity,
+            Self::AllowTaskCrowding,
+        ]
     }
 
     #[must_use]
@@ -383,6 +587,7 @@ impl RulePreset {
             Self::Balanced => "balanced",
             Self::WorkloadFairness => "workload_fairness",
             Self::TeamDiversity => "team_diversity",
+            Self::AllowTaskCrowding => "allow_task_crowding",
         }
     }
 
@@ -394,11 +599,9 @@ impl RulePreset {
                 let mut s = RuleSetting::default_settings();
                 for rule in &mut s {
                     match rule.key {
-                        RuleKey::S1 => rule.weight = 14.0,
-                        RuleKey::S3 => rule.weight = 2.0,
-                        RuleKey::S4 => rule.weight = 3.0,
-                        RuleKey::S5 => rule.weight = 3.0,
+                        RuleKey::S1 => rule.weight = 12.0,
                         RuleKey::S8 => rule.weight = 16.0,
+                        RuleKey::S9 => rule.weight = 8.0,
                         _ => {}
                     }
                 }
@@ -408,12 +611,22 @@ impl RulePreset {
                 let mut s = RuleSetting::default_settings();
                 for rule in &mut s {
                     match rule.key {
-                        RuleKey::S1 => rule.weight = 6.0,
                         RuleKey::S3 => rule.weight = 8.0,
                         RuleKey::S4 => rule.weight = 12.0,
                         RuleKey::S5 => rule.weight = 12.0,
-                        RuleKey::S8 => rule.weight = 4.0,
+                        RuleKey::S8 => rule.weight = 6.0,
+                        RuleKey::S10 => rule.weight = 6.0,
                         _ => {}
+                    }
+                }
+                s
+            }
+            Self::AllowTaskCrowding => {
+                let mut s = RuleSetting::default_settings();
+                for rule in &mut s {
+                    if rule.key == RuleKey::S9 {
+                        rule.enabled = false;
+                        rule.weight = 0.0;
                     }
                 }
                 s
@@ -493,8 +706,11 @@ pub struct Assignment {
     pub plan_id: PlanId,
     pub exam_id: ExamId,
     pub grade_id: GradeId,
+    pub subject_id: SubjectId,
     pub teacher_id: TeacherId,
     pub role: Role,
+    #[serde(default)]
+    pub position: usize,
 }
 
 impl Assignment {
@@ -502,33 +718,64 @@ impl Assignment {
     pub const fn new(
         exam_id: ExamId,
         grade_id: GradeId,
+        subject_id: SubjectId,
         teacher_id: TeacherId,
         role: Role,
+        position: usize,
     ) -> Self {
         Self {
             plan_id: PlanId(0),
             exam_id,
             grade_id,
+            subject_id,
             teacher_id,
             role,
+            position,
         }
     }
 }
 
-/// Identifying coordinate for an Exam Panel (Exam × Grade).
+/// Identifying coordinate for an Exam Panel (Exam × Grade × Subject).
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, ts_rs::TS,
 )]
 pub struct PanelKey {
     pub exam_id: ExamId,
     pub grade_id: GradeId,
+    pub subject_id: SubjectId,
 }
 
 impl PanelKey {
     #[inline]
     #[must_use]
-    pub const fn new(exam_id: ExamId, grade_id: GradeId) -> Self {
-        Self { exam_id, grade_id }
+    pub const fn new(exam_id: ExamId, grade_id: GradeId, subject_id: SubjectId) -> Self {
+        Self {
+            exam_id,
+            grade_id,
+            subject_id,
+        }
+    }
+}
+
+/// A forced or assigned seat placement in a panel.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, ts_rs::TS)]
+pub struct Placement {
+    pub panel: PanelKey,
+    pub role: Role,
+    pub position: usize,
+    pub teacher_id: TeacherId,
+}
+
+impl Placement {
+    #[inline]
+    #[must_use]
+    pub const fn new(panel: PanelKey, role: Role, position: usize, teacher_id: TeacherId) -> Self {
+        Self {
+            panel,
+            role,
+            position,
+            teacher_id,
+        }
     }
 }
 
@@ -601,11 +848,12 @@ mod tests {
     #[test]
     fn test_rule_presets() {
         let presets = RulePreset::all();
-        assert_eq!(presets.len(), 3);
+        assert_eq!(presets.len(), 4);
 
         let balanced = RulePreset::Balanced.settings();
         let fairness = RulePreset::WorkloadFairness.settings();
         let diversity = RulePreset::TeamDiversity.settings();
+        let crowding = RulePreset::AllowTaskCrowding.settings();
 
         let find_weight = |settings: &[RuleSetting], key: RuleKey| {
             settings.iter().find(|s| s.key == key).unwrap().weight
@@ -613,6 +861,14 @@ mod tests {
 
         // Balanced defaults
         assert_eq!(find_weight(&balanced, RuleKey::S8), 8.0);
+        assert_eq!(find_weight(&crowding, RuleKey::S9), 0.0);
+        assert!(
+            !crowding
+                .iter()
+                .find(|s| s.key == RuleKey::S9)
+                .unwrap()
+                .enabled
+        );
         assert_eq!(find_weight(&balanced, RuleKey::S1), 10.0);
         assert_eq!(find_weight(&balanced, RuleKey::S4), 6.0);
 

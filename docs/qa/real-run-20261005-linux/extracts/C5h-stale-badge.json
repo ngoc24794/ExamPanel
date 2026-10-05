@@ -1,0 +1,84 @@
+{
+ "before": [
+  {
+   "id": "plan-item-2",
+   "stale": false
+  },
+  {
+   "id": "plan-item-3",
+   "stale": false
+  },
+  {
+   "id": "plan-item-4",
+   "stale": false
+  },
+  {
+   "id": "plan-item-1",
+   "stale": false
+  }
+ ],
+ "plan_status_keys": [
+  "score_now",
+  "rules_changed",
+  "data_changed",
+  "hard_violations_now"
+ ],
+ "list_plans_is_stale": [
+  [
+   2,
+   true
+  ],
+  [
+   3,
+   true
+  ],
+  [
+   4,
+   true
+  ],
+  [
+   1,
+   true
+  ]
+ ],
+ "banner_text": null,
+ "after_spa_nav": [
+  {
+   "id": "plan-item-2",
+   "stale": false
+  },
+  {
+   "id": "plan-item-3",
+   "stale": false
+  },
+  {
+   "id": "plan-item-4",
+   "stale": false
+  },
+  {
+   "id": "plan-item-1",
+   "stale": false
+  }
+ ],
+ "banner_after_reload": [
+  "Dữ liệu đã đổi"
+ ],
+ "after_reload": [
+  {
+   "id": "plan-item-2",
+   "stale": true
+  },
+  {
+   "id": "plan-item-3",
+   "stale": true
+  },
+  {
+   "id": "plan-item-4",
+   "stale": true
+  },
+  {
+   "id": "plan-item-1",
+   "stale": true
+  }
+ ]
+}

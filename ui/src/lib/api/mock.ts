@@ -9,17 +9,21 @@ import demoTeachers from './fixtures/demo_teachers.json'
 import type {
   AppInfo,
   AppSettings,
+  ApplyPlanImportInput,
   Assignment,
   BackupFileInfo,
   BackupValidationSummary,
   Campus,
   CandidateEval,
+  Competency,
   CreateCampusInput,
   CreateExamInput,
   CreateGradeInput,
   CreateLockInput,
   CreateSchoolYearInput,
+  CreateSubjectInput,
   CreateTeacherInput,
+  DeleteCompetencyInput,
   EvaluationOutcome,
   Exam,
   ExamPanelApi,
@@ -32,21 +36,29 @@ import type {
   OptimizeOutcome,
   OptimizeRequest,
   PlanDetails,
+  PlanImportPreview,
+  PlanImportTeacherTotal,
   PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
+  ProblemDetails,
   Progress,
   QuotaPreviewItem,
   ReoptimizeRequest,
+  ReplaceTeacherCompetenciesInput,
   RulePresetItem,
   RuleSetting,
   SchoolYear,
+  SetCompetencyInput,
   SlotRef,
+  Subject,
   Teacher,
+  TeacherGrade,
   TeacherQuota,
   TeacherWithGrades,
   ThemeMode,
   Unavailability,
+  UpdateSubjectInput,
   Violation,
 } from './types'
 
@@ -70,8 +82,24 @@ export class MockExamPanelApi implements ExamPanelApi {
   private plans: PlanSummary[] = JSON.parse(JSON.stringify(demoPlans))
   private planDetailsMap: Map<number, PlanDetails> = new Map([
     [1, JSON.parse(JSON.stringify(demoPlanDetails))],
-    [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Kế hoạch #2', rank: 2 } }))],
-    [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Kế hoạch #3', rank: 3 } }))],
+    [
+      2,
+      JSON.parse(
+        JSON.stringify({
+          ...demoPlanDetails,
+          plan: { ...demoPlanDetails.plan, id: 2, name: 'Phương án #2', rank: 2 },
+        }),
+      ),
+    ],
+    [
+      3,
+      JSON.parse(
+        JSON.stringify({
+          ...demoPlanDetails,
+          plan: { ...demoPlanDetails.plan, id: 3, name: 'Phương án #3', rank: 3 },
+        }),
+      ),
+    ],
   ])
   private teacherGradesMap: Map<number, number[]> = new Map([
     [1, [1, 2]],
@@ -86,6 +114,30 @@ export class MockExamPanelApi implements ExamPanelApi {
     [10, [2, 3]],
     [11, [1, 3]],
   ])
+
+  private subjects: Subject[] = [
+    {
+      id: 1,
+      code: 'VL',
+      name: 'Vật lí',
+      color: 'palette-1',
+      sort_order: 1,
+      setters: 2,
+      reviewers: 1,
+      min_campuses: 2,
+    },
+    {
+      id: 2,
+      code: 'CN',
+      name: 'Công nghệ',
+      color: 'palette-2',
+      sort_order: 2,
+      setters: 1,
+      reviewers: 1,
+      min_campuses: 2,
+    },
+  ]
+  private competencies: Competency[] = []
 
   private isOptimizing = false
   private activeCancelCallback: (() => void) | null = null
@@ -276,7 +328,10 @@ export class MockExamPanelApi implements ExamPanelApi {
       load_weight: input.load_weight ?? 1.0,
       active: input.active ?? true,
       note: input.note ?? null,
-      code: input.code ?? null,
+      code: input.code ?? undefined,
+      display_name: input.display_name ?? undefined,
+      quota_override: input.quota_override ?? undefined,
+      max_tasks_per_exam_override: input.max_tasks_per_exam_override ?? undefined,
     }
     this.teachers.push(newTeacher)
     return { ...newTeacher }
@@ -429,6 +484,138 @@ export class MockExamPanelApi implements ExamPanelApi {
     this.exams.sort((a, b) => a.sort_order - b.sort_order)
   }
 
+  // Subjects
+  async listSubjects(_schoolYearId: number): Promise<Subject[]> {
+    return JSON.parse(JSON.stringify(this.subjects))
+  }
+
+  async createSubject(input: CreateSubjectInput): Promise<Subject> {
+    if (this.subjects.some((s) => s.code === input.code)) {
+      throw {
+        code: 'duplicate_entry',
+        params: { detail: `Subject code ${input.code} already exists` },
+      }
+    }
+    const maxId = this.subjects.reduce((max, s) => Math.max(max, s.id), 0)
+    const newSubject: Subject = {
+      id: maxId + 1,
+      code: input.code,
+      name: input.name,
+      color: input.color,
+      sort_order: input.sort_order,
+      setters: input.setters,
+      reviewers: input.reviewers,
+      min_campuses: input.min_campuses,
+    }
+    this.subjects.push(newSubject)
+    return { ...newSubject }
+  }
+
+  async updateSubject(input: UpdateSubjectInput): Promise<void> {
+    const idx = this.subjects.findIndex((s) => s.id === input.id)
+    if (idx === -1) {
+      throw { code: 'not_found', params: { message: 'Subject not found' } }
+    }
+    this.subjects[idx] = { ...this.subjects[idx], ...input }
+  }
+
+  async deleteSubject(id: number): Promise<void> {
+    const idx = this.subjects.findIndex((s) => s.id === id)
+    if (idx === -1) {
+      throw { code: 'not_found', params: { message: 'Subject not found' } }
+    }
+    this.subjects.splice(idx, 1)
+  }
+
+  async reorderSubjects(_schoolYearId: number, subjectIds: number[]): Promise<void> {
+    subjectIds.forEach((id, idx) => {
+      const sub = this.subjects.find((s) => s.id === id)
+      if (sub) {
+        sub.sort_order = idx + 1
+      }
+    })
+  }
+
+  // Competencies
+  private ensureCompetencies() {
+    if (this.competencies.length === 0) {
+      for (const t of this.teachers) {
+        for (const s of this.subjects) {
+          this.competencies.push({
+            teacher_id: t.id,
+            subject_id: s.id,
+            role: 'setter',
+            grade_scope: 'taught',
+          })
+          this.competencies.push({
+            teacher_id: t.id,
+            subject_id: s.id,
+            role: 'reviewer',
+            grade_scope: 'taught',
+          })
+        }
+      }
+    }
+  }
+
+  async listCompetencies(_schoolYearId: number): Promise<Competency[]> {
+    this.ensureCompetencies()
+    return JSON.parse(JSON.stringify(this.competencies))
+  }
+
+  async getTeacherCompetencies(
+    teacherId: number,
+    _schoolYearId: number,
+  ): Promise<Competency[]> {
+    this.ensureCompetencies()
+    return JSON.parse(
+      JSON.stringify(this.competencies.filter((c) => c.teacher_id === teacherId)),
+    )
+  }
+
+  async setCompetency(input: SetCompetencyInput): Promise<void> {
+    this.ensureCompetencies()
+    const idx = this.competencies.findIndex(
+      (c) =>
+        c.teacher_id === input.teacher_id &&
+        c.subject_id === input.subject_id &&
+        c.role === input.role,
+    )
+    if (idx !== -1) {
+      this.competencies[idx].grade_scope = input.grade_scope
+    } else {
+      this.competencies.push({
+        teacher_id: input.teacher_id,
+        subject_id: input.subject_id,
+        role: input.role,
+        grade_scope: input.grade_scope,
+      })
+    }
+  }
+
+  async deleteCompetency(input: DeleteCompetencyInput): Promise<void> {
+    this.ensureCompetencies()
+    const idx = this.competencies.findIndex(
+      (c) =>
+        c.teacher_id === input.teacher_id &&
+        c.subject_id === input.subject_id &&
+        c.role === input.role,
+    )
+    if (idx !== -1) {
+      this.competencies.splice(idx, 1)
+    }
+  }
+
+  async replaceTeacherCompetencies(
+    input: ReplaceTeacherCompetenciesInput,
+  ): Promise<void> {
+    this.ensureCompetencies()
+    this.competencies = this.competencies.filter((c) => c.teacher_id !== input.teacher_id)
+    for (const c of input.competencies) {
+      this.competencies.push({ ...c })
+    }
+  }
+
   // Unavailability
   async listUnavailabilities(_schoolYearId: number): Promise<Unavailability[]> {
     return JSON.parse(JSON.stringify(this.unavailabilities))
@@ -462,6 +649,7 @@ export class MockExamPanelApi implements ExamPanelApi {
       id: maxId + 1,
       exam_id: input.exam_id,
       grade_id: input.grade_id,
+      subject_id: input.subject_id,
       teacher_id: input.teacher_id,
       role: input.role ?? null,
       kind: input.kind,
@@ -545,6 +733,20 @@ export class MockExamPanelApi implements ExamPanelApi {
           s8: 10,
         }),
       },
+      {
+        id: 'allow_task_crowding',
+        name: 'Cho phép dồn việc trong một kỳ',
+        settings: (() => {
+          const s = makeSettings({})
+          for (const r of s) {
+            if (r.key === 's9') {
+              r.enabled = false
+              r.weight = 0
+            }
+          }
+          return s
+        })(),
+      },
     ]
   }
 
@@ -584,6 +786,37 @@ export class MockExamPanelApi implements ExamPanelApi {
   }
 
   // Analysis
+  async getProblemDetails(schoolYearId: number): Promise<ProblemDetails> {
+    this.ensureCompetencies()
+    const teachers = await this.listTeachers()
+    const teacherGrades: TeacherGrade[] = []
+    this.teacherGradesMap.forEach((gids, tid) => {
+      for (const gid of gids) {
+        teacherGrades.push({
+          teacher_id: tid,
+          school_year_id: schoolYearId,
+          grade_id: gid,
+        })
+      }
+    })
+    return {
+      problem: {
+        school_year: this.schoolYears[0],
+        campuses: this.campuses,
+        grades: this.grades,
+        subjects: this.subjects,
+        teachers,
+        teacher_grades: teacherGrades,
+        competencies: this.competencies,
+        exams: this.exams,
+        unavailabilities: this.unavailabilities,
+        locks: this.locks,
+        rule_settings: this.ruleSettings,
+      },
+      forced: [],
+    }
+  }
+
   async checkFeasibility(_schoolYearId: number): Promise<FeasibilityReportWithQuotas> {
     const activeTeachers = this.teachers.filter((t) => t.active && t.load_weight > 0)
     const totalSlots = this.exams.length * this.grades.length * 3
@@ -658,7 +891,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h2',
           code: 'insufficient_panel_teachers',
-          panel: { exam_id: this.exams[0]?.id ?? 1, grade_id: grade.id },
+          panel: {
+            exam_id: this.exams[0]?.id ?? 1,
+            grade_id: grade.id,
+            subject_id: this.subjects[0]?.id ?? 1,
+          },
           params: {
             exam: 'Các kỳ thi',
             grade: grade.code.toString(),
@@ -671,7 +908,11 @@ export class MockExamPanelApi implements ExamPanelApi {
           errors.push({
             rule: 'h3',
             code: 'insufficient_campuses',
-            panel: { exam_id: this.exams[0]?.id ?? 1, grade_id: grade.id },
+            panel: {
+              exam_id: this.exams[0]?.id ?? 1,
+              grade_id: grade.id,
+              subject_id: this.subjects[0]?.id ?? 1,
+            },
             params: {
               exam: 'Các kỳ thi',
               grade: grade.code.toString(),
@@ -683,7 +924,11 @@ export class MockExamPanelApi implements ExamPanelApi {
           warnings.push({
             rule: 'h2',
             code: 'tight_panel_roster',
-            panel: { exam_id: this.exams[0]?.id ?? 1, grade_id: grade.id },
+            panel: {
+              exam_id: this.exams[0]?.id ?? 1,
+              grade_id: grade.id,
+              subject_id: this.subjects[0]?.id ?? 1,
+            },
             params: {
               exam: 'Các kỳ thi',
               grade: grade.code.toString(),
@@ -711,7 +956,11 @@ export class MockExamPanelApi implements ExamPanelApi {
           errors.push({
             rule: 'h6',
             code: 'pinned_teacher_ineligible_due_to_unavailability',
-            panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+            panel: {
+              exam_id: lock.exam_id,
+              grade_id: lock.grade_id,
+              subject_id: lock.subject_id,
+            },
             teacher: lock.teacher_id,
             params: {
               teacher: teacherName,
@@ -728,7 +977,11 @@ export class MockExamPanelApi implements ExamPanelApi {
           errors.push({
             rule: 'h6',
             code: 'pinned_teacher_not_qualified',
-            panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+            panel: {
+              exam_id: lock.exam_id,
+              grade_id: lock.grade_id,
+              subject_id: lock.subject_id,
+            },
             teacher: lock.teacher_id,
             params: {
               teacher: teacherName,
@@ -755,7 +1008,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h6',
           code: 'lock_conflict',
-          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          panel: {
+            exam_id: lock.exam_id,
+            grade_id: lock.grade_id,
+            subject_id: lock.subject_id,
+          },
           teacher: lock.teacher_id,
           params: {
             teacher: teacher?.full_name || `Teacher #${lock.teacher_id}`,
@@ -776,7 +1033,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h6',
           code: 'excess_pinned_setters_and_reviewers_and_pins',
-          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          panel: {
+            exam_id: lock.exam_id,
+            grade_id: lock.grade_id,
+            subject_id: lock.subject_id,
+          },
           params: { count: pins.length.toString() },
         })
       }
@@ -786,7 +1047,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h6',
           code: 'excess_pinned_setters_and_reviewers_and_pins',
-          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          panel: {
+            exam_id: lock.exam_id,
+            grade_id: lock.grade_id,
+            subject_id: lock.subject_id,
+          },
           params: { count: pinnedSetters.length.toString() },
         })
       }
@@ -796,7 +1061,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         errors.push({
           rule: 'h6',
           code: 'excess_pinned_setters_and_reviewers_and_pins',
-          panel: { exam_id: lock.exam_id, grade_id: lock.grade_id },
+          panel: {
+            exam_id: lock.exam_id,
+            grade_id: lock.grade_id,
+            subject_id: lock.subject_id,
+          },
           params: { count: pinnedReviewers.length.toString() },
         })
       }
@@ -955,7 +1224,7 @@ export class MockExamPanelApi implements ExamPanelApi {
       ids.push(nextId)
       const summary: PlanSummary = {
         id: nextId,
-        name: `Kế hoạch #${p.rank}`,
+        name: `Phương án #${p.rank}`,
         rank: p.rank,
         score: p.report.total,
         created_at: new Date().toISOString(),
@@ -1027,7 +1296,11 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h1',
           code: 'duplicate_teacher_in_panel',
-          params: { teacher_id: a.teacher_id.toString(), exam_id: a.exam_id.toString(), grade_id: a.grade_id.toString() },
+          params: {
+            teacher_id: a.teacher_id.toString(),
+            exam_id: a.exam_id.toString(),
+            grade_id: a.grade_id.toString(),
+          },
         })
       }
     }
@@ -1048,7 +1321,10 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h2',
           code: 'unqualified_grade',
-          params: { teacher_id: a.teacher_id.toString(), grade_id: a.grade_id.toString() },
+          params: {
+            teacher_id: a.teacher_id.toString(),
+            grade_id: a.grade_id.toString(),
+          },
         })
       }
     }
@@ -1206,15 +1482,17 @@ export class MockExamPanelApi implements ExamPanelApi {
     for (const teacher of this.teachers) {
       const simAssignments = assignments.map((a) => ({ ...a }))
       let replaced = false
-      let sCount = 0
       for (const a of simAssignments) {
-        if (a.exam_id === slot.exam_id && a.grade_id === slot.grade_id && a.role === slot.role) {
-          if (slot.role === 'reviewer' || sCount === slot.position) {
-            a.teacher_id = teacher.id
-            replaced = true
-            break
-          }
-          sCount += 1
+        if (
+          a.exam_id === slot.exam_id &&
+          a.grade_id === slot.grade_id &&
+          a.subject_id === slot.subject_id &&
+          a.role === slot.role &&
+          a.position === slot.position
+        ) {
+          a.teacher_id = teacher.id
+          replaced = true
+          break
         }
       }
       if (!replaced) {
@@ -1222,8 +1500,10 @@ export class MockExamPanelApi implements ExamPanelApi {
           plan_id: assignments[0]?.plan_id ?? 0,
           exam_id: slot.exam_id,
           grade_id: slot.grade_id,
+          subject_id: slot.subject_id,
           teacher_id: teacher.id,
           role: slot.role,
+          position: slot.position,
         })
       }
 
@@ -1256,13 +1536,21 @@ export class MockExamPanelApi implements ExamPanelApi {
     let sCountA = 0
     let sCountB = 0
     for (const a of assignments) {
-      if (a.exam_id === slotA.exam_id && a.grade_id === slotA.grade_id && a.role === slotA.role) {
+      if (
+        a.exam_id === slotA.exam_id &&
+        a.grade_id === slotA.grade_id &&
+        a.role === slotA.role
+      ) {
         if (slotA.role === 'reviewer' || sCountA === slotA.position) {
           tA = a.teacher_id
         }
         sCountA += 1
       }
-      if (a.exam_id === slotB.exam_id && a.grade_id === slotB.grade_id && a.role === slotB.role) {
+      if (
+        a.exam_id === slotB.exam_id &&
+        a.grade_id === slotB.grade_id &&
+        a.role === slotB.role
+      ) {
         if (slotB.role === 'reviewer' || sCountB === slotB.position) {
           tB = a.teacher_id
         }
@@ -1273,13 +1561,23 @@ export class MockExamPanelApi implements ExamPanelApi {
     const simAssignments = assignments.map((a) => ({ ...a }))
     if (tA !== undefined && tB !== undefined) {
       for (const a of simAssignments) {
-        if (a.exam_id === slotA.exam_id && a.grade_id === slotA.grade_id && a.role === slotA.role && a.teacher_id === tA) {
+        if (
+          a.exam_id === slotA.exam_id &&
+          a.grade_id === slotA.grade_id &&
+          a.role === slotA.role &&
+          a.teacher_id === tA
+        ) {
           a.teacher_id = tB
           break
         }
       }
       for (const a of simAssignments) {
-        if (a.exam_id === slotB.exam_id && a.grade_id === slotB.grade_id && a.role === slotB.role && a.teacher_id === tB) {
+        if (
+          a.exam_id === slotB.exam_id &&
+          a.grade_id === slotB.grade_id &&
+          a.role === slotB.role &&
+          a.teacher_id === tB
+        ) {
           a.teacher_id = tA
           break
         }
@@ -1354,15 +1652,15 @@ export class MockExamPanelApi implements ExamPanelApi {
         {
           row_index: 2,
           status: 'unchanged',
-          code: 'CS1',
-          name: 'Cơ sở 1',
+          code: 'PH1',
+          name: 'Phân hiệu 1',
           errors: [],
         },
         {
           row_index: 3,
           status: 'new',
-          code: 'CS3',
-          name: 'Cơ sở 3',
+          code: 'PH3',
+          name: 'Phân hiệu 3',
           errors: [],
         },
       ],
@@ -1372,13 +1670,16 @@ export class MockExamPanelApi implements ExamPanelApi {
           status: 'update',
           code: 'GV001',
           full_name: 'Nguyễn Văn A',
-          campus_code: 'CS1',
+          display_name: null,
+          campus_code: 'PH1',
           grades_str: '10, 11',
           grade_codes: [10, 11],
           load_weight: 1.0,
           active: true,
           note: null,
           matched_teacher_id: BigInt(1),
+          quota_override: null,
+          max_tasks_per_exam_override: null,
           errors: [],
         },
         {
@@ -1386,13 +1687,16 @@ export class MockExamPanelApi implements ExamPanelApi {
           status: 'new',
           code: 'GV020',
           full_name: 'Trần Thị Mới',
-          campus_code: 'CS2',
+          display_name: null,
+          campus_code: 'PH2',
           grades_str: '12',
           grade_codes: [12],
           load_weight: 0.5,
           active: true,
           note: 'Giáo viên thỉnh giảng',
           matched_teacher_id: null,
+          quota_override: null,
+          max_tasks_per_exam_override: null,
           errors: [],
         },
       ],
@@ -1404,6 +1708,43 @@ export class MockExamPanelApi implements ExamPanelApi {
           exam_code: 'GK1',
           reason: 'Bận công tác',
           matched_teacher_id: BigInt(1),
+          errors: [],
+        },
+      ],
+      subjects: [
+        {
+          row_index: 2,
+          status: 'new',
+          code: 'VL',
+          name: 'Vật lí',
+          setters: 2,
+          reviewers: 1,
+          min_campuses: 2,
+          color: '#2563EB',
+          errors: [],
+        },
+        {
+          row_index: 3,
+          status: 'new',
+          code: 'CN',
+          name: 'Công nghệ',
+          setters: 1,
+          reviewers: 1,
+          min_campuses: 2,
+          color: '#10B981',
+          errors: [],
+        },
+      ],
+      competencies: [
+        {
+          row_index: 2,
+          status: 'new',
+          teacher_ref: 'GV001',
+          subject_code: 'VL',
+          role: 'Cả hai',
+          grade_scope: 'Theo khối dạy',
+          matched_teacher_id: BigInt(1),
+          matched_subject_id: null,
           errors: [],
         },
       ],
@@ -1425,13 +1766,25 @@ export class MockExamPanelApi implements ExamPanelApi {
         unchanged_count: 0,
         error_count: 0,
       },
+      subjects_summary: {
+        new_count: 2,
+        update_count: 0,
+        unchanged_count: 0,
+        error_count: 0,
+      },
+      competencies_summary: {
+        new_count: 1,
+        update_count: 0,
+        unchanged_count: 0,
+        error_count: 0,
+      },
       deactivated_teachers: isSync
         ? [
             {
               id: BigInt(99),
               code: 'GV099',
               full_name: 'Lê Văn Cũ',
-              campus_name: 'Cơ sở 1',
+              campus_name: 'Phân hiệu 1',
             },
           ]
         : [],
@@ -1459,11 +1812,85 @@ export class MockExamPanelApi implements ExamPanelApi {
       teachers_updated: preview.teachers_summary.update_count,
       teachers_deactivated: preview.deactivated_teachers.length,
       unavailabilities_created: preview.unavailabilities_summary.new_count,
+      subjects_created: preview.subjects_summary.new_count,
+      subjects_updated: preview.subjects_summary.update_count,
+      competencies_created: preview.competencies_summary.new_count,
     }
   }
 
   async exportPlanExcel(_planId: number, _targetPath: string): Promise<void> {
     // In mock mode, simulate export
+  }
+
+  async previewImportPlan(
+    _schoolYearId: number,
+    _filePath?: string,
+    _tsvContent?: string,
+  ): Promise<PlanImportPreview> {
+    const demoPlan = this.planDetailsMap.get(1)
+    const assignments: Assignment[] = demoPlan ? demoPlan.assignments : []
+    const teacherTotals: PlanImportTeacherTotal[] = this.teachers.map((t) => {
+      const count = assignments.filter((a: Assignment) => a.teacher_id === t.id).length
+      const de = assignments.filter(
+        (a: Assignment) => a.teacher_id === t.id && a.role === 'setter',
+      ).length
+      const pb = assignments.filter(
+        (a: Assignment) => a.teacher_id === t.id && a.role === 'reviewer',
+      ).length
+      return {
+        teacher_id: t.id,
+        teacher_name: t.full_name,
+        display_name: t.display_name || t.full_name,
+        file_total: count,
+        computed_total: count,
+        setter_count: de,
+        reviewer_count: pb,
+      }
+    })
+    return {
+      assignments: JSON.parse(JSON.stringify(assignments)),
+      teacher_totals: teacherTotals,
+      errors: [],
+      warnings: [],
+      can_apply: true,
+      hard_violations: [],
+      score_report: demoPlan?.score_report || null,
+    }
+  }
+
+  async applyImportedPlan(input: ApplyPlanImportInput): Promise<number> {
+    const nextId = this.plans.reduce((max, pl) => Math.max(max, pl.id), 0) + 1
+    const summary: PlanSummary = {
+      id: nextId,
+      name: input.plan_name?.trim() || 'Nhập từ bảng của tổ',
+      created_at: new Date().toISOString(),
+      score: 0,
+      is_final: false,
+      is_stale: false,
+      source: 'manual',
+    }
+    this.plans.push(summary)
+
+    const newPlanDetails: PlanDetails = {
+      plan: {
+        id: nextId,
+        school_year_id: input.school_year_id,
+        name: summary.name,
+        created_at: summary.created_at,
+        seed: 0,
+        score: 0,
+        is_final: false,
+        source: 'manual',
+        run_params_json: JSON.stringify({ origin: 'import' }),
+      },
+      assignments: input.assignments.map((a: Assignment) => ({
+        ...a,
+        plan_id: nextId,
+      })),
+      score_report: undefined,
+    }
+    this.planDetailsMap.set(nextId, newPlanDetails)
+    return nextId
   }
 
   // Backup & Restore
@@ -1533,9 +1960,48 @@ export class MockExamPanelApi implements ExamPanelApi {
     this.plans = JSON.parse(JSON.stringify(demoPlans))
     this.planDetailsMap = new Map([
       [1, JSON.parse(JSON.stringify(demoPlanDetails))],
-      [2, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 2, name: 'Kế hoạch #2', rank: 2 } }))],
-      [3, JSON.parse(JSON.stringify({ ...demoPlanDetails, plan: { ...demoPlanDetails.plan, id: 3, name: 'Kế hoạch #3', rank: 3 } }))],
+      [
+        2,
+        JSON.parse(
+          JSON.stringify({
+            ...demoPlanDetails,
+            plan: { ...demoPlanDetails.plan, id: 2, name: 'Phương án #2', rank: 2 },
+          }),
+        ),
+      ],
+      [
+        3,
+        JSON.parse(
+          JSON.stringify({
+            ...demoPlanDetails,
+            plan: { ...demoPlanDetails.plan, id: 3, name: 'Phương án #3', rank: 3 },
+          }),
+        ),
+      ],
     ])
+    this.subjects = [
+      {
+        id: 1,
+        code: 'VL',
+        name: 'Vật lí',
+        color: 'palette-1',
+        sort_order: 1,
+        setters: 2,
+        reviewers: 1,
+        min_campuses: 2,
+      },
+      {
+        id: 2,
+        code: 'CN',
+        name: 'Công nghệ',
+        color: 'palette-2',
+        sort_order: 2,
+        setters: 1,
+        reviewers: 1,
+        min_campuses: 2,
+      },
+    ]
+    this.competencies = []
   }
 }
 

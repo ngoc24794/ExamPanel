@@ -1,0 +1,974 @@
+[
+ {
+  "title": "Startup error dialogs deadlock the main thread on Linux (blank window, no dialog) — read-only portable folder, DB newer than app, corrupted DB",
+  "severity": "S1",
+  "category": "bug",
+  "area": "app shell",
+  "engine": "engine-agnostic (Linux GTK confirmed; Windows not verified)",
+  "scenarios": [
+   "A4",
+   "A5",
+   "A6"
+  ],
+  "repro": "1) Copy release exe + ExamPanel.portable to a folder, chmod 555 the folder (as unprivileged user). 2) Launch the exe under Xvfb. 3) Wait 12 s. (Same hang for DB with PRAGMA user_version=99 and for a corrupted exam-panel.db with a backup present.)",
+  "expected": "Vietnamese modal dialog (read-only: Use app-data / Exit; newer DB: friendly message; corrupted: offer restore) as coded in src-tauri/src/lib.rs setup().",
+  "actual": "A blank black main window stays open forever; no dialog window exists (xdotool lists only 'ExamPanel'); process alive with main thread blocked (futex). gdb backtrace of the main thread: exam_panel_app::run::{closure#4} (setup) -> tauri_plugin_dialog::MessageDialogBuilder::blocking_show -> mpmc Receiver::recv -> Thread::park, i.e. blocking_show() is called on the event-loop thread inside setup() before the loop can service the dialog request. User sees nothing and must kill the process.",
+  "evidence": [
+   "extracts/A4.json",
+   "extracts/A5.json",
+   "extracts/A6.json",
+   "logs/A4-hang-main-thread-backtrace.txt",
+   "screenshots/A4-after-12s.png",
+   "screenshots/A5-after-12s.png",
+   "screenshots/A6-after-12s.png"
+  ],
+  "cause_hypothesis": "src-tauri/src/lib.rs setup(): app.dialog()...blocking_show() on the main thread. tauri-plugin-dialog docs say blocking_show must not run on the main thread. Fix idea: show the dialog from a spawned thread or use the non-blocking show() + channel, or run the checks before tauri::Builder::run using rfd directly. May behave differently on Windows (MessageBox) — must be tested there (see windows-manual-checklist).",
+  "mock_gap": "Mock suite cannot reach these startup paths at all.",
+  "q_notice": "On a locked USB stick or after a corrupted file, ExamPanel opens a white/black window and never responds, with no message.",
+  "id": "RA-001"
+ },
+ {
+  "title": "Opening an older (v4) database migrates it in place with no automatic pre-migration backup",
+  "severity": "S2",
+  "category": "spec-mismatch",
+  "area": "storage",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A7"
+  ],
+  "repro": "Copy crates/storage/fixtures/v4_synthetic.db to <exe>/data/exam-panel.db, launch the app.",
+  "expected": "(Task expectation) automatic backup in data/backups before migration. NOTE: SPEC/ADR-0042 do not promise one — expectation may be wrong; but release checklist section 7 upgrade path is exactly this case.",
+  "actual": "user_version 4 -> 5, all row counts preserved, plans identical (A7 passes data checks), UI shows all 12 teachers and the plan — but data/backups does not exist: the only copy of the pre-upgrade DB is overwritten.",
+  "evidence": [
+   "extracts/A7.json"
+  ],
+  "cause_hypothesis": "Store::open_at runs run_migrations without calling create_automatic_backup (crates/storage/src/store.rs). Believe the app matches the written spec, but a pre-migration backup is cheap data-loss insurance for a v0.1.0->v0.2.0 upgrade.",
+  "mock_gap": "Not reachable in mock.",
+  "q_notice": "If an upgrade ever fails midway, Q has no automatic copy of the old file.",
+  "id": "RA-007"
+ },
+ {
+  "title": "Excel export 'Tiêu chí' sheet labels S3-S8 with wrong criterion names, truncates S8 violation count, and omits lower bounds",
+  "severity": "S2",
+  "category": "bug",
+  "area": "export",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C1",
+   "D1"
+  ],
+  "repro": "Import Q's table (docs/reports/phase-12/plan-grid.xlsx), click Xuất Excel, open sheet 'Tiêu chí'.",
+  "expected": "Rule names identical to the Rules screen/SPEC (S3 Phản biện độc lập phân hiệu, S4 Đa dạng cặp ra đề, S5 Tránh phản biện chéo lặp lại, S6 Giãn cách kỳ thi liên tiếp, S7 Luân chuyển khối lớp, S8 Cân bằng tải trọng thực tế); 'Số vi phạm' = engine units (S8 4.545); phase-9 checklist says the sheet shows lower bounds.",
+  "actual": "S3 'Tránh liên tiếp 2 kỳ làm cùng vai trò', S4 'Tránh liên tiếp 2 kỳ làm cùng khối', S5 'Tránh cặp đôi lặp lại', S6 'Tránh ban thi toàn giáo viên dạy khối đó', S7 'Phân bổ đều giữa các khối', S8 'Phân hiệu chính cho môn học' (!) — descriptions of other rules; S8 'Số vi phạm' = 4 while contribution = 36.36 (=4.545x8); no lower-bound column. Numeric contributions themselves match the UI and engine (S1 10, S2 3, S3 144, S5 6, S6 16, S8 36.36, S9 45).",
+  "evidence": [
+   "extracts/C1-q-plan-export.json",
+   "extracts/C1-ui-detail-view.txt",
+   "extracts/probe-forms.json"
+  ],
+  "cause_hypothesis": "crates/service/src/excel/export.rs lines ~554-559 hard-coded rule label table out of date vs ui locale names; units cast to integer.",
+  "mock_gap": "Mock suite does not open exported xlsx content.",
+  "q_notice": "Q opens the 'Tiêu chí' sheet and sees S8 described as 'Phân hiệu chính cho môn học' although the school has no campuses; criteria names differ from the app.",
+  "id": "RA-009"
+ },
+ {
+  "title": "Cancel during optimization still saves partial plans (incl. a 312.36-penalty plan), shows both 'Đã hủy' and 'Đã tạo 3 phương án mới thành công', and closes the dialog",
+  "severity": "S2",
+  "category": "mock-vs-real gap",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C2",
+   "E3"
+  ],
+  "repro": "Assignments > Chạy tối ưu > Kỹ > Bắt đầu > after ~0.7 s click 'Hủy bỏ'. Inspect plans table and toasts.",
+  "expected": "phase-8 checklist step 2 and task C2: run stops, 'Đã hủy' only, no plans saved.",
+  "actual": "3 plans were saved (scores 176.36, 176.36 and 312.36 — the last is an unfinished anneal) and both toasts appear within 0.5 s; dialog closes and the first plan opens. Same on a second run: plan count 9 -> 12 after Cancel. Leaving the page while a run is in progress behaves the same: E3 started Kỹ, navigated to Giáo viên after 0.9 s and 3 plans were still saved (4 -> 7) with a success toast 'Đã tạo 3 phương án mới thành công' shown on the other page; the busy flag is released afterwards (next run works).",
+  "evidence": [
+   "extracts/C2b-cancel-timeline.json",
+   "extracts/C2.json",
+   "screenshots/C2b-after-cancel-page.png",
+   "extracts/E3.json"
+  ],
+  "cause_hypothesis": "crates/core/src/optimize/mod.rs optimize(): on cancel the annealers return their best-so-far and optimize() still returns Ok(plans). RunOptimizeDialog.tsx only treats error code 'cancelled' as a cancel, but only the MOCK API (ui/src/lib/api/mock.ts:1153) ever throws that code; the real backend never does. Fix: service.run_optimize should return AppError cancelled when the flag is set (and the UI must not save).",
+  "mock_gap": "YES — mock throws 'cancelled' so the mock e2e/unit tests pass; real backend returns Ok.",
+  "q_notice": "Q presses Cancel, gets a 'cancelled' message AND three new plans, one of them clearly worse.",
+  "id": "RA-011"
+ },
+ {
+  "title": "Plan compare dialog is subject-blind: wrong 'Khoảng cách sai khác', cells hide the VL reviewer / merge subjects' setters",
+  "severity": "S2",
+  "category": "mock-vs-real gap",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C3"
+  ],
+  "repro": "Golden Q plan (imported) vs optimizer plan #1 > Phân công > So sánh phương án.",
+  "expected": "Distance = number of seats whose teacher differs (39 for this pair, computed from the DB assignments with subject_id); each (exam,grade) cell shows the VL and CN panels separately.",
+  "actual": "'Khoảng cách sai khác: 33 ô thay đổi'; cell GK1/Khối 10 for Q's plan reads 'A: Thầy Nghĩa, Cô Hiền, Cô Lài | PB: Cô Hiền' — the VL reviewer T Phúc is not shown, both subjects' setters are merged; the spec/phase-11 checklist says per-subject. Engine per-rule numbers in the same dialog are correct. No per-teacher differences section exists.",
+  "evidence": [
+   "extracts/C3-compare-dialog.txt",
+   "extracts/C3-engine-plans.json",
+   "extracts/C3.json",
+   "screenshots/C3-compare-dialog-page.png"
+  ],
+  "cause_hypothesis": "ui/src/pages/assignments/PlanCompareModal.tsx comparison useMemo keys by exam+grade+role only (reviewerA = assignA.find(role==='reviewer')) and ignores subject_id; core plan_distance (crates/core/src/optimize/mod.rs) also keys (exam,grade,role,teacher) without subject (36 vs 39 seat-aware).",
+  "mock_gap": "Mock fixtures/tests for compare are single-subject-shaped.",
+  "q_notice": "Compare screen hides part of Q's VL panels and reports a wrong distance.",
+  "id": "RA-013"
+ },
+ {
+  "title": "Q-style grid does not fit 1280x720: Khối 12 columns and last totals column are clipped, page needs vertical scroll",
+  "severity": "S2",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic (layout/CSS widths; WebKitGTK scrollbar/font metrics may shift pixels slightly)",
+  "scenarios": [
+   "A8",
+   "C4"
+  ],
+  "repro": "Golden Q DB, window 1280x720, Phân công > Bảng tổ with any 6-column plan.",
+  "expected": "Layout spec (phase-12 checklist K1.3, task C4): whole grid visible at 1280x720 without scrolling, totals panel attached on the right.",
+  "actual": "Grid table 684 px inside a clipped container: Khối 12 header and VL/CN cells cut off at x~855; totals panel clips 'Cuối kỳ 2'; grid starts at y=364 and ends at y=843 (> 720), main scroller 865 vs 664 px. At 1920x1080 the grid fits but the totals panel still has a horizontal scrollbar overlapping the 'Tổng cộng' row and content is capped at ~1150 px wide. A8 sweep: at 1024x700 the page stacks the totals panel under the grid and the whole 6-column grid fits (so the clipped two-column layout is specific to widths where the side-by-side layout starts, e.g. 1280); the A8 overflow heuristic flags /assignments at 1280x720 (child right 940 > card right 856).",
+  "evidence": [
+   "extracts/C4.json",
+   "extracts/C4-grid-structure.json",
+   "screenshots/C4-grid-1280x720-light-page.png",
+   "screenshots/C4-grid-1920x1080-dark-page.png",
+   "extracts/A8-screens-metrics.json",
+   "screenshots/A8-1024x700-assignments-page.png"
+  ],
+  "cause_hypothesis": "ui/src/pages/assignments/QPlanGrid.tsx fixed min-widths + header block (title, S-chips, toolbar) occupying ~360 px above the grid; max-w container on AssignmentsPage.",
+  "mock_gap": "Mock e2e runs at 1280x800 viewport and only screenshots; no bounding-box assertion.",
+  "q_notice": "On a 1280x720 laptop Q cannot see Khối 12 without scrolling sideways.",
+  "id": "RA-014"
+ },
+ {
+  "title": "'Tạo bản chỉnh sửa' creates the copy but usually leaves the view on the read-only optimizer plan (switches in 2 of 10 runs)",
+  "severity": "S2",
+  "category": "mock-vs-real gap",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Fresh app on a DB with optimizer plans > Phân công > 'Tạo bản chỉnh sửa' > wait 4 s. Repeat in 10 fresh launches.",
+  "expected": "Edit toolbar (undo/redo/save) appears on the new 'Phương án #1 (Chỉnh sửa)' copy every time (phase-8 checklist step 4).",
+  "actual": "Plan 'Phương án #N (Chỉnh sửa)' is saved (history count +1) but the page keeps showing the optimizer plan with the same button; only 2/10 attempts switched. A user clicks again and creates duplicate copies. The checklist also expects a name prompt; the app silently names the copy with a hard-coded Vietnamese suffix.",
+  "evidence": [
+   "extracts/C5-copy-switch-attempts.json",
+   "extracts/C5.json"
+  ],
+  "cause_hypothesis": "AssignmentsPage.tsx: handleCreateEditableCopy calls setSelectedPlanId(newId) right after mutateAsync, while the effect at lines 87-99 resets selection to plans[0] when the new id is not yet in the cached plans list (query invalidation race). Mock API resolves synchronously so it always works there.",
+  "mock_gap": "YES — mock suite passes.",
+  "q_notice": "Q presses 'Tạo bản chỉnh sửa' and nothing seems to happen.",
+  "id": "RA-018"
+ },
+ {
+  "title": "Candidate/replace Δ-score is computed for the OTHER setter seat when DB positions differ from the engine's internal setter order (evaluate_candidates disagrees with full evaluate)",
+  "severity": "S2",
+  "category": "bug",
+  "area": "core",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Golden Q DB (optimizer plan #1 or any plan whose setters are not stored in teacher-id order). Via UI: open an editable copy, click GK1/Khối 10/VL first 'Đề' cell (C Như, position 0) and read Δ for Cô Lài (+11.0, Tổng 187.4), Thầy Phúc (+5.0), Thầy Lộc (+5.0), Cô Như (+9.0 although she already holds the seat). Independently call evaluate_assignments after really replacing that seat: +18.0 (194.36) for all three, 0 for Cô Như. Doing the same for position 1 returns +18 — the values swap: incremental(position 0) == full(replace position 1) and vice-versa (table in extracts).",
+  "expected": "delta_score/new_total == full evaluate() of the edited plan (documented 'correctness guarantee' in eval_edit.rs and unit test test_evaluate_candidates_delta_matches_full_eval).",
+  "actual": "For valid candidates, Δ is computed for the other setter seat of the same panel; the candidate for the current holder shows a non-zero Δ; ordering of the list (sorted by Δ) is therefore wrong. Hard-violation flags are correct (12/12 match an independent re-check). After 'Áp dụng' and Save the true score is 194.36, not the previewed 181.4.",
+  "evidence": [
+   "extracts/C5f-incremental-seat-mapping.json",
+   "extracts/C5e-evaluate-candidates-vs-full.json",
+   "extracts/C5d-candidate-delta-vs-engine.json",
+   "extracts/C5c-live-feedback.json",
+   "extracts/C5.json"
+  ],
+  "cause_hypothesis": "crates/core/src/optimize/eval_edit.rs evaluate_candidates(): SlotRole::Setter1/Setter2 taken from IncrementalState::new(), which seems to order a panel's setters canonically (e.g. by teacher id) instead of by Assignment.position, while the hard-violation path replaces the n-th setter in array order. Same mapping would affect evaluate_swap and reoptimize 'keep slot' (check C6).",
+  "mock_gap": "Mock candidate evaluation is a JS stub; Rust unit test uses solver-generated plans whose order already matches.",
+  "q_notice": "The suggested replacement says +5 but really costs +18; the best-looking candidate is not the best.",
+  "id": "RA-019"
+ },
+ {
+  "title": "Header score and 'Hợp lệ' do not update after edits (replace or drag-swap); an invalid drag-swap is accepted silently and Save fails with 'Dữ liệu đã tồn tại, không thể tạo trùng lặp'",
+  "severity": "S2",
+  "category": "bug",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A9",
+   "C5"
+  ],
+  "repro": "Editable copy: (a) replace GK1/10/VL first Đề by Thầy Phúc -> header stays 'Tổng điểm phạt: 176.36' (true 194.36 appears only after Save). (b) Drag C Na (CK1/10 VL P.Biện slot) onto T Lộc's seat in GK2/11 VL so C Na is both setter and reviewer of that panel -> header still 'Hợp lệ (0 vi phạm)', S-chips unchanged; 'Lưu thay đổi' fails with toast 'Dữ liệu đã tồn tại, không thể tạo trùng lặp' and the edit stays dirty.",
+  "expected": "phase-8 step 5/6: score and hard-violation breakdown update immediately; a swap that creates a duplicate teacher in a panel is rejected or flagged (evaluate_swap IPC exists); save error is understandable.",
+  "actual": "No live update; invalid swap applied; cryptic DB-constraint message (assignments PK is (plan,exam,grade,subject,teacher) — role is not part of the key, so the same teacher cannot be setter and reviewer of a panel; the UI never checks first). The failed save also leaves an unhandled promise rejection in the page ({code: duplicate_entry, detail: 'UNIQUE constraint failed: assignments.plan_id, …teacher_id'}), see console-errors.txt.",
+  "evidence": [
+   "extracts/C5c-live-feedback.json",
+   "extracts/C5b-save-modes.json",
+   "screenshots/C5b-swap-page.png",
+   "screenshots/C5-after-save-page.png",
+   "console-errors.txt"
+  ],
+  "cause_hypothesis": "QPlanGrid.handleSwapSlots calls onUpdateAssignments without evaluate_swap/evaluate_assignments; AssignmentsPage keeps summary from loaded plan until save.",
+  "mock_gap": "Mock plans are never invalid after swap; mock e2e does not assert header after edit.",
+  "q_notice": "Q drags names around and the score at the top does not move; one swap cannot be saved and shows a database-style message.",
+  "id": "RA-020"
+ },
+ {
+  "title": "'Dữ liệu đã đổi' (stale) badge/banner do not appear after changing data until the window is reloaded",
+  "severity": "S2",
+  "category": "mock-vs-real gap",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Open Phân công (plans listed) > Lịch bận > mark Cô Hiền absent for CK1 > back to Phân công > Lịch sử phương án.",
+  "expected": "phase-8 step 11: badge 'Dữ liệu đã đổi' + banner right after returning.",
+  "actual": "Backend list_plans reports is_stale=true for all 4 plans (and mark-final is correctly blocked with plan_stale), but the history list shows no badge and no banner after SPA navigation; they appear only after location.reload().",
+  "evidence": [
+   "extracts/C5h-stale-badge.json",
+   "screenshots/C5h-history-after-change-page.png",
+   "screenshots/C5h-history-after-reload-page.png"
+  ],
+  "cause_hypothesis": "React Query cache for plans list/plan status is not invalidated by mutations in Unavailability/Teachers/Exams (features/plans hooks).",
+  "mock_gap": "Mock API computes stale synchronously on read, mock e2e passes.",
+  "q_notice": "After editing teachers, the old plan still looks current until the app is restarted; only 'final' marking refuses.",
+  "id": "RA-022"
+ },
+ {
+  "title": "Statistics heatmaps are subject-blind and truncated to the first 11 teachers; columns are numbered, T Nghĩa is missing",
+  "severity": "S2",
+  "category": "bug",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C7"
+  ],
+  "repro": "Golden Q DB > Thống kê > choose Q's plan > scroll to 'Ma trận tần suất đồng hành' and 'Ma trận phản biện - ra đề'.",
+  "expected": "checklist phase-8 step 12 / task C7: matrices for all teachers; counts equal independent counts per 24 subject panels (VL 2+1, CN 1+1) — e.g. Cô Hiền & Cô Lài share 1 panel in Q's plan.",
+  "actual": "Per-teacher table is correct (12 rows; totals/Ra đề/Phản biện/exams/q equal DB counts and the Excel 'Thống kê' sheet). Both heatmaps list only 11 teachers (Thầy Nghĩa, the 12th, is absent) with column headers '1..11' (teacher ids) instead of names; values do not match any per-panel recount (e.g. Hiền–Lài shows 2, true 1; 56 of 110 co-working cells and 11 of 110 review cells differ from the per-subject-panel recount). Panel summary says 'Tổng số: 12 ban đề (3 thành viên)' although there are 24 panels (VL 3 members, CN 2).",
+  "evidence": [
+   "extracts/C7.json",
+   "extracts/C7-ui-tables.json",
+   "screenshots/C7-stats-bottom-page.png",
+   "extracts/C7probe-text.txt"
+  ],
+  "cause_hypothesis": "ui/src/pages/StatisticsPage.tsx: coWorkingMatrix keys panels by `${exam_id}_${grade_id}` (merges VL and CN, double-counts teachers present in both), reviewRelationMatrix uses panelAssign.find(role==='reviewer') (first reviewer only), campusMixStats groups by exam×grade, and the matrices render `teachers.slice(0, 11)` with header {teacher.id}.",
+  "mock_gap": "Mock demo = 11 teachers single subject, so truncation and merge are invisible.",
+  "q_notice": "T Nghĩa (12 duties) is missing from the heatmaps and the pair counts do not match Q's sheet.",
+  "id": "RA-027"
+ },
+ {
+  "title": "Excel 'Theo giáo viên' sheet: 'Cùng ban với' lists members of BOTH subjects' panels (wrong in all 60 rows)",
+  "severity": "S2",
+  "category": "bug",
+  "area": "export",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D1",
+   "C1"
+  ],
+  "repro": "Export Q's plan; open sheet 'Theo giáo viên'; compare 'Cùng ban với' with Q's VL/CN panels.",
+  "expected": "phase-11 checklist step 7: members of the same subject panel only (e.g. Cô Bình GK1/Khối 12 VL -> T Phúc, C Quí).",
+  "actual": "All 60 rows list the union of the VL and CN panels of that exam×grade: Cô Bình GK1/12 VL shows 'Thầy Nghĩa (Ra đề); Thầy Phúc (Ra đề); Cô Quí (Phản biện); Thầy Lộc (Phản biện)'. (Other sheets are correct: grid cells equal Q's 60 seats, totals 60/36/24/15x4, per-teacher totals.)",
+  "evidence": [
+   "extracts/D1.json",
+   "extracts/C1-q-plan-export.json",
+   "extracts/q-plan-task.json"
+  ],
+  "cause_hypothesis": "crates/service/src/excel/export.rs builds the co-members list by (exam_id, grade_id) without subject_id. Same pattern as RA-013/RA-027; check print notices (D2).",
+  "mock_gap": "Excel content not asserted in mock suite; golden calamine test uses single-subject/other sheet.",
+  "q_notice": "A teacher's own sheet row lists colleagues from the other subject's panel.",
+  "id": "RA-028"
+ },
+ {
+  "title": "Automatic backup rotation and 'newest first' ordering sort by file NAME (reason prefix before timestamp): newest backups are pruned while older ones of another kind are kept; same-second backups overwrite each other",
+  "severity": "S2",
+  "category": "bug",
+  "area": "storage",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D3"
+  ],
+  "repro": "Real app, data dir with 7 'pre-restore' automatic backups (older) then 9 successive Excel imports (each creates 'pre-import'). Inspect data/backups and Settings > Danh sách bản sao lưu tự động. Also run two restore_database calls within one second.",
+  "expected": "phase-9 step 9 / SPEC: keep the 10 NEWEST automatic backups, list newest first; every operation keeps its own safety copy.",
+  "actual": "After 16 backups the 10 kept are 7 older pre-restore + only 3 pre-import (the 3 newest imports; the 6 backups taken right before the earlier imports were deleted); the UI list shows pre-restore-…110 on top and the truly newest file (pre-import-…120) last. Two restores in the same second produced a single file (second silently overwrote the first).",
+  "evidence": [
+   "extracts/D3b-rotation.json",
+   "extracts/D3.json"
+  ],
+  "cause_hypothesis": "crates/storage/src/backup.rs: filename = exampanel-backup-{reason}-{epoch_secs}.db; list_automatic_backups sorts by filename descending and prune_automatic_backups keeps the first 10 of that order; no sub-second/uniqueness suffix.",
+  "mock_gap": "Mock backups list is a static array.",
+  "q_notice": "After a few imports and a restore, the backup taken just before the latest import may already be gone.",
+  "id": "RA-031"
+ },
+ {
+  "title": "Language chosen on the Settings page is not persisted (reverts to Vietnamese after restart); only the header switcher persists",
+  "severity": "S2",
+  "category": "bug",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D4"
+  ],
+  "repro": "Settings > English (and Dark). Quit and relaunch (same portable folder).",
+  "expected": "phase task D4: language and theme persist across restarts.",
+  "actual": "Theme persists (dark after restart). Language reverts to Vietnamese. Using the header language dropdown instead persists correctly (English after restart).",
+  "evidence": [
+   "extracts/D4.json",
+   "screenshots/D4-after-restart-page.png"
+  ],
+  "cause_hypothesis": "ui/src/pages/SettingsPage.tsx lines ~215/225 call i18n.changeLanguage() directly instead of setLanguage() from ui/src/i18n (which writes localStorage + api.setLanguage). Also the Settings page shows hard-coded Vietnamese help text under the language row.",
+  "mock_gap": "Mock e2e does not restart the app.",
+  "q_notice": "Q switches to English in Settings, restarts, and is back in Vietnamese (or the reverse for an English-speaking colleague).",
+  "id": "RA-033"
+ },
+ {
+  "title": "'Mở thư mục dữ liệu' always fails: 'Command plugin:opener|open_path not allowed by ACL' (capability opener:default lacks open_path); 'Mở thư mục nhật ký' gives no feedback",
+  "severity": "S2",
+  "category": "bug",
+  "area": "app shell",
+  "engine": "engine-agnostic (capability file is platform independent)",
+  "scenarios": [
+   "D4",
+   "E4"
+  ],
+  "repro": "Settings > Mở thư mục dữ liệu.",
+  "expected": "File manager opens the data folder (Linux: xdg-open; no handler is an environment limit and should show a friendly message).",
+  "actual": "Toast with the raw English ACL error 'Command plugin:opener|open_path not allowed by ACL'. The Windows build uses the same capability so the button is expected to fail there too (to confirm manually). 'Mở thư mục nhật ký' (custom Rust command open_log_folder) shows no toast at all.",
+  "evidence": [
+   "extracts/D4.json",
+   "screenshots/D4-open-data-folder-page.png",
+   "extracts/E4-capability-probes.json"
+  ],
+  "cause_hypothesis": "src-tauri/capabilities/default.json grants opener:default only; SettingsPage calls openPath from @tauri-apps/plugin-opener which needs opener:allow-open-path (with a scope).",
+  "mock_gap": "Mock opener is a no-op.",
+  "q_notice": "The 'open data folder' button shows an English error.",
+  "id": "RA-034"
+ },
+ {
+  "title": "Release build ships the dev-tools feature: the `seed_demo` IPC command is live and writes demo data into the REAL database",
+  "severity": "S2",
+  "category": "packaging/runtime",
+  "area": "packaging",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "E4",
+   "Step0"
+  ],
+  "repro": "Build exactly as docs/TECH.md describes (`pnpm tauri build [--no-bundle]`), launch on an empty data folder, run `window.__TAURI_INTERNALS__.invoke('seed_demo')` from the webview (WebDriver executeScript).",
+  "expected": "Task/ADR: release contains no dev-tools (no Developer route — correct — and no seed_demo command).",
+  "actual": "Command executes: empty exam-panel.db goes from 0 to 12 teachers / 4 campuses (and fails with 'foreign_key_violation' on a populated DB). `strings` of the binary does not contain the 'dev-tools feature not enabled' stub text, i.e. the feature is compiled in. The Developer page itself is correctly absent (import.meta.env.DEV false) and fs/shell/process/opener(open_path, file:) are denied by ACL.",
+  "evidence": [
+   "extracts/E4.json",
+   "build-inspect.txt",
+   "extracts/E4-capability-probes.json"
+  ],
+  "cause_hypothesis": "src-tauri/Cargo.toml: `[features] default = [\"dev-tools\"]`; scripts/build-portable.ps1 runs plain `pnpm tauri build` with default features. Fix: remove from default (enable only in `tauri dev`) or build releases with `--no-default-features`; add a CI assertion that seed_demo returns not_supported.",
+  "mock_gap": "n/a",
+  "q_notice": "none visible — hidden command; risk is data pollution if any script injection ever reached the webview.",
+  "id": "RA-036"
+ },
+ {
+  "title": "Import preview: 'Đang dạy' column shows 'Mới' (status key) instead of Có/Không",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "B2"
+  ],
+  "repro": "Teachers > Nhập từ Excel > choose the filled Q template > Xem trước kết quả > tab Giáo viên.",
+  "expected": "Column 'Đang dạy' shows Có/Không (the sheet says 'Có').",
+  "actual": "Every active teacher row shows 'Mới' (inactive would show 'Bỏ qua'), duplicating the status badge.",
+  "evidence": [
+   "screenshots/B2-import-preview-screen.png",
+   "extracts/B2-preview-text.txt"
+  ],
+  "cause_hypothesis": "ui/src/pages/teachers/ImportWizardModal.tsx ~line 404: row.active ? t('import.statusNew') : t('import.statusSkipped') — wrong i18n keys.",
+  "mock_gap": "Mock suite passes (no assertion on this column).",
+  "q_notice": "Preview shows 'Mới' under 'Đang dạy' for every teacher, which looks like an error.",
+  "id": "RA-002"
+ },
+ {
+  "title": "Existing mock Playwright suite: cannot launch pinned browser in offline CDN sandbox, and a run rewrites 94 tracked docs files",
+  "severity": "S3",
+  "category": "environment",
+  "area": "docs",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "Step0"
+  ],
+  "repro": "pnpm -C ui test:e2e in a sandbox where the Playwright CDN is blocked; then git status after a run with a working browser.",
+  "expected": "Suite runs; working tree stays clean.",
+  "actual": "(1) Default run: 14/14 fail with 'Executable doesn't exist ... chromium_headless_shell-1243' (sandbox has 1194; CDN 403) — environment. (2) With QA wrapper config using the preinstalled Chromium: 14/14 pass, but the run modifies 94 tracked files (docs/screenshots/**, docs/reports/phase-9/*.pdf) because the specs write their screenshots/PDFs into tracked docs folders.",
+  "evidence": [
+   "logs/mock-e2e-attempt1-default-config.txt",
+   "mock-e2e-baseline.txt",
+   "logs/mock-suite-tracked-files-modified.txt",
+   "logs/mock-suite-tracked-files-modified-count.txt"
+  ],
+  "cause_hypothesis": "ui/e2e/*.spec.ts use fixed output paths under docs/. Suggest output dir under test-results/ unless an env flag is set.",
+  "mock_gap": "This is the mock suite itself.",
+  "q_notice": "none",
+  "id": "RA-005"
+ },
+ {
+  "title": "Import plan preview shows hard violation as raw code 'h4: max_tasks_per_exam_exceeded' without teacher/exam/context",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C1"
+  ],
+  "repro": "Clear C Quí's 'Số việc tối đa mỗi kỳ' override in Teachers, then Assignments > Nhập từ bảng có sẵn > paste Q TSV > Xem trước > tab Cảnh báo & Lỗi.",
+  "expected": "One Vietnamese message naming C Quí, CK2 and 3 > 2 (the single hard violation expected from the Q ground truth).",
+  "actual": "Count is right (exactly 1) but the text is the raw engine code 'h4: max_tasks_per_exam_exceeded' with no teacher/exam.",
+  "evidence": [
+   "extracts/C1-issues-no-qui-override.txt",
+   "screenshots/C1-issues-no-qui-override-page.png"
+  ],
+  "cause_hypothesis": "ImportPlanModal issues list prints code+raw key, no i18n mapping for violation codes.",
+  "mock_gap": "Mock hard-violation fixtures may use plain text.",
+  "q_notice": "Q sees a code, not who/where.",
+  "id": "RA-010"
+ },
+ {
+  "title": "Optimization progress bar and best score go backwards with Chuẩn/Kỹ (progress is per parallel wave, not overall)",
+  "severity": "S3",
+  "category": "bug",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C2"
+  ],
+  "repro": "Run Kỹ (16 runs) and sample the dialog every ~200 ms.",
+  "expected": "Progress bar monotonic 0->100 %, 'Điểm tốt nhất' never increases, elapsed time monotonic.",
+  "actual": "Bar goes 92 % -> 40 % -> 100 % -> 49 % -> 28 % ...; best score shown 176.36 then 180.36; 'Thời gian' resets 851 ms -> 404 -> 200 ms. Samples in extracts. (16 runs execute as waves of 4 on this 4-core box; each progress event is that one run's counters.)",
+  "evidence": [
+   "extracts/C2-Ky-samples.json",
+   "extracts/C2.json"
+  ],
+  "cause_hypothesis": "Progress events carry per-run iteration/best/elapsed (anneal.rs progress sink); the dialog divides by one run's iteration budget and shows the latest event. Aggregate across runs or show 'run n/N'. The bar also has no role=progressbar (a11y).",
+  "mock_gap": "Mock emits a single synthetic monotonic stream.",
+  "q_notice": "Progress bar jumps back several times during 'Kỹ'.",
+  "id": "RA-012"
+ },
+ {
+  "title": "Q-grid deviations from the paper layout: 'Khối Khối 10', exam names instead of GK1/CK1/GK2/CK2, '—' instead of blank second CN 'Đề' cell",
+  "severity": "S3",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C4"
+  ],
+  "repro": "Open any plan in Bảng tổ.",
+  "expected": "Per layout spec: grade groups 'Khối 10..12'; totals columns GK1|CK1|GK2|CK2; CN's second 'Đề' cell blank.",
+  "actual": "Group headers 'Khối Khối 10/11/12' (also RA-003); rows and totals columns use 'Giữa kỳ 1'/'Cuối kỳ 1'/... ; CN second Đề cell contains '—'. Matches: header 'Kì thi/khối', VL/CN sub-columns, Đề/Đề/P.Biện rows, totals GV|Tổng lượt|Đề|PB, '2*'/'3**' markers, T Nghĩa 'cố định' tag, Tổng cộng 60/36/24/15x4.",
+  "evidence": [
+   "extracts/C4.json",
+   "extracts/C4-grid-structure.json"
+  ],
+  "cause_hypothesis": "QPlanGrid uses exam.name not exam.code; placeholder glyph for empty slots.",
+  "mock_gap": "Mock fixture exam names are the same.",
+  "q_notice": "Q's sheet says GK1/CK1; the app says 'Giữa kỳ 1'.",
+  "id": "RA-015"
+ },
+ {
+  "title": "With a single placeholder campus, S3 adds a constant 144 penalty and puts a warning icon on every VL seat",
+  "severity": "S3",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C1",
+   "C4"
+  ],
+  "repro": "Golden Q DB (one campus 'Chưa phân hiệu'): open any plan.",
+  "expected": "A rule that cannot be improved (campus independence with 1 campus) should not dominate totals or add noise (repo comparison.md also notes S3=36 units for nocampus).",
+  "actual": "S3 = 36 units / 144.0 penalty in every plan (55 % of Q's 260.36); every VL cell shows a soft-violation triangle; users compare totals that are 144 higher than the meaningful number (116.36 for Q's plan).",
+  "evidence": [
+   "extracts/C1-ui-detail-view.txt",
+   "screenshots/C4-grid-1920x1080-dark-page.png",
+   "extracts/repo-tool-task5_comparison.md"
+  ],
+  "cause_hypothesis": "S3 stays enabled by default when campuses==1; suggest auto-disable or hide when only one campus exists.",
+  "mock_gap": "Mock demo has 2-4 campuses.",
+  "q_notice": "Q sees 260 while the real number to compare is 116, and warning triangles everywhere.",
+  "id": "RA-017"
+ },
+ {
+  "title": "Candidate dialog shows raw engine codes as reasons (e.g. 'H4: max_setter_tasks_per_exam_exceeded', 'H2: unqualified_grade') instead of Vietnamese text",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5",
+   "E2"
+  ],
+  "repro": "Editable copy > click any seat > look at disabled candidates.",
+  "expected": "Reasons in words (phase-8 checklist step 6.4: 'kèm lý do vi phạm ràng buộc cứng').",
+  "actual": "Codes such as 'H1: duplicate_teacher_in_panel, H4: max_tasks_per_exam_exceeded, H4: max_setter_tasks_per_exam_exceeded' (also 'h4: max_tasks_per_exam_exceeded' in import preview, RA-010).",
+  "evidence": [
+   "extracts/C5-candidate-dialog.txt",
+   "extracts/C5.json",
+   "screenshots/C5-candidate-modal-page.png"
+  ],
+  "cause_hypothesis": "CandidateSelectModal prints v.rule + v.code with no i18n lookup.",
+  "mock_gap": "Mock returns pre-translated text.",
+  "q_notice": "Reasons look like programmer codes.",
+  "id": "RA-021"
+ },
+ {
+  "title": "Marking a teacher unavailable produces an extra spurious H2 'unqualified_grade' hard violation for the same seat",
+  "severity": "S3",
+  "category": "bug",
+  "area": "core",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Golden Q plan (0 violations). Lịch bận: mark Cô Hiền absent in CK1 (she holds CK1/Khối 10 VL setter). Evaluate plan.",
+  "expected": "exactly one violation: h5 teacher_unavailable (exam 2).",
+  "actual": "two: h5:teacher_unavailable AND h2:unqualified_grade for teacher 1 / CK1 / grade 1 / VL, although Cô Hiền teaches Khối 10 (teacher_grades 1,2,3) and has VL competency; baseline and 'C Quí override cleared only' runs show no h2.",
+  "evidence": [
+   "extracts/C5j-hard-violation-attribution.json",
+   "extracts/C5i.json"
+  ],
+  "cause_hypothesis": "crates/core validate H2 probably uses an availability-aware eligibility helper, so absence is reported twice with a wrong reason.",
+  "mock_gap": "Mock validation is canned.",
+  "q_notice": "Violation count and explanation are inflated; the 'unqualified' reason is untrue.",
+  "id": "RA-023"
+ },
+ {
+  "title": "Plan history shows 'Invalid Date' for every plan (WebKitGTK cannot parse SQLite 'YYYY-MM-DD HH:MM:SS')",
+  "severity": "S3",
+  "category": "bug",
+  "area": "ui",
+  "engine": "webkitgtk-specific (Chromium/WebView2 parses this format; fix is still cheap: normalise to ISO 8601 'T…Z')",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Phân công > Lịch sử phương án.",
+  "expected": "Creation date/time.",
+  "actual": "'… | Điểm phạt: 176.36 | Invalid Date | Mở phương án'.",
+  "evidence": [
+   "extracts/C5g-history-before.json",
+   "screenshots/C5g-history-page.png"
+  ],
+  "cause_hypothesis": "PlansHistoryList.tsx new Date(plan.created_at).toLocaleString() on a datetime('now') string without 'T'/'Z'; Safari/WebKit returns Invalid Date.",
+  "mock_gap": "Mock created_at values are ISO strings; Chromium proxy would not show it.",
+  "q_notice": "On WebView2 probably fine (unverified); on Linux/macOS builds every plan has no date.",
+  "id": "RA-024"
+ },
+ {
+  "title": "Re-optimize around kept seats: setter order (Đề 1/Đề 2) of kept seats is not preserved, new plan reuses an existing name, kept-seat banner only exists in 'Chi tiết' view, k/effort not selectable",
+  "severity": "S3",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C6"
+  ],
+  "repro": "Optimizer plan #1 > keep 5 seats via cell menu (GK1/10 VL Đề1 C Như, Đề2 C Na, CK1/11 VL P.Biện, GK2/12 CN P.Biện, CK2/10 VL Đề1) > 'Tối ưu lại phần còn lại'.",
+  "expected": "phase-8 step 9: banner 'Đã chọn giữ: N ô', choose number of plans, kept seats unchanged.",
+  "actual": "Kept (teacher, panel, role) pairs are preserved 5/5 (good) but only 2/5 are at the same slot position (the 3 setter seats come back in another order); the new plan is again named 'Phương án #1' (two plans with the same name in history); in the default 'Bảng tổ' view only small bookmark icons mark the kept seats (banner 'Đã chọn giữ: 5 ô' exists only in 'Chi tiết'); the dialog offers no k/effort (fixed k=1, 4x50k iterations).",
+  "evidence": [
+   "extracts/C6.json",
+   "screenshots/C6-kept-page.png",
+   "screenshots/C6-kept-detail-page.png"
+  ],
+  "cause_hypothesis": "reoptimize_from pins by (exam,grade,subject,teacher,role) not position and the annealer re-emits setters in canonical order (same ordering as RA-019); ReoptimizeDialog hard-codes request.",
+  "mock_gap": "Mock keeps positions.",
+  "q_notice": "Q keeps C Như as Đề 1 and gets her back as Đề 2.",
+  "id": "RA-026"
+ },
+ {
+  "title": "Export/print fall back to invented organisation text 'TRƯỜNG THPT CHUYÊN / TỔ CHUYÊN MÔN TOÁN / Hà Nội' when Settings org info is empty",
+  "severity": "S3",
+  "category": "Q-fit",
+  "area": "export",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D1"
+  ],
+  "repro": "Fresh DB without saving 'Thông tin đơn vị' > Xuất Excel; open sheet 1 header.",
+  "expected": "Blank or placeholder prompting the user to configure the school; never another school's name.",
+  "actual": "Header shows 'TRƯỜNG THPT CHUYÊN' / 'TỔ CHUYÊN MÔN TOÁN', signature 'Hà Nội, ngày ... tháng ... năm 20...' although nothing was configured. The print routes (/print/plan/:id, WebKitGTK screenshot) fall back to different invented text: 'TRƯỜNG THPT CHUYÊN / TỔ TOÁN - TIN', place 'Hà Nội' and signer 'Nguyễn Văn A' — inconsistent with the Excel fallback ('TỔ CHUYÊN MÔN TOÁN') and a fictitious signer name printed on an official sheet.",
+  "evidence": [
+   "extracts/D1.json",
+   "extracts/C1-q-plan-export.json",
+   "screenshots/D2-gtk-print-dialog.png"
+  ],
+  "cause_hypothesis": "Hard-coded fallbacks in the exporter/print pages.",
+  "mock_gap": "n/a",
+  "q_notice": "Q's physics/technology group would print 'TỔ CHUYÊN MÔN TOÁN' unless they notice.",
+  "id": "RA-029"
+ },
+ {
+  "title": "'In / Xuất PDF' does nothing in the Linux/WebKitGTK app (no print dialog, no PDF); WebDriver Print Page unsupported",
+  "severity": "S3",
+  "category": "packaging/runtime",
+  "area": "app shell",
+  "engine": "webkitgtk-specific (WebView2 on Windows expected to open the print UI — not verified here)",
+  "scenarios": [
+   "D2"
+  ],
+  "repro": "Open /#/print/plan/1 in the Linux release app, click 'In / Xuất PDF' (or press Ctrl+P).",
+  "expected": "A print dialog / print-to-file path so the A4 PDF can be produced (phase-9 checklist step 5).",
+  "actual": "Nothing happens: no new X window within 3.5 s, page stays responsive. Separately WebKitWebDriver answers 'Unknown command /print' so the W3C Print Page command cannot be used; print output was verified via a Chromium proxy that replays real IPC data (labelled MOCK-DATA-REPLAY).",
+  "evidence": [
+   "screenshots/D2-gtk-print-dialog.png",
+   "extracts/D2.json",
+   "extracts/D2-chromium-replay-run.json"
+  ],
+  "cause_hypothesis": "wry/WebKitGTK does not wire window.print() to a GtkPrintOperation. Windows is the supported target, so this is informational unless Linux builds are in scope; add an in-app 'Save as PDF' (Tauri-side printing) if Linux/macOS matter.",
+  "mock_gap": "Chromium mock suite prints fine.",
+  "q_notice": "none on Windows (must be re-verified there).",
+  "id": "RA-030"
+ },
+ {
+  "title": "Restore dialog shows English engine messages and calls a newer-version file 'corrupted or wrong format'",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D3"
+  ],
+  "repro": "Settings > Phục hồi từ tệp > choose (a) a text file, (b) a valid DB with PRAGMA user_version=99, (c) a truncated DB.",
+  "expected": "Clear Vietnamese reasons; newer version: 'cần ExamPanel mới hơn'. All three are correctly rejected (confirm disabled, live DB hash unchanged).",
+  "actual": "Heading 'Tệp dữ liệu bị hỏng hoặc không đúng định dạng' for all three plus raw English details: 'Integrity check query failed: file is not a database', 'Unsupported future database version: 99 > supported 5', 'Integrity check query failed: database disk image is malformed'.",
+  "evidence": [
+   "extracts/D3-restore-dialog-garbage.txt",
+   "extracts/D3-restore-dialog-newer_version.txt",
+   "extracts/D3-restore-dialog-truncated.txt",
+   "extracts/D3.json"
+  ],
+  "cause_hypothesis": "BackupValidationSummary.error is a raw Rust string; UI prints it unmapped.",
+  "mock_gap": "Mock returns Vietnamese text.",
+  "q_notice": "English technical sentence in the middle of a Vietnamese dialog.",
+  "id": "RA-032"
+ },
+ {
+  "title": "Data-location documentation contradicts the implementation (SPEC §6 / ADR 'writable folder => portable' vs marker-file requirement; v0.1.0 checklist %APPDATA% path)",
+  "severity": "S3",
+  "category": "docs",
+  "area": "docs",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A1",
+   "A2"
+  ],
+  "repro": "Compare docs/SPEC.md §6, docs/DECISIONS.md ADR (writability probe), docs/release/v0.1.0-checklist.md §2 with crates/storage/src/paths.rs and A2.",
+  "expected": "One consistent rule.",
+  "actual": "SPEC §6: if the exe folder is writable the DB is stored in <exe>/data. Real app (A2, exe folder writable by the user, no marker): data goes to $XDG_DATA_HOME/ExamPanel/data and nothing is created beside the exe — portable mode needs ExamPanel.portable (paths.rs; only mentioned in ADR-0034 and DOC-TOI). v0.1.0 checklist §2 expects installed data in `%APPDATA%\\com.exampanel.desktop\\`; code uses `%APPDATA%\\ExamPanel\\data` (APP_DIR_NAME) and tauri identifier is vn.exampanel.app. An undocumented EXAMPANEL_DATA_DIR env override also exists.",
+  "evidence": [
+   "extracts/A2.json",
+   "extracts/A1.json",
+   "logs/docs-grep-dbname.txt"
+  ],
+  "cause_hypothesis": "Docs not updated when the marker rule replaced the probe rule.",
+  "mock_gap": "n/a",
+  "q_notice": "Q copies the folder to another PC without the marker file and the data is left behind.",
+  "id": "RA-037"
+ },
+ {
+  "title": "Release/QA checklists describe UI and files that no longer exist (stale steps)",
+  "severity": "S3",
+  "category": "docs",
+  "area": "docs",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A7",
+   "B1",
+   "B2",
+   "C5",
+   "C6",
+   "D1"
+  ],
+  "repro": "Walk docs/qa/phase-8/9/11/12 checklists and docs/release/v0.1.0-checklist.md in the real app.",
+  "expected": "Steps match the product.",
+  "actual": "(1) v0.1.0 §3: 'Avoid Pair' feature — does not exist (only soft rule S4); button 'Chốt phương án' is 'Đánh dấu chính thức'. (2) v0.1.0 §4: Excel sheets MA_TRAN/TONG_HOP — real: 'Bảng phân công (mẫu tổ)', 'Phân công', 'Theo giáo viên', 'Thống kê', 'Tiêu chí'. (3) v0.1.0 §6: demo = 18 teachers/2 campuses — real demo = 12 Q-shaped teachers, 4 campuses (B1). (4) phase-9 step 1: template has 4 sheets — real 6 (Hướng dẫn, Phân hiệu, Giáo viên, Lịch vắng, Môn, Môn đảm nhiệm). (5) phase-8 step 4 asks for a copy-name dialog — none. (6) phase-8 step 9 'Đã chọn giữ' banner exists only in Chi tiết view (RA-026). (7) phase-12 K1.6 'Enter on a cell opens candidate dialog' — cells are not keyboard-focusable (see E1). (8) phase-11 step 3.4 sub-line text matches; step 2 cycle order matches.",
+  "evidence": [
+   "extracts/B1.json",
+   "extracts/B2-template-downloaded.xlsx",
+   "extracts/C1-q-plan-export.json",
+   "extracts/C5.json",
+   "extracts/E1.json"
+  ],
+  "cause_hypothesis": "Checklists not maintained with the phases.",
+  "mock_gap": "n/a",
+  "q_notice": "none",
+  "id": "RA-038"
+ },
+ {
+  "title": "Keyboard-only use of the plan grid: seats are not focusable and the only tab stops are 60 invisible (opacity 0) menu buttons",
+  "severity": "S3",
+  "category": "accessibility",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "E1",
+   "C5"
+  ],
+  "repro": "Editable plan copy > Tab through the Bảng tổ grid.",
+  "expected": "phase-12 checklist K1.6: 'Enter on a cell opens the candidate dialog'; focus visible.",
+  "actual": "Cells (<td data-testid=q-grid-cell-…>) have no tabindex/role; the first stop inside the grid is the per-cell menu button (class opacity-0 group-hover:opacity-100) — 59 of 60 focused buttons have computed opacity 0, so focus is invisible; 60 tab stops precede the totals panel, with no accessible name on the triggers. Once the candidate dialog is opened (mouse) ArrowDown/Enter/Esc work (C5). Other screens: every focused control shows a ring (5 routes x 45 Tabs), Esc closes all 8 dialogs/sheets tested.",
+  "evidence": [
+   "extracts/E1.json",
+   "extracts/E1-tab-sequences.json",
+   "screenshots/E1-grid-keyboard-page.png"
+  ],
+  "cause_hypothesis": "QPlanGrid.tsx td has onClick only; menu trigger hidden unless :hover (needs focus-visible:opacity-100, tabindex/role=button on the cell, aria-label).",
+  "mock_gap": "Mock e2e uses mouse clicks.",
+  "q_notice": "none unless Q uses the keyboard.",
+  "id": "RA-039"
+ },
+ {
+  "title": "10 i18n keys are missing from BOTH locale files, so raw keys are shown (common.all, rules.h3Warning, rules.h4MaxTasksPerExam, rules.h4MaxSetterPerExam, rules.s1MaxTasksMode, rules.s1ModeAuto, teachers.advancedSettings, common.close, feasibility.forcedPlacementsTitle/Desc)",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "E2",
+   "B3",
+   "C5"
+  ],
+  "repro": "Open /competencies (subject filter), /rules (H3 warning, H4 labels, S1 mode), Teachers > Thêm giáo viên (advanced section), Teachers > Xem chỉ tiêu (close), feasibility sheet, Phân công > Chi tiết (subject filter 'common.all (2)') — in both vi and en.",
+  "expected": "AGENTS.md §3: 100 % i18n, hierarchical keys, both locale files updated.",
+  "actual": "The literal keys are printed ('common.all', 'rules.h4MaxTasksPerExam:', 'teachers.advancedSettings', …). Code uses `t('key') || 'Vietnamese fallback'` but i18next returns the key itself when missing, so the fallback never applies. vi.json and en.json both have 777 keys and neither contains these 10.",
+  "evidence": [
+   "extracts/E2.json",
+   "extracts/E2-i18n-findings.json",
+   "screenshots/E2-vi-competencies-page.png",
+   "screenshots/E2-en-rules-page.png"
+  ],
+  "cause_hypothesis": "Keys referenced in RulesPage.tsx/TeachersPage.tsx/CompetenciesPage.tsx/PlanMatrixView.tsx/FeasibilitySheet were never added to locales; no test asserts key existence. Suggested regression test: static scan of t('…') keys against both locale files in CI.",
+  "mock_gap": "Mock e2e asserts on testids/regex, never on missing-key output.",
+  "q_notice": "Raw words like 'common.all' and 'teachers.advancedSettings' on screen.",
+  "id": "RA-040"
+ },
+ {
+  "title": "English UI is incomplete: ~20 hard-coded Vietnamese strings remain on Overview, Competencies, Unavailability, Statistics, Settings, Compare/Import/Quota dialogs and the feasibility sheet; Vietnamese UI shows English 'Close'",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "E2"
+  ],
+  "repro": "Settings > English; visit every route and open the dialogs listed in the extract.",
+  "expected": "AGENTS.md §3: never hard-code user-facing strings; every string through t('domain.key') in both locales.",
+  "actual": "See curated list: e.g. sidebar subtitle 'Phân công ra đề', 'Năm học 2026 - 2027', '0 lỗi, 12 cảnh báo', 'Thao tác', 'Giảm', whole compare-dialog description/score lines, quota dialog labels, 'Hủy'. Vietnamese mode shows 'Close' (dialog close button). Additionally found by reading the source (not observed on screen in EN): hard-coded 'Trống' (empty seat) in the grid, 'Bạn có chắc chắn muốn xóa phương án này?', 'Bỏ chọn tất cả', toasts built as string concatenations (e.g. 'Download template thành công!' in EN, 'Lỗi tạo tệp mẫu: …', 'Lỗi sao lưu: …').",
+  "evidence": [
+   "extracts/E2-hardcoded-vietnamese-in-en-curated.txt",
+   "extracts/E2-i18n-findings.json",
+   "extracts/E2-dom-scan.json",
+   "extracts/E2.json"
+  ],
+  "cause_hypothesis": "Many components still contain Vietnamese literals or `t('x') || 'Vietnamese'` fallbacks (see grep `|| '` in ui/src). Suggested regression test: ESLint rule / grep for JSX text and `toast.*(` literals; run the E2 scan in CI against a Vitest/Playwright mock.",
+  "mock_gap": "Mock e2e runs in Vietnamese only for most steps.",
+  "q_notice": "none (Q is Vietnamese) — blocks any English-speaking colleague.",
+  "id": "RA-042"
+ },
+ {
+  "title": "data/logs/app.log is empty in all 112 runs: no startup line, no IPC/DB errors, nothing for the hung startup dialogs — only a deliberate E4 probe line was ever written",
+  "severity": "S3",
+  "category": "packaging/runtime",
+  "area": "app shell",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A9",
+   "A1",
+   "A4",
+   "C5"
+  ],
+  "repro": "Run any scenario, then read <data>/logs/app.log (tauri-plugin-log folder target + stdout target are configured in src-tauri/src/lib.rs).",
+  "expected": "At least startup (version, data dir, DB path/user_version) and error lines (failed save 'duplicate_entry', migration, backup/restore, panic hook) so Q can send a log when something goes wrong; the v0.1.0 checklist and Settings ('Mở thư mục nhật ký') advertise logs.",
+  "actual": "collect_logs found 112 app.log files with 94 bytes in total — both bytes are my own `[webview][INFO] qa-probe` line sent through plugin:log|log in E4. No Rust-side `log::info!/error!` call fires in normal use, failed saves produce no entry, and the app never logs its own start.",
+  "evidence": [
+   "console-errors.txt",
+   "logs/app-logs/E4-1.log",
+   "extracts/E4.json"
+  ],
+  "cause_hypothesis": "Only the panic hook calls log::error!; services return AppError without logging; no log::info! at startup.",
+  "mock_gap": "n/a",
+  "q_notice": "The 'open logs folder' button leads to an empty file.",
+  "id": "RA-043"
+ },
+ {
+  "title": "Grid header reads 'Khối Khối 10' (duplicated word) in Q-style grid",
+  "severity": "S4",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A7",
+   "C4"
+  ],
+  "repro": "Open /assignments with any plan in 'Bảng tổ' view.",
+  "expected": "Header 'Khối 10' (spec: grade groups).",
+  "actual": "'Khối Khối 10', 'Khối Khối 11', 'Khối Khối 12'.",
+  "evidence": [
+   "screenshots/A7-assignments-page.png"
+  ],
+  "cause_hypothesis": "Grade label is built as t('…grade') + grade.name where grade.name is already 'Khối 10' (ui/src/pages/assignments/QPlanGrid.tsx).",
+  "mock_gap": "Mock fixtures use the same grade names; mock suite does not assert header text.",
+  "q_notice": "Q sees 'Khối Khối 10' at the top of every grade column.",
+  "id": "RA-003"
+ },
+ {
+  "title": "Production dashboard still shows developer 'Kết nối Hệ thống Lõi' ping panel ('pong from ExamPanel core')",
+  "severity": "S4",
+  "category": "Q-fit",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A1",
+   "A7"
+  ],
+  "repro": "Launch release build > Tổng quan, scroll down.",
+  "expected": "No developer diagnostics on the user dashboard (Developer route is correctly absent).",
+  "actual": "Panel 'Kết nối Hệ thống Lõi — Kiểm tra phản hồi IPC giữa giao diện người dùng và lõi Rust' with 'pong from ExamPanel core v0.1.0' and status 'Hệ thống sẵn sàng'.",
+  "evidence": [
+   "extracts/A7.json",
+   "screenshots/probe-screen.png"
+  ],
+  "cause_hypothesis": "ui/src/pages/OverviewPage.tsx ping widget not gated by import.meta.env.DEV.",
+  "mock_gap": "n/a",
+  "q_notice": "A technical 'Rust core ping' box on the home page.",
+  "id": "RA-004"
+ },
+ {
+  "title": "DB file name inconsistent in docs: code/SPEC/ADR/DOC-TOI say exam-panel.db; v0.1.0 checklist and user guide say exampanel.db",
+  "severity": "S4",
+  "category": "docs",
+  "area": "docs",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "A1",
+   "A7"
+  ],
+  "repro": "grep -rn 'exampanel.db\\|exam-panel.db' docs DOC-TOI.txt crates/storage/src/paths.rs",
+  "expected": "One name everywhere.",
+  "actual": "Real app creates data/exam-panel.db (A1 data tree). docs/release/v0.1.0-checklist.md lines 19 and 89 and docs/user-guide/vi/08-che-do-dung-thu.md line 33 say exampanel.db; docs/qa/phase-9-checklist.md says backup default name exampanel-backup-YYYYMMDD-HHmm.db (to verify in D3).",
+  "evidence": [
+   "extracts/A1.json",
+   "logs/docs-grep-dbname.txt"
+  ],
+  "cause_hypothesis": "docs drift.",
+  "mock_gap": "n/a (mock/mock.ts also reports exampanel.db).",
+  "q_notice": "A tester following the release checklist looks for a file that does not exist.",
+  "id": "RA-006"
+ },
+ {
+  "title": "Every DB open rewrites the database file (sqlite_sequence for 'grades' grows by 3 per open via seed_defaults)",
+  "severity": "S4",
+  "category": "bug",
+  "area": "storage",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "B1",
+   "A5"
+  ],
+  "repro": "Copy a fully initialised exam-panel.db, launch app, wait until ready, exit; sha256 before/after. Enter and exit trial mode.",
+  "expected": "An already initialised, current-version DB is opened without byte changes (relevant for read-only media, and for the 'real DB hash unchanged' check in trial mode).",
+  "actual": "sha256 differs after every launch and again after exit-trial-mode. Logical content identical; the only diff in `.dump` is sqlite_sequence grades 3->6->9 (+3 per open).",
+  "evidence": [
+   "extracts/B1.json",
+   "logs/B1-dump-diff.txt"
+  ],
+  "cause_hypothesis": "crates/storage/src/store.rs open_at()/reopen -> seed_defaults(): INSERT OR IGNORE of the 3 default grades bumps the AUTOINCREMENT counter every time. Effects: harmless today (grade ids will jump if a user adds a grade), but byte-level 'unchanged' invariants cannot hold, and every launch writes to the DB (journal file on USB).",
+  "mock_gap": "Not reachable in mock.",
+  "q_notice": "none (internal)",
+  "id": "RA-008"
+ },
+ {
+  "title": "S8 chip prints raw float '2.545454545454545' in the plan summary bar",
+  "severity": "S4",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C4"
+  ],
+  "repro": "Open an optimizer plan; look at the S-chips under 'Tổng điểm phạt'.",
+  "expected": "Rounded units (e.g. 2.55).",
+  "actual": "'S8 : 2.545454545454545 (Không thể giảm thêm)'; the detail view/compare dialog round to 1 decimal (36.4), the total to 2 decimals (260.36) so the visible parts do not add up to the total.",
+  "evidence": [
+   "screenshots/C4-grid-1920x1080-dark-page.png",
+   "extracts/C1-ui-detail-view.txt"
+  ],
+  "cause_hypothesis": "No formatting on units in the chip component.",
+  "mock_gap": "Mock units are integers.",
+  "q_notice": "A 15-digit number in the header.",
+  "id": "RA-016"
+ },
+ {
+  "title": "Mark-final errors raise two toasts: the translated sentence plus the raw code ('plan_stale' / 'plan_invalid'); hard-violation count differs between toast and header",
+  "severity": "S4",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "C5"
+  ],
+  "repro": "Try 'Đánh dấu chính thức' on a stale plan / a plan with violations.",
+  "expected": "One translated toast.",
+  "actual": "Toasts: 'Không thể đánh dấu chính thức khi dữ liệu bài toán đã thay đổi' + 'plan_stale'; for the invalid plan 'còn vi phạm điều kiện bắt buộc (1 vi phạm)' + 'plan_invalid' while the header says 'Vi phạm (3 lỗi)' (toast uses params.count default 1 when params lack count).",
+  "evidence": [
+   "extracts/C5.json",
+   "extracts/C5g-invalid-plan-hard-violations.json"
+  ],
+  "cause_hypothesis": "PlansHistoryList.handleMarkFinal reads errorObj.params?.count ?? violations ?? 1 — backend plan_invalid params differ; global error handler also toasts the code.",
+  "mock_gap": "Mock errors carry count.",
+  "q_notice": "Confusing double message with the wrong number.",
+  "id": "RA-025"
+ },
+ {
+  "title": "'Third-party licences' dialog shows a 3-line summary, not the THIRD_PARTY_NOTICES text (and is English-only)",
+  "severity": "S4",
+  "category": "docs",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D4"
+  ],
+  "repro": "Settings > About > Xem chi tiết (licenses-dialog-trigger).",
+  "expected": "The notices open (v0.1.0 checklist / D4: 'THIRD_PARTY_NOTICES opens').",
+  "actual": "Dialog says the full notices are 'preserved in the bundled THIRD_PARTY_NOTICES document' (44 KB in the repo root) but does not show or link it; in this run the text is English.",
+  "evidence": [
+   "extracts/D4-licenses-dialog.txt",
+   "screenshots/D4-licenses-page.png"
+  ],
+  "cause_hypothesis": "Static summary component.",
+  "mock_gap": "n/a",
+  "q_notice": "Q cannot read the licences from inside the app.",
+  "id": "RA-035"
+ },
+ {
+  "title": "Double-click on 'Lưu' (Exam dialog) saves once but shows two red 'Dữ liệu đã tồn tại, không thể tạo trùng lặp' toasts plus the success toast",
+  "severity": "S4",
+  "category": "bug",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "E3"
+  ],
+  "repro": "Kỳ thi > Thêm kỳ thi > fill > click Lưu twice quickly (two click events).",
+  "expected": "Save button disabled while submitting; one success toast.",
+  "actual": "Exactly one exam row is created (good) but toasts: 'Dữ liệu đã tồn tại, không thể tạo trùng lặp' x2 and 'Thêm kỳ thi thành công'.",
+  "evidence": [
+   "extracts/E3.json"
+  ],
+  "cause_hypothesis": "Dialog submit not guarded (no isPending disable); duplicates rejected by DB UNIQUE.",
+  "mock_gap": "Mock allows duplicates or is synchronous.",
+  "q_notice": "A harmless double click looks like an error.",
+  "id": "RA-041"
+ }
+]

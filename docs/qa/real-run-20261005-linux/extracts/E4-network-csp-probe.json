@@ -1,0 +1,7 @@
+{
+ "script": "BLOCKED script error",
+ "img": "BLOCKED img error",
+ "inline_script_ran": "LOADED false",
+ "fetch_https": "BLOCKED TypeError: Load failed",
+ "fetch_http_localhost": "BLOCKED TypeError: Load failed"
+}

@@ -1,8 +1,8 @@
 //! Data Transfer Objects (DTOs) for the ExamPanel service layer.
 
 use exam_panel_core::domain::{
-    Assignment, CampusId, ExamId, GradeId, LockKind, Plan, Role, RuleSetting, SchoolYearId,
-    TeacherId, TeacherQuota,
+    Assignment, CampusId, Competency, ExamId, GradeId, GradeScope, LockKind, Placement, Plan,
+    Problem, Role, RuleSetting, SchoolYearId, SubjectId, TeacherId, TeacherQuota,
 };
 use exam_panel_core::feasibility::FeasibilityReport;
 use exam_panel_core::optimize::{OptimizeStats, RankedPlan};
@@ -90,6 +90,62 @@ pub struct CreateExamInput {
     pub sort_order: i32,
 }
 
+/// Input parameters for creating a new subject.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct CreateSubjectInput {
+    pub school_year_id: SchoolYearId,
+    pub code: String,
+    pub name: String,
+    pub color: String,
+    pub sort_order: u32,
+    pub setters: u8,
+    pub reviewers: u8,
+    pub min_campuses: u8,
+}
+
+/// Input parameters for updating an existing subject.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct UpdateSubjectInput {
+    pub id: SubjectId,
+    pub code: String,
+    pub name: String,
+    pub color: String,
+    pub sort_order: u32,
+    pub setters: u8,
+    pub reviewers: u8,
+    pub min_campuses: u8,
+}
+
+/// Input parameters for setting teacher competency.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct SetCompetencyInput {
+    pub teacher_id: TeacherId,
+    pub subject_id: SubjectId,
+    pub role: Role,
+    pub grade_scope: GradeScope,
+}
+
+/// Input parameters for deleting teacher competency.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct DeleteCompetencyInput {
+    pub teacher_id: TeacherId,
+    pub subject_id: SubjectId,
+    pub role: Role,
+}
+
+/// Input parameters for replacing all competencies of a teacher in a school year.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct ReplaceTeacherCompetenciesInput {
+    pub teacher_id: TeacherId,
+    pub school_year_id: SchoolYearId,
+    pub competencies: Vec<Competency>,
+}
+
 /// Input parameters for creating a new teacher.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
@@ -104,6 +160,32 @@ pub struct CreateTeacherInput {
     #[serde(default)]
     #[cfg_attr(feature = "typegen", ts(optional))]
     pub code: Option<String>,
+    #[serde(default)]
+    #[cfg_attr(feature = "typegen", ts(optional))]
+    pub display_name: Option<String>,
+    #[serde(default)]
+    #[cfg_attr(feature = "typegen", ts(optional))]
+    pub quota_override: Option<u32>,
+    #[serde(default)]
+    #[cfg_attr(feature = "typegen", ts(optional))]
+    pub max_tasks_per_exam_override: Option<u32>,
+}
+
+impl CreateTeacherInput {
+    #[must_use]
+    pub fn new(full_name: impl Into<String>, campus_id: CampusId) -> Self {
+        Self {
+            full_name: full_name.into(),
+            campus_id,
+            load_weight: 1.0,
+            active: true,
+            note: None,
+            code: None,
+            display_name: None,
+            quota_override: None,
+            max_tasks_per_exam_override: None,
+        }
+    }
 }
 
 fn default_load_weight() -> f64 {
@@ -132,9 +214,18 @@ pub struct CreateSchoolYearInput {
 pub struct CreateLockInput {
     pub exam_id: ExamId,
     pub grade_id: GradeId,
+    pub subject_id: SubjectId,
     pub teacher_id: TeacherId,
     pub role: Option<Role>,
     pub kind: LockKind,
+}
+
+/// Complete problem snapshot accompanied by structurally forced placements.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct ProblemDetails {
+    pub problem: Problem,
+    pub forced: Vec<Placement>,
 }
 
 /// Termination budget for optimization runs.
@@ -354,12 +445,15 @@ pub struct TeacherImportRow {
     pub status: ImportRowStatus,
     pub code: Option<String>,
     pub full_name: String,
+    pub display_name: Option<String>,
     pub campus_code: String,
     pub grades_str: String,
     pub grade_codes: Vec<i32>,
     pub load_weight: f64,
     pub active: bool,
     pub note: Option<String>,
+    pub quota_override: Option<u32>,
+    pub max_tasks_per_exam_override: Option<u32>,
     pub matched_teacher_id: Option<i64>,
     pub errors: Vec<ImportCellError>,
 }
@@ -377,6 +471,34 @@ pub struct UnavailabilityImportRow {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct SubjectImportRow {
+    pub row_index: usize,
+    pub status: ImportRowStatus,
+    pub code: String,
+    pub name: String,
+    pub setters: u8,
+    pub reviewers: u8,
+    pub min_campuses: u8,
+    pub color: String,
+    pub errors: Vec<ImportCellError>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct CompetencyImportRow {
+    pub row_index: usize,
+    pub status: ImportRowStatus,
+    pub teacher_ref: String,
+    pub subject_code: String,
+    pub role: String,
+    pub grade_scope: String,
+    pub matched_teacher_id: Option<i64>,
+    pub matched_subject_id: Option<i64>,
+    pub errors: Vec<ImportCellError>,
+}
+
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct ImportSummaryCounts {
     pub new_count: usize,
@@ -402,9 +524,13 @@ pub struct ImportPreviewResult {
     pub campuses: Vec<CampusImportRow>,
     pub teachers: Vec<TeacherImportRow>,
     pub unavailabilities: Vec<UnavailabilityImportRow>,
+    pub subjects: Vec<SubjectImportRow>,
+    pub competencies: Vec<CompetencyImportRow>,
     pub campuses_summary: ImportSummaryCounts,
     pub teachers_summary: ImportSummaryCounts,
     pub unavailabilities_summary: ImportSummaryCounts,
+    pub subjects_summary: ImportSummaryCounts,
+    pub competencies_summary: ImportSummaryCounts,
     pub deactivated_teachers: Vec<DeactivatedTeacherPreview>,
     pub feasibility_report: Option<FeasibilityReportWithQuotas>,
 }
@@ -419,6 +545,45 @@ pub struct ImportApplyResult {
     pub teachers_updated: usize,
     pub teachers_deactivated: usize,
     pub unavailabilities_created: usize,
+    pub subjects_created: usize,
+    pub subjects_updated: usize,
+    pub competencies_created: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct PlanImportTeacherTotal {
+    pub teacher_id: TeacherId,
+    pub teacher_name: String,
+    pub display_name: String,
+    #[cfg_attr(feature = "typegen", ts(type = "number | null"))]
+    pub file_total: Option<i64>,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub computed_total: i64,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub setter_count: i64,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub reviewer_count: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct PlanImportPreview {
+    pub assignments: Vec<Assignment>,
+    pub teacher_totals: Vec<PlanImportTeacherTotal>,
+    pub errors: Vec<ImportCellError>,
+    pub warnings: Vec<String>,
+    pub can_apply: bool,
+    pub hard_violations: Vec<Violation>,
+    pub score_report: Option<ScoreReport>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct ApplyPlanImportInput {
+    pub school_year_id: SchoolYearId,
+    pub plan_name: Option<String>,
+    pub assignments: Vec<Assignment>,
 }
 
 /// Generates the complete TypeScript declaration file contents from Rust types.
@@ -457,8 +622,17 @@ pub fn generate_typescript_declarations() -> String {
     export_type!(exam_panel_core::domain::Campus);
     export_type!(CreateGradeInput);
     export_type!(exam_panel_core::domain::Grade);
+    export_type!(CreateSubjectInput);
+    export_type!(UpdateSubjectInput);
+    export_type!(exam_panel_core::domain::Subject);
+    export_type!(exam_panel_core::domain::GradeScope);
+    export_type!(exam_panel_core::domain::Competency);
+    export_type!(SetCompetencyInput);
+    export_type!(DeleteCompetencyInput);
+    export_type!(ReplaceTeacherCompetenciesInput);
     export_type!(CreateTeacherInput);
     export_type!(exam_panel_core::domain::Teacher);
+    export_type!(exam_panel_core::domain::TeacherGrade);
     export_type!(exam_panel_core::domain::TeacherWithGrades);
     export_type!(CreateSchoolYearInput);
     export_type!(exam_panel_core::domain::SchoolYear);
@@ -476,6 +650,9 @@ pub fn generate_typescript_declarations() -> String {
 
     // Feasibility & Diagnostics
     export_type!(exam_panel_core::domain::PanelKey);
+    export_type!(exam_panel_core::domain::Placement);
+    export_type!(exam_panel_core::domain::Problem);
+    export_type!(ProblemDetails);
     export_type!(Violation);
     export_type!(TeacherQuota);
     export_type!(exam_panel_core::feasibility::Diagnostic);
@@ -518,10 +695,15 @@ pub fn generate_typescript_declarations() -> String {
     export_type!(CampusImportRow);
     export_type!(TeacherImportRow);
     export_type!(UnavailabilityImportRow);
+    export_type!(SubjectImportRow);
+    export_type!(CompetencyImportRow);
     export_type!(ImportSummaryCounts);
     export_type!(DeactivatedTeacherPreview);
     export_type!(ImportPreviewResult);
     export_type!(ImportApplyResult);
+    export_type!(PlanImportTeacherTotal);
+    export_type!(PlanImportPreview);
+    export_type!(ApplyPlanImportInput);
 
     out.replace("\r\n", "\n")
 }

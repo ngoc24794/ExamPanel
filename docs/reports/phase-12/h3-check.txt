@@ -1,0 +1,143 @@
+   Compiling exam-panel-core v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\core)
+   Compiling exam-panel-storage v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\storage)
+   Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.25s
+     Running `target\debug\task6_h3.exe`
+===============================================================================
+TASK 6: H3 MULTI-CAMPUS VERIFICATION REPORT
+===============================================================================
+
+## 1. Feasibility Diagnostics
+- H3 OFF Feasibility: feasible = true, errors = 0, warnings = 12
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+- H3 ON Feasibility:  feasible = true, errors = 0, warnings = 24
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: forced_placement ({"position": Number(0), "role": String("setter")})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("GK1"), "grade": Number(10), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("GK1"), "grade": Number(11), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("GK1"), "grade": Number(12), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("CK1"), "grade": Number(10), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("CK1"), "grade": Number(11), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("CK1"), "grade": Number(12), "subject": String("CN"), "total_eligible": Number(11)})
+Running optimizer on synthetic_campuses with H3 OFF...
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("GK2"), "grade": Number(10), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("GK2"), "grade": Number(11), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("GK2"), "grade": Number(12), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("CK2"), "grade": Number(10), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("CK2"), "grade": Number(11), "subject": String("CN"), "total_eligible": Number(11)})
+  * WARNING: h3_reviewer_pool_reduced ({"eligible_count": Number(8), "exam": String("CK2"), "grade": Number(12), "subject": String("CN"), "total_eligible": Number(11)})
+
+## 2. Optimizer Multi-Plan Benchmark (R = 8, 200,000 iters)
+Running optimizer on synthetic_campuses with H3 ON...
+
+### H3 OFF: Per-Panel Campus Counts (Rank 1 Plan)
+Total penalty (with S3): 44.36
+Distribution of distinct campuses per panel (24 panels total):
+  - 1 campus(es): 3 panels
+  - 2 campus(es): 11 panels
+  - 3 campus(es): 10 panels
+S3 units (Campus independence): 3.00 units
+Number of panels below min_campuses: 3
+  • Panel CK1 Khối 12 [CN]: T12(PH1), T9(PH1)
+  • Panel GK2 Khối 10 [CN]: T12(PH1), T1(PH1)
+  • Panel CK2 Khối 12 [CN]: T12(PH1), T5(PH1)
+
+### H3 ON: Per-Panel Campus Counts (Rank 1 Plan)
+Total penalty (with S3): 69.36
+Distribution of distinct campuses per panel (24 panels total):
+  - 2 campus(es): 15 panels
+  - 3 campus(es): 9 panels
+S3 units (Campus independence): 0.00 units
+Number of panels below min_campuses: 0
+Hard constraint violations for H3 ON plan: 0
+
+Distance between H3-OFF plan and H3-ON plan: 0.5000 (50.0% slots differ)
+
+## 3. Campus Assignment for Q's Plan with 4 Campuses
+In Q's manual plan, Teacher 12 (Thầy Nghĩa) is setter on all 12 Công nghệ (CN) panels.
+The reviewers of these 12 CN panels are:
+  • Exam 1 Grade 1: Reviewer T1
+  • Exam 1 Grade 2: Reviewer T2
+  • Exam 1 Grade 3: Reviewer T4
+  • Exam 2 Grade 1: Reviewer T9
+  • Exam 2 Grade 2: Reviewer T11
+  • Exam 2 Grade 3: Reviewer T7
+  • Exam 3 Grade 1: Reviewer T10
+  • Exam 3 Grade 2: Reviewer T5
+  • Exam 3 Grade 3: Reviewer T3
+  • Exam 4 Grade 1: Reviewer T8
+  • Exam 4 Grade 2: Reviewer T6
+  • Exam 4 Grade 3: Reviewer T8
+Total distinct teachers reviewing CN with Thầy Nghĩa: 11
+Notice: All 11 teachers (T1..T11) review Thầy Nghĩa in at least one CN panel!
+Therefore, for H3 (min_campuses >= 2) to hold on every CN panel:
+  campus(T12) != campus(T) for EVERY T in 1..11.
+=> Thầy Nghĩa (T12) must be placed on a campus alone (e.g. Campus 1 / PH1).
+
+The remaining 11 teachers (T1..T11) must be partitioned across the remaining 3 campuses (PH2, PH3, PH4)
+such that in every one of the 12 Vật lí (VL) panels, the 3 assigned teachers do not all share the same campus.
+
+SUCCESS: Found valid 4-campus assignment under which Q's plan satisfies H3 on ALL 24 panels:
+  • T01 (Cô Hiền     ) -> Phân hiệu 2
+  • T02 (Cô Lài      ) -> Phân hiệu 2
+  • T03 (Thầy Phúc   ) -> Phân hiệu 3
+  • T04 (Thầy Lộc    ) -> Phân hiệu 2
+  • T05 (Cô Thư      ) -> Phân hiệu 2
+  • T06 (Cô Na       ) -> Phân hiệu 3
+  • T07 (Cô Bình     ) -> Phân hiệu 3
+  • T08 (Cô Quí      ) -> Phân hiệu 2
+  • T09 (Cô Tú       ) -> Phân hiệu 2
+  • T10 (Cô Như      ) -> Phân hiệu 3
+  • T11 (Cô Lan      ) -> Phân hiệu 3
+  • T12 (Thầy Nghĩa  ) -> Phân hiệu 1
+
+Verification of all 24 panels in Q's plan under this campus assignment:
+  • Exam 1 Grade 1 [VL]: 2 campuses (T1(PH2), T2(PH2), T3(PH3)) -> PASS
+  • Exam 1 Grade 1 [CN]: 2 campuses (T12(PH1), T1(PH2)) -> PASS
+  • Exam 1 Grade 2 [VL]: 2 campuses (T4(PH2), T5(PH2), T6(PH3)) -> PASS
+  • Exam 1 Grade 2 [CN]: 2 campuses (T12(PH1), T2(PH2)) -> PASS
+  • Exam 1 Grade 3 [VL]: 2 campuses (T7(PH3), T3(PH3), T8(PH2)) -> PASS
+  • Exam 1 Grade 3 [CN]: 2 campuses (T12(PH1), T4(PH2)) -> PASS
+  • Exam 2 Grade 1 [VL]: 2 campuses (T1(PH2), T9(PH2), T10(PH3)) -> PASS
+  • Exam 2 Grade 1 [CN]: 2 campuses (T12(PH1), T9(PH2)) -> PASS
+  • Exam 2 Grade 2 [VL]: 2 campuses (T2(PH2), T7(PH3), T5(PH2)) -> PASS
+  • Exam 2 Grade 2 [CN]: 2 campuses (T12(PH1), T11(PH3)) -> PASS
+  • Exam 2 Grade 3 [VL]: 2 campuses (T11(PH3), T8(PH2), T2(PH2)) -> PASS
+  • Exam 2 Grade 3 [CN]: 2 campuses (T12(PH1), T7(PH3)) -> PASS
+  • Exam 3 Grade 1 [VL]: 2 campuses (T9(PH2), T10(PH3), T4(PH2)) -> PASS
+  • Exam 3 Grade 1 [CN]: 2 campuses (T12(PH1), T10(PH3)) -> PASS
+  • Exam 3 Grade 2 [VL]: 2 campuses (T6(PH3), T5(PH2), T1(PH2)) -> PASS
+  • Exam 3 Grade 2 [CN]: 2 campuses (T12(PH1), T5(PH2)) -> PASS
+  • Exam 3 Grade 3 [VL]: 2 campuses (T11(PH3), T2(PH2), T8(PH2)) -> PASS
+  • Exam 3 Grade 3 [CN]: 2 campuses (T12(PH1), T3(PH3)) -> PASS
+  • Exam 4 Grade 1 [VL]: 2 campuses (T6(PH3), T10(PH3), T9(PH2)) -> PASS
+  • Exam 4 Grade 1 [CN]: 2 campuses (T12(PH1), T8(PH2)) -> PASS
+  • Exam 4 Grade 2 [VL]: 2 campuses (T4(PH2), T8(PH2), T7(PH3)) -> PASS
+  • Exam 4 Grade 2 [CN]: 2 campuses (T12(PH1), T6(PH3)) -> PASS
+  • Exam 4 Grade 3 [VL]: 2 campuses (T3(PH3), T1(PH2), T11(PH3)) -> PASS
+  • Exam 4 Grade 3 [CN]: 2 campuses (T12(PH1), T8(PH2)) -> PASS
+
+Final Conclusion: all_h3_valid = true
+Minimum number of campuses required for Q's plan to satisfy H3: 4 campuses.
+Reason: Teacher 12 alone requires 1 campus (co-assigned in CN with all 11 other teachers). The remaining 11 teachers cannot be 2-colored without monochromatic VL triples (minimum 3 colors required for proper hypergraph coloring), yielding 1 + 3 = 4 campuses total.

@@ -105,7 +105,8 @@ export function CandidateSelectModal({
     }
   }
 
-  const roleLabel = slot.role === 'setter' ? t('assignments.setter') : t('assignments.reviewer')
+  const roleLabel =
+    slot.role === 'setter' ? t('assignments.setter') : t('assignments.reviewer')
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -164,7 +165,9 @@ export function CandidateSelectModal({
                 return (
                   <div
                     key={cand.teacher_id}
-                    data-testid={isInvalid ? 'candidate-item-invalid' : 'candidate-item-valid'}
+                    data-testid={
+                      isInvalid ? 'candidate-item-invalid' : 'candidate-item-valid'
+                    }
                     onClick={() => {
                       if (!isInvalid) {
                         onSelectTeacher(cand.teacher_id)
@@ -176,8 +179,8 @@ export function CandidateSelectModal({
                       isInvalid
                         ? 'opacity-60 bg-muted/20 border-border cursor-not-allowed'
                         : isFocused
-                        ? 'bg-accent/70 border-primary ring-1 ring-primary'
-                        : 'bg-card hover:bg-accent/30 border-border'
+                          ? 'bg-accent/70 border-primary ring-1 ring-primary'
+                          : 'bg-card hover:bg-accent/30 border-border'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
@@ -223,8 +226,8 @@ export function CandidateSelectModal({
                               cand.delta_score < 0
                                 ? 'text-emerald-600 dark:text-emerald-400'
                                 : cand.delta_score > 0
-                                ? 'text-amber-600 dark:text-amber-400'
-                                : 'text-muted-foreground'
+                                  ? 'text-amber-600 dark:text-amber-400'
+                                  : 'text-muted-foreground'
                             }`}
                           >
                             {cand.delta_score < 0 ? (
@@ -234,8 +237,8 @@ export function CandidateSelectModal({
                               </>
                             ) : cand.delta_score > 0 ? (
                               <>
-                                <ArrowUp className="h-3 w-3" />
-                                +{cand.delta_score.toFixed(1)}
+                                <ArrowUp className="h-3 w-3" />+
+                                {cand.delta_score.toFixed(1)}
                               </>
                             ) : (
                               '±0.0'

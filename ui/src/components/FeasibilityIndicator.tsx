@@ -71,6 +71,7 @@ export const FeasibilityIndicator: React.FC<FeasibilityIndicatorProps> = ({
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         report={report}
+        schoolYearId={schoolYearId}
         schoolYearName={schoolYearName}
       />
     </>

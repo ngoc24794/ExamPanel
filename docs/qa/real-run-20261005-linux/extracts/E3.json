@@ -1,0 +1,144 @@
+{
+ "id": "E3",
+ "started": "2026-10-05T06:15:21.610Z",
+ "checks": [
+  {
+   "step": "E3.double-click-exam-save",
+   "result": "pass",
+   "observed": {
+    "rows_created": 1,
+    "toasts": [
+     "Dữ liệu đã tồn tại, không thể tạo trùng lặp | ",
+     "Dữ liệu đã tồn tại, không thể tạo trùng lặp | ",
+     "Thêm kỳ thi thành công"
+    ]
+   },
+   "expected": "exactly one exam, no raw error",
+   "evidence": []
+  },
+  {
+   "step": "E3.double-click-start-optimize",
+   "result": "pass",
+   "observed": {
+    "plans_added": 3,
+    "toasts": []
+   },
+   "expected": "one run (<=3 plans), the second click rejected quietly (optimize_busy) — no duplicate plans",
+   "evidence": []
+  },
+  {
+   "step": "E3.double-click-plan-import-apply",
+   "result": "pass",
+   "observed": {
+    "manual_plans_added": 1,
+    "toasts": [
+     "Đã nhập bảng phân công thành công"
+    ]
+   },
+   "expected": "one imported plan",
+   "evidence": []
+  },
+  {
+   "step": "E3.double-click-excel-import-apply",
+   "result": "pass",
+   "observed": {
+    "teachers": 12,
+    "pre_import_backups_added": 1,
+    "toasts": [
+     "Nhập dữ liệu thành công! Đã tự động tạo bản sao lưu an toàn. | Tạo mới 0 giáo viên, cập nhật 0 giáo viên, ngừng hoạt động 0 giáo viên."
+    ]
+   },
+   "expected": "still 12 teachers; at most one backup (a second run would duplicate/rename)",
+   "evidence": []
+  },
+  {
+   "step": "E3.integrity-after-double-clicks",
+   "result": "pass",
+   "observed": "ok",
+   "expected": "ok",
+   "evidence": []
+  },
+  {
+   "step": "E3.navigate-away-during-run",
+   "result": "pass",
+   "observed": {
+    "plans_before": 4,
+    "plans_after_nav_away": 7,
+    "plans_after_next_run": 10,
+    "toasts_after_nav": [
+     "Đã tạo 3 phương án mới thành công"
+    ],
+    "toasts_after_next": [
+     "Đã tạo 3 phương án mới thành công"
+    ]
+   },
+   "expected": "run cancelled/finished cleanly; busy flag released (next run saves plans) — plans saved by the aborted run are noted",
+   "evidence": []
+  },
+  {
+   "step": "E3.next-run-works-after-navigating-away",
+   "result": "pass",
+   "observed": {
+    "before": 7,
+    "after": 10
+   },
+   "expected": "not stuck in optimize_busy",
+   "evidence": []
+  },
+  {
+   "step": "E3.navigate-away-saves-no-partial-plans",
+   "result": "fail",
+   "observed": {
+    "plans_before": 4,
+    "after": 7
+   },
+   "expected": "aborted run saves nothing (same expectation as Cancel)",
+   "evidence": []
+  },
+  {
+   "step": "E3.close-window-during-run",
+   "result": "pass",
+   "observed": {
+    "exited": true,
+    "ms_to_exit": 10
+   },
+   "expected": "process exits within seconds after window close while optimiser runs",
+   "evidence": []
+  },
+  {
+   "step": "E3.integrity-after-close-during-run",
+   "result": "pass",
+   "observed": {
+    "integrity": "ok",
+    "plans_before": 4,
+    "plans_after": 4
+   },
+   "expected": "integrity ok",
+   "evidence": []
+  },
+  {
+   "step": "E3.sigkill-during-write-recovers",
+   "result": "pass",
+   "observed": {
+    "rounds": 6,
+    "integrity_ok": 6,
+    "hot_journals_seen": 3,
+    "plans": [
+     4,
+     4,
+     4,
+     4,
+     4,
+     4
+    ]
+   },
+   "expected": "after 6 SIGKILLs mid-write: relaunch OK, integrity_check ok, plans intact",
+   "evidence": [
+    "extracts/E3-sigkill-rounds.json"
+   ]
+  }
+ ],
+ "notes": {
+  "leftover_sidecar_files": []
+ }
+}

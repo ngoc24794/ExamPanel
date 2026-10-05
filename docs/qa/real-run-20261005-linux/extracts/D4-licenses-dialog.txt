@@ -1,0 +1,6 @@
+Third-Party Open Source Licenses
+Third-party open-source components used in ExamPanel v0.1.0.
+Rust & JavaScript Components
+ExamPanel v0.1.0 builds upon open-source software libraries licensed under permissive terms: MIT, Apache-2.0, BSD-3-Clause, Unicode-3.0, Zlib, and ISC.
+The complete notices and copyright statements are preserved in the bundled THIRD_PARTY_NOTICES document included with every installation and release package.
+Close

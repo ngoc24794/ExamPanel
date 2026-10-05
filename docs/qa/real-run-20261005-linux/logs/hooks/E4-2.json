@@ -1,0 +1,128 @@
+[
+ {
+  "at": "2026-10-05T06:11:56.220Z",
+  "errors": [],
+  "csp": [
+   {
+    "b": "https://example.com/x.png",
+    "d": "img-src"
+   },
+   {
+    "b": "https://example.com/x.js",
+    "d": "script-src-elem"
+   },
+   {
+    "b": "inline",
+    "d": "script-src-elem"
+   },
+   {
+    "b": "https://example.com/",
+    "d": "connect-src"
+   },
+   {
+    "b": "http://127.0.0.1:9/",
+    "d": "connect-src"
+   }
+  ],
+  "rejections": [],
+  "console": [],
+  "requests": [
+   {
+    "u": "ipc://localhost/teachers_with_grades",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_subjects",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_competencies",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/check_feasibility",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_problem_details",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_exams",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/ping",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/seed_demo",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Afs%7Cread_text_file",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Afs%7Cwrite_text_file",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Ashell%7Cexecute",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Aopener%7Copen_path",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Aopener%7Copen_url",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Aopener%7Copen_url",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Aopener%7Creveal_item_in_dir",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Aprocess%7Cexit",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Anonexistent%7Cx",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Awindow%7Cis_maximized",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Alog%7Clog",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/export_plan_excel",
+    "k": "fetch"
+   },
+   {
+    "u": "https://example.com/",
+    "k": "fetch"
+   },
+   {
+    "u": "http://127.0.0.1:9/",
+    "k": "fetch"
+   }
+  ]
+ },
+ {
+  "at": "2026-10-05T06:11:56.227Z",
+  "errors": [],
+  "csp": [],
+  "rejections": [],
+  "console": [],
+  "requests": []
+ }
+]

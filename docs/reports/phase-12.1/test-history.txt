@@ -1,0 +1,166 @@
+Successfully generated C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\docs\reports\phase-12.1\test-history.txt
+s: docs/reports/phase-*
+
+## 1. Per-Phase Test Counts Summary
+
+| Phase | Rust Core | Rust Storage | Rust Service | Rust Total | Vitest (UI) | Total Tests |
+|---|---|---|---|---|---|---|
+| phase-7 | 70 | 15 | 14 | 99 | 47 | 146 |
+| phase-8 | 75 | 16 | 17 | 108 | 55 | 163 |
+| phase-9 | 75 | 20 | 28 | 123 | 62 | 185 |
+| phase-10 | 75 | 25 | 29 | 129 | 66 | 195 |
+| phase-11 | 0 | 0 | 0 | 0 | 0 | 0 |
+| phase-11.1 | 86 | 34 | 31 | 151 | 69 | 220 |
+| phase-12 | 88 | 35 | 36 | 159 | 77 | 236 |
+| phase-12.1 | 88 | 37 | 45 | 170 | 86 | 256 |
+
+## 2. Detailed Per-Binary Breakdown by Phase
+
+### phase-7
+
+| Crate | Source / Test Binary | Passed | Ignored | Status |
+|---|---|---|---|---|
+| crates/core | unittests src/lib.rs | 70 | 3 | ok |
+| crates/service | unittests src/lib.rs | 0 | 0 | ok |
+| crates/service | tests/generate_types.rs | 1 | 0 | ok |
+| crates/service | tests/pipeline_report_test.rs | 1 | 0 | ok |
+| crates/service | tests/service_tests.rs | 12 | 0 | ok |
+| crates/storage | unittests src/lib.rs | 15 | 0 | ok |
+
+**Vitest UI Tests:** 47 passed
+
+### phase-8
+
+| Crate | Source / Test Binary | Passed | Ignored | Status |
+|---|---|---|---|---|
+| crates/core | unittests src/lib.rs | 75 | 3 | ok |
+| crates/service | unittests src/lib.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/generate_types.rs | 0 | 0 | ok |
+| crates/service | tests/generate_types.rs | 1 | 0 | ok |
+| crates/service | tests/part_b_tests.rs | 3 | 0 | ok |
+| crates/service | tests/pipeline_report_test.rs | 1 | 0 | ok |
+| crates/service | tests/service_tests.rs | 12 | 0 | ok |
+| unknown | unittests examples/generate_fixtures.rs | 0 | 0 | ok |
+| unknown | unittests examples/report.rs | 0 | 0 | ok |
+| crates/storage | unittests src/lib.rs | 16 | 0 | ok |
+| unknown | unittests examples/demo_solve.rs | 0 | 0 | ok |
+
+**Vitest UI Tests:** 55 passed
+
+### phase-9
+
+| Crate | Source / Test Binary | Passed | Ignored | Status |
+|---|---|---|---|---|
+| crates/core | unittests src/lib.rs | 75 | 2 | ok |
+| crates/service | unittests src/lib.rs | 4 | 0 | ok |
+| crates/service | tests/excel_tests.rs | 6 | 0 | ok |
+| crates/service | tests/part_b_tests.rs | 4 | 0 | ok |
+| crates/service | tests/pipeline_report_test.rs | 1 | 0 | ok |
+| crates/service | tests/service_tests.rs | 12 | 0 | ok |
+| crates/storage | unittests src/lib.rs | 20 | 0 | ok |
+| crates/service | tests/generate_types.rs | 1 | 0 | ok |
+
+**Vitest UI Tests:** 62 passed
+
+### phase-10
+
+| Crate | Source / Test Binary | Passed | Ignored | Status |
+|---|---|---|---|---|
+| crates/core | unittests src/lib.rs | 75 | 2 | ok |
+| crates/service | unittests src/lib.rs | 4 | 0 | ok |
+| crates/service | tests/excel_tests.rs | 6 | 0 | ok |
+| crates/service | tests/part_b_tests.rs | 4 | 0 | ok |
+| crates/service | tests/pipeline_report_test.rs | 1 | 0 | ok |
+| crates/service | tests/service_tests.rs | 12 | 0 | ok |
+| crates/service | tests/trial_mode_tests.rs | 2 | 0 | ok |
+| crates/storage | unittests src/lib.rs | 25 | 0 | ok |
+| src-tauri | unittests src/lib.rs | 1 | 0 | ok |
+| src-tauri | unittests src/main.rs | 0 | 0 | ok |
+
+**Vitest UI Tests:** 66 passed
+
+### phase-11
+
+(No cargo-test.txt found for phase-11)
+
+### phase-11.1
+
+| Crate | Source / Test Binary | Passed | Ignored | Status |
+|---|---|---|---|---|
+| crates/core | unittests src/lib.rs | 86 | 2 | ok |
+| crates/service | unittests src/lib.rs | 4 | 0 | ok |
+| crates/service | unittests src/bin/import_q_data.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/phase11_report.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/task5_comparison.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/task6_h3.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/task7_perf.rs | 0 | 0 | ok |
+| crates/service | tests/excel_tests.rs | 7 | 0 | ok |
+| crates/service | tests/part_b_tests.rs | 4 | 0 | ok |
+| crates/service | tests/pipeline_report_test.rs | 1 | 0 | ok |
+| crates/service | tests/service_tests.rs | 13 | 0 | ok |
+| crates/service | tests/trial_mode_tests.rs | 2 | 0 | ok |
+| crates/storage | unittests src/lib.rs | 34 | 0 | ok |
+
+**Vitest UI Tests:** 69 passed
+
+### phase-12
+
+| Crate | Source / Test Binary | Passed | Ignored | Status |
+|---|---|---|---|---|
+| src-tauri | unittests src/lib.rs | 1 | 0 | ok |
+| src-tauri | unittests src/main.rs | 0 | 0 | ok |
+| crates/core | unittests src/lib.rs | 88 | 2 | ok |
+| crates/service | unittests src/lib.rs | 4 | 0 | ok |
+| crates/service | unittests src/bin/generate_sample_excels.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/import_q_data.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/phase11_report.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/task5_comparison.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/task6_h3.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/task7_perf.rs | 0 | 0 | ok |
+| crates/service | tests/excel_tests.rs | 9 | 0 | ok |
+| crates/service | tests/part_b_tests.rs | 4 | 0 | ok |
+| crates/service | tests/pipeline_report_test.rs | 1 | 0 | ok |
+| crates/service | tests/plan_import_tests.rs | 3 | 0 | ok |
+| crates/service | tests/service_tests.rs | 13 | 0 | ok |
+| crates/service | tests/trial_mode_tests.rs | 2 | 0 | ok |
+| crates/storage | unittests src/lib.rs | 35 | 0 | ok |
+
+**Vitest UI Tests:** 77 passed
+
+### phase-12.1
+
+| Crate | Source / Test Binary | Passed | Ignored | Status |
+|---|---|---|---|---|
+| crates/core | unittests src/lib.rs | 88 | 2 | ok |
+| crates/service | unittests src/lib.rs | 4 | 0 | ok |
+| crates/service | unittests src/bin/generate_presets_report.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/import_q_data.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/phase11_report.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/task5_comparison.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/task6_h3.rs | 0 | 0 | ok |
+| crates/service | unittests src/bin/task7_perf.rs | 0 | 0 | ok |
+| crates/service | tests/comparison_tests.rs | 1 | 0 | ok |
+| crates/service | tests/excel_tests.rs | 9 | 0 | ok |
+| crates/service | tests/part_b_tests.rs | 4 | 0 | ok |
+| crates/service | tests/pipeline_report_test.rs | 1 | 0 | ok |
+| crates/service | tests/plan_import_tests.rs | 10 | 0 | ok |
+| crates/service | tests/service_tests.rs | 13 | 0 | ok |
+| crates/service | tests/trial_mode_tests.rs | 2 | 0 | ok |
+| crates/service | tests/warm_start_tests.rs | 1 | 0 | ok |
+| crates/storage | unittests src/lib.rs | 35 | 0 | ok |
+| crates/storage | tests/v4_migration_tests.rs | 2 | 0 | ok |
+
+**Vitest UI Tests:** 86 passed
+
+## 3. Discrepancy Reconciliation & Historical Clarifications
+
+- **Phase 9 Inventory Reconciliation:**
+  - The Phase 9 narrative report loosely referred to "76 core / 23 storage / 49 vitest", whereas the actual Phase 9 committed artifacts record:
+    - `cargo-test.txt`: `crates/core`: 75 passed (77 defined, 2 ignored benches), `crates/storage`: 26 passed (4 unit + 6 migration + 4 repository + 12 backup), `crates/service`: 20 passed. Total Rust: 121 passed.
+    - `ui-test.txt`: 62 passed tests (49 was an earlier pre-backup count before `BackupSection.test.tsx` and `PrintPages.test.tsx` were added in Phase 9).
+- **Script Name Clarification:**
+  - The Phase 12 report cited `test-inventory.sh`; the canonical repository script is `scripts/test-inventory.mjs` (Node ESM).
+- **Phase 12 vs 12.1 UI Expansion:**
+  - Phase 11.1 had 69 Vitest tests.
+  - Phase 12 reported 77 tests (+8 tests).
+  - Phase 12.1 completes the grid editing and interaction coverage (`ui/src/pages/assignments/GridEditing.test.tsx`) bringing Vitest tests to 86 passed (+9 comprehensive tests covering seat click candidate list with reasons, drag-to-swap, keyboard flow, undo/redo, forced seats immovable, totals panel markers, teacher hover focus, view-toggle persistence, two-subject layout with blank CN second "Đề" row).

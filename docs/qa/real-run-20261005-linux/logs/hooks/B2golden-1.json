@@ -1,0 +1,63 @@
+[
+ {
+  "at": "2026-10-05T05:05:29.731Z",
+  "errors": [],
+  "csp": [],
+  "rejections": [],
+  "console": [],
+  "requests": [
+   {
+    "u": "ipc://localhost/teachers_with_grades",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_subjects",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_competencies",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/check_feasibility",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/get_problem_details",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_exams",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/preview_quotas",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/plugin%3Adialog%7Copen",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/preview_import",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/apply_import",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/teachers_with_grades",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/list_campuses",
+    "k": "fetch"
+   },
+   {
+    "u": "ipc://localhost/check_feasibility",
+    "k": "fetch"
+   }
+  ]
+ }
+]

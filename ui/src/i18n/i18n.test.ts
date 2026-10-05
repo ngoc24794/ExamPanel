@@ -86,6 +86,8 @@ describe('i18n locales parity', () => {
       'soft.setter_consecutive',
       'soft.grade_not_rotated',
       'soft.load_deviation',
+      'soft.exam_crowding',
+      'soft.review_subject_missing',
     ]
 
     const viKeys = getFlatKeys(vi as JsonObject)
@@ -97,5 +99,36 @@ describe('i18n locales parity', () => {
   it('vi.json does not contain the forbidden term "cơ sở" (case-insensitive)', () => {
     const rawVi = JSON.stringify(vi).toLowerCase()
     expect(rawVi.includes('cơ sở')).toBe(false)
+  })
+
+  it('UI fixtures and mock data do not contain the forbidden term "cơ sở"', async () => {
+    const fs = await import('fs')
+    const path = await import('path')
+
+    const fixturesDir = path.resolve(__dirname, '../lib/api/fixtures')
+    const files = fs.readdirSync(fixturesDir)
+    for (const f of files) {
+      if (f.endsWith('.json')) {
+        const content = fs.readFileSync(path.join(fixturesDir, f), 'utf-8').toLowerCase()
+        const stripped = content.replace(/cơ sở dữ liệu/g, '')
+        expect(stripped.includes('cơ sở'), `Found forbidden term in ${f}`).toBe(false)
+      }
+    }
+
+    const mockPath = path.resolve(__dirname, '../lib/api/mock.ts')
+    const mockContent = fs.readFileSync(mockPath, 'utf-8').toLowerCase()
+    const strippedMock = mockContent.replace(/cơ sở dữ liệu/g, '')
+    expect(strippedMock.includes('cơ sở'), 'Found forbidden term in mock.ts').toBe(false)
+  })
+
+  it('vi.json does not contain the forbidden term "kế hoạch" (case-insensitive)', () => {
+    const rawVi = JSON.stringify(vi).toLowerCase()
+    expect(rawVi.includes('kế hoạch')).toBe(false)
+  })
+
+  it('vi.json does not contain the forbidden terms "ràng buộc cứng" or "ràng buộc mềm" (case-insensitive)', () => {
+    const rawVi = JSON.stringify(vi).toLowerCase()
+    expect(rawVi.includes('ràng buộc cứng')).toBe(false)
+    expect(rawVi.includes('ràng buộc mềm')).toBe(false)
   })
 })

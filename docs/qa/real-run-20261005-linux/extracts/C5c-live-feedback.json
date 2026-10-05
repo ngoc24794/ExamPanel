@@ -1,0 +1,21 @@
+{
+ "before": {
+  "hard": "Điều kiện bắt buộc: Hợp lệ (0 vi phạm)",
+  "total": "176.36",
+  "chips": []
+ },
+ "ui_candidate_Phuc": {
+  "delta": "5.0",
+  "total": "181.4"
+ },
+ "after_replace_before_save": {
+  "hard": "Điều kiện bắt buộc: Hợp lệ (0 vi phạm)",
+  "total": "176.36",
+  "chips": []
+ },
+ "cell": "T Phúc",
+ "engine_total_after_replace": 194.36363636363637,
+ "engine_hard": 0,
+ "after_save": "194.36",
+ "db_score_after_save": 194.36363636363637
+}

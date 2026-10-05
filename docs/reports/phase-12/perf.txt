@@ -1,0 +1,46 @@
+===============================================================================
+TASK 7 PERFORMANCE BENCHMARK REPORT
+===============================================================================
+
+Platform Information:
+  - Target: x86_64-pc-windows-msvc
+  - Hardware Concurrency: 12 logical cores
+  - Problem: Q-shaped dataset (4 synthetic campuses, 12 teachers, 2 subjects, 4 exams, 24 panels, 60 seats)
+
+## 1. Stage 1: solve_hard Performance
+  - Run 1: 1.007 ms (60 assignments, 25 nodes)
+  - Run 2: 0.836 ms (60 assignments, 25 nodes)
+  - Run 3: 0.776 ms (60 assignments, 25 nodes)
+  - Run 4: 0.761 ms (60 assignments, 25 nodes)
+  - Run 5: 0.759 ms (60 assignments, 25 nodes)
+solve_hard Summary (5 runs):
+  - Min:    0.759 ms
+  - Median: 0.776 ms
+  - Max:    1.007 ms
+  - Target: <= 50.0 ms
+  - Status: PASSED (median 0.776 ms <= 50.0 ms target)
+
+## 2. Stage 2: optimize (R = 8, 200,000 iterations per run = 1,600,000 iters)
+  - Run 1: 0.501 s (Best score: 69.36, Throughput: 3195903 iters/s)
+  - Run 2: 0.499 s (Best score: 69.36, Throughput: 3204984 iters/s)
+  - Run 3: 0.474 s (Best score: 69.36, Throughput: 3377264 iters/s)
+
+optimize Summary (3 runs of 8 x 200k iterations):
+  - Min:        0.474 s
+  - Median:     0.499 s
+  - Max:        0.501 s
+  - Throughput: 3204984 it/s
+  - Target:     1.500 s
+  - Status: PASSED (median 0.499 s <= 1.5 s target)
+
+## 3. Stage 3: Calamine Excel Import Benchmark (5 runs)
+  - Run 1: 0.563 ms (257 cells read across all sheets)
+  - Run 2: 0.529 ms (257 cells read across all sheets)
+  - Run 3: 0.503 ms (257 cells read across all sheets)
+  - Run 4: 0.474 ms (257 cells read across all sheets)
+  - Run 5: 0.492 ms (257 cells read across all sheets)
+
+Calamine Import Summary (5 runs):
+  - Min:    0.474 ms
+  - Median: 0.503 ms
+  - Max:    0.563 ms

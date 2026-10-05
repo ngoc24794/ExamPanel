@@ -1,0 +1,14 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_storage-d7ed44b755f8e847.exe)
+
+running 7 tests
+test migrations::tests::test_migrations_rejects_higher_user_version ... ok
+test migrations::tests::test_migrations_fresh_db_reaches_latest_version ... ok
+test migrations::tests::test_migrations_idempotent ... ok
+test migrations::tests::test_upgrade_from_v3_to_v4_backfills_data_hash_and_drops_problem_hash ... ok
+test migrations::tests::test_upgrade_from_v4_to_v5_backfills_subjects_and_competencies ... ok
+test migrations::tests::test_upgrade_from_v1_to_v5_preserves_data ... ok
+test migrations::tests::test_legacy_equivalence_v4_to_v5 ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 0.06s
+

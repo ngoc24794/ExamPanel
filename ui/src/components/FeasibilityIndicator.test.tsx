@@ -5,7 +5,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HashRouter } from 'react-router-dom'
 import { FeasibilityIndicator } from './FeasibilityIndicator'
-import { api } from '@/lib/api'
+import { api, type ProblemDetails } from '@/lib/api'
 
 function renderWithProviders(ui: React.ReactElement) {
   const queryClient = new QueryClient({
@@ -51,7 +51,7 @@ describe('FeasibilityIndicator & FeasibilitySheet', () => {
           {
             rule: 'h2',
             code: 'insufficient_panel_teachers',
-            panel: { exam_id: 1, grade_id: 1 },
+            panel: { exam_id: 1, grade_id: 1, subject_id: 1 },
             params: { exam: 'GK1', grade: '10', count: '2' },
           },
         ],
@@ -89,6 +89,59 @@ describe('FeasibilityIndicator & FeasibilitySheet', () => {
       expect(screen.queryByTestId('feasibility-sheet')).not.toBeInTheDocument()
     })
 
+    api.checkFeasibility = originalCheckFeasibility
+  })
+
+  it('renders forced-placement info group and warning diagnostics like h3_reviewer_pool_reduced', async () => {
+    const user = userEvent.setup()
+
+    const originalGetProblemDetails = api.getProblemDetails.bind(api)
+    vi.spyOn(api, 'getProblemDetails').mockResolvedValueOnce({
+      problem: {},
+      forced: [
+        {
+          teacher_id: 1,
+          role: 'setter',
+          position: 0,
+          panel: { exam_id: 1, grade_id: 1, subject_id: 1 },
+        },
+      ],
+    } as unknown as ProblemDetails)
+
+    const originalCheckFeasibility = api.checkFeasibility.bind(api)
+    vi.spyOn(api, 'checkFeasibility').mockResolvedValueOnce({
+      report: {
+        is_feasible: true,
+        errors: [],
+        warnings: [
+          {
+            rule: 'h3',
+            code: 'h3_reviewer_pool_reduced',
+            panel: { exam_id: 1, grade_id: 1, subject_id: 2 },
+            params: { count: '1' },
+          },
+        ],
+        quotas: [],
+      },
+      quotas: [],
+    })
+
+    renderWithProviders(
+      <FeasibilityIndicator schoolYearId={1} schoolYearName="2026-2027" />,
+    )
+
+    const indicator = screen.getByTestId('feasibility-indicator')
+    await user.click(indicator)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('feasibility-sheet')).toBeInTheDocument()
+      expect(screen.getByTestId('forced-placements-info-group')).toBeInTheDocument()
+      expect(
+        screen.getByText(/h3_reviewer_pool_reduced|chỉ còn|eligible/i),
+      ).toBeInTheDocument()
+    })
+
+    api.getProblemDetails = originalGetProblemDetails
     api.checkFeasibility = originalCheckFeasibility
   })
 })

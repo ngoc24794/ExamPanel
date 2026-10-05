@@ -1,0 +1,726 @@
+{
+ "campus": {
+  "text": "Thêm phân hiệu\nMã phân hiệu\nTên phân hiệu\nChọn màu đại diện\n\nXanh dương\n\nXanh ngọc\n\nHổ phách\n\nTím\n\nĐỏ hồng\n\nChàm\n\nXanh mòng két\n\nCam\nHủy\nLưu\nClose",
+  "fields": [
+   {
+    "txt": "",
+    "aria": null,
+    "name": "code",
+    "ph": "VD: PH1",
+    "type": "text",
+    "id": "",
+    "tid": null,
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": "name",
+    "ph": "VD: Phân hiệu Ba Đình",
+    "type": "text",
+    "id": "",
+    "tid": null,
+    "tag": "INPUT"
+   },
+   {
+    "txt": "Xanh dương",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Xanh ngọc",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Hổ phách",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Tím",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Đỏ hồng",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Chàm",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Xanh mòng két",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Cam",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Hủy",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Lưu",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Close",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   }
+  ]
+ },
+ "teacher": {
+  "text": "Thêm giáo viên\nMã GV\nHọ và tên\nCách gọi\nPhân hiệu\nChưa phân hiệu\n\nKhối giảng dạy (Năm học 2026 - 2027)\n\nKhối 10\n\nKhối 11\n\nKhối 12\nHệ số tải\n1.0\n\nHoạt động\n\n\nGhi chú\nteachers.advancedSettings\n▼\nHủy\nLưu\nClose",
+  "fields": [
+   {
+    "txt": "",
+    "aria": null,
+    "name": "code",
+    "ph": "VD: GV001 (tùy chọn)",
+    "type": "text",
+    "id": "",
+    "tid": "teacher-code-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": "fullName",
+    "ph": "Nhập họ và tên giáo viên",
+    "type": "text",
+    "id": "",
+    "tid": "teacher-name-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": "displayName",
+    "ph": "VD: T Nghĩa, C Quí",
+    "type": "text",
+    "id": "",
+    "tid": "teacher-display-name-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "Chưa phân hiệu",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "select-one",
+    "id": "",
+    "tid": null,
+    "tag": "SELECT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "grade-check-1",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "checkbox",
+    "id": "",
+    "tid": null,
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "grade-check-2",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "checkbox",
+    "id": "",
+    "tid": null,
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "grade-check-3",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "checkbox",
+    "id": "",
+    "tid": null,
+    "tag": "INPUT"
+   },
+   {
+    "txt": "1.0",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "select-one",
+    "id": "",
+    "tid": null,
+    "tag": "SELECT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "checkbox",
+    "id": "",
+    "tid": null,
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": "note",
+    "ph": "Ghi chú bổ sung (tùy chọn)",
+    "type": "text",
+    "id": "",
+    "tid": null,
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": "quotaOverride",
+    "ph": "Mặc định (tự động)",
+    "type": "number",
+    "id": "",
+    "tid": "teacher-quota-override-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": "maxTasksPerExamOverride",
+    "ph": "Mặc định (theo quy tắc)",
+    "type": "number",
+    "id": "",
+    "tid": "teacher-max-tasks-override-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "Hủy",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Lưu",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "submit",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Close",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   }
+  ]
+ },
+ "exam": {
+  "text": "Thêm kỳ thi\nKý hiệu kỳ thi\nTên kỳ thi\nHủy\nLưu\nClose",
+  "fields": [
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": "VD: GK1",
+    "type": "text",
+    "id": "",
+    "tid": "exam-code-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": "VD: Giữa học kỳ 1",
+    "type": "text",
+    "id": "",
+    "tid": "exam-name-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "Hủy",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Lưu",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "submit",
+    "id": "",
+    "tid": "exam-save-btn",
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Close",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   }
+  ]
+ },
+ "subject": {
+  "text": "Thêm môn thi mới\nMã môn thi *\n\nTên môn thi *\n\nSố người ra đề (1..4)\n\nSố người phản biện (0..2)\n\nPhân hiệu tối thiểu (0..3)\n\nMàu sắc\n\nHủy\nLưu\nClose",
+  "fields": [
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": "VL, CN...",
+    "type": "text",
+    "id": "",
+    "tid": "subject-code-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": "Vật lí, Công nghệ...",
+    "type": "text",
+    "id": "",
+    "tid": "subject-name-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "number",
+    "id": "",
+    "tid": "subject-setters-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "number",
+    "id": "",
+    "tid": "subject-reviewers-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "number",
+    "id": "",
+    "tid": "subject-min-campuses-input",
+    "tag": "INPUT"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Hủy",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Lưu",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "submit",
+    "id": "",
+    "tid": "save-subject-btn",
+    "tag": "BUTTON"
+   },
+   {
+    "txt": "Close",
+    "aria": null,
+    "name": null,
+    "ph": null,
+    "type": "button",
+    "id": "",
+    "tid": null,
+    "tag": "BUTTON"
+   }
+  ]
+ },
+ "rules_soft": {
+  "inputs": [
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s1",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s1",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "number",
+    "id": "",
+    "tid": "s1-max-tasks-input",
+    "aria": null
+   },
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s2",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s2",
+    "aria": null
+   },
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s3",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s3",
+    "aria": null
+   },
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s4",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s4",
+    "aria": null
+   },
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s5",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s5",
+    "aria": null
+   },
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s6",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s6",
+    "aria": null
+   },
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s7",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s7",
+    "aria": null
+   },
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s8",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s8",
+    "aria": null
+   },
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s9",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s9",
+    "aria": null
+   },
+   {
+    "role": "switch",
+    "type": "button",
+    "id": "",
+    "tid": "toggle-s10",
+    "aria": null
+   },
+   {
+    "role": null,
+    "type": "range",
+    "id": "",
+    "tid": "slider-s10",
+    "aria": null
+   }
+  ],
+  "text": "i phục mặc định\n\nLưu cấu hình\n\nĐiều kiện bắt buộc (H1-H7)\n\nTiêu chí ưu tiên (S1-S10)\n\nXem trước chỉ tiêu (Quotas)\n\nGhim / Cấm phân công\nBộ cấu hình mẫu (Presets):\n\nCân bằng (mặc định)\n\nƯu tiên công bằng khối lượng\n\nƯu tiên đa dạng ê-kíp\n\nCho phép dồn việc trong một kỳ\nS1: Tần suất phản biện\n10.0\n\nMỗi giáo viên nên phản biện từ 1 đến 2 lần trong năm để tích lũy kinh nghiệm đánh giá.\nVí dụ: Giáo viên chưa từng phản biện hoặc phản biện quá 2 lần sẽ bị phạt điểm.\nTrọng số: 10\n[0.0 — 20.0]\n\nrules.s1MaxTasksMode:\nrules.s1ModeAuto\n\nS2: Cân bằng tỷ lệ vai trò\n3.0\n\nGiữ tỷ lệ số lần phản biện / tổng số nhiệm vụ gần với tỷ lệ chuẩn 1/3.\nVí dụ: Giáo viên làm 3 kỳ thi thì lý tưởng là 2 lần ra đề, 1 lần phản biện.\nTrọng số: 3\n[0.0 — 20.0]\n\nS3: Phản biện độc lập phân hiệu\n4.0\n\nKhuyến khích người phản biện khác phân hiệu với cả hai người ra đề để tăng tính phản biện khách quan.\nVí dụ: Ra đề thuộc PH1 và PH2, phản biện thuộc PH3 là tối ưu.\nTrọng số: 4\n[0.0 — 20.0]\n\nS4: Đa dạng cặp ra đề\n6.0\n\nTránh việc hai giáo viên cùng bắt cặp ra đề nhiều lần trong năm.\nVí dụ: Thầy A và Cô B đã cùng ra đề ở GK1 thì không nên cùng ra đề ở CK2.\nTrọng số: 6\n[0.0 — 20.0]\n\nS5: Tránh phản biện chéo lặp lại\n6.0\n\nHạn chế tình trạng giáo viên A phản biện giáo viên B lặp lại qua các kỳ thi.\nVí dụ: Thầy A đã phản biện đề của Cô B thì kỳ sau nên đổi người phản biện khác.\nTrọng số: 6\n[0.0 — 20.0]\n\nS6: Giãn cách kỳ thi liên tiếp\n2.0\n\nHạn chế việc một giáo viên phải ra đề ở hai kỳ thi liền kề nhau để giảm tải áp lực.\nVí dụ: Giáo viên ra đề ở GK1 nên được nghỉ ra đề ở CK1, sang GK2 mới ra đề tiếp.\nTrọng số: 2\n[0.0 — 20.0]\n\nS7: Luân chuyển khối lớp\n1.0\n\nKhuyến khích giáo viên dạy nhiều khối được luân chuyển tham gia ban đề các khối khác nhau.\nVí dụ: Giáo viên dạy khối 10 và 11 nên có lượt tham gia ban đề ở cả 2 khối.\nTrọng số: 1\n[0.0 — 20.0]\n\nS8: Cân bằng tải trọng thực tế\n8.0\n\nSố nhiệm vụ thực tế của mỗi giáo viên bám sát chỉ tiêu lý thuyết q dựa trên hệ số tải.\nVí dụ: Giáo viên có hệ số tải 1.0 có chỉ tiêu q=3.2 thì nhận đúng 3 hoặc 4 lượt.\nTrọng số: 8\n[0.0 — 20.0]\n\nS9: Giảm dồn việc trong kỳ thi\n5.0\n\nHạn chế việc một giáo viên phải nhận nhiều nhiệm vụ trong cùng một kỳ thi.\nVí dụ: Giáo viên đã làm đề môn Vật lí thì hạn chế nhận thêm việc ở môn Công nghệ trong cùng kỳ.\nTrọng số: 5\n[0.0 — 20.0]\n\nS10: Phủ đủ môn phản biện\n4.0\n\nKhuyến khích giáo viên có chuyên môn phản biện ở nhiều môn được phản biện ít nhất một lần ở mỗi môn.\nVí dụ: Giáo viên có thể phản biện cả Vật lí và Công nghệ thì nên phản biện mỗi môn ít nhất 1 lần.\nTrọng số: 4\n[0.0 — 20.0]\n\n"
+ },
+ "rules_locks": "i phục mặc định\n\nLưu cấu hình\n\nĐiều kiện bắt buộc (H1-H7)\n\nTiêu chí ưu tiên (S1-S10)\n\nXem trước chỉ tiêu (Quotas)\n\nGhim / Cấm phân công\nQuản lý Ghim & Cấm\nThiết lập cố định giáo viên vào ban đề hoặc cấm giáo viên tham gia ban đề cụ thể.\n\nThêm ràng buộc\nChưa có ràng buộc nào. Nhấn 'Thêm ràng buộc' để tạo mới.\n",
+ "rules_quotas": "i phục mặc định\n\nLưu cấu hình\n\nĐiều kiện bắt buộc (H1-H7)\n\nTiêu chí ưu tiên (S1-S10)\n\nXem trước chỉ tiêu (Quotas)\n\nGhim / Cấm phân công\nBảng xem trước chỉ tiêu công việc\nTổng giáo viên: 12\nBảng chỉ tiêu tự động tính toán lại khi thay đổi dung sai H7 hoặc hệ số tải. (H7 tolerance = 1)\nGiáo viên\tPhân hiệu\tHệ số tải\tSố kỳ có mặt\tChỉ tiêu q\tKhoảng [lo, hi]\nCô Hiền\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nCô Lài\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nThầy Phúc\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nThầy Lộc\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nCô Thư\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nCô Na\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nCô Bình\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nCô Quí\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nCô Tú\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nCô Như\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nCô Lan\tChưa phân hiệu\t1\t4\t4.36\t[3, 6]\nThầy Nghĩa\tChưa phân hiệu\t1\t4\t12.00\t[12, 12]\n"
+}

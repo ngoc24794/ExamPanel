@@ -1,0 +1,156 @@
+Tổng điểm phạt: 176.36
+176.36
+Điều kiện bắt buộc: Hợp lệ (0 vi phạm)
+S1
+0.0
+S2
+0.0
+S3
+144.0
+S4
+0.0
+S5
+6.0
+S6
+6.0
+S7
+0.0
+S8
+20.4
+S9
+0.0
+S10
+0.0
+Môn học:
+common.all (2)
+VL - Vật lí
+CN - Công nghệ
+Kỳ thi / Khối	Khối 10	Khối 11	Khối 12
+Giữa kỳ 1
+GK1	
+S3
+Đề
+C Như
+
+Đề
+C Na
+
+PB
+C Tú
+
+S3
+Đề
+C Hiền
+
+Đề
+C Bình
+
+PB
+C Thư
+
+S3
+Đề
+C Lan
+
+Đề
+C Quí
+
+PB
+C Lài
+
+Cuối kỳ 1
+CK1	
+S3
+Đề
+C Hiền
+
+Đề
+C Tú
+
+PB
+C Na
+
+S3
+Đề
+C Thư
+
+Đề
+T Lộc
+
+PB
+C Quí
+
+S3
+Đề
+T Phúc
+
+Đề
+C Lài
+
+PB
+C Lan
+
+Giữa kỳ 2
+GK2	
+S3
+Đề
+C Lài
+
+Đề
+C Như
+
+PB
+T Phúc
+
+S3
+Đề
+C Quí
+
+Đề
+C Na
+
+PB
+T Lộc
+
+S3
+Đề
+C Bình
+
+Đề
+C Lan
+
+PB
+C Hiền
+
+Cuối kỳ 2
+CK2	
+S3
+Đề
+C Tú
+
+Đề
+T Lộc
+
+PB
+C Như
+
+S3
+Đề
+C Thư
+
+Đề
+C Quí
+
+PB
+C Na
+
+S3
+Đề
+T Phúc
+
+Đề
+C Hiền
+
+PB
+C Bình
+

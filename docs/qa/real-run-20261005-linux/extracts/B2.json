@@ -1,0 +1,382 @@
+{
+ "id": "B2",
+ "started": "2026-10-05T05:04:03.067Z",
+ "checks": [
+  {
+   "step": "B2.template-download-dialog",
+   "result": "pass",
+   "observed": {
+    "r": {
+     "ok": true,
+     "dialog": "Save File",
+     "stillOpen": false
+    },
+    "size": 12829
+   },
+   "expected": "file saved at typed path",
+   "evidence": [
+    "screenshots/B2-template-save-dialog.png"
+   ]
+  },
+  {
+   "step": "B2.open-dialog-driven",
+   "result": "pass",
+   "observed": {
+    "ok": true,
+    "dialog": "Open File",
+    "stillOpen": false
+   },
+   "expected": "GTK open dialog accepts typed path",
+   "evidence": [
+    "screenshots/B2-import-open-dialog.png"
+   ]
+  },
+  {
+   "step": "B2.preview-can-apply",
+   "result": "pass",
+   "observed": true,
+   "expected": "apply button enabled",
+   "evidence": [
+    "screenshots/B2-import-preview-page.png"
+   ]
+  },
+  {
+   "step": "B2.preview-is-read-only",
+   "result": "pass",
+   "observed": {
+    "before": "73803cfe7605c1456b86cf40f20bf9537e56a1814331dc1adc98f0e4dd4619c2",
+    "after": "73803cfe7605c1456b86cf40f20bf9537e56a1814331dc1adc98f0e4dd4619c2"
+   },
+   "expected": "DB unchanged by preview (ADR: strictly read-only preview)",
+   "evidence": []
+  },
+  {
+   "step": "B2.teachers=12",
+   "result": "pass",
+   "observed": {
+    "t": 12,
+    "c": 1,
+    "s": 2,
+    "comp": 34,
+    "tg": 23
+   },
+   "expected": "12 teachers",
+   "evidence": []
+  },
+  {
+   "step": "B2.one-campus-placeholder",
+   "result": "pass",
+   "observed": [
+    {
+     "code": "CPH",
+     "name": "Chưa phân hiệu"
+    }
+   ],
+   "expected": "only \"Chưa phân hiệu\"",
+   "evidence": []
+  },
+  {
+   "step": "B2.automatic-backup-before-apply",
+   "result": "pass",
+   "observed": [
+    "exampanel-backup-pre-import-1791176726.db"
+   ],
+   "expected": "backup exampanel-backup-pre-import-*.db",
+   "evidence": []
+  },
+  {
+   "step": "B2.data-visible-in-teacher-list",
+   "result": "pass",
+   "observed": {
+    "shown": 12,
+    "of": 12,
+    "note": "list may paginate"
+   },
+   "expected": "teachers visible",
+   "evidence": []
+  },
+  {
+   "step": "B2.upsert-preview-new-teacher-row",
+   "result": "pass",
+   "observed": {
+    "gv999_row": "14 Mới GV999 Trần Văn Thử Nghiệm CPH 10, 11 1 Mới -",
+    "status_counts_in_teacher_tab": {
+     "new": 13,
+     "unchanged": 12,
+     "update": 0
+    },
+    "rows": 13
+   },
+   "expected": "GV999 shown with green \"Mới\"; other 12 rows \"Không đổi\" (phase-9 step 2)",
+   "evidence": [
+    "extracts/B2c-upsert-preview.txt",
+    "screenshots/B2c-upsert-preview-page.png"
+   ]
+  },
+  {
+   "step": "B2.upsert-apply-creates-teacher-and-backup",
+   "result": "pass",
+   "observed": {
+    "teachers_before": 12,
+    "after": 13,
+    "toasts": [
+     "Nhập dữ liệu thành công! Đã tự động tạo bản sao lưu an toàn. | Tạo mới 1 giáo viên, cập nhật 0 giáo viên, ngừng hoạt động 0 giáo viên."
+    ],
+    "backups": [
+     "exampanel-backup-pre-import-1791181389.db"
+    ]
+   },
+   "expected": "GV999 created, pre-import backup, success toast with counts",
+   "evidence": []
+  },
+  {
+   "step": "B2.upsert-teacher-list-refreshes",
+   "result": "pass",
+   "observed": "checked list text",
+   "expected": "new teacher visible without reload",
+   "evidence": []
+  },
+  {
+   "step": "B2.sync-preview-lists-teachers-to-deactivate",
+   "result": "pass",
+   "observed": {
+    "tab_present": true,
+    "names_found": [
+     "Cô Lan",
+     "Cô Tú",
+     "Cô Như",
+     "Trần Văn Thử Nghiệm"
+    ]
+   },
+   "expected": "tab \"Ngừng hoạt động\" lists the 3 removed teachers + GV999 (not in file)",
+   "evidence": [
+    "extracts/B2c-sync-preview-deactivated.txt",
+    "screenshots/B2c-sync-preview-page.png"
+   ]
+  },
+  {
+   "step": "B2.sync-apply-deactivates-not-deletes",
+   "result": "pass",
+   "observed": {
+    "rows": [
+     {
+      "full_name": "Cô Tú",
+      "active": 0
+     },
+     {
+      "full_name": "Cô Như",
+      "active": 0
+     },
+     {
+      "full_name": "Cô Lan",
+      "active": 0
+     },
+     {
+      "full_name": "Trần Văn Thử Nghiệm",
+      "active": 0
+     }
+    ],
+    "assignments_of_inactive_teachers_in_plan1": 12,
+    "total_teachers": 13
+   },
+   "expected": "active=0, rows kept, historical assignments kept (phase-9 step 3)",
+   "evidence": []
+  },
+  {
+   "step": "B2.restore-v4-fixture-migrates-to-v5",
+   "result": "pass",
+   "observed": {
+    "dialog": "Xác nhận phục hồi dữ liệu | Hệ thống sẽ tự động sao lưu dữ liệu hiện tại trước khi phục hồi. Ứng dụng sẽ nạp lại dữ liệu sau khi hoàn tất. | Tệp dữ liệu hợp lệ (Kiểm tra toàn vẹn thành công) | Năm học: 1 | Giáo viên: 12 | Phương án: 1 | Phiên bản: v4 | Hủy | X",
+    "user_version_after": 5,
+    "teachers": 12,
+    "plans": [
+     {
+      "name": "Phương án v4 mẫu",
+      "is_final": 1
+     }
+    ],
+    "subjects": [
+     "CHUNG"
+    ],
+    "teachers_with_CHUNG_competency": 12
+   },
+   "expected": "migration 0005 runs on restore; legacy teachers keep CHUNG competency; plan intact (phase-11 step 8)",
+   "evidence": [
+    "extracts/B2c-restore-v4-dialog.txt"
+   ]
+  },
+  {
+   "step": "B2.real-school-file-15-50-teachers",
+   "result": "not-verified",
+   "observed": "no real school data available (rule 3); Q-shaped 12-teacher synthetic data used",
+   "expected": "import of a real 15-50 teacher file (v0.1.0 checklist §3)",
+   "evidence": []
+  },
+  {
+   "step": "B2.preview-feasibility-diagnostics",
+   "result": "not-verified",
+   "observed": "preview text of the feasible Q data shows only teacher/campus/absence tabs and statuses (extracts/B2-preview-text.txt); no feasibility simulation block appeared and the negative case (teacher without competency, H3 pool reduction: teacher_no_competency / h3_reviewer_pool_reduced) was not exercised by this run",
+   "expected": "warnings with diagnostic codes when the imported data would make the problem infeasible (phase-12 checklist K4.4)",
+   "evidence": [
+    "extracts/B2-preview-text.txt"
+   ]
+  },
+  {
+   "step": "B2.preview-active-column-shows-Có/Không",
+   "result": "fail",
+   "observed": {
+    "gv999_row": "14 Mới GV999 Trần Văn Thử Nghiệm CPH 10, 11 1 Mới -",
+    "expected_last_cells": "Hệ số tải 1 | Đang dạy Có | Ghi chú -"
+   },
+   "expected": "column \"Đang dạy\" shows Có/Không (sheet value \"Có\")",
+   "evidence": [
+    "extracts/B2c-upsert-preview.txt",
+    "screenshots/B2-import-preview-page.png"
+   ]
+  }
+ ],
+ "notes": {
+  "fresh_overview_text": "ExamPanel\nPhân công ra đề\n\nTổng quan\nGiáo viên\nPhân hiệu\nMôn thi\nChuyên môn\nKỳ thi\nLịch bận\nQuy tắc\nPhân công\nThống kê\nCài đặt\nExamPanel\nv0.1.0\nTổng quan\n\nKhông khả thi\n2\n\n2026 - 2027\n\nVI\n\nHệ Thống\nBảng điều khiển tổng quan\nQuản lý và theo dõi tiến độ phân công nhiệm vụ ra đề, phản biện cho các kỳ thi.\nBắt đầu với ExamPanel\nChưa có dữ liệu phân hiệu và giáo viên. Hãy hoàn thành các bước thiết lập dưới đây:\n1. Thêm các phân hiệu\nKhai báo các điểm trường hoặc phân hiệu trong hệ thống\nĐi đến Phân hiệu\n2. Thêm giáo viên và khối giảng dạy\nNhập danh sách giáo viên, phân hiệu và khối dạy năm nay\nĐi đến Giáo viên\n3. Cấu hình môn học & chỉ tiêu hội đồng\nKhai báo các môn thi, số người ra đề và phản biện mỗi hội đồng\n4. Phân công môn đảm nhiệm\nKhai báo vai trò ra đề và phản biện theo môn học cho từng giáo viên\nĐi đến Môn đảm nhiệm\n5. Kiểm tra tính khả thi\nXem trước các điều kiện bắt buộc và kiểm tra bài toán\nKiểm tra quy tắc\n6. Khởi chạy phân công\nTự động phân công tối ưu và duyệt phương án\nĐi đến Phân công\nQuản lý Phân hiệu\n0\nDanh sách phân hiệu, mã nhận diện, màu đại diện và số lượng giáo viên hoạt động.\nQuản lý Giáo viên\n0\nNăm học 2026 - 2027\nKiểm tra tính khả thi\nBài toán KHÔNG KHẢ THI\n2 lỗi, 0 cảnh báo\nKết nối Hệ thống Lõi\nKiểm tra phản hồi IPC giữa giao diện người dùng và lõi Rust.\npong from ExamPanel core v0.1.0\n\nTrạng thái:\nỨng dụng máy tính (Tauri IPC)\n● Hệ thống sẵn sàng\nQuy mô tham chiếu\n11 giáo viên, 4 phân hiệu, 4 kỳ thi (GK1, CK1, GK2, CK2) × 3 khối (10, 11, 12) = 12 ban đ",
+  "inputs_after_browse": [
+   "/home/user/ExamPanel/.tools/qa-run/B2golden-1/out/q-filled.xlsx"
+  ],
+  "preview_text_head": "ExamPanel\nPhân công ra đề\n\nTổng quan\nGiáo viên\nPhân hiệu\nMôn thi\nChuyên môn\nKỳ thi\nLịch bận\nQuy tắc\nPhân công\nThống kê\nCài đặt\nExamPanel\nv0.1.0\nGiáo viên\n\nKhông khả thi\n2\n\n2026 - 2027\n\nVI\n\nHệ Thống\nQuản lý Giáo viên\nDanh sách giáo viên, phân hiệu công tác, khối giảng dạy, hệ số tải và trạng thái sẵn sàng cho năm học hiện tại.\nXem chỉ tiêu\nChuyên môn\nTải file mẫu\nNhập từ Excel\nThêm giáo viên\n\n\nTất cả phân hiệu\n\nTất cả các khối\n\nTất cả trạng thái\nKhông tìm thấy giáo viên nào phù hợp.\nNhập dữ liệu từ Excel\nGiáo viên (12)\nPhân hiệu (1)\nLịch vắng (0)\nTất cả\n\nMới\n\nCập nhật\n\nKhông đổi\n\nLỗi\nDòng\tTrạng thái\tMã\tHọ và tên\tPhân hiệu\tKhối dạy\tHệ số tải\tĐang dạy\tGhi chú\n2\tMới\tGV001\tCô Hiền\tCPH\t10, 11, 12\t1\tMới\t-\n3\tMới\tGV002\tCô Lài\tCPH\t10, 11, 12\t1\tMới\t-\n4\tMới\tGV003\tThầy Phúc\tCPH\t10, 12\t1\tMới\t-\n5\tMới\tGV004\tThầy Lộc\tCPH\t10, 11\t1\tMới\t-\n6\tMới\tGV005\tCô Thư\tCPH\t11\t1\tMới\t-\n7\tMới\tGV006\tCô Na\tCPH\t10, 11\t1\tMới\t-\n8\tMới\tGV007\tCô Bình\tCPH\t11, 12\t1\tMới\t-\n9\tMới\tGV008\tCô Quí\tCPH\t11, 12\t1\tMới\t-\n10\tMới\tGV009\tCô Tú\tCPH\t10\t1\tMới\t-\n11\tMới\tGV010\tCô Như\tCPH\t10\t1\tMới\t-\n12\tMới\tGV011\tCô Lan\tCPH\t12\t1\tMới\t-\n13\tMới\tGV012\tThầy Nghĩa\tCPH\t10, 11, 12\t1\tMới\t-\nQuay lại chọn tệp\nHủy\nXác nhận & Áp dụng\nClose",
+  "after": {
+   "counts": [
+    {
+     "t": 12,
+     "c": 1,
+     "s": 2,
+     "comp": 34,
+     "tg": 23
+    }
+   ],
+   "teachers": [
+    {
+     "full_name": "Cô Hiền",
+     "display_name": "C Hiền",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Cô Lài",
+     "display_name": "C Lài",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Thầy Phúc",
+     "display_name": "T Phúc",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Thầy Lộc",
+     "display_name": "T Lộc",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Cô Thư",
+     "display_name": "C Thư",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Cô Na",
+     "display_name": "C Na",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Cô Bình",
+     "display_name": "C Bình",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Cô Quí",
+     "display_name": "C Quí",
+     "quota_override": null,
+     "max_tasks_per_exam_override": 3,
+     "active": 1
+    },
+    {
+     "full_name": "Cô Tú",
+     "display_name": "C Tú",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Cô Như",
+     "display_name": "C Như",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Cô Lan",
+     "display_name": "C Lan",
+     "quota_override": null,
+     "max_tasks_per_exam_override": null,
+     "active": 1
+    },
+    {
+     "full_name": "Thầy Nghĩa",
+     "display_name": "T Nghĩa",
+     "quota_override": 12,
+     "max_tasks_per_exam_override": 3,
+     "active": 1
+    }
+   ],
+   "campuses": [
+    {
+     "code": "CPH",
+     "name": "Chưa phân hiệu"
+    }
+   ],
+   "subjects": [
+    {
+     "code": "VL",
+     "name": "Vật lí",
+     "setters": 2,
+     "reviewers": 1,
+     "min_campuses": 1
+    },
+    {
+     "code": "CN",
+     "name": "Công nghệ",
+     "setters": 1,
+     "reviewers": 1,
+     "min_campuses": 1
+    }
+   ]
+  },
+  "status_filter_row_counts": [
+   [
+    "Mới",
+    1
+   ],
+   [
+    "Cập nhật",
+    0
+   ],
+   [
+    "Không đổi",
+    12
+   ],
+   [
+    "Lỗi",
+    0
+   ]
+  ]
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "noop-save": {
+  "dirty": false,
+  "toasts": [],
+  "db_changed": false,
+  "ipc_noop_update": "ok"
+ },
+ "replace": {
+  "dirty": true,
+  "toasts": [
+   "Đã lưu thay đổi phương án thành công"
+  ],
+  "db_changed": true
+ },
+ "swap": {
+  "dirty": true,
+  "toasts": [
+   "Dữ liệu đã tồn tại, không thể tạo trùng lặp"
+  ],
+  "db_changed": false
+ }
+}

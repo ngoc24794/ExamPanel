@@ -1,0 +1,7 @@
+Xác nhận phục hồi dữ liệu
+Hệ thống sẽ tự động sao lưu dữ liệu hiện tại trước khi phục hồi. Ứng dụng sẽ nạp lại dữ liệu sau khi hoàn tất.
+Tệp dữ liệu bị hỏng hoặc không đúng định dạng
+Integrity check query failed: database disk image is malformed
+Hủy
+Xác nhận phục hồi
+Close

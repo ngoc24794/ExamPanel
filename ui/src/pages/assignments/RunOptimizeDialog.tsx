@@ -139,7 +139,8 @@ export function RunOptimizeDialog({
               <span>{t('assignments.preflightError')}</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              {blockingErrors.length} lỗi cấu hình khiến thuật toán không thể xếp lịch hợp lệ.
+              {blockingErrors.length} lỗi cấu hình khiến thuật toán không thể xếp lịch hợp
+              lệ.
             </p>
             {onOpenFeasibility && (
               <Button
@@ -178,7 +179,9 @@ export function RunOptimizeDialog({
                   </Button>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">{t('assignments.plansCountDesc')}</p>
+              <p className="text-xs text-muted-foreground">
+                {t('assignments.plansCountDesc')}
+              </p>
             </div>
 
             {/* Effort levels */}
@@ -231,7 +234,11 @@ export function RunOptimizeDialog({
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 className="flex items-center gap-1 text-xs text-muted-foreground px-0"
               >
-                {showAdvanced ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                {showAdvanced ? (
+                  <ChevronUp className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                )}
                 {t('assignments.advancedOptions')}
               </Button>
               {showAdvanced && (
@@ -284,7 +291,9 @@ export function RunOptimizeDialog({
             <div className="grid grid-cols-2 gap-3 bg-muted/40 p-3 rounded-lg border border-border text-xs">
               <div>
                 <span className="text-muted-foreground block">
-                  {t('assignments.bestScore', { score: progress ? progress.best_score.toFixed(2) : '--' })}
+                  {t('assignments.bestScore', {
+                    score: progress ? progress.best_score.toFixed(2) : '--',
+                  })}
                 </span>
                 <span className="font-semibold text-foreground text-sm">
                   {progress ? progress.best_score.toFixed(2) : '--'}
@@ -292,7 +301,9 @@ export function RunOptimizeDialog({
               </div>
               <div>
                 <span className="text-muted-foreground block">
-                  {t('assignments.currentScore', { score: progress ? progress.current_score.toFixed(2) : '--' })}
+                  {t('assignments.currentScore', {
+                    score: progress ? progress.current_score.toFixed(2) : '--',
+                  })}
                 </span>
                 <span className="font-semibold text-foreground text-sm">
                   {progress ? progress.current_score.toFixed(2) : '--'}

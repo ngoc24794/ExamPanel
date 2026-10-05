@@ -1,9 +1,9 @@
 //! Excel data import implementation (parsing, validation, preview simulation, and atomic apply).
 
 use crate::dto::{
-    CampusImportRow, DeactivatedTeacherPreview, FeasibilityReportWithQuotas, ImportApplyResult,
-    ImportCellError, ImportPreviewResult, ImportRowStatus, ImportSummaryCounts, TeacherImportRow,
-    UnavailabilityImportRow,
+    CampusImportRow, CompetencyImportRow, DeactivatedTeacherPreview, FeasibilityReportWithQuotas,
+    ImportApplyResult, ImportCellError, ImportPreviewResult, ImportRowStatus, ImportSummaryCounts,
+    SubjectImportRow, TeacherImportRow, UnavailabilityImportRow,
 };
 use crate::error::AppError;
 use crate::excel::normalize::{
@@ -11,8 +11,8 @@ use crate::excel::normalize::{
 };
 use calamine::{open_workbook_auto, Data, Reader, Sheets};
 use exam_panel_core::domain::{
-    quota::calculate_quotas, Campus, CampusId, GradeId, SchoolYearId, Teacher, TeacherGrade,
-    TeacherId,
+    quota::calculate_quotas, Campus, CampusId, Competency, GradeId, GradeScope, Role, SchoolYearId,
+    Subject, SubjectId, Teacher, TeacherGrade, TeacherId,
 };
 use exam_panel_storage::Store;
 use std::collections::{HashMap, HashSet};
@@ -58,6 +58,75 @@ fn find_sheet_name(names: &[String], keywords: &[&str]) -> Option<String> {
     None
 }
 
+/// Matches teacher query (code, display name, full name) against existing and new teachers.
+fn find_teacher_for_comp(
+    query: &str,
+    existing_teachers: &[Teacher],
+    teacher_rows: &[TeacherImportRow],
+) -> Result<Option<i64>, String> {
+    let q_norm = normalize_text(query).to_lowercase();
+    if q_norm.is_empty() {
+        return Ok(None);
+    }
+
+    // 1. Check existing teachers by code, display_name, full_name
+    let mut matches = Vec::new();
+    for t in existing_teachers {
+        if let Some(ref c) = t.code {
+            if normalize_code(c).to_lowercase() == q_norm {
+                return Ok(Some(t.id.value()));
+            }
+        }
+        if let Some(ref dn) = t.display_name {
+            if normalize_text(dn).to_lowercase() == q_norm {
+                matches.push(t.id.value());
+            }
+        } else if normalize_text(&t.full_name).to_lowercase() == q_norm {
+            matches.push(t.id.value());
+        }
+    }
+    if matches.len() == 1 {
+        return Ok(Some(matches[0]));
+    } else if matches.len() > 1 {
+        return Err(format!("Tên giáo viên '{query}' bị trùng lặp"));
+    }
+
+    // 2. Check newly imported teacher rows
+    let mut new_matches = Vec::new();
+    for t_row in teacher_rows {
+        if let Some(ref c) = t_row.code {
+            if normalize_code(c).to_lowercase() == q_norm {
+                let id = t_row
+                    .matched_teacher_id
+                    .unwrap_or(20_000 + t_row.row_index as i64);
+                return Ok(Some(id));
+            }
+        }
+        if let Some(ref dn) = t_row.display_name {
+            if normalize_text(dn).to_lowercase() == q_norm {
+                let id = t_row
+                    .matched_teacher_id
+                    .unwrap_or(20_000 + t_row.row_index as i64);
+                new_matches.push(id);
+            }
+        } else if normalize_text(&t_row.full_name).to_lowercase() == q_norm {
+            let id = t_row
+                .matched_teacher_id
+                .unwrap_or(20_000 + t_row.row_index as i64);
+            new_matches.push(id);
+        }
+    }
+    if new_matches.len() == 1 {
+        return Ok(Some(new_matches[0]));
+    } else if new_matches.len() > 1 {
+        return Err(format!(
+            "Tên giáo viên '{query}' bị trùng lặp trong tập tin"
+        ));
+    }
+
+    Ok(None)
+}
+
 /// Generates a preview of the Excel import file without modifying the database.
 pub fn preview_import(
     store: &Store,
@@ -83,6 +152,8 @@ pub fn preview_import(
     let existing_exams = store.get_exams(school_year_id)?;
     let existing_grades = store.get_grades()?;
     let existing_unavailabilities = store.get_unavailabilities(school_year_id)?;
+    let existing_subjects = store.get_subjects(school_year_id)?;
+    let _existing_competencies = store.get_competencies(school_year_id)?;
 
     // Map existing grade code (10, 11, 12) -> GradeId
     let grade_code_to_id: HashMap<i32, GradeId> =
@@ -199,20 +270,72 @@ pub fn preview_import(
     if let Some(sheet_name) = teacher_sheet_name {
         if let Ok(range) = workbook.worksheet_range(&sheet_name) {
             let mut is_header = true;
+            let mut col_code = 0;
+            let mut col_name = 1;
+            let mut col_display_name: Option<usize> = None;
+            let mut col_campus = 2;
+            let mut col_grades = 3;
+            let mut col_load = 4;
+            let mut col_active = 5;
+            let mut col_note = 6;
+            let mut col_quota: Option<usize> = None;
+            let mut col_max_tasks: Option<usize> = None;
+
             for (idx, row) in range.rows().enumerate() {
                 if is_header {
                     is_header = false;
+                    for (c_idx, cell) in row.iter().enumerate() {
+                        let text = cell_to_string(cell).to_lowercase();
+                        if text.contains("mã gv") || text.contains("teacher code") {
+                            col_code = c_idx;
+                        } else if text.contains("họ và tên")
+                            || text.contains("họ tên")
+                            || text.contains("full name")
+                        {
+                            col_name = c_idx;
+                        } else if text.contains("cách gọi")
+                            || text.contains("tên gọi")
+                            || text.contains("display")
+                        {
+                            col_display_name = Some(c_idx);
+                        } else if text.contains("phân hiệu") || text.contains("campus") {
+                            col_campus = c_idx;
+                        } else if text.contains("khối") || text.contains("grade") {
+                            col_grades = c_idx;
+                        } else if text.contains("tải") || text.contains("load") {
+                            col_load = c_idx;
+                        } else if text.contains("đang dạy") || text.contains("active") {
+                            col_active = c_idx;
+                        } else if text.contains("chỉ tiêu") || text.contains("quota") {
+                            col_quota = Some(c_idx);
+                        } else if text.contains("tối đa") || text.contains("max task") {
+                            col_max_tasks = Some(c_idx);
+                        } else if text.contains("ghi chú") || text.contains("note") {
+                            col_note = c_idx;
+                        }
+                    }
                     continue;
                 }
 
                 let row_number = idx + 1;
-                let raw_code = row.first().map(cell_to_string).unwrap_or_default();
-                let raw_name = row.get(1).map(cell_to_string).unwrap_or_default();
-                let raw_campus = row.get(2).map(cell_to_string).unwrap_or_default();
-                let raw_grades = row.get(3).map(cell_to_string).unwrap_or_default();
-                let raw_load = row.get(4).map(cell_to_string).unwrap_or_default();
-                let raw_active = row.get(5).map(cell_to_string).unwrap_or_default();
-                let raw_note = row.get(6).map(cell_to_string).unwrap_or_default();
+                let raw_code = row.get(col_code).map(cell_to_string).unwrap_or_default();
+                let raw_name = row.get(col_name).map(cell_to_string).unwrap_or_default();
+                let raw_display_name = col_display_name
+                    .and_then(|c| row.get(c))
+                    .map(cell_to_string);
+                let raw_campus = row.get(col_campus).map(cell_to_string).unwrap_or_default();
+                let raw_grades = row.get(col_grades).map(cell_to_string).unwrap_or_default();
+                let raw_load = row.get(col_load).map(cell_to_string).unwrap_or_default();
+                let raw_active = row.get(col_active).map(cell_to_string).unwrap_or_default();
+                let raw_note = row.get(col_note).map(cell_to_string).unwrap_or_default();
+                let quota_override = col_quota
+                    .and_then(|c| row.get(c))
+                    .map(cell_to_string)
+                    .and_then(|s| s.trim().parse::<u32>().ok());
+                let max_tasks_per_exam_override = col_max_tasks
+                    .and_then(|c| row.get(c))
+                    .map(cell_to_string)
+                    .and_then(|s| s.trim().parse::<u32>().ok());
 
                 if raw_code.trim().is_empty()
                     && raw_name.trim().is_empty()
@@ -228,6 +351,9 @@ pub fn preview_import(
                     Some(normalize_code(&raw_code))
                 };
                 let full_name = normalize_text(&raw_name);
+                let display_name_opt = raw_display_name
+                    .map(|s| normalize_text(&s))
+                    .filter(|s| !s.is_empty());
                 let campus_code = normalize_code(&raw_campus);
                 let note = if raw_note.trim().is_empty() {
                     None
@@ -419,12 +545,15 @@ pub fn preview_import(
                     status,
                     code: code_opt,
                     full_name,
+                    display_name: display_name_opt,
                     campus_code,
                     grades_str: raw_grades,
                     grade_codes,
                     load_weight,
                     active,
                     note,
+                    quota_override,
+                    max_tasks_per_exam_override,
                     matched_teacher_id,
                     errors,
                 });
@@ -585,7 +714,296 @@ pub fn preview_import(
     }
 
     // -------------------------------------------------------------------------
-    // 4. Mode "sync": Find active teachers in DB not present in imported file
+    // 4. Parse Sheet "Môn" (Subjects) - Optional / Template v2
+    // -------------------------------------------------------------------------
+    let mut subject_rows = Vec::new();
+    let subject_code_map: HashMap<String, SubjectId> = existing_subjects
+        .iter()
+        .map(|s| (normalize_code(&s.code), s.id))
+        .collect();
+    let mut seen_subject_codes = HashSet::new();
+
+    let subject_sheet_name = sheet_names
+        .iter()
+        .find(|name| {
+            let lower = normalize_text(name).to_lowercase();
+            (lower.contains("môn") || lower.contains("subject"))
+                && !lower.contains("đảm nhiệm")
+                && !lower.contains("chuyên môn")
+                && !lower.contains("competenc")
+        })
+        .cloned();
+
+    if let Some(ref sheet_name) = subject_sheet_name {
+        if let Ok(range) = workbook.worksheet_range(sheet_name) {
+            let mut is_header = true;
+            let mut col_code = 0;
+            let mut col_name = 1;
+            let mut col_setters: Option<usize> = None;
+            let mut col_reviewers: Option<usize> = None;
+            let mut col_min_camp: Option<usize> = None;
+            let mut col_color: Option<usize> = None;
+
+            for (idx, row) in range.rows().enumerate() {
+                if is_header {
+                    is_header = false;
+                    for (c_idx, cell) in row.iter().enumerate() {
+                        let text = cell_to_string(cell).to_lowercase();
+                        if text.contains("mã môn") || text.contains("subject code") {
+                            col_code = c_idx;
+                        } else if text.contains("tên môn") || text.contains("subject name") {
+                            col_name = c_idx;
+                        } else if text.contains("ra đề") || text.contains("setter") {
+                            col_setters = Some(c_idx);
+                        } else if text.contains("phản biện") || text.contains("reviewer") {
+                            col_reviewers = Some(c_idx);
+                        } else if text.contains("phân hiệu") || text.contains("campus") {
+                            col_min_camp = Some(c_idx);
+                        } else if text.contains("màu") || text.contains("color") {
+                            col_color = Some(c_idx);
+                        }
+                    }
+                    continue;
+                }
+
+                let row_number = idx + 1;
+                let raw_code = row.get(col_code).map(cell_to_string).unwrap_or_default();
+                let raw_name = row.get(col_name).map(cell_to_string).unwrap_or_default();
+                let raw_setters = col_setters
+                    .and_then(|c| row.get(c))
+                    .map(cell_to_string)
+                    .unwrap_or_default();
+                let raw_reviewers = col_reviewers
+                    .and_then(|c| row.get(c))
+                    .map(cell_to_string)
+                    .unwrap_or_default();
+                let raw_min_camp = col_min_camp
+                    .and_then(|c| row.get(c))
+                    .map(cell_to_string)
+                    .unwrap_or_default();
+                let raw_color = col_color
+                    .and_then(|c| row.get(c))
+                    .map(cell_to_string)
+                    .unwrap_or_default();
+
+                if raw_code.trim().is_empty() && raw_name.trim().is_empty() {
+                    continue;
+                }
+
+                let code = normalize_code(&raw_code);
+                let name = normalize_text(&raw_name);
+                let setters = raw_setters.trim().parse::<u8>().unwrap_or(2);
+                let reviewers = raw_reviewers.trim().parse::<u8>().unwrap_or(1);
+                let min_campuses = raw_min_camp.trim().parse::<u8>().unwrap_or(2);
+                let color = if raw_color.trim().is_empty() {
+                    "#2563EB".to_string()
+                } else {
+                    raw_color.trim().to_string()
+                };
+
+                let mut errors = Vec::new();
+                if code.is_empty() {
+                    errors.push(ImportCellError {
+                        sheet: sheet_name.clone(),
+                        row: row_number,
+                        column: "code".to_string(),
+                        code: "import.error.required_subject_code".to_string(),
+                        message: "Mã môn không được để trống".to_string(),
+                    });
+                } else if !seen_subject_codes.insert(code.clone()) {
+                    errors.push(ImportCellError {
+                        sheet: sheet_name.clone(),
+                        row: row_number,
+                        column: "code".to_string(),
+                        code: "import.error.duplicate_subject_code".to_string(),
+                        message: format!("Mã môn '{code}' bị trùng lặp trong tập tin"),
+                    });
+                }
+
+                if name.is_empty() {
+                    errors.push(ImportCellError {
+                        sheet: sheet_name.clone(),
+                        row: row_number,
+                        column: "name".to_string(),
+                        code: "import.error.required_subject_name".to_string(),
+                        message: "Tên môn không được để trống".to_string(),
+                    });
+                }
+
+                let status = if !errors.is_empty() {
+                    ImportRowStatus::Error
+                } else if let Some(existing) = existing_subjects
+                    .iter()
+                    .find(|s| normalize_code(&s.code) == code)
+                {
+                    if existing.name == name
+                        && existing.setters == setters
+                        && existing.reviewers == reviewers
+                        && existing.min_campuses == min_campuses
+                    {
+                        ImportRowStatus::Unchanged
+                    } else {
+                        ImportRowStatus::Update
+                    }
+                } else {
+                    ImportRowStatus::New
+                };
+
+                subject_rows.push(SubjectImportRow {
+                    row_index: row_number,
+                    status,
+                    code,
+                    name,
+                    setters,
+                    reviewers,
+                    min_campuses,
+                    color,
+                    errors,
+                });
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. Parse Sheet "Môn đảm nhiệm" (Competencies) - Optional / Template v2
+    // -------------------------------------------------------------------------
+    let mut comp_rows = Vec::new();
+    let comp_sheet_name = find_sheet_name(
+        &sheet_names,
+        &["đảm nhiệm", "chuyên môn", "competenc", "mon dam nhiem"],
+    );
+
+    if let Some(ref sheet_name) = comp_sheet_name {
+        if let Ok(range) = workbook.worksheet_range(sheet_name) {
+            let mut is_header = true;
+            let mut col_teacher = 0;
+            let mut col_subject = 1;
+            let mut col_role = 2;
+            let mut col_scope = 3;
+
+            for (idx, row) in range.rows().enumerate() {
+                if is_header {
+                    is_header = false;
+                    for (c_idx, cell) in row.iter().enumerate() {
+                        let text = cell_to_string(cell).to_lowercase();
+                        if text.contains("gv")
+                            || text.contains("giáo viên")
+                            || text.contains("cách gọi")
+                            || text.contains("teacher")
+                        {
+                            col_teacher = c_idx;
+                        } else if text.contains("mã môn")
+                            || text.contains("môn")
+                            || text.contains("subject")
+                        {
+                            col_subject = c_idx;
+                        } else if text.contains("vai trò") || text.contains("role") {
+                            col_role = c_idx;
+                        } else if text.contains("phạm vi") || text.contains("scope") {
+                            col_scope = c_idx;
+                        }
+                    }
+                    continue;
+                }
+
+                let row_number = idx + 1;
+                let raw_teacher = row.get(col_teacher).map(cell_to_string).unwrap_or_default();
+                let raw_subject = row.get(col_subject).map(cell_to_string).unwrap_or_default();
+                let raw_role = row.get(col_role).map(cell_to_string).unwrap_or_default();
+                let raw_scope = row.get(col_scope).map(cell_to_string).unwrap_or_default();
+
+                if raw_teacher.trim().is_empty() && raw_subject.trim().is_empty() {
+                    continue;
+                }
+
+                let teacher_ref = normalize_text(&raw_teacher);
+                let subject_code = normalize_code(&raw_subject);
+                let role_str = if raw_role.trim().is_empty() {
+                    "Cả hai".to_string()
+                } else {
+                    normalize_text(&raw_role)
+                };
+                let scope_str = if raw_scope.trim().is_empty() {
+                    "Theo khối dạy".to_string()
+                } else {
+                    normalize_text(&raw_scope)
+                };
+
+                let mut errors = Vec::new();
+
+                let matched_teacher =
+                    find_teacher_for_comp(&teacher_ref, &existing_teachers, &teacher_rows);
+                let matched_teacher_id = match matched_teacher {
+                    Ok(Some(id)) => Some(id),
+                    Ok(None) => {
+                        errors.push(ImportCellError {
+                            sheet: sheet_name.clone(),
+                            row: row_number,
+                            column: "teacher".to_string(),
+                            code: "import.error.teacher_not_found".to_string(),
+                            message: format!("Không tìm thấy giáo viên '{teacher_ref}'"),
+                        });
+                        None
+                    }
+                    Err(err) => {
+                        errors.push(ImportCellError {
+                            sheet: sheet_name.clone(),
+                            row: row_number,
+                            column: "teacher".to_string(),
+                            code: "import.error.ambiguous_teacher".to_string(),
+                            message: err,
+                        });
+                        None
+                    }
+                };
+
+                let matched_subject_id = if subject_code.is_empty() {
+                    errors.push(ImportCellError {
+                        sheet: sheet_name.clone(),
+                        row: row_number,
+                        column: "subject".to_string(),
+                        code: "import.error.required_subject".to_string(),
+                        message: "Mã môn không được để trống".to_string(),
+                    });
+                    None
+                } else if let Some(&sid) = subject_code_map.get(&subject_code) {
+                    Some(sid.value())
+                } else if let Some(sr) = subject_rows.iter().find(|s| s.code == subject_code) {
+                    Some(50_000 + sr.row_index as i64)
+                } else {
+                    errors.push(ImportCellError {
+                        sheet: sheet_name.clone(),
+                        row: row_number,
+                        column: "subject".to_string(),
+                        code: "import.error.subject_not_found".to_string(),
+                        message: format!("Không tìm thấy môn học có mã '{subject_code}'"),
+                    });
+                    None
+                };
+
+                let status = if !errors.is_empty() {
+                    ImportRowStatus::Error
+                } else {
+                    ImportRowStatus::New
+                };
+
+                comp_rows.push(CompetencyImportRow {
+                    row_index: row_number,
+                    status,
+                    teacher_ref,
+                    subject_code,
+                    role: role_str,
+                    grade_scope: scope_str,
+                    matched_teacher_id,
+                    matched_subject_id,
+                    errors,
+                });
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Mode "sync": Find active teachers in DB not present in imported file
     // -------------------------------------------------------------------------
     let mut deactivated_teachers = Vec::new();
     if mode == "sync" {
@@ -613,7 +1031,7 @@ pub fn preview_import(
     }
 
     // -------------------------------------------------------------------------
-    // 5. Compute Summaries
+    // 7. Compute Summaries
     // -------------------------------------------------------------------------
     let count_statuses = |rows: &[ImportRowStatus]| {
         let mut counts = ImportSummaryCounts {
@@ -652,13 +1070,27 @@ pub fn preview_import(
             .map(|r| r.status.clone())
             .collect::<Vec<_>>(),
     );
+    let subjects_summary = count_statuses(
+        &subject_rows
+            .iter()
+            .map(|r| r.status.clone())
+            .collect::<Vec<_>>(),
+    );
+    let competencies_summary = count_statuses(
+        &comp_rows
+            .iter()
+            .map(|r| r.status.clone())
+            .collect::<Vec<_>>(),
+    );
 
     let can_apply = campuses_summary.error_count == 0
         && teachers_summary.error_count == 0
-        && unavailabilities_summary.error_count == 0;
+        && unavailabilities_summary.error_count == 0
+        && subjects_summary.error_count == 0
+        && competencies_summary.error_count == 0;
 
     // -------------------------------------------------------------------------
-    // 6. In-memory Feasibility Simulation
+    // 8. In-memory Feasibility Simulation
     // -------------------------------------------------------------------------
     let mut feasibility_report = None;
     if can_apply {
@@ -679,6 +1111,39 @@ pub fn preview_import(
                 }
             }
 
+            // Apply subjects additions/updates
+            if !subject_rows.is_empty() && subject_rows.iter().any(|s| s.code != "CHUNG") {
+                sim_problem.subjects.retain(|s| s.code != "CHUNG");
+                sim_problem
+                    .competencies
+                    .retain(|c| c.subject_id != SubjectId(1));
+            }
+            for s in &subject_rows {
+                if s.status == ImportRowStatus::New {
+                    let sid = SubjectId(50_000 + s.row_index as i64);
+                    sim_problem.subjects.push(Subject {
+                        id: sid,
+                        code: s.code.clone(),
+                        name: s.name.clone(),
+                        color: s.color.clone(),
+                        sort_order: s.row_index as u32,
+                        setters: s.setters,
+                        reviewers: s.reviewers,
+                        min_campuses: s.min_campuses,
+                    });
+                } else if let Some(existing) = sim_problem
+                    .subjects
+                    .iter_mut()
+                    .find(|sub| normalize_code(&sub.code) == s.code)
+                {
+                    existing.name = s.name.clone();
+                    existing.setters = s.setters;
+                    existing.reviewers = s.reviewers;
+                    existing.min_campuses = s.min_campuses;
+                    existing.color = s.color.clone();
+                }
+            }
+
             // Apply deactivations in sync mode
             let deact_ids: HashSet<i64> = deactivated_teachers.iter().map(|d| d.id).collect();
             for t in &mut sim_problem.teachers {
@@ -688,11 +1153,11 @@ pub fn preview_import(
             }
 
             // Apply teacher additions/updates
-            for (i, t_row) in teacher_rows.iter().enumerate() {
+            for t_row in &teacher_rows {
                 let tid = t_row
                     .matched_teacher_id
                     .map(TeacherId)
-                    .unwrap_or(TeacherId(20_000 + i as i64));
+                    .unwrap_or(TeacherId(20_000 + t_row.row_index as i64));
 
                 let cid = campus_code_map
                     .get(&t_row.campus_code)
@@ -704,6 +1169,15 @@ pub fn preview_import(
                     existing.campus_id = cid;
                     existing.load_weight = t_row.load_weight;
                     existing.active = t_row.active;
+                    if t_row.display_name.is_some() {
+                        existing.display_name = t_row.display_name.clone();
+                    }
+                    if t_row.quota_override.is_some() {
+                        existing.quota_override = t_row.quota_override;
+                    }
+                    if t_row.max_tasks_per_exam_override.is_some() {
+                        existing.max_tasks_per_exam_override = t_row.max_tasks_per_exam_override;
+                    }
                 } else if t_row.status == ImportRowStatus::New {
                     sim_problem.teachers.push(Teacher {
                         id: tid,
@@ -713,6 +1187,9 @@ pub fn preview_import(
                         load_weight: t_row.load_weight,
                         active: t_row.active,
                         note: t_row.note.clone(),
+                        display_name: t_row.display_name.clone(),
+                        quota_override: t_row.quota_override,
+                        max_tasks_per_exam_override: t_row.max_tasks_per_exam_override,
                     });
                 }
 
@@ -725,6 +1202,92 @@ pub fn preview_import(
                             school_year_id,
                             grade_id: gid,
                         });
+                    }
+                }
+            }
+
+            // Apply competencies
+            if !comp_rows.is_empty() {
+                sim_problem.competencies.clear();
+                for comp in &comp_rows {
+                    if comp.status == ImportRowStatus::Error {
+                        continue;
+                    }
+                    let tid = comp.matched_teacher_id.map(TeacherId).or_else(|| {
+                        sim_problem
+                            .teachers
+                            .iter()
+                            .find(|t| {
+                                let q = normalize_text(&comp.teacher_ref).to_lowercase();
+                                t.display_name
+                                    .as_deref()
+                                    .map(|dn| normalize_text(dn).to_lowercase())
+                                    == Some(q.clone())
+                                    || normalize_text(&t.full_name).to_lowercase() == q
+                                    || t.code.as_deref().map(|c| normalize_code(c).to_lowercase())
+                                        == Some(q)
+                            })
+                            .map(|t| t.id)
+                    });
+                    let sid = comp.matched_subject_id.map(SubjectId).or_else(|| {
+                        sim_problem
+                            .subjects
+                            .iter()
+                            .find(|s| normalize_code(&s.code) == comp.subject_code)
+                            .map(|s| s.id)
+                    });
+
+                    if let (Some(t_id), Some(s_id)) = (tid, sid) {
+                        let roles = match comp.role.to_lowercase().as_str() {
+                            "ra đề" | "setter" => vec![Role::Setter],
+                            "phản biện" | "reviewer" => vec![Role::Reviewer],
+                            _ => vec![Role::Setter, Role::Reviewer],
+                        };
+                        let scope = if comp.grade_scope.to_lowercase().contains("mọi")
+                            || comp.grade_scope.to_lowercase().contains("all")
+                        {
+                            GradeScope::Any
+                        } else {
+                            GradeScope::Taught
+                        };
+                        for r in roles {
+                            if !sim_problem.competencies.iter().any(|c| {
+                                c.teacher_id == t_id && c.subject_id == s_id && c.role == r
+                            }) {
+                                sim_problem.competencies.push(Competency {
+                                    teacher_id: t_id,
+                                    subject_id: s_id,
+                                    role: r,
+                                    grade_scope: scope,
+                                });
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Ensure all teachers in sim_problem have default competencies for each subject
+                for t in &sim_problem.teachers {
+                    for s in &sim_problem.subjects {
+                        if !sim_problem.competencies.iter().any(|c| {
+                            c.teacher_id == t.id && c.subject_id == s.id && c.role == Role::Setter
+                        }) {
+                            sim_problem.competencies.push(Competency {
+                                teacher_id: t.id,
+                                subject_id: s.id,
+                                role: Role::Setter,
+                                grade_scope: GradeScope::Taught,
+                            });
+                        }
+                        if !sim_problem.competencies.iter().any(|c| {
+                            c.teacher_id == t.id && c.subject_id == s.id && c.role == Role::Reviewer
+                        }) {
+                            sim_problem.competencies.push(Competency {
+                                teacher_id: t.id,
+                                subject_id: s.id,
+                                role: Role::Reviewer,
+                                grade_scope: GradeScope::Taught,
+                            });
+                        }
                     }
                 }
             }
@@ -742,9 +1305,13 @@ pub fn preview_import(
         campuses: campus_rows,
         teachers: teacher_rows,
         unavailabilities: unavail_rows,
+        subjects: subject_rows,
+        competencies: comp_rows,
         campuses_summary,
         teachers_summary,
         unavailabilities_summary,
+        subjects_summary,
+        competencies_summary,
         deactivated_teachers,
         feasibility_report,
     })
@@ -771,8 +1338,10 @@ pub fn apply_import(
     let backup_path = backup_path_buf.to_string_lossy().to_string();
 
     let existing_campuses = store.get_campuses()?;
+    let existing_teachers = store.get_teachers()?;
     let existing_exams = store.get_exams(school_year_id)?;
     let existing_grades = store.get_grades()?;
+    let existing_subjects = store.get_subjects(school_year_id)?;
     let grade_code_to_id: HashMap<i32, GradeId> =
         existing_grades.iter().map(|g| (g.code, g.id)).collect();
 
@@ -782,6 +1351,9 @@ pub fn apply_import(
     let mut teachers_updated = 0;
     let mut teachers_deactivated = 0;
     let mut unavailabilities_created = 0;
+    let mut subjects_created = 0;
+    let mut subjects_updated = 0;
+    let mut competencies_created = 0;
 
     let mut campus_code_to_id: HashMap<String, CampusId> = existing_campuses
         .iter()
@@ -820,8 +1392,72 @@ pub fn apply_import(
         }
     }
 
-    // 3. Apply Teachers & Per-year Grades
+    // 3. Apply Subjects
+    let mut subject_code_to_id: HashMap<String, SubjectId> = existing_subjects
+        .iter()
+        .map(|s| (normalize_code(&s.code), s.id))
+        .collect();
+
+    if !preview.subjects.is_empty() && preview.subjects.iter().any(|s| s.code != "CHUNG") {
+        let _ = tx.execute(
+            "DELETE FROM subjects WHERE school_year_id = ?1 AND code = 'CHUNG'
+             AND NOT EXISTS (SELECT 1 FROM assignments WHERE subject_id = subjects.id)
+             AND NOT EXISTS (SELECT 1 FROM locks WHERE subject_id = subjects.id)",
+            rusqlite::params![school_year_id.value()],
+        );
+        subject_code_to_id.remove("CHUNG");
+    }
+
+    for s in &preview.subjects {
+        match s.status {
+            ImportRowStatus::New => {
+                tx.execute(
+                    "INSERT INTO subjects (school_year_id, code, name, color, sort_order, setters, reviewers, min_campuses)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                    rusqlite::params![
+                        school_year_id.value(),
+                        s.code,
+                        s.name,
+                        s.color,
+                        s.row_index as u32,
+                        s.setters,
+                        s.reviewers,
+                        s.min_campuses,
+                    ],
+                )
+                .map_err(|e| AppError::internal(format!("Lỗi thêm môn học: {e}")))?;
+                let new_id = SubjectId(tx.last_insert_rowid());
+                subject_code_to_id.insert(s.code.clone(), new_id);
+                subjects_created += 1;
+            }
+            ImportRowStatus::Update => {
+                if let Some(&sid) = subject_code_to_id.get(&s.code) {
+                    tx.execute(
+                        "UPDATE subjects SET name = ?1, color = ?2, setters = ?3, reviewers = ?4, min_campuses = ?5 WHERE id = ?6",
+                        rusqlite::params![s.name, s.color, s.setters, s.reviewers, s.min_campuses, sid.value()],
+                    )
+                    .map_err(|e| AppError::internal(format!("Lỗi cập nhật môn học: {e}")))?;
+                    subjects_updated += 1;
+                }
+            }
+            _ => {}
+        }
+    }
+
+    // 4. Apply Teachers & Per-year Grades
     let mut teacher_code_or_name_to_id: HashMap<String, TeacherId> = HashMap::new();
+    for t in &existing_teachers {
+        if let Some(ref c) = t.code {
+            teacher_code_or_name_to_id.insert(c.clone(), t.id);
+            teacher_code_or_name_to_id.insert(normalize_code(c).to_lowercase(), t.id);
+        }
+        teacher_code_or_name_to_id.insert(t.full_name.clone(), t.id);
+        teacher_code_or_name_to_id.insert(normalize_text(&t.full_name).to_lowercase(), t.id);
+        if let Some(ref dn) = t.display_name {
+            teacher_code_or_name_to_id.insert(dn.clone(), t.id);
+            teacher_code_or_name_to_id.insert(normalize_text(dn).to_lowercase(), t.id);
+        }
+    }
 
     for t in &preview.teachers {
         let cid = campus_code_to_id
@@ -834,15 +1470,18 @@ pub fn apply_import(
         let tid = match t.status {
             ImportRowStatus::New => {
                 tx.execute(
-                    "INSERT INTO teachers (code, full_name, campus_id, load_weight, active, note)
-                     VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                    "INSERT INTO teachers (code, full_name, display_name, campus_id, load_weight, active, note, quota_override, max_tasks_per_exam_override)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
                     rusqlite::params![
                         t.code,
                         t.full_name,
+                        t.display_name,
                         cid.value(),
                         t.load_weight,
                         if t.active { 1 } else { 0 },
                         t.note,
+                        t.quota_override,
+                        t.max_tasks_per_exam_override,
                     ],
                 )
                 .map_err(|e| AppError::internal(format!("Lỗi thêm giáo viên: {e}")))?;
@@ -855,16 +1494,20 @@ pub fn apply_import(
                     AppError::internal("Thiếu teacher_id cho dòng cập nhật".to_string())
                 })?;
                 tx.execute(
-                    "UPDATE teachers SET code = ?1, full_name = ?2, campus_id = ?3,
-                     load_weight = ?4, active = ?5, note = ?6, updated_at = datetime('now')
-                     WHERE id = ?7",
+                    "UPDATE teachers SET code = ?1, full_name = ?2, display_name = COALESCE(?3, display_name), campus_id = ?4,
+                     load_weight = ?5, active = ?6, note = ?7, quota_override = COALESCE(?8, quota_override),
+                     max_tasks_per_exam_override = COALESCE(?9, max_tasks_per_exam_override), updated_at = datetime('now')
+                     WHERE id = ?10",
                     rusqlite::params![
                         t.code,
                         t.full_name,
+                        t.display_name,
                         cid.value(),
                         t.load_weight,
                         if t.active { 1 } else { 0 },
                         t.note,
+                        t.quota_override,
+                        t.max_tasks_per_exam_override,
                         existing_id,
                     ],
                 )
@@ -878,8 +1521,14 @@ pub fn apply_import(
         if tid.value() > 0 {
             if let Some(ref c) = t.code {
                 teacher_code_or_name_to_id.insert(c.clone(), tid);
+                teacher_code_or_name_to_id.insert(normalize_code(c).to_lowercase(), tid);
             }
             teacher_code_or_name_to_id.insert(t.full_name.clone(), tid);
+            teacher_code_or_name_to_id.insert(normalize_text(&t.full_name).to_lowercase(), tid);
+            if let Some(ref dn) = t.display_name {
+                teacher_code_or_name_to_id.insert(dn.clone(), tid);
+                teacher_code_or_name_to_id.insert(normalize_text(dn).to_lowercase(), tid);
+            }
 
             // Update per-year teacher grades for this school year
             tx.execute(
@@ -898,10 +1547,96 @@ pub fn apply_import(
                     .map_err(|e| AppError::internal(format!("Lỗi gán khối dạy: {e}")))?;
                 }
             }
+
+            // If no explicit competencies sheet was imported, assign default competencies
+            if preview.competencies.is_empty() {
+                tx.execute(
+                    "INSERT OR IGNORE INTO teacher_competencies (teacher_id, subject_id, role, grade_scope)
+                     SELECT ?1, id, 'setter', 'taught' FROM subjects WHERE school_year_id = ?2
+                     UNION ALL
+                     SELECT ?1, id, 'reviewer', 'taught' FROM subjects WHERE school_year_id = ?2",
+                    rusqlite::params![tid.value(), school_year_id.value()],
+                )
+                .map_err(|e| AppError::internal(format!("Lỗi gán năng lực mặc định: {e}")))?;
+            }
         }
     }
 
-    // 4. In "sync" mode: Deactivate teachers not in file
+    // 5. Apply Competencies (when explicit competencies sheet provided)
+    if !preview.competencies.is_empty() {
+        for comp in &preview.competencies {
+            if comp.status == ImportRowStatus::Error {
+                continue;
+            }
+            let tid = teacher_code_or_name_to_id
+                .get(&comp.teacher_ref)
+                .or_else(|| {
+                    teacher_code_or_name_to_id
+                        .get(&normalize_text(&comp.teacher_ref).to_lowercase())
+                })
+                .or_else(|| {
+                    teacher_code_or_name_to_id
+                        .get(&normalize_code(&comp.teacher_ref).to_lowercase())
+                })
+                .copied()
+                .or_else(|| {
+                    comp.matched_teacher_id
+                        .filter(|&id| id < 20_000)
+                        .map(TeacherId)
+                });
+            let tid = match tid {
+                Some(id) => id,
+                None => continue,
+            };
+
+            let sid = subject_code_to_id
+                .get(&comp.subject_code)
+                .or_else(|| {
+                    subject_code_to_id.get(&normalize_code(&comp.subject_code).to_lowercase())
+                })
+                .copied()
+                .or_else(|| {
+                    comp.matched_subject_id
+                        .filter(|&id| id < 50_000)
+                        .map(SubjectId)
+                });
+            let sid = match sid {
+                Some(id) => id,
+                None => continue,
+            };
+
+            let roles = match comp.role.to_lowercase().as_str() {
+                "ra đề" | "setter" => vec![Role::Setter],
+                "phản biện" | "reviewer" => vec![Role::Reviewer],
+                _ => vec![Role::Setter, Role::Reviewer],
+            };
+
+            let scope = if comp.grade_scope.to_lowercase().contains("mọi")
+                || comp.grade_scope.to_lowercase().contains("all")
+            {
+                GradeScope::Any
+            } else {
+                GradeScope::Taught
+            };
+
+            for r in roles {
+                tx.execute(
+                    "INSERT OR REPLACE INTO teacher_competencies (teacher_id, subject_id, role, grade_scope)
+                     VALUES (?1, ?2, ?3, ?4)",
+                    rusqlite::params![
+                        tid.value(),
+                        sid.value(),
+                        match r { Role::Setter => "setter", Role::Reviewer => "reviewer" },
+                        match scope { GradeScope::Taught => "taught", GradeScope::Any => "any" },
+                    ],
+                )
+                .map_err(|e| AppError::internal(format!("Lỗi lưu chuyên môn: {e}")))?;
+                competencies_created += 1;
+            }
+        }
+    }
+
+    // 6. In "sync" mode: Deactivate teachers not in file
     if preview.mode == "sync" {
         for deact in &preview.deactivated_teachers {
             tx.execute(
@@ -913,7 +1648,7 @@ pub fn apply_import(
         }
     }
 
-    // 5. Apply Unavailabilities
+    // 7. Apply Unavailabilities
     for u in &preview.unavailabilities {
         let exam_id = existing_exams
             .iter()
@@ -947,5 +1682,8 @@ pub fn apply_import(
         teachers_updated,
         teachers_deactivated,
         unavailabilities_created,
+        subjects_created,
+        subjects_updated,
+        competencies_created,
     })
 }

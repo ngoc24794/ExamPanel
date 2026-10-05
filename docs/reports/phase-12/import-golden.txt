@@ -1,0 +1,25 @@
+=== Báo cáo đối soát nhập bảng phân công Q (Golden Validation) ===
+
+Số lượng phân công được nạp: 60 / 60
+Trạng thái hợp lệ (can_apply): true
+
+Bảng đối soát từng giáo viên:
+Giáo viên    | Thực tế    | Kỳ vọng    | Khớp     | Ra đề  | P.Biện
+-------------+------------+------------+---------+--------+-------
+C Hiền       | 5          | 5          | OK       | 3      | 2     
+C Lài        | 5          | 5          | OK       | 3      | 2     
+T Phúc       | 4          | 4          | OK       | 2      | 2     
+T Lộc        | 4          | 4          | OK       | 2      | 2     
+C Thư        | 4          | 4          | OK       | 2      | 2     
+C Na         | 4          | 4          | OK       | 2      | 2     
+C Bình       | 4          | 4          | OK       | 2      | 2     
+C Quí        | 6          | 6          | OK       | 2      | 4     
+C Tú         | 4          | 4          | OK       | 2      | 2     
+C Như        | 4          | 4          | OK       | 2      | 2     
+C Lan        | 4          | 4          | OK       | 2      | 2     
+T Nghĩa      | 12         | 12         | OK       | 12     | 0     
+-------------+------------+------------+---------+--------+-------
+Tổng cộng    | 60         | 60         | OK       | 36     | 24    
+
+Apply thành công vào cơ sở dữ liệu: Plan ID = 1
+Thuộc tính phương án: source = 'manual', origin = 'import'

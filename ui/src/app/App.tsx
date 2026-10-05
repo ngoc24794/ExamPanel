@@ -24,6 +24,8 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
+  BookOpen,
+  Award,
 } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { queryClient, getErrorMessage } from '@/lib/query/query-client'
@@ -38,6 +40,8 @@ import { api } from '@/lib/api'
 import { toast } from 'sonner'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { CampusesPage } from '@/pages/CampusesPage'
+import { SubjectsPage } from '@/pages/SubjectsPage'
+import { CompetenciesPage } from '@/pages/CompetenciesPage'
 import { TeachersPage } from '@/pages/TeachersPage'
 import { ExamsPage } from '@/pages/ExamsPage'
 import { UnavailabilityPage } from '@/pages/UnavailabilityPage'
@@ -71,6 +75,16 @@ const NAV_ENTRIES: NavEntry[] = [
     path: '/campuses',
     labelKey: 'nav.campuses',
     icon: <Building2 className="h-4 w-4" />,
+  },
+  {
+    path: '/subjects',
+    labelKey: 'nav.subjects',
+    icon: <BookOpen className="h-4 w-4" />,
+  },
+  {
+    path: '/competencies',
+    labelKey: 'nav.competencies',
+    icon: <Award className="h-4 w-4" />,
   },
   {
     path: '/exams',
@@ -284,6 +298,8 @@ function AppLayout() {
               <Route path="/" element={<OverviewPage />} />
               <Route path="/teachers" element={<TeachersPage />} />
               <Route path="/campuses" element={<CampusesPage />} />
+              <Route path="/subjects" element={<SubjectsPage />} />
+              <Route path="/competencies" element={<CompetenciesPage />} />
               <Route path="/exams" element={<ExamsPage />} />
               <Route path="/unavailability" element={<UnavailabilityPage />} />
               <Route path="/rules" element={<RulesPage />} />

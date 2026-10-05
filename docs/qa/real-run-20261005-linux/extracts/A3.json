@@ -1,0 +1,91 @@
+{
+ "id": "A3",
+ "started": "2026-10-05T04:56:34.181Z",
+ "checks": [
+  {
+   "step": "A3.second-exits-quickly-code0",
+   "result": "pass",
+   "observed": {
+    "exit": 0,
+    "dt": 49
+   },
+   "expected": "exit 0 within seconds",
+   "evidence": [
+    "logs/raw/A3-1-second-launch.txt"
+   ]
+  },
+  {
+   "step": "A3.no-extra-app-process",
+   "result": "pass",
+   "observed": {
+    "before": [
+     15496
+    ],
+    "after": [
+     15496
+    ]
+   },
+   "expected": "same PIDs",
+   "evidence": []
+  },
+  {
+   "step": "A3.no-error-dialog",
+   "result": "pass",
+   "observed": {
+    "wBefore": [
+     "ExamPanel"
+    ],
+    "wAfter": [
+     "ExamPanel"
+    ]
+   },
+   "expected": "no new windows",
+   "evidence": []
+  },
+  {
+   "step": "A3.first-instance-still-usable",
+   "result": "pass",
+   "observed": true,
+   "expected": "true",
+   "evidence": []
+  },
+  {
+   "step": "A3.second-launch-focuses-first-window",
+   "result": "not-verified",
+   "observed": "second launch exits 0 in 49 ms and creates no window; X11 active-window/focus under openbox was not asserted",
+   "expected": "first window raised/focused (tauri-plugin-single-instance callback show()+set_focus())",
+   "evidence": [
+    "extracts/A3.json"
+   ]
+  },
+  {
+   "step": "A3.no-second-db-connection",
+   "result": "not-verified",
+   "observed": "only one app PID exists; open file descriptors on exam-panel.db were not enumerated by this harness",
+   "expected": "single connection",
+   "evidence": [
+    "extracts/A3.json"
+   ]
+  }
+ ],
+ "notes": {
+  "second_launch": {
+   "exit": 0,
+   "duration_ms": 49,
+   "out": "\n(ExamPanel:15620): dbind-WARNING **: 04:56:36.949: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files\nEXIT=0\n",
+   "pids_before": [
+    15496
+   ],
+   "pids_after": [
+    15496
+   ],
+   "windows_before": [
+    "ExamPanel"
+   ],
+   "windows_after": [
+    "ExamPanel"
+   ]
+  },
+  "db_fd_count_first_process": "1"
+ }
+}

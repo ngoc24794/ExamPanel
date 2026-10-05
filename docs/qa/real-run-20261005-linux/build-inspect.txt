@@ -1,0 +1,20 @@
+== sha256
+96ebbaf71e519dadd15ea510c787155acb0d34880c38a02598a0cee876b77bd9  target/release/exam-panel-app
+== size
+-rwxr-xr-x 2 root root 24552944 Oct  5 04:49 target/release/exam-panel-app
+== ldd missing
+0
+== ldd webkit/gtk
+	libwebkit2gtk-4.1.so.0 => /lib/x86_64-linux-gnu/libwebkit2gtk-4.1.so.0 (0x00007f6e96c00000)
+	libgtk-3.so.0 => /lib/x86_64-linux-gnu/libgtk-3.so.0 (0x00007f6e96400000)
+	libsoup-3.0.so.0 => /lib/x86_64-linux-gnu/libsoup-3.0.so.0 (0x00007f6e9c7f9000)
+	libjavascriptcoregtk-4.1.so.0 => /lib/x86_64-linux-gnu/libjavascriptcoregtk-4.1.so.0 (0x00007f6e94200000)
+== dev-tools probes (strings)
+0
+      1 _RNvMNtCsb35Iaz6Ddtd_18exam_panel_service7serviceNtB2_10AppService9seed_demo
+      1 _RNvNtCsaeBP0Bu3NTT_18exam_panel_storage5seeds9seed_demo
+      1 valid pluginscaleFactorassignmentsreporttotal_runselapsed_msunits_lower_boundmethodteacher_idquotalohiavailable_examsschool_yeargradesteacher_gradescompetenciesexamslocksrule_settingstauri_plugin_dialog::desktop::Dialog<tauri_runtime_wry::Wry<tauri::EventLoopMessage>>tauri_plugin_opener::Opener<tauri_runtime_wry::Wry<tauri::EventLoopMessage>>tauri::path::desktop::PathResolver<tauri_runtime_wry::Wry<tauri::EventLoopMessage>>tauri_plugin_window_state::PluginStatetauri_plugin_window_state::WindowStateCachetauri::menu::plugin::MenuChannelstauri_plugin_window_state::RestoringWindowStatetauri::scope::Scopes}failed to spawn threadget_problem_detailsserviceschoolYearIddelete_competencyinputlist_teachersdelete_gradeidupdate_gradegradecreate_gradelist_gradesdelete_campusupdate_campuscampuscreate_campuslist_campusesopen_log_folderappset_competencyexit_trial_modeset_settingkeyvalueget_settingsget_app_infoget_teacher_competenciesteacherIdlist_competenciessubjectIdsdelete_subjectupdate_subjectcreate_subjectlist_subjectslist_backupscheck_feasibilitypreview_quotasreset_rule_settings_to_defaultssave_rule_settingsget_rule_settingsdelete_lockcreate_locklist_locksdelete_unavailabilityexamIdset_unavailabilityunavailabilitylist_unavailabilitiesreorder_examsexamIdsdelete_examupdate_examcreate_examlist_examsset_current_school_yearcreate_school_yearlist_school_yearsteachers_with_gradesset_teacher_gradesdeactivate_teacherdelete_teacherupdate_teacherteachercreate_teacherreplace_teacher_competenciesvalidate_backupsourcePathbackup_databasetargetPathexport_plan_excelplanIdapply_imported_planpreview_import_plantsvContentapply_importpreviewpreview_importgenerate_import_templateseed_demoevaluate_swapslotAslotBevaluate_candidatesupdate_plan_assignmentscreate_manual_copyplan_statusduplicate_plannewNamemark_finaldelete_planrename_planlist_planssave_optimize_resultoutcomecancel_optimizeevaluate_assignmentsExamPanel - L
+== ui dist grep
+ui/dist/assets/index-C1qSK5lI.js
+ui/dist/assets/index-C1qSK5lI.js:Nạp dữ liệu mẫu
+ui/dist/assets/index-C1qSK5lI.js:Nạp dữ liệu mẫu

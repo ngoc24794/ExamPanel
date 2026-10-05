@@ -43,7 +43,8 @@ export const BackupSection: React.FC = () => {
   // Restore dialog state
   const [restoreDialogOpen, setRestoreDialogOpen] = React.useState(false)
   const [selectedBackupPath, setSelectedBackupPath] = React.useState<string | null>(null)
-  const [validationSummary, setValidationSummary] = React.useState<BackupValidationSummary | null>(null)
+  const [validationSummary, setValidationSummary] =
+    React.useState<BackupValidationSummary | null>(null)
   const [validating, setValidating] = React.useState(false)
   const [restoring, setRestoring] = React.useState(false)
 
@@ -236,7 +237,10 @@ export const BackupSection: React.FC = () => {
               <TableBody>
                 {backups.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                    <TableCell
+                      colSpan={4}
+                      className="text-center py-4 text-muted-foreground"
+                    >
                       {t('backup.noAutoBackups')}
                     </TableCell>
                   </TableRow>
@@ -312,19 +316,27 @@ export const BackupSection: React.FC = () => {
                     <div className="grid grid-cols-2 gap-2 p-3 rounded-md bg-muted/40 border border-border">
                       <div>
                         <span className="text-muted-foreground">Năm học:</span>{' '}
-                        <span className="font-semibold">{validationSummary.school_years_count}</span>
+                        <span className="font-semibold">
+                          {validationSummary.school_years_count}
+                        </span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Giáo viên:</span>{' '}
-                        <span className="font-semibold">{validationSummary.teachers_count}</span>
+                        <span className="font-semibold">
+                          {validationSummary.teachers_count}
+                        </span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Phương án:</span>{' '}
-                        <span className="font-semibold">{validationSummary.plans_count}</span>
+                        <span className="font-semibold">
+                          {validationSummary.plans_count}
+                        </span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Phiên bản:</span>{' '}
-                        <span className="font-semibold font-mono">v{validationSummary.user_version}</span>
+                        <span className="font-semibold font-mono">
+                          v{validationSummary.user_version}
+                        </span>
                       </div>
                     </div>
                   )}

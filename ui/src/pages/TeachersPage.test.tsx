@@ -220,4 +220,53 @@ describe('TeachersPage', () => {
       ).toBeGreaterThan(0)
     })
   })
+
+  it('renders teacher display name, forced seat badge, and supports editing quota/max-tasks overrides', async () => {
+    const originalGetProblemDetails = api.getProblemDetails
+    api.getProblemDetails = vi.fn().mockResolvedValue({
+      school_year_id: 1,
+      total_slots: 60,
+      forced: [
+        {
+          teacher_id: 1,
+          exam_id: 1,
+          grade_id: 1,
+          subject_id: 1,
+          role: 'setter',
+        },
+      ],
+      locks: [],
+      unavailabilities: [],
+    })
+
+    const originalTeachersWithGrades = api.teachersWithGrades
+    api.teachersWithGrades = vi.fn().mockResolvedValue([
+      {
+        teacher: {
+          id: 1,
+          code: 'GV01',
+          full_name: 'Nguyễn Văn An',
+          display_name: 'Thầy An (Toán)',
+          campus_id: 1,
+          load_weight: 1.0,
+          active: true,
+          note: null,
+          quota_override: 5,
+          max_tasks_per_exam_override: 2,
+        },
+        grade_ids: [1, 2],
+      },
+    ])
+
+    renderWithClient(<TeachersPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Nguyễn Văn An')).toBeInTheDocument()
+      expect(screen.getByText(/Thầy An \(Toán\)/)).toBeInTheDocument()
+      expect(screen.getByTestId('forced-seat-badge-1')).toBeInTheDocument()
+    })
+
+    api.getProblemDetails = originalGetProblemDetails
+    api.teachersWithGrades = originalTeachersWithGrades
+  })
 })

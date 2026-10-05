@@ -1,0 +1,83 @@
+{
+ "id": "E5",
+ "started": "2026-10-05T06:20:17.543Z",
+ "checks": [
+  {
+   "step": "E5.perf-numbers-collected",
+   "result": "pass",
+   "observed": {
+    "idle_rss_kb": 453028,
+    "generate_import_template_ms": {
+     "min": 6,
+     "median": 14,
+     "max": 110,
+     "n": 5
+    },
+    "export_plan_excel_ms": {
+     "min": 7,
+     "median": 7,
+     "max": 9,
+     "n": 5
+    },
+    "preview_import_ms": {
+     "min": 7,
+     "median": 7,
+     "max": 51,
+     "n": 5
+    },
+    "apply_import_ms (incl. automatic backup)": {
+     "min": 1114,
+     "median": 1115,
+     "max": 1117,
+     "n": 5
+    },
+    "backup_database_ms": {
+     "min": 5,
+     "median": 6,
+     "max": 7,
+     "n": 5
+    },
+    "restore_database_ms (incl. pre-restore backup)": {
+     "min": 1112,
+     "median": 1115,
+     "max": 1116,
+     "n": 5
+    },
+    "get_plan_ms": {
+     "min": 6,
+     "median": 7,
+     "max": 10,
+     "n": 20
+    },
+    "evaluate_assignments_ms": {
+     "min": 12,
+     "median": 13,
+     "max": 15,
+     "n": 20
+    },
+    "check_feasibility_ms": {
+     "min": 4,
+     "median": 5,
+     "max": 5,
+     "n": 10
+    },
+    "route_change_to_rendered_ms (Phân công)": {
+     "min": 1023,
+     "median": 1028,
+     "max": 1070,
+     "n": 5
+    },
+    "rss_after_kb": 540388,
+    "db_size_bytes": 221184,
+    "export_xlsx_bytes": 15333,
+    "backup_bytes": 221184,
+    "backups_dir_bytes": 2211840
+   },
+   "expected": "informational (sandbox 4 vCPU, software GL)",
+   "evidence": [
+    "extracts/E5-perf.json"
+   ]
+  }
+ ],
+ "notes": {}
+}

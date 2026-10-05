@@ -3,17 +3,21 @@ import { openPath } from '@tauri-apps/plugin-opener'
 import type {
   AppInfo,
   AppSettings,
+  ApplyPlanImportInput,
   Assignment,
   BackupFileInfo,
   BackupValidationSummary,
   Campus,
   CandidateEval,
+  Competency,
   CreateCampusInput,
   CreateExamInput,
   CreateGradeInput,
   CreateLockInput,
   CreateSchoolYearInput,
+  CreateSubjectInput,
   CreateTeacherInput,
+  DeleteCompetencyInput,
   EvaluationOutcome,
   Exam,
   ExamPanelApi,
@@ -26,20 +30,26 @@ import type {
   OptimizeOutcome,
   OptimizeRequest,
   PlanDetails,
+  PlanImportPreview,
   PlanStatus,
   PlanSummary,
   PreviewQuotasInput,
+  ProblemDetails,
   Progress,
   QuotaPreviewItem,
   ReoptimizeRequest,
+  ReplaceTeacherCompetenciesInput,
   RulePresetItem,
   RuleSetting,
   SchoolYear,
+  SetCompetencyInput,
   SlotRef,
+  Subject,
   Teacher,
   TeacherWithGrades,
   ThemeMode,
   Unavailability,
+  UpdateSubjectInput,
 } from './types'
 
 export class TauriExamPanelApi implements ExamPanelApi {
@@ -212,6 +222,56 @@ export class TauriExamPanelApi implements ExamPanelApi {
     await invoke<void>('reorder_exams', { examIds })
   }
 
+  // Subjects
+  async listSubjects(schoolYearId: number): Promise<Subject[]> {
+    return await invoke<Subject[]>('list_subjects', { schoolYearId })
+  }
+
+  async createSubject(input: CreateSubjectInput): Promise<Subject> {
+    return await invoke<Subject>('create_subject', { input })
+  }
+
+  async updateSubject(input: UpdateSubjectInput): Promise<void> {
+    await invoke<void>('update_subject', { input })
+  }
+
+  async deleteSubject(id: number): Promise<void> {
+    await invoke<void>('delete_subject', { id })
+  }
+
+  async reorderSubjects(schoolYearId: number, subjectIds: number[]): Promise<void> {
+    await invoke<void>('reorder_subjects', { schoolYearId, subjectIds })
+  }
+
+  // Competencies
+  async listCompetencies(schoolYearId: number): Promise<Competency[]> {
+    return await invoke<Competency[]>('list_competencies', { schoolYearId })
+  }
+
+  async getTeacherCompetencies(
+    teacherId: number,
+    schoolYearId: number,
+  ): Promise<Competency[]> {
+    return await invoke<Competency[]>('get_teacher_competencies', {
+      teacherId,
+      schoolYearId,
+    })
+  }
+
+  async setCompetency(input: SetCompetencyInput): Promise<void> {
+    await invoke<void>('set_competency', { input })
+  }
+
+  async deleteCompetency(input: DeleteCompetencyInput): Promise<void> {
+    await invoke<void>('delete_competency', { input })
+  }
+
+  async replaceTeacherCompetencies(
+    input: ReplaceTeacherCompetenciesInput,
+  ): Promise<void> {
+    await invoke<void>('replace_teacher_competencies', { input })
+  }
+
   // Unavailability
   async listUnavailabilities(schoolYearId: number): Promise<Unavailability[]> {
     return await invoke<Unavailability[]>('list_unavailabilities', {
@@ -264,6 +324,10 @@ export class TauriExamPanelApi implements ExamPanelApi {
   }
 
   // Analysis
+  async getProblemDetails(schoolYearId: number): Promise<ProblemDetails> {
+    return await invoke<ProblemDetails>('get_problem_details', { schoolYearId })
+  }
+
   async checkFeasibility(schoolYearId: number): Promise<FeasibilityReportWithQuotas> {
     const res = await invoke<FeasibilityReportWithQuotas>('check_feasibility', {
       schoolYearId,
@@ -445,6 +509,22 @@ export class TauriExamPanelApi implements ExamPanelApi {
 
   async exportPlanExcel(planId: number, targetPath: string): Promise<void> {
     await invoke<void>('export_plan_excel', { planId, targetPath })
+  }
+
+  async previewImportPlan(
+    schoolYearId: number,
+    filePath?: string,
+    tsvContent?: string,
+  ): Promise<PlanImportPreview> {
+    return await invoke<PlanImportPreview>('preview_import_plan', {
+      schoolYearId,
+      filePath,
+      tsvContent,
+    })
+  }
+
+  async applyImportedPlan(input: ApplyPlanImportInput): Promise<number> {
+    return await invoke<number>('apply_imported_plan', { input })
   }
 
   // Backup & Restore

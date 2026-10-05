@@ -1,0 +1,62 @@
+{
+ "id": "D2",
+ "started": "2026-10-05T05:53:26.755Z",
+ "checks": [
+  {
+   "step": "D2.final-plan-set",
+   "result": "pass",
+   "observed": "is_final=1",
+   "expected": "plan 1 final",
+   "evidence": []
+  },
+  {
+   "step": "D1.export-final-file",
+   "result": "pass",
+   "observed": {
+    "ok": true,
+    "dialog": "Save File",
+    "stillOpen": false
+   },
+   "expected": "file written",
+   "evidence": []
+  },
+  {
+   "step": "D2.real-app-print-dialog-and-pdf",
+   "result": "blocked",
+   "observed": "window.print() is a no-op in the WebKitGTK app and WebDriver Print Page is unsupported (RA-030)",
+   "expected": "Print dialog -> PDF from the real app",
+   "evidence": [
+    "screenshots/D2-gtk-print-dialog.png",
+    "extracts/D2.json"
+   ]
+  },
+  {
+   "step": "D2.notices-filter-toggle-all-vs-with-tasks",
+   "result": "not-verified",
+   "observed": "filter control exists on /print/notices (visible in screenshots) but toggling was not driven; PDF replay used default filter (12 teachers all with duties)",
+   "expected": "both filters give correct page counts",
+   "evidence": [
+    "extracts/D2-pdfchecks.json"
+   ]
+  }
+ ],
+ "notes": {
+  "settings_rows": [
+   {
+    "key": "school_name",
+    "value": "TRƯỜNG THPT THỬ NGHIỆM"
+   },
+   {
+    "key": "signer_title",
+    "value": "TỔ TRƯỞNG CHUYÊN MÔN"
+   },
+   {
+    "key": "signer_name",
+    "value": "Nguyễn Thị Thử"
+   }
+  ],
+  "printPage_plan": "FAILED: WebDriverError: Unknown command: /session/0b140951-9c80-4c72-9b76-6b15adcfca1c/print when running \"print\" with method \"POST\"",
+  "printPage_notices": "FAILED: WebDriverError: Unknown command: /session/0b140951-9c80-4c72-9b76-6b15adcfca1c/print when running \"print\" with method \"POST\"",
+  "final_badge_visible_on_plan_header": true
+ }
+}

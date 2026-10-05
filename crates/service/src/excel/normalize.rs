@@ -14,6 +14,23 @@ pub fn normalize_code(s: &str) -> String {
     normalize_text(s).to_uppercase()
 }
 
+/// Strips Vietnamese diacritics and converts to lowercase for accent-insensitive matching.
+pub fn strip_diacritics(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.nfd() {
+        match c {
+            'đ' => out.push('d'),
+            'Đ' => out.push('d'),
+            c if unicode_normalization::char::is_combining_mark(c) => {}
+            c => out.push(c),
+        }
+    }
+    out.split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_lowercase()
+}
+
 /// Parses grade qualifications string into a sorted, deduplicated list of grade codes (10, 11, 12).
 ///
 /// Supported formats:

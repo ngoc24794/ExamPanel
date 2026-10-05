@@ -1,0 +1,524 @@
+{
+ "base_total": 176.36363636363637,
+ "base_by_rule": {
+  "s1": 0,
+  "s2": 0,
+  "s3": 144,
+  "s4": 0,
+  "s5": 6,
+  "s6": 6,
+  "s7": 0,
+  "s8": 20.36363636363636,
+  "s9": 0,
+  "s10": 0
+ },
+ "cands": [
+  {
+   "teacher": "Cô Hiền",
+   "cand": {
+    "hard_violations": [
+     {
+      "teacher": 1,
+      "code": "max_setter_tasks_per_exam_exceeded",
+      "panel": null,
+      "params": {
+       "exam_id": 1,
+       "count": 2,
+       "limit": 1
+      },
+      "rule": "h4"
+     }
+    ],
+    "delta_score": 34.99999999999997,
+    "new_total": 211.36363636363635,
+    "teacher_id": 1
+   },
+   "full_total": 211.36363636363635,
+   "full_hard": [
+    "max_setter_tasks_per_exam_exceeded"
+   ],
+   "by_rule": {
+    "s1": 0,
+    "s2": 3,
+    "s3": 144,
+    "s4": 0,
+    "s5": 6,
+    "s6": 6,
+    "s7": 0,
+    "s8": 52.363636363636346,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Cô Lài",
+   "cand": {
+    "hard_violations": [],
+    "delta_score": 11,
+    "new_total": 187.36363636363637,
+    "teacher_id": 2
+   },
+   "full_total": 194.36363636363637,
+   "full_hard": [],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 6,
+    "s6": 8,
+    "s7": 0,
+    "s8": 36.36363636363636,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Thầy Phúc",
+   "cand": {
+    "hard_violations": [],
+    "delta_score": 5,
+    "new_total": 181.36363636363637,
+    "teacher_id": 3
+   },
+   "full_total": 194.36363636363637,
+   "full_hard": [],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 6,
+    "s6": 8,
+    "s7": 0,
+    "s8": 36.36363636363636,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Thầy Lộc",
+   "cand": {
+    "hard_violations": [],
+    "delta_score": 5,
+    "new_total": 181.36363636363637,
+    "teacher_id": 4
+   },
+   "full_total": 194.36363636363637,
+   "full_hard": [],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 6,
+    "s6": 8,
+    "s7": 0,
+    "s8": 36.36363636363636,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Cô Thư",
+   "cand": {
+    "hard_violations": [
+     {
+      "teacher": 5,
+      "code": "unqualified_grade",
+      "panel": {
+       "exam_id": 1,
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "params": {
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "rule": "h2"
+     }
+    ],
+    "delta_score": 18,
+    "new_total": 194.36363636363637,
+    "teacher_id": 5
+   },
+   "full_total": 194.36363636363637,
+   "full_hard": [
+    "unqualified_grade"
+   ],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 6,
+    "s6": 8,
+    "s7": 0,
+    "s8": 36.36363636363636,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Cô Na",
+   "cand": {
+    "hard_violations": [
+     {
+      "teacher": 6,
+      "code": "duplicate_teacher_in_panel",
+      "panel": {
+       "exam_id": 1,
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "params": {},
+      "rule": "h1"
+     },
+     {
+      "teacher": 6,
+      "code": "max_tasks_per_exam_exceeded",
+      "panel": null,
+      "params": {
+       "exam_id": 1,
+       "count": 3,
+       "limit": 2
+      },
+      "rule": "h4"
+     },
+     {
+      "teacher": 6,
+      "code": "max_setter_tasks_per_exam_exceeded",
+      "panel": null,
+      "params": {
+       "exam_id": 1,
+       "count": 2,
+       "limit": 1
+      },
+      "rule": "h4"
+     }
+    ],
+    "delta_score": 0,
+    "new_total": 176.36363636363637,
+    "teacher_id": 6
+   },
+   "full_total": 214.36363636363635,
+   "full_hard": [
+    "duplicate_teacher_in_panel",
+    "max_tasks_per_exam_exceeded",
+    "max_setter_tasks_per_exam_exceeded"
+   ],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 12,
+    "s6": 6,
+    "s7": 0,
+    "s8": 52.36363636363635,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Cô Bình",
+   "cand": {
+    "hard_violations": [
+     {
+      "teacher": 7,
+      "code": "unqualified_grade",
+      "panel": {
+       "exam_id": 1,
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "params": {
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "rule": "h2"
+     },
+     {
+      "teacher": 7,
+      "code": "max_setter_tasks_per_exam_exceeded",
+      "panel": null,
+      "params": {
+       "exam_id": 1,
+       "count": 2,
+       "limit": 1
+      },
+      "rule": "h4"
+     }
+    ],
+    "delta_score": 16,
+    "new_total": 192.36363636363637,
+    "teacher_id": 7
+   },
+   "full_total": 192.36363636363637,
+   "full_hard": [
+    "unqualified_grade",
+    "max_setter_tasks_per_exam_exceeded"
+   ],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 6,
+    "s6": 6,
+    "s7": 0,
+    "s8": 36.36363636363636,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Cô Quí",
+   "cand": {
+    "hard_violations": [
+     {
+      "teacher": 8,
+      "code": "unqualified_grade",
+      "panel": {
+       "exam_id": 1,
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "params": {
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "rule": "h2"
+     },
+     {
+      "teacher": 8,
+      "code": "max_setter_tasks_per_exam_exceeded",
+      "panel": null,
+      "params": {
+       "exam_id": 1,
+       "count": 2,
+       "limit": 1
+      },
+      "rule": "h4"
+     }
+    ],
+    "delta_score": 41,
+    "new_total": 217.36363636363637,
+    "teacher_id": 8
+   },
+   "full_total": 217.36363636363637,
+   "full_hard": [
+    "unqualified_grade",
+    "max_setter_tasks_per_exam_exceeded"
+   ],
+   "by_rule": {
+    "s1": 0,
+    "s2": 3,
+    "s3": 144,
+    "s4": 6,
+    "s5": 6,
+    "s6": 6,
+    "s7": 0,
+    "s8": 52.36363636363636,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Cô Tú",
+   "cand": {
+    "hard_violations": [
+     {
+      "teacher": 9,
+      "code": "duplicate_teacher_in_panel",
+      "panel": {
+       "exam_id": 1,
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "params": {},
+      "rule": "h1"
+     }
+    ],
+    "delta_score": 18,
+    "new_total": 194.36363636363637,
+    "teacher_id": 9
+   },
+   "full_total": 194.36363636363637,
+   "full_hard": [
+    "duplicate_teacher_in_panel"
+   ],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 6,
+    "s6": 8,
+    "s7": 0,
+    "s8": 36.36363636363636,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Cô Như",
+   "cand": {
+    "hard_violations": [],
+    "delta_score": 9,
+    "new_total": 185.36363636363637,
+    "teacher_id": 10
+   },
+   "full_total": 176.36363636363637,
+   "full_hard": [],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 6,
+    "s6": 6,
+    "s7": 0,
+    "s8": 20.36363636363636,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Cô Lan",
+   "cand": {
+    "hard_violations": [
+     {
+      "teacher": 11,
+      "code": "unqualified_grade",
+      "panel": {
+       "exam_id": 1,
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "params": {
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "rule": "h2"
+     },
+     {
+      "teacher": 11,
+      "code": "max_setter_tasks_per_exam_exceeded",
+      "panel": null,
+      "params": {
+       "exam_id": 1,
+       "count": 2,
+       "limit": 1
+      },
+      "rule": "h4"
+     }
+    ],
+    "delta_score": 32,
+    "new_total": 208.36363636363637,
+    "teacher_id": 11
+   },
+   "full_total": 208.36363636363637,
+   "full_hard": [
+    "unqualified_grade",
+    "max_setter_tasks_per_exam_exceeded"
+   ],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 6,
+    "s6": 6,
+    "s7": 0,
+    "s8": 52.36363636363636,
+    "s9": 0,
+    "s10": 0
+   }
+  },
+  {
+   "teacher": "Thầy Nghĩa",
+   "cand": {
+    "hard_violations": [
+     {
+      "teacher": 12,
+      "code": "unqualified_grade",
+      "panel": {
+       "exam_id": 1,
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "params": {
+       "grade_id": 1,
+       "subject_id": 2
+      },
+      "rule": "h2"
+     },
+     {
+      "teacher": 12,
+      "code": "max_tasks_per_exam_exceeded",
+      "panel": null,
+      "params": {
+       "exam_id": 1,
+       "count": 4,
+       "limit": 3
+      },
+      "rule": "h4"
+     },
+     {
+      "teacher": 12,
+      "code": "max_setter_tasks_per_exam_exceeded",
+      "panel": null,
+      "params": {
+       "exam_id": 1,
+       "count": 4,
+       "limit": 3
+      },
+      "rule": "h4"
+     },
+     {
+      "teacher": 12,
+      "code": "quota_exceeded",
+      "panel": null,
+      "params": {
+       "hi": 12,
+       "count": 13
+      },
+      "rule": "h7"
+     }
+    ],
+    "delta_score": 19.818181818181813,
+    "new_total": 196.1818181818182,
+    "teacher_id": 12
+   },
+   "full_total": 196.1818181818182,
+   "full_hard": [
+    "unqualified_grade",
+    "max_tasks_per_exam_exceeded",
+    "max_setter_tasks_per_exam_exceeded",
+    "quota_exceeded"
+   ],
+   "by_rule": {
+    "s1": 0,
+    "s2": 0,
+    "s3": 144,
+    "s4": 0,
+    "s5": 12,
+    "s6": 6,
+    "s7": 0,
+    "s8": 34.18181818181817,
+    "s9": 0,
+    "s10": 0
+   }
+  }
+ ],
+ "seat": {
+  "grade_id": 1,
+  "plan_id": 2,
+  "role": "setter",
+  "teacher_id": 10,
+  "exam_id": 1,
+  "subject_id": 2,
+  "position": 0
+ }
+}

@@ -1,0 +1,122 @@
+{
+ "id": "A8",
+ "started": "2026-10-05T06:13:36.367Z",
+ "checks": [
+  {
+   "step": "A8.min-size-1024x700-enforced",
+   "result": "pass",
+   "observed": {
+    "requested": "700x450",
+    "x11_outer": "1024x700",
+    "wd_window": {
+     "width": 1024,
+     "height": 700
+    },
+    "viewport": [
+     1024,
+     700
+    ]
+   },
+   "expected": "window cannot be made smaller than 1024x700 (tauri.conf minWidth/minHeight)",
+   "evidence": [
+    "extracts/A8.json"
+   ]
+  },
+  {
+   "step": "A8.screens-usable-1024x700",
+   "result": "pass",
+   "observed": {
+    "routes_with_issues": 0,
+    "details": []
+   },
+   "expected": "no horizontal page scroll, no clipped text, no child overflowing its card (heuristic metrics) on all 11 screens",
+   "evidence": [
+    "extracts/A8-screens-metrics.json"
+   ]
+  },
+  {
+   "step": "A8.screens-usable-1280x720",
+   "result": "fail",
+   "observed": {
+    "routes_with_issues": 1,
+    "details": [
+     {
+      "route": "/assignments",
+      "hscroll": false,
+      "clipped": [],
+      "overflow": [
+       " (child right 940 > card right 856)"
+      ]
+     }
+    ]
+   },
+   "expected": "no horizontal page scroll, no clipped text, no child overflowing its card (heuristic metrics) on all 11 screens",
+   "evidence": [
+    "extracts/A8-screens-metrics.json"
+   ]
+  },
+  {
+   "step": "A8.screens-usable-1920x1080",
+   "result": "pass",
+   "observed": {
+    "routes_with_issues": 0,
+    "details": []
+   },
+   "expected": "no horizontal page scroll, no clipped text, no child overflowing its card (heuristic metrics) on all 11 screens",
+   "evidence": [
+    "extracts/A8-screens-metrics.json"
+   ]
+  },
+  {
+   "step": "A8.alt-f4-closes-app",
+   "result": "pass",
+   "observed": {
+    "still_running": false
+   },
+   "expected": "window close exits the process (single window app)",
+   "evidence": []
+  },
+  {
+   "step": "A8.size-position-remembered",
+   "result": "pass",
+   "observed": {
+    "before": {
+     "id": "4194307",
+     "x": 62,
+     "y": 84,
+     "w": 1100,
+     "h": 760
+    },
+    "after": {
+     "id": "4194307",
+     "x": 62,
+     "y": 84,
+     "w": 1100,
+     "h": 760
+    },
+    "state_file": "/home/user/ExamPanel/.tools/qa-run/A8-1/home/.config/vn.exampanel.app/.window-state.json"
+   },
+   "expected": "tauri-plugin-window-state restores size/position (X11 frame offsets tolerated)",
+   "evidence": [
+    "extracts/A8.json"
+   ]
+  }
+ ],
+ "notes": {
+  "initial_geometry": {
+   "id": "4194307",
+   "x": 321,
+   "y": 170,
+   "w": 1280,
+   "h": 800
+  },
+  "geometry_before_close": {
+   "id": "4194307",
+   "x": 62,
+   "y": 84,
+   "w": 1100,
+   "h": 760
+  },
+  "window_state_files": "/home/user/ExamPanel/.tools/qa-run/A8-1/home/.config/vn.exampanel.app/.window-state.json"
+ }
+}

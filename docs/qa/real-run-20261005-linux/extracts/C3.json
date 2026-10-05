@@ -1,0 +1,93 @@
+{
+ "id": "C3",
+ "started": "2026-10-05T05:28:05.660Z",
+ "checks": [
+  {
+   "step": "C3.distance-equals-true-seat-difference",
+   "result": "fail",
+   "observed": {
+    "ui": 33,
+    "subject_aware": 39,
+    "subject_blind": 36
+   },
+   "expected": "distance = number of seats whose teacher differs (39 subject-aware)",
+   "evidence": [
+    "extracts/C3-compare-dialog.txt",
+    "extracts/C3-engine-plans.json"
+   ]
+  },
+  {
+   "step": "C3.matrix-shows-both-subjects-reviewers",
+   "result": "fail",
+   "observed": {
+    "A_cell_GK1_10": "Giữa kỳ 1\t\nA: Thầy Nghĩa, Cô Hiền, Cô Lài | PB: Cô Hiền"
+   },
+   "expected": "cell shows VL reviewer (T Phúc) and CN reviewer (C Hiền); Q GK1/10 VL [C Hiền, C Lài | T Phúc] CN [T Nghĩa | C Hiền]",
+   "evidence": [
+    "extracts/C3-compare-dialog.txt",
+    "screenshots/C3-compare-dialog-page.png"
+   ]
+  },
+  {
+   "step": "C3.per-rule-differences-match-engine",
+   "result": "pass",
+   "observed": {
+    "ui_lines": 10,
+    "engine_A": {
+     "s1": 10,
+     "s2": 3,
+     "s3": 144,
+     "s4": 0,
+     "s5": 6,
+     "s6": 16,
+     "s7": 0,
+     "s8": 36.36363636363636,
+     "s9": 45,
+     "s10": 0
+    },
+    "engine_B": {
+     "s1": 0,
+     "s2": 0,
+     "s3": 144,
+     "s4": 0,
+     "s5": 6,
+     "s6": 6,
+     "s7": 0,
+     "s8": 20.36363636363636,
+     "s9": 0,
+     "s10": 0
+    }
+   },
+   "expected": "UI per-rule A→B equals engine penalties (1-decimal rounding in UI)",
+   "evidence": []
+  },
+  {
+   "step": "C3.per-teacher-differences",
+   "result": "not-verified",
+   "observed": "Compare dialog has no per-teacher section (only matrix, per-rule table, distance)",
+   "expected": "per-teacher differences (task C3 wording)",
+   "evidence": []
+  },
+  {
+   "step": "C3.total-diff",
+   "result": "pass",
+   "observed": "Chênh lệch (B - A): -84.00",
+   "expected": "-84.00 (176.36-260.36)",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "plan_options": [
+   "Phương án #1 (Điểm: 176.4)",
+   "Phương án #2 (Điểm: 176.4)",
+   "Phương án #3 (Điểm: 176.4)",
+   "Nhập từ bảng của tổ (Điểm: 260.4)"
+  ],
+  "dialog_text_head": "So sánh 2 phương án\nSo sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án\nPhương án A\nNhập từ bảng của tổ (Điểm: 260.4)\nPhương án B\nPhương án #1 (Điểm: 176.4)\nKhoảng cách sai khác: 33 ô thay đổi\nĐiểm A: 260.36\nĐiểm B: 176.36\nChênh lệch (B - A): -84.00\nÔ có thay đổi giữa 2 phương án (12 ban đề có thay đổi)\nKỳ / Khối\tKhối 10\tKhối 11\tKhối 12\nGiữa kỳ 1\t\nA: Thầy Nghĩa, Cô Hiền, Cô Lài | PB: Cô Hiền\nB: Cô Như, Cô Na, Thầy Nghĩa | PB: Cô Tú\nA: Thầy Lộc, Thầy Nghĩa, Cô Thư | PB: Cô Na\nB: Cô Hiền, Cô Bình, Thầy Nghĩa | PB: Cô Thư\nA: Cô Bình, Thầy Nghĩa, Thầy Phúc | PB: Cô Quí\nB: Cô Lan, Cô Quí, Thầy Nghĩa | PB: Cô Lài\nCuối kỳ 1\t\nA: Thầy Nghĩa, Cô Hiền, Cô Tú | PB: Cô Tú\nB: Cô Hiền, Cô Tú, Thầy Nghĩa | PB: Cô Na\nA: Cô Lài, Thầy Nghĩa, Cô Bình | PB: Cô Thư\nB: Cô Thư, Thầy Lộc, Thầy Nghĩa | PB: Cô Quí\nA: Cô Lan, Thầy Nghĩa, Cô Quí | PB: Cô Lài\nB: Thầy Phúc, Cô Lài, Thầy Nghĩa | PB: Cô Lan\nGiữa kỳ 2\t\nA: Thầy Nghĩa, Cô Tú, Cô Như | PB: Cô Như\nB: Cô Lài, Cô Như, Thầy Nghĩa | PB: Thầy Phúc\nA: Cô Na, Thầy Nghĩa, Cô Thư | PB: Cô Hiền\nB: Cô Quí, Cô Na, Thầy Nghĩa | PB: Thầy Lộc\nA: Cô Lan, Thầy Nghĩa, Cô Lài | PB: Cô Quí\nB: Cô Bình, Cô Lan, Thầy Nghĩa | PB: Cô Hiền\nCuối kỳ 2\t\nA: Thầy Nghĩa, Cô Na, Cô Như | PB: Cô Quí\nB: Cô Tú, Thầy Lộc, Thầy Nghĩa | PB: Cô Như\nA: Thầy Lộc, Thầy Nghĩa, Cô Quí | PB: Cô Bình\nB: Cô Thư, Cô Quí, Thầy Nghĩa | PB: Cô Na\nA: Thầy Phúc, Thầy Nghĩa, Cô Hiền | PB: Cô Lan\nB: Thầy Phúc, Cô Hiền, Thầy Nghĩa | PB: Cô Bình\nChênh lệch điểm phạt\nS1\n10.0 → 0.0\n-10.0\nS2\n3.0 → 0.0\n-3.0\nS3\n144.0 → 144.0\n0.0\nS4\n0.0 → 0.0\n0.0\nS5\n6.0 → 6.0\n0.0\nS6\n16.0 → 6.0\n-10.0\nS7\n0.0 → 0.0\n0.0\nS8\n36.4 → 20.4\n-16.0\nS9\n45.0 → 0.0\n-45.0\nS10\n0.0 → 0.0\n0.0\nClose",
+  "distance": {
+   "ui": 33,
+   "subject_aware_seats_A_not_in_B": 39,
+   "core_plan_distance_style_blind_unique_keys": 36
+  }
+ }
+}

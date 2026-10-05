@@ -3,16 +3,19 @@
 //! All commands are thin wrappers over `AppService`.
 
 use exam_panel_core::domain::{
-    Assignment, Campus, CampusId, Exam, ExamId, Grade, GradeId, Lock, LockId, PlanId, PlanSummary,
-    RuleSetting, SchoolYear, SchoolYearId, Teacher, TeacherId, TeacherWithGrades, Unavailability,
+    Assignment, Campus, CampusId, Competency, Exam, ExamId, Grade, GradeId, Lock, LockId, PlanId,
+    PlanSummary, RuleSetting, SchoolYear, SchoolYearId, Subject, SubjectId, Teacher, TeacherId,
+    TeacherWithGrades, Unavailability,
 };
 use exam_panel_core::optimize::{CandidateEval, Progress, SlotRef};
 use exam_panel_service::dto::{
-    AppInfo, AppSettings, BackupFileInfo, BackupValidationSummary, CreateCampusInput,
-    CreateExamInput, CreateGradeInput, CreateLockInput, CreateSchoolYearInput, CreateTeacherInput,
-    EvaluationOutcome, FeasibilityReportWithQuotas, ImportApplyResult, ImportPreviewResult,
-    OptimizeOutcome, OptimizeRequest, PlanDetails, PlanStatus, PreviewQuotasInput,
-    QuotaPreviewItem, ReoptimizeRequest, RulePresetItem,
+    AppInfo, AppSettings, ApplyPlanImportInput, BackupFileInfo, BackupValidationSummary,
+    CreateCampusInput, CreateExamInput, CreateGradeInput, CreateLockInput, CreateSchoolYearInput,
+    CreateSubjectInput, CreateTeacherInput, DeleteCompetencyInput, EvaluationOutcome,
+    FeasibilityReportWithQuotas, ImportApplyResult, ImportPreviewResult, OptimizeOutcome,
+    OptimizeRequest, PlanDetails, PlanImportPreview, PlanStatus, PreviewQuotasInput,
+    ProblemDetails, QuotaPreviewItem, ReoptimizeRequest, ReplaceTeacherCompetenciesInput,
+    RulePresetItem, SetCompetencyInput, UpdateSubjectInput,
 };
 use exam_panel_service::error::AppError;
 use exam_panel_service::service::AppService;
@@ -556,6 +559,28 @@ pub fn apply_import(
 }
 
 #[tauri::command]
+pub fn preview_import_plan(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: SchoolYearId,
+    file_path: Option<String>,
+    tsv_content: Option<String>,
+) -> Result<PlanImportPreview, AppError> {
+    service.preview_import_plan(
+        school_year_id,
+        file_path.as_deref().map(std::path::Path::new),
+        tsv_content.as_deref(),
+    )
+}
+
+#[tauri::command]
+pub fn apply_imported_plan(
+    service: State<'_, Arc<AppService>>,
+    input: ApplyPlanImportInput,
+) -> Result<PlanId, AppError> {
+    service.apply_imported_plan(input)
+}
+
+#[tauri::command]
 pub fn export_plan_excel(
     service: State<'_, Arc<AppService>>,
     plan_id: PlanId,
@@ -595,4 +620,104 @@ pub fn validate_backup(
 #[tauri::command]
 pub fn list_backups(service: State<'_, Arc<AppService>>) -> Result<Vec<BackupFileInfo>, AppError> {
     service.list_backups()
+}
+
+// -----------------------------------------------------------------------------
+// Subjects
+// -----------------------------------------------------------------------------
+
+#[tauri::command]
+pub fn list_subjects(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: i64,
+) -> Result<Vec<Subject>, AppError> {
+    service.list_subjects(SchoolYearId(school_year_id))
+}
+
+#[tauri::command]
+pub fn create_subject(
+    service: State<'_, Arc<AppService>>,
+    input: CreateSubjectInput,
+) -> Result<Subject, AppError> {
+    service.create_subject(input)
+}
+
+#[tauri::command]
+pub fn update_subject(
+    service: State<'_, Arc<AppService>>,
+    input: UpdateSubjectInput,
+) -> Result<(), AppError> {
+    service.update_subject(input)
+}
+
+#[tauri::command]
+pub fn delete_subject(service: State<'_, Arc<AppService>>, id: i64) -> Result<(), AppError> {
+    service.delete_subject(SubjectId(id))
+}
+
+#[tauri::command]
+pub fn reorder_subjects(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: i64,
+    subject_ids: Vec<i64>,
+) -> Result<(), AppError> {
+    let ids = subject_ids.into_iter().map(SubjectId).collect();
+    service.reorder_subjects(SchoolYearId(school_year_id), ids)
+}
+
+// -----------------------------------------------------------------------------
+// Competencies
+// -----------------------------------------------------------------------------
+
+#[tauri::command]
+pub fn list_competencies(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: i64,
+) -> Result<Vec<Competency>, AppError> {
+    service.list_competencies(SchoolYearId(school_year_id))
+}
+
+#[tauri::command]
+pub fn get_teacher_competencies(
+    service: State<'_, Arc<AppService>>,
+    teacher_id: i64,
+    school_year_id: i64,
+) -> Result<Vec<Competency>, AppError> {
+    service.get_teacher_competencies(TeacherId(teacher_id), SchoolYearId(school_year_id))
+}
+
+#[tauri::command]
+pub fn set_competency(
+    service: State<'_, Arc<AppService>>,
+    input: SetCompetencyInput,
+) -> Result<(), AppError> {
+    service.set_competency(input)
+}
+
+#[tauri::command]
+pub fn delete_competency(
+    service: State<'_, Arc<AppService>>,
+    input: DeleteCompetencyInput,
+) -> Result<(), AppError> {
+    service.delete_competency(input)
+}
+
+#[tauri::command]
+pub fn replace_teacher_competencies(
+    service: State<'_, Arc<AppService>>,
+    input: ReplaceTeacherCompetenciesInput,
+) -> Result<(), AppError> {
+    service.replace_teacher_competencies(input)
+}
+
+// -----------------------------------------------------------------------------
+// Problem Details & Forced Placements
+// -----------------------------------------------------------------------------
+
+#[tauri::command]
+pub fn get_problem_details(
+    service: State<'_, Arc<AppService>>,
+    school_year_id: i64,
+) -> Result<ProblemDetails, AppError> {
+    service.get_problem_details(SchoolYearId(school_year_id))
 }

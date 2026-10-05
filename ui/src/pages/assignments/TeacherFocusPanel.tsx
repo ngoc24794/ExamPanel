@@ -65,7 +65,10 @@ export function TeacherFocusPanel({
   const quota = teacherStats?.quota ? teacherStats.quota.toFixed(2) : '--'
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4 space-y-4 shadow-sm" data-testid="teacher-focus-panel">
+    <div
+      className="rounded-lg border border-border bg-card p-4 space-y-4 shadow-sm"
+      data-testid="teacher-focus-panel"
+    >
       <div className="flex items-center justify-between border-b border-border pb-3">
         <div className="flex items-center gap-2">
           <div
@@ -117,7 +120,9 @@ export function TeacherFocusPanel({
           <Layers className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
           <div>
             <strong className="text-foreground">Khối lớp:</strong>{' '}
-            <span className="text-muted-foreground">{gradeNames || 'Chưa được phân'}</span>
+            <span className="text-muted-foreground">
+              {gradeNames || 'Chưa được phân'}
+            </span>
           </div>
         </div>
       </div>
@@ -134,8 +139,14 @@ export function TeacherFocusPanel({
                 key={i}
                 className="text-xs p-2 rounded bg-amber-500/10 border border-amber-500/20 text-muted-foreground"
               >
-                <div className="font-medium text-foreground uppercase">{v.rule} - {v.code}</div>
-                <div>{Object.entries(v.params).map(([k, val]) => `${k}: ${val}`).join(', ')}</div>
+                <div className="font-medium text-foreground uppercase">
+                  {v.rule} - {v.code}
+                </div>
+                <div>
+                  {Object.entries(v.params)
+                    .map(([k, val]) => `${k}: ${val}`)
+                    .join(', ')}
+                </div>
               </div>
             ))}
           </div>

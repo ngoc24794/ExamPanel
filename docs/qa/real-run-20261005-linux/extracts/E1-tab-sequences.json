@@ -1,0 +1,2690 @@
+{
+ "tab": {
+  "/": [
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Toggle sidebar",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tổng quan",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Giáo viên",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân hiệu",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Môn thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chuyên môn",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Kỳ thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Lịch bận",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Quy tắc",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Thống kê",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Cài đặt",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Có cảnh báo\n12",
+    "tid": "feasibility-indicator"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "2026 - 2027",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "VI",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hệ Thống",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Refresh ping",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Toggle sidebar",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tổng quan",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Giáo viên",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân hiệu",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Môn thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chuyên môn",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Kỳ thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Lịch bận",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Quy tắc",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Thống kê",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Cài đặt",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Có cảnh báo\n12",
+    "tid": "feasibility-indicator"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "2026 - 2027",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "VI",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hệ Thống",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Refresh ping",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Toggle sidebar",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tổng quan",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Giáo viên",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân hiệu",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Môn thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chuyên môn",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Kỳ thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Lịch bận",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Quy tắc",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Thống kê",
+    "tid": null
+   }
+  ],
+  "/teachers": [
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Cài đặt",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Có cảnh báo\n12",
+    "tid": "feasibility-indicator"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "2026 - 2027",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "VI",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hệ Thống",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Xem chỉ tiêu",
+    "tid": "quota-preview-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chuyên môn",
+    "tid": "competencies-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tải file mẫu",
+    "tid": "download-template-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Nhập từ Excel",
+    "tid": "import-excel-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Thêm giáo viên",
+    "tid": "create-teacher-btn"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "combobox",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tất cả phân hiệu",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "combobox",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tất cả các khối",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "combobox",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tất cả trạng thái",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "10",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "11",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "12",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "combobox",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "1.0",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "switch",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hoạt động",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công chuyên môn",
+    "tid": "teacher-competencies-btn-7"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chỉnh sửa",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Xóa",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "10",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "11",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "12",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "combobox",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "1.0",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "switch",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hoạt động",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công chuyên môn",
+    "tid": "teacher-competencies-btn-1"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chỉnh sửa",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Xóa",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "10",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "11",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "12",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "combobox",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "1.0",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "switch",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hoạt động",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công chuyên môn",
+    "tid": "teacher-competencies-btn-2"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chỉnh sửa",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Xóa",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "10",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "11",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "12",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "combobox",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "1.0",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": "switch",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hoạt động",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công chuyên môn",
+    "tid": "teacher-competencies-btn-11"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chỉnh sửa",
+    "tid": null
+   }
+  ],
+  "/rules": [
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Khôi phục mặc định",
+    "tid": "reset-rules-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Điều kiện bắt buộc (H1-H7)",
+    "tid": "tab-hard-rules"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tiêu chí ưu tiên (S1-S10)",
+    "tid": "tab-soft-rules"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Xem trước chỉ tiêu (Quotas)",
+    "tid": "tab-quotas"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Ghim / Cấm phân công",
+    "tid": "tab-locks"
+   },
+   {
+    "tag": "BUTTON",
+    "role": "switch",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "on",
+    "tid": "toggle-h3"
+   },
+   {
+    "tag": "BUTTON",
+    "role": "switch",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "on",
+    "tid": "toggle-h4"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "2",
+    "tid": "input-h4-max-tasks"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "1",
+    "tid": "input-h4-max-setter"
+   },
+   {
+    "tag": "BUTTON",
+    "role": "combobox",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "1 — Dung sai ±1 (Mặc định)",
+    "tid": "select-h7-tolerance"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Toggle sidebar",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tổng quan",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Giáo viên",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân hiệu",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Môn thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chuyên môn",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Kỳ thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Lịch bận",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Quy tắc",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Thống kê",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Cài đặt",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Có cảnh báo\n12",
+    "tid": "feasibility-indicator"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "2026 - 2027",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "VI",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hệ Thống",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Khôi phục mặc định",
+    "tid": "reset-rules-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Điều kiện bắt buộc (H1-H7)",
+    "tid": "tab-hard-rules"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tiêu chí ưu tiên (S1-S10)",
+    "tid": "tab-soft-rules"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Xem trước chỉ tiêu (Quotas)",
+    "tid": "tab-quotas"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Ghim / Cấm phân công",
+    "tid": "tab-locks"
+   },
+   {
+    "tag": "BUTTON",
+    "role": "switch",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "on",
+    "tid": "toggle-h3"
+   },
+   {
+    "tag": "BUTTON",
+    "role": "switch",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "on",
+    "tid": "toggle-h4"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "2",
+    "tid": "input-h4-max-tasks"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "1",
+    "tid": "input-h4-max-setter"
+   },
+   {
+    "tag": "BUTTON",
+    "role": "combobox",
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "1 — Dung sai ±1 (Mặc định)",
+    "tid": "select-h7-tolerance"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Toggle sidebar",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tổng quan",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Giáo viên",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân hiệu",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Môn thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chuyên môn",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Kỳ thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Lịch bận",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Quy tắc",
+    "tid": null
+   }
+  ],
+  "/assignments": [
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Thống kê",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Cài đặt",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Có cảnh báo\n12",
+    "tid": "feasibility-indicator"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "2026 - 2027",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "VI",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hệ Thống",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chạy tối ưu",
+    "tid": "run-optimizer-button"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "So sánh phương án",
+    "tid": "compare-plans-button"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Nhập từ bảng có sẵn",
+    "tid": "import-plan-button"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Lịch sử phương án (4)",
+    "tid": "history-plans-button"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Bảng tổ",
+    "tid": "view-toggle-grid"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chi tiết",
+    "tid": "view-toggle-detail"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tạo bản chỉnh sửa",
+    "tid": "create-edit-copy-button"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Xuất Excel (.xlsx)",
+    "tid": "export-excel-button"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "In / Xuất PDF",
+    "tid": "print-menu-button"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   }
+  ],
+  "/settings": [
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Sáng",
+    "tid": "theme-light-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tối",
+    "tid": "theme-dark-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hệ thống",
+    "tid": "theme-system-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tiếng Việt",
+    "tid": "lang-vi-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "English",
+    "tid": "lang-en-btn"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-school-name-input"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-department-name-input"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-place-name-input"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-signer-title-input"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-signer-name-input"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Lưu thông tin đơn vị",
+    "tid": "save-org-info-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Sao chép đường dẫn",
+    "tid": "copy-path-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Mở thư mục dữ liệu",
+    "tid": "open-folder-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Mở thư mục nhật ký",
+    "tid": "open-logs-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Dùng thử với dữ liệu mẫu",
+    "tid": "enter-trial-mode-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Sao lưu ngay",
+    "tid": "backup-now-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phục hồi từ tệp",
+    "tid": "restore-file-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Làm mới",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Xem chi tiết",
+    "tid": "licenses-dialog-trigger"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Toggle sidebar",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tổng quan",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Giáo viên",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân hiệu",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Môn thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Chuyên môn",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Kỳ thi",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Lịch bận",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Quy tắc",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Phân công",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Thống kê",
+    "tid": null
+   },
+   {
+    "tag": "A",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Cài đặt",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Có cảnh báo\n12",
+    "tid": "feasibility-indicator"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "2026 - 2027",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "VI",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hệ Thống",
+    "tid": null
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Sáng",
+    "tid": "theme-light-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tối",
+    "tid": "theme-dark-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Hệ thống",
+    "tid": "theme-system-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "Tiếng Việt",
+    "tid": "lang-vi-btn"
+   },
+   {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "English",
+    "tid": "lang-en-btn"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-school-name-input"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-department-name-input"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-place-name-input"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-signer-title-input"
+   },
+   {
+    "tag": "INPUT",
+    "role": null,
+    "ring": true,
+    "inGridCell": false,
+    "visible": true,
+    "opacity": "1",
+    "txt": "",
+    "tid": "org-signer-name-input"
+   }
+  ]
+ },
+ "esc": {
+  "teacher": {
+   "opened": true,
+   "closed_by_esc": true
+  },
+  "subject": {
+   "opened": true,
+   "closed_by_esc": true
+  },
+  "exam": {
+   "opened": true,
+   "closed_by_esc": true
+  },
+  "run-optimize": {
+   "opened": true,
+   "closed_by_esc": true
+  },
+  "compare": {
+   "opened": true,
+   "closed_by_esc": true
+  },
+  "import-plan": {
+   "opened": true,
+   "closed_by_esc": true
+  },
+  "import-excel": {
+   "opened": true,
+   "closed_by_esc": true
+  },
+  "feasibility_sheet": {
+   "opened": true,
+   "closed_by_esc": true
+  }
+ },
+ "grid": {
+  "sequence_len": 80,
+  "reached_cell": {
+   "after_tabs": 3,
+   "el": {
+    "tag": "BUTTON",
+    "role": null,
+    "ring": true,
+    "inGridCell": true,
+    "visible": true,
+    "opacity": "0",
+    "txt": "",
+    "tid": "q-cell-menu-btn"
+   }
+  },
+  "gridcell_focusables": [
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "1",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0.004991",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0.349092",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   },
+   {
+    "tag": "BUTTON",
+    "tid": "q-cell-menu-btn",
+    "opacity": "0",
+    "ring": true
+   }
+  ],
+  "cell_attrs": [
+   {
+    "role": null,
+    "tabindex": null
+   },
+   {
+    "role": null,
+    "tabindex": null
+   },
+   {
+    "role": null,
+    "tabindex": null
+   }
+  ]
+ }
+}

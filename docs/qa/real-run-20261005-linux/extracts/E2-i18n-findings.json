@@ -1,0 +1,339 @@
+{
+ "raw_keys": {
+  "common.all": [
+   "vi:/competencies",
+   "en:/competencies"
+  ],
+  "rules.h3Warning": [
+   "vi:/rules#tab-hard-rules",
+   "en:/rules#tab-hard-rules"
+  ],
+  "rules.h4MaxTasksPerExam": [
+   "vi:/rules#tab-hard-rules",
+   "en:/rules#tab-hard-rules"
+  ],
+  "rules.h4MaxSetterPerExam": [
+   "vi:/rules#tab-hard-rules",
+   "en:/rules#tab-hard-rules"
+  ],
+  "rules.s1MaxTasksMode": [
+   "vi:/rules#tab-soft-rules",
+   "en:/rules#tab-soft-rules"
+  ],
+  "rules.s1ModeAuto": [
+   "vi:/rules#tab-soft-rules",
+   "en:/rules#tab-soft-rules"
+  ],
+  "demo.db": [
+   "vi:/settings",
+   "en:/settings"
+  ],
+  "teachers.advancedSettings": [
+   "vi:teacher-dialog",
+   "en:teacher-dialog"
+  ],
+  "common.close": [
+   "vi:quota-dialog",
+   "en:quota-dialog"
+  ],
+  "feasibility.forcedPlacementsTitle": [
+   "vi:feasibility-sheet",
+   "en:feasibility-sheet"
+  ],
+  "feasibility.forcedPlacementsDesc": [
+   "vi:feasibility-sheet",
+   "en:feasibility-sheet"
+  ],
+  "e.g": [
+   "en:/settings",
+   "en:teacher-dialog",
+   "en:exam-dialog"
+  ]
+ },
+ "forbidden": {},
+ "mixed": {
+  "vi-page-has-english: Close": [
+   "vi:teacher-dialog",
+   "vi:subject-dialog",
+   "vi:exam-dialog",
+   "vi:run-dialog",
+   "vi:compare-dialog",
+   "vi:import-plan-dialog",
+   "vi:import-excel-dialog",
+   "vi:quota-dialog",
+   "vi:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: Phân công ra đề": [
+   "en:/",
+   "en:/teachers",
+   "en:/campuses",
+   "en:/subjects",
+   "en:/competencies",
+   "en:/exams",
+   "en:/unavailability",
+   "en:/rules#tab-hard-rules",
+   "en:/rules#tab-soft-rules",
+   "en:/rules#tab-quotas",
+   "en:/rules#tab-locks",
+   "en:/assignments",
+   "en:/statistics",
+   "en:/settings",
+   "en:teacher-dialog",
+   "en:subject-dialog",
+   "en:exam-dialog",
+   "en:run-dialog",
+   "en:compare-dialog",
+   "en:import-plan-dialog",
+   "en:import-excel-dialog",
+   "en:quota-dialog",
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: Năm học 2026 - 2027": [
+   "en:/",
+   "en:/exams",
+   "en:exam-dialog",
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: 0 lỗi, 12 cảnh báo": [
+   "en:/",
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: 1 phân hiệu": [
+   "en:/",
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: 12 giáo viên": [
+   "en:/",
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: CPH\tChưa phân hiệu\t12 teachers": [
+   "en:/campuses"
+  ],
+  "en-page-has-vietnamese: VL (2Đ+1PB)": [
+   "en:/competencies"
+  ],
+  "en-page-has-vietnamese: CN (1Đ+1PB)": [
+   "en:/competencies"
+  ],
+  "en-page-has-vietnamese: Đề:": [
+   "en:/competencies"
+  ],
+  "en-page-has-vietnamese: Thao tác": [
+   "en:/unavailability"
+  ],
+  "en-page-has-vietnamese: Giảm": [
+   "en:/assignments",
+   "en:run-dialog",
+   "en:compare-dialog",
+   "en:import-plan-dialog"
+  ],
+  "en-page-has-vietnamese: Teacher\tTotal\tSet\tRev\tGiữa kỳ 1\tCuối kỳ 1\tGiữa kỳ 2\tCuối kỳ 2": [
+   "en:/assignments",
+   "en:run-dialog",
+   "en:compare-dialog",
+   "en:import-plan-dialog"
+  ],
+  "en-page-has-vietnamese: So sánh số lượt phân công thực tế với chỉ tiêu phân bổ định mức": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t12\t12\t0\t12.00\t+0.00\tKhối 10, 11, 12\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t5\t3\t2\t4.36\t+0.64\tKhối 11, 10, 12\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t5\t2\t3\t4.36\t+0.64\tKhối 10, 11\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t5\t3\t2\t4.36\t+0.64\tKhối 12, 11\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t5\t2\t3\t4.36\t+0.64\tKhối 12, 10\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 12, 10, 11\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 10, 12\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 12, 11, 10\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 11, 10\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 11, 10, 12\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Chưa phân hiệu\t4\t2\t2\t4.36\t-0.36\tKhối 10, 11\tGK1, CK1, GK2, CK2": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Campus diversity breakdown across each 3-member panel (Tổng số: 12 ban đề)": [
+   "en:/statistics"
+  ],
+  "en-page-has-vietnamese: Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.": [
+   "en:/settings"
+  ],
+  "en-page-has-vietnamese: Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).": [
+   "en:/settings"
+  ],
+  "en-page-has-vietnamese: Tệp sao lưu\tDung lượng\tThời gian\tThao tác": [
+   "en:/settings"
+  ],
+  "en-page-has-vietnamese: Grades Taught (Năm học 2026 - 2027)": [
+   "en:teacher-dialog"
+  ],
+  "en-page-has-vietnamese: So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: Phương án #1 (Điểm: 176.4)": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: Phương án #2 (Điểm: 176.4)": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: Điểm A: 176.36": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: Điểm B: 176.36": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: Chênh lệch (B - A): 0.00": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: Changed slot between plans (12 ban đề có thay đổi)": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: Kỳ / Khối\tKhối 10\tKhối 11\tKhối 12": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Như, Cô Na, Thầy Nghĩa | PB: Cô Tú": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Như, Cô Tú, Thầy Nghĩa | PB: Cô Hiền": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Hiền, Cô Bình, Thầy Nghĩa | PB: Cô Thư": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Thư, Thầy Lộc, Thầy Nghĩa | PB: Cô Lài": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Lan, Cô Quí, Thầy Nghĩa | PB: Cô Lài": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Lài, Cô Bình, Thầy Nghĩa | PB: Cô Lan": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Hiền, Cô Tú, Thầy Nghĩa | PB: Cô Na": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Na, Cô Tú, Thầy Nghĩa | PB: Cô Lài": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Thư, Thầy Lộc, Thầy Nghĩa | PB: Cô Quí": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Hiền, Cô Quí, Thầy Nghĩa | PB: Cô Thư": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Thầy Phúc, Cô Lài, Thầy Nghĩa | PB: Cô Lan": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Lan, Thầy Phúc, Thầy Nghĩa | PB: Cô Bình": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Lài, Cô Như, Thầy Nghĩa | PB: Thầy Phúc": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Như, Thầy Lộc, Thầy Nghĩa | PB: Cô Tú": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Quí, Cô Na, Thầy Nghĩa | PB: Thầy Lộc": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Lài, Cô Thư, Thầy Nghĩa | PB: Cô Na": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Bình, Cô Lan, Thầy Nghĩa | PB: Cô Hiền": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Thầy Phúc, Cô Bình, Thầy Nghĩa | PB: Cô Quí": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Tú, Thầy Lộc, Thầy Nghĩa | PB: Cô Như": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Hiền, Cô Tú, Thầy Nghĩa | PB: Cô Như": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Cô Thư, Cô Quí, Thầy Nghĩa | PB: Cô Na": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Na, Cô Quí, Thầy Nghĩa | PB: Thầy Lộc": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: A: Thầy Phúc, Cô Hiền, Thầy Nghĩa | PB: Cô Bình": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: B: Cô Bình, Cô Lan, Thầy Nghĩa | PB: Thầy Phúc": [
+   "en:compare-dialog"
+  ],
+  "en-page-has-vietnamese: Hỗ trợ tệp xuất từ phần mềm (“Bảng phân công (mẫu tổ)”) hoặc mẫu bảng gốc của cô": [
+   "en:import-plan-dialog"
+  ],
+  "en-page-has-vietnamese: Hủy": [
+   "en:import-excel-dialog"
+  ],
+  "en-page-has-vietnamese: Tổng số giáo viên: 12": [
+   "en:quota-dialog"
+  ],
+  "en-page-has-vietnamese: Tổng chỉ tiêu phân bổ: 60.00": [
+   "en:quota-dialog"
+  ],
+  "en-page-has-vietnamese: #\tGiáo viên\tTrọng số tải\tKỳ khả dụng\tNhiệm vụ cố định\tChỉ tiêu mục tiêu (q)\tKhoả": [
+   "en:quota-dialog"
+  ],
+  "en-page-has-vietnamese: 1.00\t4\tCố định: 12\t12.00\t[12, 12]": [
+   "en:quota-dialog"
+  ],
+  "en-page-has-vietnamese: GK1 • Khối 10 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: GK1 • Khối 11 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: GK1 • Khối 12 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: CK1 • Khối 10 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: CK1 • Khối 11 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: CK1 • Khối 12 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: GK2 • Khối 10 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: GK2 • Khối 11 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: GK2 • Khối 12 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: CK2 • Khối 10 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: CK2 • Khối 11 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ],
+  "en-page-has-vietnamese: CK2 • Khối 12 • CN • Ra đề": [
+   "en:feasibility-sheet"
+  ]
+ },
+ "hard_coded_other_language": {}
+}
