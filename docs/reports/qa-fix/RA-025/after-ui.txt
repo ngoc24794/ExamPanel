@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/lib/query/hooks.stale.test.tsx (19 tests) 142ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  08:33:53
+   Duration  1.81s (transform 304ms, setup 124ms, collect 442ms, tests 142ms, environment 515ms, prepare 298ms)
+

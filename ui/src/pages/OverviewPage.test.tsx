@@ -79,4 +79,21 @@ describe('OverviewPage & Onboarding', () => {
     // Restore
     api.listCampuses = originalListCampuses
   })
+
+  // RA-004: the developer "Rust core ping" panel must not appear in production builds
+  it('does not show the developer IPC ping panel in a production build', async () => {
+    vi.stubEnv('DEV', false)
+    try {
+      renderWithClient(<OverviewPage />)
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Bảng điều khiển tổng quan|System Overview/i),
+        ).toBeInTheDocument()
+      })
+      expect(screen.queryByTestId('ping-result')).not.toBeInTheDocument()
+      expect(screen.queryByText(/pong from/i)).not.toBeInTheDocument()
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
 })

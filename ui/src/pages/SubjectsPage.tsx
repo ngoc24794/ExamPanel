@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useSingleFlight } from '@/lib/useSingleFlight'
 import { useTranslation } from 'react-i18next'
 import { BookOpen, Plus, Pencil, Trash2 } from 'lucide-react'
 import {
@@ -35,7 +36,7 @@ import {
   useUpdateSubject,
   useDeleteSubject,
 } from '@/lib/query/hooks'
-import { getErrorMessage } from '@/lib/query/query-client'
+import { getErrorMessage, reportError } from '@/lib/query/query-client'
 import { toast } from 'sonner'
 import type { Subject } from '@/lib/api'
 import { getCampusDotColor } from '@/lib/theme/campus-colors'
@@ -88,7 +89,7 @@ export const SubjectsPage: React.FC = () => {
     setDialogOpen(true)
   }
 
-  const handleSave = async (e: React.FormEvent) => {
+  const saveSubject = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormError(null)
 
@@ -148,13 +149,16 @@ export const SubjectsPage: React.FC = () => {
     }
   }
 
+  const submitOnce = useSingleFlight()
+  const handleSave = (e: React.FormEvent) => submitOnce(() => saveSubject(e))
+
   const handleDelete = async () => {
     if (!deleteSubjectId) return
     try {
       await deleteMutation.mutateAsync(deleteSubjectId)
       setDeleteSubjectId(null)
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 

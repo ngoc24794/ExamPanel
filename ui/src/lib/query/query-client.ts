@@ -21,6 +21,21 @@ export function getErrorMessage(error: unknown): string {
   return String(error)
 }
 
+const REPORTED = new WeakSet<object>()
+
+/**
+ * Shows the user-facing toast for an error, at most once per error object. A failed mutation is
+ * reported by the global handler; pages that also catch the same rejection call this too and must
+ * not raise a second toast (RA-041, RA-025).
+ */
+export function reportError(error: unknown): void {
+  if (typeof error === 'object' && error !== null) {
+    if (REPORTED.has(error)) return
+    REPORTED.add(error)
+  }
+  toast.error(getErrorMessage(error))
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -30,8 +45,7 @@ export const queryClient = new QueryClient({
     },
     mutations: {
       onError: (error) => {
-        const msg = getErrorMessage(error)
-        toast.error(msg)
+        reportError(error)
       },
     },
   },

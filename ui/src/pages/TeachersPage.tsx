@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useSingleFlight } from '@/lib/useSingleFlight'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -233,7 +234,7 @@ export const TeachersPage: React.FC = () => {
     setDialogOpen(true)
   }
 
-  const onSubmit = async (values: TeacherFormValues) => {
+  const submitTeacher = async (values: TeacherFormValues) => {
     const quota =
       typeof values.quotaOverride === 'number' && !Number.isNaN(values.quotaOverride)
         ? values.quotaOverride
@@ -278,6 +279,9 @@ export const TeachersPage: React.FC = () => {
     }
     setDialogOpen(false)
   }
+
+  const submitOnce = useSingleFlight()
+  const onSubmit = (values: TeacherFormValues) => submitOnce(() => submitTeacher(values))
 
   const handleDelete = async () => {
     if (!deleteTeacherId) return
@@ -661,7 +665,9 @@ export const TeachersPage: React.FC = () => {
                                   : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
                               }`}
                               title={`${grade.name}: ${
-                                isTaught ? t('teachers.gradeAssigned') : t('teachers.gradeNotAssigned')
+                                isTaught
+                                  ? t('teachers.gradeAssigned')
+                                  : t('teachers.gradeNotAssigned')
                               }`}
                             >
                               {grade.code}
@@ -789,7 +795,9 @@ export const TeachersPage: React.FC = () => {
                     data-testid="teacher-name-input"
                   />
                   {errors.fullName && (
-                    <p className="text-xs text-destructive">{t(errors.fullName.message ?? '')}</p>
+                    <p className="text-xs text-destructive">
+                      {t(errors.fullName.message ?? '')}
+                    </p>
                   )}
                 </div>
               </div>
@@ -829,7 +837,8 @@ export const TeachersPage: React.FC = () => {
               {/* Grades Taught Multi-Check */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-foreground">
-                  {t('teachers.gradesTaught')} ({t('common.schoolYearName', { name: currentYear?.name })})
+                  {t('teachers.gradesTaught')} (
+                  {t('common.schoolYearName', { name: currentYear?.name })})
                 </label>
                 <div className="flex items-center gap-4">
                   {grades.map((grade) => {

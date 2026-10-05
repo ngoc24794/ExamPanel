@@ -55,9 +55,12 @@ export const OverviewPage: React.FC = () => {
     }
   }, [])
 
+  // The IPC ping is a developer diagnostic: never shown or called in production builds (RA-004).
+  const showDevDiagnostics = import.meta.env.DEV
+
   React.useEffect(() => {
-    fetchPing()
-  }, [fetchPing])
+    if (showDevDiagnostics) fetchPing()
+  }, [fetchPing, showDevDiagnostics])
 
   const showOnboarding =
     campuses.length === 0 || teachersWithGrades.length === 0 || subjects.length === 0
@@ -137,55 +140,60 @@ export const OverviewPage: React.FC = () => {
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {t('overview.issuesSummary', { errors: feasibility?.report.errors.length ?? 0, warnings: feasibility?.report.warnings.length ?? 0 })}
+              {t('overview.issuesSummary', {
+                errors: feasibility?.report.errors.length ?? 0,
+                warnings: feasibility?.report.warnings.length ?? 0,
+              })}
             </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Connection & Architecture Cards */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">
-              {t('overview.coreConnectionCard')}
-            </CardTitle>
-            <Activity className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent className="space-y-4 pt-2">
-            <p className="text-xs text-muted-foreground">
-              {t('overview.coreDescription')}
-            </p>
+      <div className={`grid gap-6 ${showDevDiagnostics ? 'md:grid-cols-2' : ''}`}>
+        {showDevDiagnostics && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-foreground">
+                {t('overview.coreConnectionCard')}
+              </CardTitle>
+              <Activity className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent className="space-y-4 pt-2">
+              <p className="text-xs text-muted-foreground">
+                {t('overview.coreDescription')}
+              </p>
 
-            <div className="p-3 rounded-lg bg-muted border font-mono text-xs flex items-center justify-between">
-              <span className="text-foreground break-all" data-testid="ping-result">
-                {loadingPing ? t('app.loading') : pingResult}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 flex-shrink-0 ml-2 text-muted-foreground hover:text-foreground"
-                onClick={fetchPing}
-                disabled={loadingPing}
-                aria-label="Refresh ping"
-              >
-                <RefreshCw
-                  className={`h-3.5 w-3.5 ${loadingPing ? 'animate-spin' : ''}`}
-                />
-              </Button>
-            </div>
+              <div className="p-3 rounded-lg bg-muted border font-mono text-xs flex items-center justify-between">
+                <span className="text-foreground break-all" data-testid="ping-result">
+                  {loadingPing ? t('app.loading') : pingResult}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 flex-shrink-0 ml-2 text-muted-foreground hover:text-foreground"
+                  onClick={fetchPing}
+                  disabled={loadingPing}
+                  aria-label="Refresh ping"
+                >
+                  <RefreshCw
+                    className={`h-3.5 w-3.5 ${loadingPing ? 'animate-spin' : ''}`}
+                  />
+                </Button>
+              </div>
 
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{t('common.status')}:</span>
-              <Badge variant="default" className="text-[10px]">
-                {appInfo?.mode === 'tauri' ? t('app.modeTauri') : t('app.modeMock')}
-              </Badge>
-              <span className="text-emerald-500 font-medium ml-auto">
-                ● {t('app.ready')}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>{t('common.status')}:</span>
+                <Badge variant="default" className="text-[10px]">
+                  {appInfo?.mode === 'tauri' ? t('app.modeTauri') : t('app.modeMock')}
+                </Badge>
+                <span className="text-emerald-500 font-medium ml-auto">
+                  ● {t('app.ready')}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader className="pb-2">

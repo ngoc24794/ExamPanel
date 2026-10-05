@@ -31,7 +31,7 @@ import {
 } from '@/lib/api'
 import { toast } from 'sonner'
 import i18n from '@/i18n'
-import { getErrorMessage } from './query-client'
+import { reportError } from './query-client'
 
 export const queryKeys = {
   appInfo: ['appInfo'] as const,
@@ -300,7 +300,7 @@ export function useToggleTeacherGrade(schoolYearId: number) {
       if (context?.previous) {
         qc.setQueryData(queryKeys.teachers(schoolYearId), context.previous)
       }
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.teachers(schoolYearId) })
@@ -450,7 +450,7 @@ export function useSetUnavailability(schoolYearId: number) {
       if (context?.previous) {
         qc.setQueryData(queryKeys.unavailabilities(schoolYearId), context.previous)
       }
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.unavailabilities(schoolYearId) })
@@ -481,7 +481,7 @@ export function useDeleteUnavailability(schoolYearId: number) {
       if (context?.previous) {
         qc.setQueryData(queryKeys.unavailabilities(schoolYearId), context.previous)
       }
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.unavailabilities(schoolYearId) })
@@ -574,7 +574,7 @@ export function useRenamePlan(schoolYearId: number) {
       qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -587,7 +587,7 @@ export function useDeletePlan(schoolYearId: number) {
       qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -600,8 +600,21 @@ export function useMarkFinal(schoolYearId: number) {
       qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
       toast.success(i18n.t('assignments.markFinalSuccess'))
     },
+    // One translated toast per failure (RA-025): the engine codes plan_stale / plan_invalid get
+    // their own sentences instead of being shown a second time as raw codes.
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      const e = err as { code?: string; params?: Record<string, unknown> }
+      if (e?.code === 'plan_stale') {
+        toast.error(i18n.t('assignments.cannotMarkFinalStale'))
+      } else if (e?.code === 'plan_invalid') {
+        toast.error(
+          i18n.t('assignments.cannotMarkFinalInvalid', {
+            count: Number(e.params?.count ?? e.params?.violations ?? 1),
+          }),
+        )
+      } else {
+        reportError(err)
+      }
     },
   })
 }
@@ -615,7 +628,7 @@ export function useCreateManualCopy(schoolYearId: number) {
     // otherwise the page selected an id that was not listed yet and fell back (RA-018).
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) }),
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -634,7 +647,7 @@ export function useUpdatePlanAssignments(schoolYearId: number) {
       ])
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -706,7 +719,7 @@ export function useCreateSubject() {
       toast.success(i18n.t('subjects.createSuccess'))
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -721,7 +734,7 @@ export function useUpdateSubject(schoolYearId: number) {
       toast.success(i18n.t('subjects.updateSuccess'))
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -736,7 +749,7 @@ export function useDeleteSubject(schoolYearId: number) {
       toast.success(i18n.t('subjects.deleteSuccess'))
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -749,7 +762,7 @@ export function useReorderSubjects(schoolYearId: number) {
       qc.invalidateQueries({ queryKey: queryKeys.subjects(schoolYearId) })
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -764,7 +777,7 @@ export function useSetCompetency(schoolYearId: number) {
       invalidateProblemData(qc, schoolYearId)
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -778,7 +791,7 @@ export function useDeleteCompetency(schoolYearId: number) {
       invalidateProblemData(qc, schoolYearId)
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -793,7 +806,7 @@ export function useReplaceTeacherCompetencies(schoolYearId: number) {
       invalidateProblemData(qc, schoolYearId)
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }

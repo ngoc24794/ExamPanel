@@ -42,7 +42,8 @@ import {
   useDeleteGrade,
   queryKeys,
 } from '@/lib/query/hooks'
-import { getErrorMessage } from '@/lib/query/query-client'
+import { reportError } from '@/lib/query/query-client'
+import { useSingleFlight } from '@/lib/useSingleFlight'
 import { api } from '@/lib/api'
 import { toast } from 'sonner'
 import type { Exam, Grade } from '@/lib/api'
@@ -101,8 +102,10 @@ export const ExamsPage: React.FC = () => {
     setExamDialogOpen(true)
   }
 
-  const handleSaveExam = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const saveExamOnce = useSingleFlight()
+  const saveGradeOnce = useSingleFlight()
+
+  const saveExam = async () => {
     let activeYear = currentYear
     if (!activeYear) {
       try {
@@ -113,7 +116,7 @@ export const ExamsPage: React.FC = () => {
         activeYear = created
         await qc.invalidateQueries({ queryKey: queryKeys.schoolYears })
       } catch (err) {
-        toast.error(getErrorMessage(err))
+        reportError(err)
         return
       }
     }
@@ -138,8 +141,12 @@ export const ExamsPage: React.FC = () => {
       }
       setExamDialogOpen(false)
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
+  }
+  const handleSaveExam = (e: React.FormEvent) => {
+    e.preventDefault()
+    return saveExamOnce(saveExam)
   }
 
   const handleConfirmDeleteExam = async () => {
@@ -149,7 +156,7 @@ export const ExamsPage: React.FC = () => {
       setDeletingExam(null)
       toast.success(t('exams.deleteExam'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -165,7 +172,7 @@ export const ExamsPage: React.FC = () => {
     try {
       await reorderExamsMutation.mutateAsync(newOrder.map((e) => e.id))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -184,8 +191,7 @@ export const ExamsPage: React.FC = () => {
     setGradeDialogOpen(true)
   }
 
-  const handleSaveGrade = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const saveGrade = async () => {
     if (gradeCode === '') return
 
     try {
@@ -207,8 +213,12 @@ export const ExamsPage: React.FC = () => {
       }
       setGradeDialogOpen(false)
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
+  }
+  const handleSaveGrade = (e: React.FormEvent) => {
+    e.preventDefault()
+    return saveGradeOnce(saveGrade)
   }
 
   const handleConfirmDeleteGrade = async () => {
@@ -218,7 +228,7 @@ export const ExamsPage: React.FC = () => {
       setDeletingGrade(null)
       toast.success(t('exams.deleteGrade'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -241,7 +251,9 @@ export const ExamsPage: React.FC = () => {
                 <span>{t('exams.examsSection')}</span>
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
-                {currentYear ? t('common.schoolYearName', { name: currentYear.name }) : ''}
+                {currentYear
+                  ? t('common.schoolYearName', { name: currentYear.name })
+                  : ''}
               </CardDescription>
             </div>
             <Button

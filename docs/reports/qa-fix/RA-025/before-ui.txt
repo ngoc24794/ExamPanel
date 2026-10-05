@@ -1,0 +1,72 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/lib/query/hooks.stale.test.tsx (19 tests | 2 failed | 17 skipped) 31ms
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'set unavailability' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'delete unavailability' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'create teacher' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'update teacher' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'delete teacher' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'deactivate teacher' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'toggle teacher grade' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'create exam' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'update exam' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'delete exam' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'reorder exams' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'save rules' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'reset rules' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'create lock' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'delete lock' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'update subject' refetches the plans list
+   ↓ plans list is refreshed after problem data changes (RA-022) > 'set competency' refetches the plans list
+   × mark-final errors (RA-025) > plan_stale raises ONE translated toast 24ms
+     → expected 'plan_stale' to match /dữ liệu bài toán đã thay đổi/
+   × mark-final errors (RA-025) > plan_invalid raises ONE translated toast 6ms
+     → expected 'plan_invalid' to match /3 vi phạm/
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/query/hooks.stale.test.tsx > mark-final errors (RA-025) > plan_stale raises ONE translated toast
+AssertionError: expected 'plan_stale' to match /dữ liệu bài toán đã thay đổi/
+
+[32m- Expected:[39m 
+/dữ liệu bài toán đã thay đổi/
+
+[31m+ Received:[39m 
+"plan_stale"
+
+ ❯ src/lib/query/hooks.stale.test.tsx:243:80
+    241|     })
+    242|     expect(toast.error).toHaveBeenCalledTimes(1)
+    243|     expect(String((toast.error as ReturnType<typeof vi.fn>).mock.calls…
+       |                                                                                ^
+    244|       text,
+    245|     )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/query/hooks.stale.test.tsx > mark-final errors (RA-025) > plan_invalid raises ONE translated toast
+AssertionError: expected 'plan_invalid' to match /3 vi phạm/
+
+[32m- Expected:[39m 
+/3 vi phạm/
+
+[31m+ Received:[39m 
+"plan_invalid"
+
+ ❯ src/lib/query/hooks.stale.test.tsx:243:80
+    241|     })
+    242|     expect(toast.error).toHaveBeenCalledTimes(1)
+    243|     expect(String((toast.error as ReturnType<typeof vi.fn>).mock.calls…
+       |                                                                                ^
+    244|       text,
+    245|     )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 17 skipped (19)
+   Start at  08:34:10
+   Duration  1.42s (transform 292ms, setup 125ms, collect 430ms, tests 31ms, environment 361ms, prepare 256ms)
+

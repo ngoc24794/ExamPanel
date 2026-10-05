@@ -42,7 +42,7 @@ import { api } from '@/lib/api'
 import { setLanguage } from '@/i18n'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
-import { getErrorMessage } from '@/lib/query/query-client'
+import { reportError } from '@/lib/query/query-client'
 
 export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation()
@@ -81,7 +81,7 @@ export const SettingsPage: React.FC = () => {
       await refetchSettings()
       toast.success(t('settings.saveOrgInfoSuccess'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     } finally {
       setSavingOrg(false)
     }
@@ -100,7 +100,7 @@ export const SettingsPage: React.FC = () => {
     try {
       await api.openDataFolder()
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -108,7 +108,7 @@ export const SettingsPage: React.FC = () => {
     try {
       await api.openLogFolder()
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -119,7 +119,7 @@ export const SettingsPage: React.FC = () => {
       window.dispatchEvent(new CustomEvent('exampanel:restore'))
       toast.success(t('trial.entered_toast'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -130,7 +130,7 @@ export const SettingsPage: React.FC = () => {
       window.dispatchEvent(new CustomEvent('exampanel:restore'))
       toast.success(t('trial.exited_toast'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 

@@ -1,0 +1,43 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/OverviewPage.test.tsx (3 tests | 1 failed) 204ms
+   ✓ OverviewPage & Onboarding > renders overview stats cards and ping response 142ms
+   ✓ OverviewPage & Onboarding > shows onboarding checklist when campuses or teachers are missing 33ms
+   × OverviewPage & Onboarding > does not show the developer IPC ping panel in a production build 28ms
+     → [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <span
+  class="text-foreground break-all"
+  data-testid="ping-result"
+>
+  pong from Mock Engine (browser mode)
+</span> instead[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/OverviewPage.test.tsx > OverviewPage & Onboarding > does not show the developer IPC ping panel in a production build
+Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <span
+  class="text-foreground break-all"
+  data-testid="ping-result"
+>
+  pong from Mock Engine (browser mode)
+</span> instead[39m
+ ❯ src/pages/OverviewPage.test.tsx:93:55
+     91|         ).toBeInTheDocument()
+     92|       })
+     93|       expect(screen.queryByTestId('ping-result')).not.toBeInTheDocumen…
+       |                                                       ^
+     94|       expect(screen.queryByText(/pong from/i)).not.toBeInTheDocument()
+     95|     } finally {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  08:32:45
+   Duration  2.25s (transform 449ms, setup 174ms, collect 1.03s, tests 204ms, environment 374ms, prepare 219ms)
+

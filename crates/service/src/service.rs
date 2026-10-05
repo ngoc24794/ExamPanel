@@ -1141,7 +1141,9 @@ impl AppService {
             return Err(AppError::new("plan_stale"));
         }
         if !status.hard_violations_now.is_empty() {
-            return Err(AppError::new("plan_invalid"));
+            return Err(
+                AppError::new("plan_invalid").with_param("count", status.hard_violations_now.len())
+            );
         }
         let store = self
             .store

@@ -919,7 +919,7 @@
     "restoreConfirmBtn": "Xác nhận phục hồi",
     "errorNewerVersionTitle": "Tệp được tạo bởi phiên bản ExamPanel mới hơn",
     "err_file_missing": "Không tìm thấy tệp đã chọn.",
-    "err_not_a_database": "Đây không phải là tệp dữ liệu của ExamPanel (không phải cơ sở dữ liệu).",
+    "err_not_a_database": "Đây không phải là tệp dữ liệu của ExamPanel (tệp không đúng định dạng).",
     "err_corrupted": "Tệp bị hỏng hoặc bị cắt cụt nên không thể đọc được.",
     "err_newer_version": "Tệp có phiên bản dữ liệu v{{version}}, mới hơn bản ExamPanel này (hỗ trợ đến v{{supported}}). Hãy cập nhật ExamPanel rồi thử lại.",
     "err_missing_table": "Tệp thiếu các bảng dữ liệu bắt buộc của ExamPanel.",

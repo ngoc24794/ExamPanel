@@ -35,8 +35,6 @@ import {
   useMarkFinal,
   useCreateManualCopy,
 } from '@/lib/query/hooks'
-import { toast } from 'sonner'
-import { getErrorMessage } from '@/lib/query/query-client'
 import { formatDbDateTime } from '@/lib/dates'
 
 interface PlansHistoryListProps {
@@ -93,19 +91,8 @@ export function PlansHistoryList({
   const handleMarkFinal = async (plan: PlanSummary) => {
     try {
       await markFinalMutation.mutateAsync(plan.id)
-    } catch (err: unknown) {
-      const errorObj = err as { code?: string; params?: Record<string, string> }
-      if (errorObj?.code === 'plan_stale') {
-        toast.error(t('assignments.cannotMarkFinalStale'))
-      } else if (errorObj?.code === 'plan_invalid') {
-        toast.error(
-          t('assignments.cannotMarkFinalInvalid', {
-            count: Number(errorObj.params?.count ?? errorObj.params?.violations ?? 1),
-          }),
-        )
-      } else {
-        toast.error(getErrorMessage(err))
-      }
+    } catch {
+      // useMarkFinal already showed the (single) translated error toast.
     }
   }
 

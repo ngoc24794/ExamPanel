@@ -3,6 +3,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor, act } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { api } from '@/lib/api'
+import { toast } from 'sonner'
 import {
   usePlans,
   useSetUnavailability,
@@ -22,6 +23,7 @@ import {
   useUpdateSubject,
   useSetCompetency,
   useToggleTeacherGrade,
+  useMarkFinal,
 } from './hooks'
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), info: vi.fn(), error: vi.fn() } }))
@@ -215,5 +217,31 @@ describe('plans list is refreshed after problem data changes (RA-022)', () => {
     })
 
     await waitFor(() => expect(listPlans.mock.calls.length).toBeGreaterThan(1))
+  })
+})
+
+describe('mark-final errors (RA-025)', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks()
+    vi.clearAllMocks()
+  })
+
+  it.each([
+    ['plan_stale', {}, /dữ liệu bài toán đã thay đổi/],
+    ['plan_invalid', { count: 3 }, /3 vi phạm/],
+  ])('%s raises ONE translated toast', async (code, params, text) => {
+    vi.spyOn(api, 'markFinal').mockRejectedValue({ code, params })
+    const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    )
+    const { result } = renderHook(() => useMarkFinal(1), { wrapper })
+    await act(async () => {
+      await result.current.mutateAsync(1).catch(() => {})
+    })
+    expect(toast.error).toHaveBeenCalledTimes(1)
+    expect(String((toast.error as ReturnType<typeof vi.fn>).mock.calls[0][0])).toMatch(
+      text,
+    )
   })
 })

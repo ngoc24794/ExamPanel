@@ -77,7 +77,7 @@ import {
   type QuotaPreviewItem,
 } from '@/lib/api'
 import { toast } from 'sonner'
-import { getErrorMessage } from '@/lib/query/query-client'
+import { reportError } from '@/lib/query/query-client'
 
 type TabKey = 'hard' | 'soft' | 'quotas' | 'locks'
 
@@ -204,7 +204,7 @@ export const RulesPage: React.FC = () => {
       setResetConfirmOpen(false)
       toast.success(t('rules.resetDefaults'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -215,7 +215,7 @@ export const RulesPage: React.FC = () => {
       await saveSettingsMutation.mutateAsync(draftSettings)
       setIsDirty(false)
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -277,7 +277,7 @@ export const RulesPage: React.FC = () => {
       })
       setLockDialogOpen(false)
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -287,7 +287,7 @@ export const RulesPage: React.FC = () => {
       await deleteLockMutation.mutateAsync(deletingLock.id)
       setDeletingLock(null)
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 

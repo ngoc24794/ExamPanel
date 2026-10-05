@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/ExamsPage.submit.test.tsx (2 tests) 928ms
+   ✓ Exam dialog submit (RA-041) > a double click on Save sends ONE request and ONE success toast  589ms
+   ✓ Exam dialog submit (RA-041) > a failing save raises ONE error toast (not one from the global handler and one from the page)  337ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  08:36:33
+   Duration  2.73s (transform 358ms, setup 118ms, collect 908ms, tests 928ms, environment 379ms, prepare 167ms)
+

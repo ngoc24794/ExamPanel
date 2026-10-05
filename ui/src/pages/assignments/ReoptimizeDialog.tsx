@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { RefreshCw, RotateCw, XCircle, Play, BookmarkCheck } from 'lucide-react'
 import { toast } from 'sonner'
-import { getErrorMessage } from '@/lib/query/query-client'
+import { reportError } from '@/lib/query/query-client'
 import { createProgressAggregator, type AggregateProgress } from './optimizeProgress'
 import { getRunsAndIterations, type EffortLevel } from './effortPresets'
 
@@ -94,7 +94,7 @@ export function ReoptimizeDialog({
       if (errorObj?.code === 'cancelled') {
         toast.info(t('assignments.cancelled'))
       } else {
-        toast.error(getErrorMessage(err))
+        reportError(err)
       }
       setIsRunning(false)
     } finally {

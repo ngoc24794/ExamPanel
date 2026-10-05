@@ -420,3 +420,50 @@ mod reoptimize {
         }
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+// RA-025: mark-final errors carry the real violation count
+// ---------------------------------------------------------------------------------------------
+
+#[test]
+fn ra025_plan_invalid_error_reports_the_hard_violation_count() {
+    use exam_panel_core::domain::TeacherId;
+    let service = AppService::open_in_memory().unwrap();
+    service.seed_demo().unwrap();
+    let out = service
+        .run_optimize(SchoolYearId(1), request(1), None, None)
+        .unwrap();
+    let plan_id = service.save_optimize_result(SchoolYearId(1), out).unwrap()[0];
+    let copy = service.duplicate_plan(plan_id, "edit".into()).unwrap();
+    let mut assignments = service.get_plan(copy).unwrap().assignments;
+    let teachers = service.list_teachers().unwrap();
+
+    // Find an edit that keeps the problem data unchanged but breaks a hard rule.
+    let mut expected = 0usize;
+    'outer: for seat in 0..assignments.len() {
+        for t in &teachers {
+            let original = assignments[seat].teacher_id;
+            if t.id == original {
+                continue;
+            }
+            assignments[seat].teacher_id = TeacherId(t.id.0);
+            let eval = service
+                .evaluate_assignments(SchoolYearId(1), assignments.clone())
+                .unwrap();
+            if !eval.hard_violations.is_empty() {
+                expected = eval.hard_violations.len();
+                break 'outer;
+            }
+            assignments[seat].teacher_id = original;
+        }
+    }
+    assert!(
+        expected > 0,
+        "demo data must allow a hard-rule-breaking edit"
+    );
+    service.update_plan_assignments(copy, assignments).unwrap();
+
+    let err = service.mark_final(copy).expect_err("invalid plan");
+    assert_eq!(err.code, "plan_invalid");
+    assert_eq!(err.params.get("count"), Some(&serde_json::json!(expected)));
+}
