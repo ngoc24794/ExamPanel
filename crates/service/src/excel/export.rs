@@ -362,6 +362,7 @@ pub fn export_plan_workbook(
             .filter(|o| {
                 o.exam_id == asg.exam_id
                     && o.grade_id == asg.grade_id
+                    && o.subject_id == asg.subject_id
                     && o.teacher_id != asg.teacher_id
             })
             .map(|o| {
@@ -470,6 +471,7 @@ pub fn export_plan_workbook(
     sheet_rules.set_column_width(3, 14)?; // Trọng số
     sheet_rules.set_column_width(4, 18)?; // Số vi phạm
     sheet_rules.set_column_width(5, 18)?; // Đóng góp điểm
+    sheet_rules.set_column_width(6, 22)?; // Cận dưới (đơn vị)
 
     let rule_headers = [
         "Mã tiêu chí",
@@ -478,6 +480,7 @@ pub fn export_plan_workbook(
         "Trọng số",
         "Số vi phạm",
         "Đóng góp điểm",
+        "Cận dưới (đơn vị)",
     ];
     for (c_idx, h) in rule_headers.iter().enumerate() {
         sheet_rules.write_with_format(0, c_idx as u16, *h, &table_header_format)?;
@@ -491,25 +494,31 @@ pub fn export_plan_workbook(
         let rule_name = rule_key_vietnamese_name(&r_setting.key);
         let status_str = if r_setting.enabled { "Bật" } else { "Tắt" };
 
-        let (violations, contribution) = if let Some(scores) = rule_scores {
-            if let Some(rs) = scores.iter().find(|s| s.rule == r_setting.key) {
-                (rs.units as i64, rs.penalty)
-            } else {
-                (0, 0.0)
-            }
-        } else {
-            (0, 0.0)
-        };
+        // Units are fractional for some rules (e.g. S8 4.545): never truncate them.
+        let (violations, contribution, lower_bound) = rule_scores
+            .and_then(|scores| scores.iter().find(|s| s.rule == r_setting.key))
+            .map_or((0.0, 0.0, 0.0), |rs| (rs.units, rs.penalty, rs.lower_bound));
 
         sheet_rules.write_with_format(r, 0, &key_str, &cell_center)?;
         sheet_rules.write_with_format(r, 1, rule_name, &cell_left)?;
         sheet_rules.write_with_format(r, 2, status_str, &cell_center)?;
         sheet_rules.write_with_format(r, 3, r_setting.weight, &cell_center)?;
-        sheet_rules.write_with_format(r, 4, violations, &cell_center)?;
+        sheet_rules.write_with_format(
+            r,
+            4,
+            (violations * 1000.0).round() / 1000.0,
+            &cell_center,
+        )?;
         sheet_rules.write_with_format(
             r,
             5,
             (contribution * 100.0).round() / 100.0,
+            &cell_center,
+        )?;
+        sheet_rules.write_with_format(
+            r,
+            6,
+            (lower_bound * 1000.0).round() / 1000.0,
             &cell_center,
         )?;
     }
@@ -538,27 +547,28 @@ fn format_teacher_cell(
     }
 }
 
-/// Friendly Vietnamese names for rule keys.
+/// Vietnamese rule names, identical to the titles on the Rules screen
+/// (`rules.<key>Title` in `ui/src/i18n/locales/vi.json`).
 fn rule_key_vietnamese_name(key: &exam_panel_core::domain::RuleKey) -> &'static str {
     use exam_panel_core::domain::RuleKey::*;
     match key {
-        H1 => "H1 - Đủ số lượng và không trùng giáo viên",
-        H2 => "H2 - Đúng chuyên môn môn học và khối dạy",
-        H3 => "H3 - Đa dạng phân hiệu trong ban thi",
-        H4 => "H4 - Giới hạn số nhiệm vụ trong mỗi kỳ thi",
-        H5 => "H5 - Không phân công vào kỳ thi bận",
-        H6 => "H6 - Tuân thủ khóa cố định (Pin / Forbid)",
-        H7 => "H7 - Cân bằng định mức công việc",
-        S1 => "S1 - Phân bổ số lượt phản biện",
-        S2 => "S2 - Cân bằng vai trò ra đề / phản biện",
-        S3 => "S3 - Tránh liên tiếp 2 kỳ làm cùng vai trò",
-        S4 => "S4 - Tránh liên tiếp 2 kỳ làm cùng khối",
-        S5 => "S5 - Tránh cặp đôi lặp lại",
-        S6 => "S6 - Tránh ban thi toàn giáo viên dạy khối đó",
-        S7 => "S7 - Phân bổ đều giữa các khối",
-        S8 => "S8 - Phân hiệu chính cho môn học",
-        S9 => "S9 - Hạn chế dồn nhiều nhiệm vụ trong một kỳ thi",
-        S10 => "S10 - Phản biện đủ các môn phụ trách",
+        H1 => "H1 - Cơ cấu ban đề chuẩn",
+        H2 => "H2 - Trình độ chuyên môn khối",
+        H3 => "H3 - Đa dạng phân hiệu",
+        H4 => "H4 - Giới hạn nhiệm vụ trong mỗi kỳ thi",
+        H5 => "H5 - Tuân thủ lịch bận",
+        H6 => "H6 - Tuân thủ ghim và cấm",
+        H7 => "H7 - Khung chỉ tiêu khối lượng",
+        S1 => "S1 - Tần suất phản biện",
+        S2 => "S2 - Cân bằng tỷ lệ vai trò",
+        S3 => "S3 - Phản biện độc lập phân hiệu",
+        S4 => "S4 - Đa dạng cặp ra đề",
+        S5 => "S5 - Tránh phản biện chéo lặp lại",
+        S6 => "S6 - Giãn cách kỳ thi liên tiếp",
+        S7 => "S7 - Luân chuyển khối lớp",
+        S8 => "S8 - Cân bằng tải trọng thực tế",
+        S9 => "S9 - Giảm dồn việc trong kỳ thi",
+        S10 => "S10 - Phủ đủ môn phản biện",
     }
 }
 

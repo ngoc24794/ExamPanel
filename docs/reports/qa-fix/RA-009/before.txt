@@ -1,0 +1,68 @@
+   Compiling exam-panel-core v0.1.0 (/home/user/ExamPanel/crates/core)
+   Compiling exam-panel-storage v0.1.0 (/home/user/ExamPanel/crates/storage)
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.44s
+     Running tests/qa_regression_tests.rs (target/debug/deps/qa_regression_tests-c43107e0f6f973f0)
+
+running 2 tests
+test export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds ... FAILED
+test export::ra028_co_panelists_are_limited_to_the_same_subject_panel ... FAILED
+
+failures:
+
+---- export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds stdout ----
+
+thread 'export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds' (9455) panicked at crates/service/tests/qa_regression_tests.rs:263:32:
+lower-bound column missing: ["Mã tiêu chí", "Tên tiêu chí", "Trạng thái", "Trọng số", "Số vi phạm", "Đóng góp điểm"]
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: qa_regression_tests::export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds::{closure#2}
+             at ./tests/qa_regression_tests.rs:263:32
+   3: <core::option::Option<usize>>::unwrap_or_else::<qa_regression_tests::export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds::{closure#2}>
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/option.rs:1064:21
+   4: qa_regression_tests::export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds
+             at ./tests/qa_regression_tests.rs:263:14
+   5: qa_regression_tests::export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds::{closure#0}
+             at ./tests/qa_regression_tests.rs:252:77
+   6: <qa_regression_tests::export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- export::ra028_co_panelists_are_limited_to_the_same_subject_panel stdout ----
+
+thread 'export::ra028_co_panelists_are_limited_to_the_same_subject_panel' (9456) panicked at crates/service/tests/qa_regression_tests.rs:228:13:
+assertion `left == right` failed: row 1: Cô Bình Vật lí GK1 Khối 12
+  left: {"Cô Quí (Phản biện)", "Thầy Lộc (Phản biện)", "Thầy Nghĩa (Ra đề)", "Thầy Phúc (Ra đề)"}
+ right: {"Cô Quí (Phản biện)", "Thầy Phúc (Ra đề)"}
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<alloc::collections::btree::set::BTreeSet<alloc::string::String>, alloc::collections::btree::set::BTreeSet<alloc::string::String>>
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:394:5
+   4: qa_regression_tests::export::ra028_co_panelists_are_limited_to_the_same_subject_panel
+             at ./tests/qa_regression_tests.rs:228:13
+   5: qa_regression_tests::export::ra028_co_panelists_are_limited_to_the_same_subject_panel::{closure#0}
+             at ./tests/qa_regression_tests.rs:177:66
+   6: <qa_regression_tests::export::ra028_co_panelists_are_limited_to_the_same_subject_panel::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds
+    export::ra028_co_panelists_are_limited_to_the_same_subject_panel
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.13s
+
+error: test failed, to rerun pass `-p exam-panel-service --test qa_regression_tests`

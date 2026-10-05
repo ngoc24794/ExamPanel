@@ -1,0 +1,13 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running tests/qa_regression_tests.rs (target/debug/deps/qa_regression_tests-c43107e0f6f973f0)
+
+running 6 tests
+test export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds ... ok
+test export::ra028_co_panelists_are_limited_to_the_same_subject_panel ... ok
+test ra034_capability_does_not_grant_frontend_open_path ... ok
+test ra036_release_manifest_does_not_enable_dev_tools_by_default ... ok
+test ra011_cancelled_optimize_returns_cancelled_error_and_no_plans ... ok
+test ra011_cancel_during_run_returns_cancelled_error ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
