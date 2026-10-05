@@ -574,9 +574,8 @@ fn test_transactional_apply_rollback_on_error() {
 
 #[test]
 fn test_standard_template_feasibility_and_generate_downloads() {
-    let target_path = std::path::PathBuf::from(
-        r"C:\Users\ngocnv.HUONGVIETGROUP\Downloads\mau-nhap-du-lieu-chuan.xlsx",
-    );
+    let temp_dir = tempfile::tempdir().unwrap();
+    let target_path = temp_dir.path().join("mau-nhap-du-lieu-chuan.xlsx");
     let service = AppService::open_in_memory().unwrap();
     let sy = service
         .create_school_year(CreateSchoolYearInput {
