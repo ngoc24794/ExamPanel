@@ -1,0 +1,23 @@
+
+Running 18 tests using 1 worker
+
+  ✓   1 [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1024x700 (1.4s)
+  ✓   2 [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1280x720 (938ms)
+  ✓   3 [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1440x900 (1.2s)
+  ✓   4 [chromium] › ui/e2e/grid-layout.spec.ts:12:3 › Q grid and totals panel are not clipped at 1920x1080 (904ms)
+  ✓   5 [chromium] › ui/e2e/phase-11.spec.ts:23:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › full Phase 11 flow: create subject, grant competencies, forced badge, run, edit VL seat, compare (2.7s)
+  ✓   6 [chromium] › ui/e2e/phase-11.spec.ts:98:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › capture light/dark x vi/en screenshots into docs/screenshots/phase-11/ (11.2s)
+  ✓   7 [chromium] › ui/e2e/phase-12.spec.ts:39:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › flow: import Q table -> compare with optimizer plan -> edit seat in grid -> export (3.5s)
+  ✓   8 [chromium] › ui/e2e/phase-12.spec.ts:113:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › capture light/dark x vi/en screenshots into docs/screenshots/phase-12/ (16.1s)
+  ✓   9 [chromium] › ui/e2e/phase-6.spec.ts:16:3 › Phase 6 E2E & Visual Verification › navigates all screens and verifies placeholders & features (2.5s)
+  ✓  10 [chromium] › ui/e2e/phase-6.spec.ts:51:3 › Phase 6 E2E & Visual Verification › performs campus CRUD, teacher CRUD, and optimistic grade toggle (2.3s)
+  ✓  11 [chromium] › ui/e2e/phase-6.spec.ts:95:3 › Phase 6 E2E & Visual Verification › captures screenshots in light/dark × vi/en for Campuses and Teachers screens (7.1s)
+  ✓  12 [chromium] › ui/e2e/phase-7.spec.ts:22:3 › Phase 7 E2E Full Workflow & Visual Verification › full phase 7 workflow: unavailability, indicator, feasibility sheet, go to fix, locks, and presets (3.9s)
+  ✓  13 [chromium] › ui/e2e/phase-7.spec.ts:94:3 › Phase 7 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 7 screens and feasibility sheet (14.2s)
+  ✓  14 [chromium] › ui/e2e/phase-8.spec.ts:22:3 › Phase 8 E2E Full Workflow & Visual Verification › full phase 8 workflow: run optimize → compare → duplicate → keyboard replace → undo → save → statistics (4.9s)
+  ✓  15 [chromium] › ui/e2e/phase-8.spec.ts:110:3 › Phase 8 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 8 screens (18.2s)
+  ✓  16 [chromium] › ui/e2e/phase-9.spec.ts:27:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › full phase 9 workflow: import wizard preview & apply, export/print menu, backup & restore in settings (2.8s)
+  ✓  17 [chromium] › ui/e2e/phase-9.spec.ts:100:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › generate sample print PDFs: plan-print.pdf and notices.pdf (2.2s)
+  ✓  18 [chromium] › ui/e2e/phase-9.spec.ts:142:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › capture light/dark x vi/en visual verification screenshots for Phase 9 (14.5s)
+
+  18 passed (1.9m)
