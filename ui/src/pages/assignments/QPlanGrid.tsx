@@ -537,12 +537,12 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
       </div>
 
       {/* Main Grid + Attached Totals Panel Layout */}
-      <div className="flex flex-col min-[1440px]:flex-row items-start gap-4 w-full">
+      <div className="flex flex-col min-[1280px]:flex-row items-start gap-4 w-full">
         {/* Left: Q-Style Assignment Grid */}
         <div className="flex-1 w-full overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
           <table
             ref={gridRef}
-            className="w-full border-collapse text-xs select-none"
+            className="w-full table-fixed border-collapse text-xs select-none"
             data-testid="q-plan-grid-table"
           >
             <thead>
@@ -551,7 +551,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                 <th
                   rowSpan={2}
                   colSpan={2}
-                  className="p-2 border-r border-border text-center font-bold text-xs uppercase bg-muted/80 w-36"
+                  className="p-1 border-r border-border text-center font-bold text-[11px] uppercase bg-muted/80 w-[104px]"
                 >
                   {t('assignments.examGradeHeader')}
                 </th>
@@ -631,7 +631,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                       {rIdx === 0 && (
                         <td
                           rowSpan={totalExamRows}
-                          className="p-2 border-r border-border text-center font-bold text-xs bg-muted/40 align-middle w-20"
+                          className="p-1 border-r border-border text-center font-bold text-xs bg-muted/40 align-middle w-14"
                         >
                           <div className="font-bold text-foreground" title={exam.name}>
                             {exam.code}
@@ -640,7 +640,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
                       )}
 
                       {/* Role Label Cell */}
-                      <td className="px-2 py-1 border-r border-border font-semibold text-muted-foreground text-[11px] text-center w-16 bg-muted/20">
+                      <td className="px-1 py-1 border-r border-border font-semibold text-muted-foreground text-[11px] text-center w-12 bg-muted/20">
                         {rowDef.label}
                       </td>
 
@@ -995,7 +995,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
 
         {/* Right: Attached Totals Panel */}
         <div
-          className="w-full min-[1440px]:w-96 rounded-lg border border-border bg-card shadow-sm p-3 space-y-3 shrink-0"
+          className="w-full min-[1280px]:w-80 min-[1280px]:min-w-80 rounded-lg border border-border bg-card shadow-sm p-3 space-y-3 shrink-0"
           data-testid="q-plan-totals-panel"
         >
           <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
