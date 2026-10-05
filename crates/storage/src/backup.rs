@@ -242,7 +242,20 @@ pub fn backups_dir() -> PathBuf {
 /// Creates a timestamped automatic backup with the specified reason tag.
 /// Also prunes backups to keep only the latest `MAX_AUTO_BACKUPS`.
 pub fn create_automatic_backup(conn: &Connection, reason: &str) -> Result<PathBuf, StorageError> {
-    let dir = backups_dir();
+    create_automatic_backup_in(conn, &backups_dir(), reason)
+}
+
+/// Same as [`create_automatic_backup`] but writes into an explicit `dir`.
+///
+/// File names are `exampanel-backup-<reason>-<epoch_secs>[_<n>].db`. A backup never
+/// overwrites an existing file: when the second is already taken a `_<n>` suffix is added
+/// so two operations in the same second each keep their own safety copy (RA-031).
+pub fn create_automatic_backup_in(
+    conn: &Connection,
+    dir: &Path,
+    reason: &str,
+) -> Result<PathBuf, StorageError> {
+    fs::create_dir_all(dir)?;
     let now = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap_or_default()
@@ -253,61 +266,85 @@ pub fn create_automatic_backup(conn: &Connection, reason: &str) -> Result<PathBu
         .filter(|c| c.is_alphanumeric() || *c == '-' || *c == '_')
         .collect::<String>();
 
-    let filename = format!("exampanel-backup-{clean_reason}-{now}.db");
-    let target = dir.join(&filename);
+    let mut target = dir.join(format!("exampanel-backup-{clean_reason}-{now}.db"));
+    let mut seq = 1u32;
+    while target.exists() {
+        target = dir.join(format!("exampanel-backup-{clean_reason}-{now}_{seq}.db"));
+        seq += 1;
+    }
 
     backup_database(conn, &target)?;
-    let _ = prune_automatic_backups(MAX_AUTO_BACKUPS);
+    let _ = prune_backups_in(dir, MAX_AUTO_BACKUPS);
 
     Ok(target)
 }
 
+/// Sort key `(epoch_secs, sequence)` of an automatic backup, parsed from its file name
+/// (`…-<epoch>` or `…-<epoch>_<n>`). Falls back to the file's modification time so
+/// hand-named files still order sensibly.
+fn backup_sort_key(filename: &str, mtime_secs: u64) -> (u64, u64) {
+    let stem = filename.strip_suffix(".db").unwrap_or(filename);
+    if let Some(tail) = stem.rsplit('-').next() {
+        let mut parts = tail.splitn(2, '_');
+        if let Some(Ok(epoch)) = parts.next().map(str::parse::<u64>) {
+            let seq = parts.next().and_then(|n| n.parse().ok()).unwrap_or(0);
+            return (epoch, seq);
+        }
+    }
+    (mtime_secs, 0)
+}
+
 /// Lists all automatic backups in the backups directory sorted from newest to oldest.
 pub fn list_automatic_backups() -> Result<Vec<BackupFileInfo>, StorageError> {
-    let dir = backups_dir();
+    list_backups_in(&backups_dir())
+}
+
+/// Lists the backups in `dir`, newest first by the timestamp in the file name (not by the
+/// alphabetical order of the reason prefix).
+pub fn list_backups_in(dir: &Path) -> Result<Vec<BackupFileInfo>, StorageError> {
     if !dir.exists() {
         return Ok(Vec::new());
     }
 
     let mut list = Vec::new();
-    let entries = fs::read_dir(&dir)?;
-    for entry in entries.flatten() {
+    for entry in fs::read_dir(dir)?.flatten() {
         let path = entry.path();
-        if path.is_file() {
-            if let Some(ext) = path.extension() {
-                if ext == "db" {
-                    let metadata = entry.metadata()?;
-                    let filename = entry.file_name().to_string_lossy().to_string();
-                    let modified_at = metadata
-                        .modified()
-                        .ok()
-                        .and_then(|t| t.duration_since(SystemTime::UNIX_EPOCH).ok())
-                        .map(|d| d.as_secs().to_string())
-                        .unwrap_or_default();
+        if path.is_file() && path.extension().is_some_and(|ext| ext == "db") {
+            let metadata = entry.metadata()?;
+            let filename = entry.file_name().to_string_lossy().to_string();
+            let modified_secs = metadata
+                .modified()
+                .ok()
+                .and_then(|t| t.duration_since(SystemTime::UNIX_EPOCH).ok())
+                .map_or(0, |d| d.as_secs());
 
-                    list.push(BackupFileInfo {
-                        filename,
-                        path: path.to_string_lossy().to_string(),
-                        size_bytes: metadata.len(),
-                        modified_at,
-                    });
-                }
-            }
+            list.push((
+                backup_sort_key(&filename, modified_secs),
+                BackupFileInfo {
+                    filename,
+                    path: path.to_string_lossy().to_string(),
+                    size_bytes: metadata.len(),
+                    modified_at: modified_secs.to_string(),
+                },
+            ));
         }
     }
 
-    // Sort newest first by filename/modified_at
-    list.sort_by(|a, b| b.filename.cmp(&a.filename));
-    Ok(list)
+    list.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| b.1.filename.cmp(&a.1.filename)));
+    Ok(list.into_iter().map(|(_, info)| info).collect())
 }
 
 /// Prunes old automatic backup files so at most `keep_count` remain.
 pub fn prune_automatic_backups(keep_count: usize) -> Result<(), StorageError> {
-    let mut backups = list_automatic_backups()?;
+    prune_backups_in(&backups_dir(), keep_count)
+}
+
+/// Prunes `dir` so only the `keep_count` newest backups remain.
+pub fn prune_backups_in(dir: &Path, keep_count: usize) -> Result<(), StorageError> {
+    let mut backups = list_backups_in(dir)?;
     if backups.len() > keep_count {
         for old in backups.drain(keep_count..) {
-            let path = PathBuf::from(old.path);
-            let _ = fs::remove_file(path);
+            let _ = fs::remove_file(PathBuf::from(old.path));
         }
     }
     Ok(())

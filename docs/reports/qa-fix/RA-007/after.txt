@@ -1,0 +1,12 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/backup_rotation_tests.rs (target/debug/deps/backup_rotation_tests-cbe6125c49277cc6)
+
+running 5 tests
+test ra031_list_is_sorted_newest_first_by_timestamp ... ok
+test ra031_prune_keeps_the_newest_ten_across_reasons ... ok
+test ra007_opening_an_older_database_creates_a_pre_migration_backup ... ok
+test ra007_opening_a_current_database_creates_no_backup ... ok
+test ra031_two_backups_in_the_same_second_both_survive ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
