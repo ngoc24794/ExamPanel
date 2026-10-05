@@ -1,0 +1,26 @@
+[
+ {
+  "name": "plan-final",
+  "route": "/print/plan/1",
+  "missing_commands": [],
+  "console": []
+ },
+ {
+  "name": "plan-draft",
+  "route": "/print/plan/2",
+  "missing_commands": [],
+  "console": []
+ },
+ {
+  "name": "notices-final",
+  "route": "/print/notices/1",
+  "missing_commands": [],
+  "console": []
+ },
+ {
+  "name": "notices-draft",
+  "route": "/print/notices/2",
+  "missing_commands": [],
+  "console": []
+ }
+]

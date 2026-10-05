@@ -1,0 +1,43 @@
+{
+ "id": "D2",
+ "started": "2026-10-05T05:53:26.755Z",
+ "checks": [
+  {
+   "step": "D2.final-plan-set",
+   "result": "pass",
+   "observed": "is_final=1",
+   "expected": "plan 1 final",
+   "evidence": []
+  },
+  {
+   "step": "D1.export-final-file",
+   "result": "pass",
+   "observed": {
+    "ok": true,
+    "dialog": "Save File",
+    "stillOpen": false
+   },
+   "expected": "file written",
+   "evidence": []
+  }
+ ],
+ "notes": {
+  "settings_rows": [
+   {
+    "key": "school_name",
+    "value": "TRƯỜNG THPT THỬ NGHIỆM"
+   },
+   {
+    "key": "signer_title",
+    "value": "TỔ TRƯỞNG CHUYÊN MÔN"
+   },
+   {
+    "key": "signer_name",
+    "value": "Nguyễn Thị Thử"
+   }
+  ],
+  "printPage_plan": "FAILED: WebDriverError: Unknown command: /session/0b140951-9c80-4c72-9b76-6b15adcfca1c/print when running \"print\" with method \"POST\"",
+  "printPage_notices": "FAILED: WebDriverError: Unknown command: /session/0b140951-9c80-4c72-9b76-6b15adcfca1c/print when running \"print\" with method \"POST\"",
+  "final_badge_visible_on_plan_header": true
+ }
+}

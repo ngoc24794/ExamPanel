@@ -597,5 +597,116 @@
   "mock_gap": "Mock demo = 11 teachers single subject, so truncation and merge are invisible.",
   "q_notice": "T Nghĩa (12 duties) is missing from the heatmaps and the pair counts do not match Q's sheet.",
   "id": "RA-027"
+ },
+ {
+  "title": "Excel 'Theo giáo viên' sheet: 'Cùng ban với' lists members of BOTH subjects' panels (wrong in all 60 rows)",
+  "severity": "S2",
+  "category": "bug",
+  "area": "export",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D1",
+   "C1"
+  ],
+  "repro": "Export Q's plan; open sheet 'Theo giáo viên'; compare 'Cùng ban với' with Q's VL/CN panels.",
+  "expected": "phase-11 checklist step 7: members of the same subject panel only (e.g. Cô Bình GK1/Khối 12 VL -> T Phúc, C Quí).",
+  "actual": "All 60 rows list the union of the VL and CN panels of that exam×grade: Cô Bình GK1/12 VL shows 'Thầy Nghĩa (Ra đề); Thầy Phúc (Ra đề); Cô Quí (Phản biện); Thầy Lộc (Phản biện)'. (Other sheets are correct: grid cells equal Q's 60 seats, totals 60/36/24/15x4, per-teacher totals.)",
+  "evidence": [
+   "extracts/D1.json",
+   "extracts/C1-q-plan-export.json",
+   "extracts/q-plan-task.json"
+  ],
+  "cause_hypothesis": "crates/service/src/excel/export.rs builds the co-members list by (exam_id, grade_id) without subject_id. Same pattern as RA-013/RA-027; check print notices (D2).",
+  "mock_gap": "Excel content not asserted in mock suite; golden calamine test uses single-subject/other sheet.",
+  "q_notice": "A teacher's own sheet row lists colleagues from the other subject's panel.",
+  "id": "RA-028"
+ },
+ {
+  "title": "Export/print fall back to invented organisation text 'TRƯỜNG THPT CHUYÊN / TỔ CHUYÊN MÔN TOÁN / Hà Nội' when Settings org info is empty",
+  "severity": "S3",
+  "category": "Q-fit",
+  "area": "export",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D1"
+  ],
+  "repro": "Fresh DB without saving 'Thông tin đơn vị' > Xuất Excel; open sheet 1 header.",
+  "expected": "Blank or placeholder prompting the user to configure the school; never another school's name.",
+  "actual": "Header shows 'TRƯỜNG THPT CHUYÊN' / 'TỔ CHUYÊN MÔN TOÁN', signature 'Hà Nội, ngày ... tháng ... năm 20...' although nothing was configured. The print routes (/print/plan/:id, WebKitGTK screenshot) fall back to different invented text: 'TRƯỜNG THPT CHUYÊN / TỔ TOÁN - TIN', place 'Hà Nội' and signer 'Nguyễn Văn A' — inconsistent with the Excel fallback ('TỔ CHUYÊN MÔN TOÁN') and a fictitious signer name printed on an official sheet.",
+  "evidence": [
+   "extracts/D1.json",
+   "extracts/C1-q-plan-export.json",
+   "screenshots/D2-gtk-print-dialog.png"
+  ],
+  "cause_hypothesis": "Hard-coded fallbacks in the exporter/print pages.",
+  "mock_gap": "n/a",
+  "q_notice": "Q's physics/technology group would print 'TỔ CHUYÊN MÔN TOÁN' unless they notice.",
+  "id": "RA-029"
+ },
+ {
+  "title": "'In / Xuất PDF' does nothing in the Linux/WebKitGTK app (no print dialog, no PDF); WebDriver Print Page unsupported",
+  "severity": "S3",
+  "category": "packaging/runtime",
+  "area": "app shell",
+  "engine": "webkitgtk-specific (WebView2 on Windows expected to open the print UI — not verified here)",
+  "scenarios": [
+   "D2"
+  ],
+  "repro": "Open /#/print/plan/1 in the Linux release app, click 'In / Xuất PDF' (or press Ctrl+P).",
+  "expected": "A print dialog / print-to-file path so the A4 PDF can be produced (phase-9 checklist step 5).",
+  "actual": "Nothing happens: no new X window within 3.5 s, page stays responsive. Separately WebKitWebDriver answers 'Unknown command /print' so the W3C Print Page command cannot be used; print output was verified via a Chromium proxy that replays real IPC data (labelled MOCK-DATA-REPLAY).",
+  "evidence": [
+   "screenshots/D2-gtk-print-dialog.png",
+   "extracts/D2.json",
+   "extracts/D2-chromium-replay-run.json"
+  ],
+  "cause_hypothesis": "wry/WebKitGTK does not wire window.print() to a GtkPrintOperation. Windows is the supported target, so this is informational unless Linux builds are in scope; add an in-app 'Save as PDF' (Tauri-side printing) if Linux/macOS matter.",
+  "mock_gap": "Chromium mock suite prints fine.",
+  "q_notice": "none on Windows (must be re-verified there).",
+  "id": "RA-030"
+ },
+ {
+  "title": "Automatic backup rotation and 'newest first' ordering sort by file NAME (reason prefix before timestamp): newest backups are pruned while older ones of another kind are kept; same-second backups overwrite each other",
+  "severity": "S2",
+  "category": "bug",
+  "area": "storage",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D3"
+  ],
+  "repro": "Real app, data dir with 7 'pre-restore' automatic backups (older) then 9 successive Excel imports (each creates 'pre-import'). Inspect data/backups and Settings > Danh sách bản sao lưu tự động. Also run two restore_database calls within one second.",
+  "expected": "phase-9 step 9 / SPEC: keep the 10 NEWEST automatic backups, list newest first; every operation keeps its own safety copy.",
+  "actual": "After 16 backups the 10 kept are 7 older pre-restore + only 3 pre-import (the 3 newest imports; the 6 backups taken right before the earlier imports were deleted); the UI list shows pre-restore-…110 on top and the truly newest file (pre-import-…120) last. Two restores in the same second produced a single file (second silently overwrote the first).",
+  "evidence": [
+   "extracts/D3b-rotation.json",
+   "extracts/D3.json"
+  ],
+  "cause_hypothesis": "crates/storage/src/backup.rs: filename = exampanel-backup-{reason}-{epoch_secs}.db; list_automatic_backups sorts by filename descending and prune_automatic_backups keeps the first 10 of that order; no sub-second/uniqueness suffix.",
+  "mock_gap": "Mock backups list is a static array.",
+  "q_notice": "After a few imports and a restore, the backup taken just before the latest import may already be gone.",
+  "id": "RA-031"
+ },
+ {
+  "title": "Restore dialog shows English engine messages and calls a newer-version file 'corrupted or wrong format'",
+  "severity": "S3",
+  "category": "i18n/text",
+  "area": "ui",
+  "engine": "engine-agnostic",
+  "scenarios": [
+   "D3"
+  ],
+  "repro": "Settings > Phục hồi từ tệp > choose (a) a text file, (b) a valid DB with PRAGMA user_version=99, (c) a truncated DB.",
+  "expected": "Clear Vietnamese reasons; newer version: 'cần ExamPanel mới hơn'. All three are correctly rejected (confirm disabled, live DB hash unchanged).",
+  "actual": "Heading 'Tệp dữ liệu bị hỏng hoặc không đúng định dạng' for all three plus raw English details: 'Integrity check query failed: file is not a database', 'Unsupported future database version: 99 > supported 5', 'Integrity check query failed: database disk image is malformed'.",
+  "evidence": [
+   "extracts/D3-restore-dialog-garbage.txt",
+   "extracts/D3-restore-dialog-newer_version.txt",
+   "extracts/D3-restore-dialog-truncated.txt",
+   "extracts/D3.json"
+  ],
+  "cause_hypothesis": "BackupValidationSummary.error is a raw Rust string; UI prints it unmapped.",
+  "mock_gap": "Mock returns Vietnamese text.",
+  "q_notice": "English technical sentence in the middle of a Vietnamese dialog.",
+  "id": "RA-032"
  }
 ]

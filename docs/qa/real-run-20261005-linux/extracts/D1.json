@@ -1,0 +1,245 @@
+{
+ "id": "D1",
+ "checks": [
+  {
+   "step": "D1.sheets",
+   "result": "pass",
+   "observed": [
+    "Bảng phân công (mẫu tổ)",
+    "Phân công",
+    "Theo giáo viên",
+    "Thống kê",
+    "Tiêu chí"
+   ],
+   "expected": "phase-12 checklist: first sheet \"Bảng phân công (mẫu tổ)\"; phase-9: Phân công / Theo giáo viên / Thống thống kê / Tiêu chí (checklist v0.1.0 says MA_TRAN / TONG_HOP: stale)",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.first-sheet-page-setup",
+   "result": "pass",
+   "observed": {
+    "orientation": "landscape",
+    "paper": 9,
+    "fit_to_page": true,
+    "fit_w": null,
+    "fit_h": 0
+   },
+   "expected": "A4 landscape, fit to 1 page wide",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.first-sheet-merged-header",
+   "result": "pass",
+   "observed": [
+    "A12:A14",
+    "A15:A17",
+    "A18:A20",
+    "A4:Q4",
+    "A5:Q5",
+    "A7:B8",
+    "A9:A11",
+    "C7:D7",
+    "E7:F7",
+    "G7:H7",
+    "J24:Q24",
+    "J25:Q25"
+   ],
+   "expected": "merged \"Kì thi/khối\" A7:B8 and grade groups C7:D7,E7:F7,G7:H7; title A4:Q4",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.header-text",
+   "result": "pass",
+   "observed": [
+    "Kì thi/khối",
+    null,
+    "Khối 10",
+    null,
+    "Khối 11",
+    null,
+    "Khối 12",
+    null,
+    null,
+    "GV",
+    "Tổng lượt n.vụ",
+    "Đề",
+    "PB",
+    "GK1",
+    "CK1",
+    "GK2",
+    "CK2"
+   ],
+   "expected": "Kì thi/khối | Khối 10..12 | spacer | GV | Tổng lượt n.vụ | Đề | PB | GK1..CK2",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.draft-marker-for-non-final",
+   "result": "pass",
+   "observed": [
+    "[BẢN NHÁP] BẢNG PHÂN CÔNG RA ĐỀ VÀ PHẢN BIỆN ĐỀ KIỂM TRA"
+   ],
+   "expected": "[BẢN NHÁP] on non-final plans",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.grid-values-equal-Q-plan",
+   "result": "pass",
+   "observed": {
+    "mismatches": [],
+    "n": 0
+   },
+   "expected": "60 seats equal Q ground truth (independent parse of task text); CN second Đề blank",
+   "evidence": [
+    "extracts/C1-q-plan-export.json",
+    "extracts/q-plan-task.json"
+   ]
+  },
+  {
+   "step": "D1.total-row",
+   "result": "pass",
+   "observed": [
+    "Tổng cộng",
+    60,
+    36,
+    24,
+    15,
+    15,
+    15,
+    15
+   ],
+   "expected": "Tổng cộng 60 / 36 / 24 / 15 x4",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.per-teacher-totals-equal-Q",
+   "result": "pass",
+   "observed": [],
+   "expected": "GV totals equal Q totals (Hiền 5, Lài 5, ... Quí 6, Nghĩa 12)",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.signature-block",
+   "result": "pass",
+   "observed": [
+    "Hà Nội, ngày ... tháng ... năm 20...",
+    "Tổ trưởng chuyên môn"
+   ],
+   "expected": "place/date + signer title (+ name when configured in Settings)",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.header-org-info-defaults",
+   "result": "not-verified",
+   "observed": [
+    "TRƯỜNG THPT CHUYÊN",
+    "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "TỔ CHUYÊN MÔN TOÁN",
+    "Độc lập - Tự do - Hạnh phúc"
+   ],
+   "expected": "Org info was not configured in this run; export printed fallback \"TRƯỜNG THPT CHUYÊN / TỔ CHUYÊN MÔN TOÁN\" -> see finding on invented defaults",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.theo-giao-vien-cung-ban-voi-same-subject-only",
+   "result": "fail",
+   "observed": {
+    "n_rows": 60,
+    "n_wrong": 60,
+    "first": [
+     {
+      "row": "Cô Bình GK1 Khối 12 Vật lí",
+      "shown": [
+       "C Quí",
+       "T Lộc",
+       "T Nghĩa",
+       "T Phúc"
+      ],
+      "expected": [
+       "C Quí",
+       "T Phúc"
+      ]
+     },
+     {
+      "row": "Cô Bình CK1 Khối 11 Vật lí",
+      "shown": [
+       "C Lan",
+       "C Lài",
+       "C Thư",
+       "T Nghĩa"
+      ],
+      "expected": [
+       "C Lài",
+       "C Thư"
+      ]
+     },
+     {
+      "row": "Cô Bình CK1 Khối 12 Công nghệ",
+      "shown": [
+       "C Lan",
+       "C Lài",
+       "C Quí",
+       "T Nghĩa"
+      ],
+      "expected": [
+       "T Nghĩa"
+      ]
+     }
+    ]
+   },
+   "expected": "\"Cùng ban với\" lists only members of the same subject panel (phase-11 checklist step 7)",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.theo-giao-vien-row-count",
+   "result": "pass",
+   "observed": 60,
+   "expected": "60 rows (one per seat)",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  },
+  {
+   "step": "D1.thong-ke-equals-Q-totals",
+   "result": "pass",
+   "observed": [
+    [
+     "Cô Hiền",
+     5
+    ],
+    [
+     "Cô Lài",
+     5
+    ],
+    [
+     "Thầy Phúc",
+     4
+    ]
+   ],
+   "expected": "12 rows, totals equal Q",
+   "evidence": [
+    "extracts/C1-q-plan-export.json"
+   ]
+  }
+ ],
+ "notes": {}
+}

@@ -1,0 +1,48 @@
+[
+ {
+  "step": "two restores within <1 s",
+  "files": 1,
+  "reasons": [
+   "pre-restore"
+  ]
+ },
+ {
+  "step": "after 1 + 6 spaced restores (pre-restore)",
+  "n": 7
+ },
+ {
+  "step": "after 9 pre-import",
+  "n": 10,
+  "files": [
+   "pre-restore@1791180103",
+   "pre-restore@1791180104",
+   "pre-restore@1791180105",
+   "pre-restore@1791180107",
+   "pre-restore@1791180108",
+   "pre-restore@1791180109",
+   "pre-restore@1791180110",
+   "pre-import@1791180118",
+   "pre-import@1791180119",
+   "pre-import@1791180120"
+  ]
+ },
+ {
+  "step": "list_backups order (UI order)",
+  "rows": [
+   "pre-restore-1791180110.db",
+   "pre-restore-1791180109.db",
+   "pre-restore-1791180108.db",
+   "pre-restore-1791180107.db",
+   "pre-restore-1791180105.db",
+   "pre-restore-1791180104.db",
+   "pre-restore-1791180103.db",
+   "pre-import-1791180120.db",
+   "pre-import-1791180119.db",
+   "pre-import-1791180118.db"
+  ]
+ },
+ {
+  "step": "expected newest 10 by time (from creation log is unavailable once pruned)",
+  "note": "compare kept set vs time order"
+ }
+]

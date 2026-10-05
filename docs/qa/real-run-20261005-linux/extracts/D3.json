@@ -1,0 +1,238 @@
+{
+ "id": "D3",
+ "started": "2026-10-05T06:00:05.764Z",
+ "checks": [
+  {
+   "step": "D3.backup-now-file-written",
+   "result": "pass",
+   "observed": {
+    "dr": {
+     "ok": true,
+     "dialog": "Save File",
+     "stillOpen": false
+    },
+    "size": 221184
+   },
+   "expected": "file saved via GTK dialog, size > 100 KB (phase-9 step 7)",
+   "evidence": [
+    "screenshots/D3-backup-save-dialog.png"
+   ]
+  },
+  {
+   "step": "D3.backup-integrity-and-counts",
+   "result": "pass",
+   "observed": {
+    "integrity": "ok",
+    "backup": {
+     "t": 12,
+     "p": 4,
+     "y": 1,
+     "a": 240
+    },
+    "live": {
+     "t": 12,
+     "p": 4,
+     "y": 1,
+     "a": 240
+    }
+   },
+   "expected": "integrity_check ok; counts equal live DB",
+   "evidence": []
+  },
+  {
+   "step": "D3.backup-logical-equals-live",
+   "result": "pass",
+   "observed": "compared .dump (excluding sqlite_sequence)",
+   "expected": "identical",
+   "evidence": []
+  },
+  {
+   "step": "D3.restore-validation-dialog-summary",
+   "result": "pass",
+   "observed": "Xác nhận phục hồi dữ liệu | Hệ thống sẽ tự động sao lưu dữ liệu hiện tại trước khi phục hồi. Ứng dụng sẽ nạp lại dữ liệu sau khi hoàn tất. | Tệp dữ liệu hợp lệ (Kiểm tra toàn vẹn thành công) | Năm học: 1 | Giáo viên: 12 | Phương án: 4 | Phiên bản: v5 | Hủy | Xác nhận phục hồi | Close",
+   "expected": "dialog shows years/teachers/plans/schema version (phase-9 step 8.4)",
+   "evidence": [
+    "extracts/D3-restore-dialog-valid.txt"
+   ]
+  },
+  {
+   "step": "D3.restore-creates-pre-restore-backup",
+   "result": "pass",
+   "observed": {
+    "before": [],
+    "after": [
+     "exampanel-backup-pre-restore-1791180021.db"
+    ]
+   },
+   "expected": "new exampanel-backup-pre-restore-*.db",
+   "evidence": []
+  },
+  {
+   "step": "D3.restore-data-equals-backup",
+   "result": "pass",
+   "observed": {
+    "live": {
+     "t": 12,
+     "p": 4,
+     "y": 1,
+     "a": 240
+    },
+    "backup": {
+     "t": 12,
+     "p": 4,
+     "y": 1,
+     "a": 240
+    }
+   },
+   "expected": "DB logical content == backup",
+   "evidence": []
+  },
+  {
+   "step": "D3.restore-ui-teachers-reset",
+   "result": "pass",
+   "observed": {
+    "shows_changed_name": false
+   },
+   "expected": "teacher list shows restored names (cache cleared)",
+   "evidence": []
+  },
+  {
+   "step": "D3.restore-ui-current-year-reset",
+   "result": "pass",
+   "observed": "Giáo viên | Có cảnh báo | 12 | 2026 - 2027 | VI | Hệ Thống | ",
+   "expected": "current year selector shows 2026-2027 again",
+   "evidence": []
+  },
+  {
+   "step": "D3.restore-ui-plans-reset",
+   "result": "pass",
+   "observed": "Lịch sử phương án (4)",
+   "expected": "history shows 4 plans (as in backup)",
+   "evidence": []
+  },
+  {
+   "step": "D3.reject-garbage",
+   "result": "pass",
+   "observed": {
+    "confirm_disabled": true,
+    "db_unchanged": true,
+    "dialog": "Xác nhận phục hồi dữ liệu | Hệ thống sẽ tự động sao lưu dữ liệu hiện tại trước khi phục hồi. Ứng dụng sẽ nạp lại dữ liệu sau khi hoàn tất. | Tệp dữ liệu bị hỏng hoặc không đúng định dạng | Integrity check query failed: file is not a database | Hủy | Xác nhận p"
+   },
+   "expected": "confirm disabled, clear error, DB untouched",
+   "evidence": [
+    "extracts/D3-restore-dialog-garbage.txt",
+    "screenshots/D3-restore-reject-garbage-page.png"
+   ]
+  },
+  {
+   "step": "D3.reject-newer_version",
+   "result": "pass",
+   "observed": {
+    "confirm_disabled": true,
+    "db_unchanged": true,
+    "dialog": "Xác nhận phục hồi dữ liệu | Hệ thống sẽ tự động sao lưu dữ liệu hiện tại trước khi phục hồi. Ứng dụng sẽ nạp lại dữ liệu sau khi hoàn tất. | Tệp dữ liệu bị hỏng hoặc không đúng định dạng | Unsupported future database version: 99 > supported 5 | Hủy | Xác nhận "
+   },
+   "expected": "confirm disabled, clear error, DB untouched",
+   "evidence": [
+    "extracts/D3-restore-dialog-newer_version.txt",
+    "screenshots/D3-restore-reject-newer_version-page.png"
+   ]
+  },
+  {
+   "step": "D3.reject-truncated",
+   "result": "pass",
+   "observed": {
+    "confirm_disabled": true,
+    "db_unchanged": true,
+    "dialog": "Xác nhận phục hồi dữ liệu | Hệ thống sẽ tự động sao lưu dữ liệu hiện tại trước khi phục hồi. Ứng dụng sẽ nạp lại dữ liệu sau khi hoàn tất. | Tệp dữ liệu bị hỏng hoặc không đúng định dạng | Integrity check query failed: database disk image is malformed | Hủy | "
+   },
+   "expected": "confirm disabled, clear error, DB untouched",
+   "evidence": [
+    "extracts/D3-restore-dialog-truncated.txt",
+    "screenshots/D3-restore-reject-truncated-page.png"
+   ]
+  },
+  {
+   "step": "D3.restore-from-automatic-list",
+   "result": "pass",
+   "observed": {
+    "buttons": 1,
+    "names_has_second_change": false
+   },
+   "expected": "automatic backup restores previous state (phase-9 step 9)",
+   "evidence": []
+  },
+  {
+   "step": "D3.auto-backups-rotate-to-10",
+   "result": "pass",
+   "observed": {
+    "files": 10,
+    "by_reason": {
+     "pre-import": 3,
+     "pre-restore": 7
+    }
+   },
+   "expected": "at most 10 automatic backups",
+   "evidence": [
+    "extracts/D3b-rotation.json"
+   ]
+  },
+  {
+   "step": "D3.rotation-keeps-the-NEWEST-10",
+   "result": "fail",
+   "observed": {
+    "kept_pre_import": 3,
+    "kept_pre_restore": 7,
+    "expected": "9 pre-import (newest) + 1 pre-restore",
+    "ordering_in_list_backups": [
+     "exampanel-backup-pre-restore-1791180110.db",
+     "exampanel-backup-pre-restore-1791180109.db",
+     "exampanel-backup-pre-restore-1791180108.db",
+     "exampanel-backup-pre-restore-1791180107.db"
+    ]
+   },
+   "expected": "rotation by time",
+   "evidence": [
+    "extracts/D3b-rotation.json"
+   ]
+  },
+  {
+   "step": "D3.list-backups-newest-first",
+   "result": "fail",
+   "observed": {
+    "first_in_list": "exampanel-backup-pre-restore-1791180110.db",
+    "truly_newest": "exampanel-backup-pre-import-1791180120.db"
+   },
+   "expected": "list sorted newest first (UI says so)",
+   "evidence": [
+    "extracts/D3b-rotation.json"
+   ]
+  },
+  {
+   "step": "D3.same-second-backups-not-overwritten",
+   "result": "fail",
+   "observed": {
+    "files_after_two_back_to_back_restores": 1
+   },
+   "expected": "two restores within one second yield two pre-restore backups",
+   "evidence": [
+    "extracts/D3b-rotation.json"
+   ]
+  }
+ ],
+ "notes": {
+  "create_school_year_result": "ok",
+  "counts_after_mutation": {
+   "t": 12,
+   "p": 4,
+   "y": 2,
+   "a": 240
+  },
+  "header_after_restore": "Giáo viên | Có cảnh báo | 12 | 2026 - 2027 | VI | Hệ Thống | ",
+  "auto_list_rows": [
+   "exampanel-backup-pre-restore-1791180021.db216.0 KB1791180021Phục hồi"
+  ],
+  "auto_restore_buttons": 1,
+  "auto_restore_dialog": "Xác nhận phục hồi dữ liệu | Hệ thống sẽ tự động sao lưu dữ liệu hiện tại trước khi phục hồi. Ứng dụng sẽ nạp lại dữ liệu sau khi hoàn tất. | Tệp dữ liệu hợp lệ (Kiểm tra toàn vẹn thành công) | Năm học: 2 | Giáo viên: 12 | Phương án: 4 | Phiên bản: v5 | Hủy | Xác nhận phục hồi | Close"
+ }
+}
