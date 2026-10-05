@@ -26,7 +26,10 @@ def insert(path, dotted, value):
     depth = 0
     for p in parts[:-1]:
         pat = re.compile(r'^' + '  ' * depth + r'  ' + re.escape(json.dumps(p, ensure_ascii=False)) + r': \{\s*$')
-        idx = next((i for i in range(start, len(lines)) if pat.match(lines[i])), None)
+        hits = [i for i in range(start, len(lines)) if pat.match(lines[i])]
+        if len(hits) > 1:
+            raise SystemExit(f'{path}: section {p!r} is declared twice (duplicate JSON key) - merge it first')
+        idx = hits[0] if hits else None
         if idx is None:
             raise SystemExit(f'{path}: section {p!r} not found at depth {depth}')
         start = idx + 1

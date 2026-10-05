@@ -263,22 +263,6 @@
     "s10Example": "Ví dụ: Giáo viên có thể phản biện cả Vật lí và Công nghệ thì nên phản biện mỗi môn ít nhất 1 lần.",
     "weight": "Trọng số"
   },
-  "assignments": {
-    "title": "Phương án Phân công",
-    "description": "Khởi chạy thuật toán quay lui ngẫu nhiên và luyện kim mô phỏng để sinh phương án tối ưu.",
-    "swapDuplicateTeacher": "Không thể đổi: một giáo viên không được giữ hai vị trí trong cùng một ban đề.",
-    "compareDescription": "So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án",
-    "comparePickA": "Chọn phương án A",
-    "comparePickB": "Chọn phương án B",
-    "compareScoreShort": "Điểm: {{score}}",
-    "compareScoreA": "Điểm A",
-    "compareScoreB": "Điểm B",
-    "compareScoreDelta": "Chênh lệch (B - A)",
-    "compareExamGrade": "Kỳ / Khối",
-    "compareReviewerShort": "PB",
-    "comparePanelsChanged": "{{count}} ban đề có thay đổi",
-    "gradeWord": "Khối"
-  },
   "stats": {
     "title": "Thống kê & Báo cáo",
     "description": "Phân tích cân bằng tải, số lượt ra đề/phản biện, luân chuyển phân hiệu và xuất báo cáo."
@@ -632,7 +616,23 @@
     "taskCountOver2": "≥ 2 nhiệm vụ trong kỳ này",
     "taskCountOver3": "≥ 3 nhiệm vụ trong kỳ này",
     "sortByName": "Xếp theo tên",
-    "sortByTotal": "Xếp theo tổng lượt"
+    "sortByTotal": "Xếp theo tổng lượt",
+    "swapDuplicateTeacher": "Không thể đổi: một giáo viên không được giữ hai vị trí trong cùng một ban đề.",
+    "compareDescription": "So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án",
+    "comparePickA": "Chọn phương án A",
+    "comparePickB": "Chọn phương án B",
+    "compareScoreShort": "Điểm: {{score}}",
+    "compareScoreA": "Điểm A",
+    "compareScoreB": "Điểm B",
+    "compareScoreDelta": "Chênh lệch (B - A)",
+    "compareExamGrade": "Kỳ / Khối",
+    "compareReviewerShort": "PB",
+    "comparePanelsChanged": "{{count}} ban đề có thay đổi",
+    "gradeWord": "Khối",
+    "preflightErrorCount": "{{count}} lỗi cấu hình khiến thuật toán không thể xếp lịch hợp lệ.",
+    "reoptimizeKeptNotice": "{{count}} vị trí được giữ cố định, thuật toán sẽ sắp xếp lại các vị trí còn lại để cải thiện điểm số.",
+    "reoptimizeRunning": "Đang tối ưu lại...",
+    "reoptimizeStart": "Bắt đầu tối ưu lại"
   },
   "planImport": {
     "buttonTitle": "Nhập từ bảng có sẵn",

@@ -1125,7 +1125,7 @@ export class MockExamPanelApi implements ExamPanelApi {
   // Optimization
   startOptimize(
     schoolYearId: number,
-    _request: OptimizeRequest,
+    request: OptimizeRequest,
     onProgress?: (progress: Progress) => void,
   ): OptimizeHandle {
     if (this.isOptimizing) {
@@ -1172,18 +1172,20 @@ export class MockExamPanelApi implements ExamPanelApi {
         }
 
         step += 1
-        const iteration = Math.floor((step / totalSteps) * 200000)
+        // Real shape: every event carries the counters of ONE run; all runs advance together.
+        const budget = request.budget.value
         const best_score = Math.max(2.6, 25.0 - step * 2.2)
-        const current_score = best_score + Math.random() * 3.0
-
         if (onProgress) {
-          onProgress({
-            run: 1 + Math.floor(step / 3),
-            iteration,
-            best_score: Number(best_score.toFixed(2)),
-            current_score: Number(current_score.toFixed(2)),
-            elapsed_ms: step * stepDurationMs,
-          })
+          for (let run = 0; run < Math.max(1, request.runs); run++) {
+            const current_score = best_score + Math.random() * 3.0
+            onProgress({
+              run,
+              iteration: Math.floor((step / totalSteps) * budget),
+              best_score: Number((best_score + run * 0.01).toFixed(2)),
+              current_score: Number(current_score.toFixed(2)),
+              elapsed_ms: step * stepDurationMs,
+            })
+          }
         }
 
         if (step >= totalSteps) {
@@ -1595,29 +1597,35 @@ export class MockExamPanelApi implements ExamPanelApi {
   }
 
   reoptimizeFrom(
-    _req: ReoptimizeRequest,
+    req: ReoptimizeRequest,
     onProgress?: (progress: Progress) => void,
   ): OptimizeHandle {
     let cancelled = false
-    const promise = new Promise<OptimizeOutcome>((resolve) => {
-      let it = 0
-      const totalIt = 1000
+    let rejectRun: ((err: unknown) => void) | null = null
+    const runs = Math.max(1, req.request.runs)
+    const budget = req.request.budget.value
+    const promise = new Promise<OptimizeOutcome>((resolve, reject) => {
+      rejectRun = reject
+      let step = 0
+      const totalSteps = 5
       const interval = setInterval(() => {
         if (cancelled) {
           clearInterval(interval)
           return
         }
-        it += 200
+        step += 1
         if (onProgress) {
-          onProgress({
-            run: 1,
-            iteration: it,
-            elapsed_ms: it * 2,
-            current_score: 120.0 - it * 0.05,
-            best_score: 100.0 - it * 0.04,
-          })
+          for (let run = 0; run < runs; run++) {
+            onProgress({
+              run,
+              iteration: Math.floor((step / totalSteps) * budget),
+              elapsed_ms: step * 100,
+              current_score: 120.0 - step * 10,
+              best_score: 100.0 - step * 8 + run * 0.01,
+            })
+          }
         }
-        if (it >= totalIt) {
+        if (step >= totalSteps) {
           clearInterval(interval)
           const outcome: OptimizeOutcome = JSON.parse(JSON.stringify(demoOutcome))
           resolve(outcome)
@@ -1629,6 +1637,8 @@ export class MockExamPanelApi implements ExamPanelApi {
       promise,
       cancel: async () => {
         cancelled = true
+        // Like the real backend (RA-011): a cancelled job rejects with `cancelled`.
+        rejectRun?.({ code: 'cancelled', params: { message: 'Optimization was cancelled' } })
         return true
       },
     }

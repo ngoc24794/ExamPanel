@@ -263,22 +263,6 @@
     "s10Example": "Example: A teacher competent to review both Physics and Technology should review each at least once.",
     "weight": "Weight"
   },
-  "assignments": {
-    "title": "Assignment Plan",
-    "description": "Run randomized backtracking and simulated annealing to produce optimal assignment schedules.",
-    "swapDuplicateTeacher": "Cannot apply: a teacher cannot hold two seats in the same panel.",
-    "compareDescription": "Compare assignments, scores and differences between two plans",
-    "comparePickA": "Select plan A",
-    "comparePickB": "Select plan B",
-    "compareScoreShort": "Score: {{score}}",
-    "compareScoreA": "Score A",
-    "compareScoreB": "Score B",
-    "compareScoreDelta": "Difference (B - A)",
-    "compareExamGrade": "Exam / Grade",
-    "compareReviewerShort": "Rev",
-    "comparePanelsChanged": "{{count}} panels changed",
-    "gradeWord": "Grade"
-  },
   "stats": {
     "title": "Statistics & Reports",
     "description": "Analyze workload fairness, setter/reviewer distributions, campus rotations, and export reports."
@@ -632,7 +616,23 @@
     "taskCountOver2": "≥ 2 tasks in this exam",
     "taskCountOver3": "≥ 3 tasks in this exam",
     "sortByName": "Sort by name",
-    "sortByTotal": "Sort by total"
+    "sortByTotal": "Sort by total",
+    "swapDuplicateTeacher": "Cannot apply: a teacher cannot hold two seats in the same panel.",
+    "compareDescription": "Compare assignments, scores and differences between two plans",
+    "comparePickA": "Select plan A",
+    "comparePickB": "Select plan B",
+    "compareScoreShort": "Score: {{score}}",
+    "compareScoreA": "Score A",
+    "compareScoreB": "Score B",
+    "compareScoreDelta": "Difference (B - A)",
+    "compareExamGrade": "Exam / Grade",
+    "compareReviewerShort": "Rev",
+    "comparePanelsChanged": "{{count}} panels changed",
+    "gradeWord": "Grade",
+    "preflightErrorCount": "{{count}} configuration errors prevent the solver from building a valid schedule.",
+    "reoptimizeKeptNotice": "{{count}} seats are kept fixed; the solver will rearrange the remaining seats to improve the score.",
+    "reoptimizeRunning": "Re-optimizing...",
+    "reoptimizeStart": "Start re-optimizing"
   },
   "planImport": {
     "buttonTitle": "Import existing plan",
