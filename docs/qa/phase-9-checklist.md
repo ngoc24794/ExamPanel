@@ -30,7 +30,7 @@ Tài liệu này cung cấp các bước kiểm thử tuần tự trên ứng d�
   3. Chọn thư mục lưu tệp `mau-nhap-du-lieu.xlsx` trong hộp thoại lưu file của hệ điều hành.
   4. Mở tệp vừa tải bằng Microsoft Excel.
 - **Kết quả mong đợi:**
-  - Tệp có 4 trang tính: "Hướng dẫn", "Phân hiệu", "Giáo viên", "Lịch vắng".
+  - Tệp có 6 trang tính: "Hướng dẫn", "Phân hiệu", "Giáo viên", "Lịch vắng", "Môn", "Môn đảm nhiệm".
   - Dòng tiêu đề được cố định (freeze panes) và định dạng đậm.
   - Các cột có Data Validation danh sách thả xuống: Mã phân hiệu, Khối dạy, Hệ số tải (0, 0.25, 0.5, 0.75, 1), Đang dạy (Có, Không), Mã kỳ thi (GK1, CK1, GK2, CK2).
 
@@ -105,7 +105,7 @@ Tài liệu này cung cấp các bước kiểm thử tuần tự trên ứng d�
   1. Vào menu **Cài đặt** (`/settings`).
   2. Cuộn tới phần **Sao lưu & Phục hồi dữ liệu**.
   3. Bấm nút **Sao lưu ngay**.
-  4. Chọn vị trí lưu tệp (tên mặc định dạng `exampanel-backup-YYYYMMDD-HHmm.db`).
+  4. Chọn vị trí lưu tệp (tên mặc định dạng `exampanel-backup-<mốc thời gian>.db`).
 - **Kết quả mong đợi:**
   - Quá trình SQLite Online Backup API diễn ra an toàn không khóa giao dịch đọc.
   - Thông báo thành công hiển thị.

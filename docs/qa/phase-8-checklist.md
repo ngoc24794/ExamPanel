@@ -47,7 +47,7 @@ Tài liệu này cung cấp các bước kiểm thử tuần tự trên ứng d�
 ### Bước 4: Nhân bản để chỉnh sửa thủ công (Duplicate & Edit)
 - **Thao tác:**
   1. Trên thanh thông tin phương án của một phương án máy tạo (`optimizer`), nhấp nút **Tạo bản chỉnh sửa**.
-  2. Nhập tên phương án mới, ví dụ: "Bản chỉnh sửa số 1", bấm **Tạo bản sao**.
+  2. Không có hộp thoại đặt tên: bản sao được tạo ngay với tên `<tên phương án gốc> (Chỉnh sửa)` và tự động được chọn.
 - **Kết quả mong đợi:**
   - Bản sao được tạo với nguồn gốc `duplicate`.
   - Chế độ chỉnh sửa được kích hoạt: xuất hiện các nút **Hoàn tác (Undo)**, **Làm lại (Redo)**, **Hủy thay đổi (Discard)** và **Lưu (Save)**.
@@ -90,7 +90,7 @@ Tài liệu này cung cấp các bước kiểm thử tuần tự trên ứng d�
 ### Bước 9: Giữ ô và Tối ưu lại phần còn lại (Re-optimize Around Kept Slots)
 - **Thao tác:**
   1. Mở menu tại 2 ô phân công hài lòng và chọn **Giữ ô này khi tối ưu lại**.
-  2. Bảng thông báo xuất hiện: "Đã chọn giữ: 2 ô".
+  2. Biểu ngữ "Đã chọn giữ: 2 ô" xuất hiện phía trên bảng (cả ở chế độ Bảng tổ lẫn Chi tiết).
   3. Bấm **Tối ưu lại phần còn lại**.
   4. Chọn số phương án và bấm **Bắt đầu**.
 - **Kết quả mong đợi:**

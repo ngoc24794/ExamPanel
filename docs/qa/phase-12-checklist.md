@@ -53,7 +53,7 @@ Tài liệu này cung cấp các kịch bản kiểm thử toàn diện trên �
      - Tất cả các vị trí được phân công của giáo viên đó trên lưới sáng đồng thời.
      - Tooltip hiển thị: Số lượt/Chỉ tiêu, danh sách vai trò và các kỳ thi tham gia.
   6. Thử chỉnh sửa trên lưới:
-     - Bấm hoặc ấn `Enter` vào một ô: Hộp thoại chọn ứng viên hiện ra, sắp xếp theo độ chênh điểm số ($\Delta$ score), các ứng viên vi phạm bị vô hiệu hóa kèm lý do rõ ràng.
+     - Bấm, hoặc dùng phím mũi tên để di chuyển giữa các ô (chỉ có một điểm dừng Tab cho cả bảng) rồi ấn `Enter` / `Space` vào một ô (phím `m` hoặc `Shift+F10` chuyển tiêu điểm tới menu ba chấm của ô): Hộp thoại chọn ứng viên hiện ra, sắp xếp theo độ chênh điểm số ($\Delta$ score), các ứng viên vi phạm bị vô hiệu hóa kèm lý do rõ ràng.
      - Kéo thả để hoán đổi 2 vị trí (Drag-to-swap).
      - Phím tắt Hoàn tác (`Ctrl+Z`) và Làm lại (`Ctrl+Y`).
      - Bấm chuột phải mở menu ngữ cảnh: Ghim vị trí (Pin), Cấm vị trí (Forbid).
