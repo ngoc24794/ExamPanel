@@ -1,0 +1,330 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/SettingsPage.test.tsx (7 tests | 1 failed) 2055ms
+   ✓ SettingsPage > renders settings page, data path, and copies path to clipboard 252ms
+   ✓ SettingsPage > allows switching theme and language 130ms
+   × SettingsPage > persists the language chosen on the Settings page 1116ms
+     → expected "setLanguage" to be called with arguments: [ 'en' ][90m
+
+Number of calls: [1m0[22m
+[39m
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mclass[39m=[32m"dark"[39m
+  [33mlang[39m=[32m"vi"[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-8 max-w-4xl"[39m
+        [33mdata-testid[39m=[32m"settings-page"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1[39m
+            [33mclass[39m=[32m"text-2xl font-bold tracking-tight text-foreground"[39m
+          [36m>[39m
+            [0mSystem Settings[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-sm text-muted-foreground mt-1"[39m
+          [36m>[39m
+            [0mTheme preferences, data storage location, and version info.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-6"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-xl border text-card-foreground shadow bg-card border-border"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-col space-y-1.5 p-6 pb-3"[39m
+            [36m>[39m
+              [36m<h3[39m
+                [33mclass[39m=[32m"tracking-tight text-base font-semibold text-foreground flex items-center gap-2"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-palette h-4 w-4 text-primary"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"13.5"[39m
+                    [33mcy[39m=[32m"6.5"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mr[39m=[32m".5"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"17.5"[39m
+                    [33mcy[39m=[32m"10.5"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mr[39m=[32m".5"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"8.5"[39m
+                    [33mcy[39m=[32m"7.5"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mr[39m=[32m".5"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"6.5"[39m
+                    [33mcy[39m=[32m"12.5"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mr[39m=[32m".5"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span>[39m
+                  [0mAppearance & Language[0m
+                [36m</span>[39m
+              [36m</h3>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"p-6 space-y-6 pt-2"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border"[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<label[39m
+                    [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+                  [36m>[39m
+                    [0mTheme[0m
+                  [36m</label>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-[11px] text-muted-foreground mt-0.5"[39m
+                  [36m>[39m
+                    [0mTùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg border border-border"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 select-none cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-md h-7 px-2.5 text-xs gap-1.5"[39m
+                    [33mdata-testid[39m=[32m"theme-light-btn"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-sun h-3.5 w-3.5"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<circle[39m
+                        [33mcx[39m=[32m"12"[39m
+                        [33mcy[39m=[32m"12"[39m
+                        [33mr[39m=[32m"4"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M12 2v2"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M12 20v2"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M2 12h2"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M20 12h2"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m6.34 17.66-1.41 1.4...
+   ✓ SettingsPage > renders organization section and saves organization info  363ms
+   ✓ SettingsPage > renders Giới thiệu (About) section with version, commit hash, and build date 47ms
+   ✓ SettingsPage > renders open logs button and handles click 63ms
+   ✓ SettingsPage > renders trial mode card and supports entering/exiting trial mode 81ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/SettingsPage.test.tsx > SettingsPage > persists the language chosen on the Settings page
+AssertionError: expected "setLanguage" to be called with arguments: [ 'en' ][90m
+
+Number of calls: [1m0[22m
+[39m
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mclass[39m=[32m"dark"[39m
+  [33mlang[39m=[32m"vi"[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-8 max-w-4xl"[39m
+        [33mdata-testid[39m=[32m"settings-page"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1[39m
+            [33mclass[39m=[32m"text-2xl font-bold tracking-tight text-foreground"[39m
+          [36m>[39m
+            [0mSystem Settings[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-sm text-muted-foreground mt-1"[39m
+          [36m>[39m
+            [0mTheme preferences, data storage location, and version info.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-6"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-xl border text-card-foreground shadow bg-card border-border"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-col space-y-1.5 p-6 pb-3"[39m
+            [36m>[39m
+              [36m<h3[39m
+                [33mclass[39m=[32m"tracking-tight text-base font-semibold text-foreground flex items-center gap-2"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-palette h-4 w-4 text-primary"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"13.5"[39m
+                    [33mcy[39m=[32m"6.5"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mr[39m=[32m".5"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"17.5"[39m
+                    [33mcy[39m=[32m"10.5"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mr[39m=[32m".5"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"8.5"[39m
+                    [33mcy[39m=[32m"7.5"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mr[39m=[32m".5"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"6.5"[39m
+                    [33mcy[39m=[32m"12.5"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mr[39m=[32m".5"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span>[39m
+                  [0mAppearance & Language[0m
+                [36m</span>[39m
+              [36m</h3>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"p-6 space-y-6 pt-2"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border"[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<label[39m
+                    [33mclass[39m=[32m"text-xs font-semibold text-foreground"[39m
+                  [36m>[39m
+                    [0mTheme[0m
+                  [36m</label>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-[11px] text-muted-foreground mt-0.5"[39m
+                  [36m>[39m
+                    [0mTùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg border border-border"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 select-none cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-md h-7 px-2.5 text-xs gap-1.5"[39m
+                    [33mdata-testid[39m=[32m"theme-light-btn"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-sun h-3.5 w-3.5"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<circle[39m
+                        [33mcx[39m=[32m"12"[39m
+                        [33mcy[39m=[32m"12"[39m
+                        [33mr[39m=[32m"4"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M12 2v2"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M12 20v2"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M2 12h2"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M20 12h2"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m6.34 17.66-1.41 1.4...
+ ❯ src/pages/SettingsPage.test.tsx:68:41
+     66| 
+     67|     await user.click(await screen.findByTestId('lang-en-btn'))
+     68|     await waitFor(() => expect(persist).toHaveBeenCalledWith('en'))
+       |                                         ^
+     69|     expect(localStorage.getItem('exampanel_language')).toBe('en')
+     70|     expect(await api.getLanguage()).toBe('en')
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/.pnpm/@testing-library+dom@10.4.2/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  07:34:36
+   Duration  4.49s (transform 416ms, setup 111ms, collect 1.23s, tests 2.06s, environment 572ms, prepare 301ms)
+

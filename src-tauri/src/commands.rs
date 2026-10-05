@@ -527,6 +527,7 @@ pub async fn reoptimize_from(
 // -----------------------------------------------------------------------------
 
 #[tauri::command]
+#[cfg_attr(not(feature = "dev-tools"), allow(unused_variables))]
 pub fn seed_demo(service: State<'_, Arc<AppService>>) -> Result<(), AppError> {
     #[cfg(feature = "dev-tools")]
     {

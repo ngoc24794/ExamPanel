@@ -313,7 +313,8 @@
     "thirdPartyLicenses": "Third-Party Open Source Licenses",
     "viewLicenses": "View details",
     "licensesDescription": "Third-party open-source components used in ExamPanel v0.1.0.",
-    "releaseNotes": "Automated panel assignment and reviewer allocation for high school exams."
+    "releaseNotes": "Automated panel assignment and reviewer allocation for high school exams.",
+    "languageHelp": "Choose the interface language (Vietnamese by default, or English)."
   },
   "diagnostics": {
     "duplicate_campus_id": "Duplicate campus ID: {{campus_id}}",

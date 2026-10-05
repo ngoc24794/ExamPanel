@@ -1,0 +1,26 @@
+   Compiling exam-panel-app v0.1.0 (/home/user/ExamPanel/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.88s
+     Running unittests src/lib.rs (target/debug/deps/exam_panel_app-a411feb2b7281a9c)
+
+running 6 tests
+test startup::tests::damaged_database_offers_restore ... ok
+test startup::tests::main_window_is_created_by_the_startup_sequence_only ... ok
+test startup::tests::other_errors_fall_through ... ok
+test startup::tests::setup_does_not_block_the_event_loop_with_dialogs ... ok
+test tests::test_ping_returns_expected_format ... ok
+test startup::tests::newer_database_is_classified_with_its_version ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/exam_panel_app-33c3b7fb9099aadb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests exam_panel_app
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -4,10 +4,10 @@
 //! Calls into `exam_panel_service`.
 
 pub mod commands;
+pub mod startup;
 
 use exam_panel_service::dto::CreateSchoolYearInput;
 use exam_panel_service::service::AppService;
-use std::sync::Arc;
 
 /// Application identifier as a constant for easy modification.
 pub const APP_IDENTIFIER: &str = "vn.exampanel.app";
@@ -169,121 +169,8 @@ pub fn run() {
                 .build(),
         )
         .setup(|app| {
-            use tauri::Manager;
-            use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
-
-            #[cfg(target_os = "windows")]
-            {
-                if tauri::webview_version().is_err() {
-                    let _ = app
-                        .dialog()
-                        .message("Không tìm thấy Microsoft Edge WebView2 Runtime trên hệ thống.\nỨng dụng ExamPanel cần WebView2 để hiển thị giao diện.\n\nVui lòng cài đặt WebView2 Runtime từ Microsoft rồi khởi động lại ứng dụng.")
-                        .title("ExamPanel - Thiếu WebView2")
-                        .blocking_show();
-                    std::process::exit(1);
-                }
-            }
-
-            if let exam_panel_storage::paths::DataLocationStatus::PortableReadOnly {
-                requested,
-                fallback,
-            } = exam_panel_storage::paths::inspect_data_location()
-            {
-                let use_fallback = app
-                    .dialog()
-                    .message(format!(
-                        "Chế độ di động (ExamPanel.portable) được kích hoạt nhưng thư mục không có quyền ghi dữ liệu:\n{}\n\nBạn có muốn chuyển sang sử dụng thư mục dữ liệu trên máy tính ({}) không?",
-                        requested.display(),
-                        fallback.display()
-                    ))
-                    .title("ExamPanel - Lỗi ghi dữ liệu di động")
-                    .buttons(MessageDialogButtons::OkCancel)
-                    .blocking_show();
-
-                if !use_fallback {
-                    std::process::exit(0);
-                }
-            }
-
-            let service = match AppService::open_default() {
-                Ok(s) => Arc::new(s),
-                Err(err) => {
-                    let err_code = err.code.as_str();
-                    if err_code == "unsupported_database_version" {
-                        let ver = err.params.get("version").cloned().unwrap_or_default();
-                        let _ = app
-                            .dialog()
-                            .message(format!(
-                                "Cơ sở dữ liệu có phiên bản mới hơn (v{ver}) không tương thích với phiên bản ExamPanel này.\n\nVui lòng cập nhật ExamPanel lên phiên bản mới nhất."
-                            ))
-                            .title("ExamPanel - Phiên bản không tương thích")
-                            .blocking_show();
-                        std::process::exit(1);
-                    } else if err_code == "database_corrupted" || err_code == "database_error" {
-                        let detail = err.params.get("detail").cloned().unwrap_or_default();
-                        let offer_restore = app
-                            .dialog()
-                            .message(format!(
-                                "Cơ sở dữ liệu bị lỗi hoặc hư hỏng:\n{detail}\n\nBạn có muốn tự động khôi phục từ bản sao lưu gần nhất không?"
-                            ))
-                            .title("ExamPanel - Lỗi cơ sở dữ liệu")
-                            .buttons(MessageDialogButtons::OkCancel)
-                            .blocking_show();
-
-                        if offer_restore {
-                            let latest_backup = exam_panel_storage::backup::list_automatic_backups()
-                                .ok()
-                                .and_then(|list| list.into_iter().next());
-
-                            if let Some(backup) = latest_backup {
-                                let db_path = exam_panel_storage::paths::resolve_database_path();
-                                if let Err(restore_err) =
-                                    std::fs::copy(&backup.path, &db_path)
-                                {
-                                    let _ = app
-                                        .dialog()
-                                        .message(format!("Khôi phục từ bản sao lưu thất bại: {restore_err}"))
-                                        .title("ExamPanel - Lỗi khôi phục")
-                                        .blocking_show();
-                                    std::process::exit(1);
-                                }
-
-                                match AppService::open_default() {
-                                    Ok(s) => Arc::new(s),
-                                    Err(retry_err) => {
-                                        let _ = app
-                                            .dialog()
-                                            .message(format!(
-                                                "Không thể mở cơ sở dữ liệu sau khi khôi phục: {retry_err}"
-                                            ))
-                                            .title("ExamPanel - Lỗi khởi động")
-                                            .blocking_show();
-                                        std::process::exit(1);
-                                    }
-                                }
-                            } else {
-                                let _ = app
-                                    .dialog()
-                                    .message("Không tìm thấy bản sao lưu nào để khôi phục.")
-                                    .title("ExamPanel - Không có bản sao lưu")
-                                    .blocking_show();
-                                std::process::exit(1);
-                            }
-                        } else {
-                            std::process::exit(1);
-                        }
-                    } else {
-                        let _ = app
-                            .dialog()
-                            .message(format!("Lỗi khởi tạo cơ sở dữ liệu: {err}"))
-                            .title("ExamPanel - Lỗi khởi động")
-                            .blocking_show();
-                        std::process::exit(1);
-                    }
-                }
-            };
-
-            app.manage(service);
+            // Dialogs and the database open run off the event-loop thread (RA-001).
+            startup::spawn(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

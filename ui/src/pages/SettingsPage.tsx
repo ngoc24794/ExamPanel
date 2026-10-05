@@ -39,6 +39,7 @@ import {
 import { useTheme } from '@/lib/theme'
 import { useAppInfo, useSettings } from '@/lib/query/hooks'
 import { api } from '@/lib/api'
+import { setLanguage } from '@/i18n'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { getErrorMessage } from '@/lib/query/query-client'
@@ -205,14 +206,14 @@ export const SettingsPage: React.FC = () => {
                   {t('settings.languageLabel')}
                 </label>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).
+                  {t('settings.languageHelp')}
                 </p>
               </div>
               <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg border border-border">
                 <Button
                   variant={i18n.language === 'vi' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => i18n.changeLanguage('vi')}
+                  onClick={() => setLanguage('vi')}
                   className="h-7 px-3 text-xs gap-1.5"
                   data-testid="lang-vi-btn"
                 >
@@ -222,7 +223,7 @@ export const SettingsPage: React.FC = () => {
                 <Button
                   variant={i18n.language === 'en' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => i18n.changeLanguage('en')}
+                  onClick={() => setLanguage('en')}
                   className="h-7 px-3 text-xs gap-1.5"
                   data-testid="lang-en-btn"
                 >

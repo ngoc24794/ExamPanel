@@ -313,7 +313,8 @@
     "thirdPartyLicenses": "Giấy phép phần mềm bên thứ ba",
     "viewLicenses": "Xem chi tiết",
     "licensesDescription": "Các thành phần mã nguồn mở bên thứ ba được sử dụng trong ExamPanel v0.1.0.",
-    "releaseNotes": "Phần mềm phân công ra đề & phản biện thi THPT."
+    "releaseNotes": "Phần mềm phân công ra đề & phản biện thi THPT.",
+    "languageHelp": "Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English)."
   },
   "diagnostics": {
     "duplicate_campus_id": "Mã phân hiệu bị trùng: {{campus_id}}",
