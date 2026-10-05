@@ -1,0 +1,11 @@
+{
+  "name": "exampanel-e2e-real",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Real-app (tauri-driver + WebKitWebDriver) QA harness. See docs/qa/real-run-*/README.md",
+  "dependencies": {
+    "webdriverio": "^9.0.0",
+    "exceljs": "^4.4.0"
+  }
+}

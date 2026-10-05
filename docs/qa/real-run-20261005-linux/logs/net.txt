@@ -1,0 +1,9 @@
+http://archive.ubuntu.com 200
+https://crates.io 403
+https://index.crates.io/config.json 200
+https://registry.npmjs.org/ 200
+https://github.com 400
+https://cdn.playwright.dev curl: (56) CONNECT tunnel failed, response 403
+000
+https://playwright.download.prss.microsoft.com curl: (56) CONNECT tunnel failed, response 403
+000

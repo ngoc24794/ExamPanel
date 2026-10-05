@@ -1,0 +1,235 @@
+
+> exam-panel-ui@0.1.0 test:e2e /home/user/ExamPanel/ui
+> playwright test
+
+
+Running 14 tests using 1 worker
+
+  ✘   1 [chromium] › e2e/phase-11.spec.ts:22:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › full Phase 11 flow: create subject, grant competencies, forced badge, run, edit VL seat, compare (1ms)
+  ✘   2 [chromium] › e2e/phase-11.spec.ts:97:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › capture light/dark x vi/en screenshots into docs/screenshots/phase-11/ (1ms)
+  ✘   3 [chromium] › e2e/phase-12.spec.ts:38:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › flow: import Q table -> compare with optimizer plan -> edit seat in grid -> export (2ms)
+  ✘   4 [chromium] › e2e/phase-12.spec.ts:112:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › capture light/dark x vi/en screenshots into docs/screenshots/phase-12/ (1ms)
+  ✘   5 [chromium] › e2e/phase-6.spec.ts:15:3 › Phase 6 E2E & Visual Verification › navigates all screens and verifies placeholders & features (2ms)
+  ✘   6 [chromium] › e2e/phase-6.spec.ts:50:3 › Phase 6 E2E & Visual Verification › performs campus CRUD, teacher CRUD, and optimistic grade toggle (2ms)
+  ✘   7 [chromium] › e2e/phase-6.spec.ts:94:3 › Phase 6 E2E & Visual Verification › captures screenshots in light/dark × vi/en for Campuses and Teachers screens (2ms)
+  ✘   8 [chromium] › e2e/phase-7.spec.ts:21:3 › Phase 7 E2E Full Workflow & Visual Verification › full phase 7 workflow: unavailability, indicator, feasibility sheet, go to fix, locks, and presets (1ms)
+  ✘   9 [chromium] › e2e/phase-7.spec.ts:93:3 › Phase 7 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 7 screens and feasibility sheet (1ms)
+  ✘  10 [chromium] › e2e/phase-8.spec.ts:21:3 › Phase 8 E2E Full Workflow & Visual Verification › full phase 8 workflow: run optimize → compare → duplicate → keyboard replace → undo → save → statistics (1ms)
+  ✘  11 [chromium] › e2e/phase-8.spec.ts:109:3 › Phase 8 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 8 screens (2ms)
+  ✘  12 [chromium] › e2e/phase-9.spec.ts:26:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › full phase 9 workflow: import wizard preview & apply, export/print menu, backup & restore in settings (1ms)
+  ✘  13 [chromium] › e2e/phase-9.spec.ts:99:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › generate sample print PDFs: plan-print.pdf and notices.pdf (1ms)
+  ✘  14 [chromium] › e2e/phase-9.spec.ts:141:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › capture light/dark x vi/en visual verification screenshots for Phase 9 (1ms)
+
+
+  1) [chromium] › e2e/phase-11.spec.ts:22:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › full Phase 11 flow: create subject, grant competencies, forced badge, run, edit VL seat, compare 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-11-Phase-11-1-E2E-Su-d88b2-ge-run-edit-VL-seat-compare-chromium/error-context.md
+
+  2) [chromium] › e2e/phase-11.spec.ts:97:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › capture light/dark x vi/en screenshots into docs/screenshots/phase-11/ 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-11-Phase-11-1-E2E-Su-8dd6d--docs-screenshots-phase-11--chromium/error-context.md
+
+  3) [chromium] › e2e/phase-12.spec.ts:38:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › flow: import Q table -> compare with optimizer plan -> edit seat in grid -> export 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-12-Phase-12-E2E-Q-Pl-9b095--edit-seat-in-grid---export-chromium/error-context.md
+
+  4) [chromium] › e2e/phase-12.spec.ts:112:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › capture light/dark x vi/en screenshots into docs/screenshots/phase-12/ 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-12-Phase-12-E2E-Q-Pl-3e9a2--docs-screenshots-phase-12--chromium/error-context.md
+
+  5) [chromium] › e2e/phase-6.spec.ts:15:3 › Phase 6 E2E & Visual Verification › navigates all screens and verifies placeholders & features 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-6-Phase-6-E2E-Visual-6c197-ifies-placeholders-features-chromium/error-context.md
+
+  6) [chromium] › e2e/phase-6.spec.ts:50:3 › Phase 6 E2E & Visual Verification › performs campus CRUD, teacher CRUD, and optimistic grade toggle 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-6-Phase-6-E2E-Visual-ec697-and-optimistic-grade-toggle-chromium/error-context.md
+
+  7) [chromium] › e2e/phase-6.spec.ts:94:3 › Phase 6 E2E & Visual Verification › captures screenshots in light/dark × vi/en for Campuses and Teachers screens 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-6-Phase-6-E2E-Visual-dc270-mpuses-and-Teachers-screens-chromium/error-context.md
+
+  8) [chromium] › e2e/phase-7.spec.ts:21:3 › Phase 7 E2E Full Workflow & Visual Verification › full phase 7 workflow: unavailability, indicator, feasibility sheet, go to fix, locks, and presets 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-7-Phase-7-E2E-Full-W-e7520-go-to-fix-locks-and-presets-chromium/error-context.md
+
+  9) [chromium] › e2e/phase-7.spec.ts:93:3 › Phase 7 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 7 screens and feasibility sheet 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-7-Phase-7-E2E-Full-W-a012c-reens-and-feasibility-sheet-chromium/error-context.md
+
+  10) [chromium] › e2e/phase-8.spec.ts:21:3 › Phase 8 E2E Full Workflow & Visual Verification › full phase 8 workflow: run optimize → compare → duplicate → keyboard replace → undo → save → statistics 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-8-Phase-8-E2E-Full-W-cbc1c--→-undo-→-save-→-statistics-chromium/error-context.md
+
+  11) [chromium] › e2e/phase-8.spec.ts:109:3 › Phase 8 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 8 screens 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-8-Phase-8-E2E-Full-W-dedff--en-for-all-Phase-8-screens-chromium/error-context.md
+
+  12) [chromium] › e2e/phase-9.spec.ts:26:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › full phase 9 workflow: import wizard preview & apply, export/print menu, backup & restore in settings 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-9-Phase-9-E2E-Full-W-dc45e--backup-restore-in-settings-chromium/error-context.md
+
+  13) [chromium] › e2e/phase-9.spec.ts:99:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › generate sample print PDFs: plan-print.pdf and notices.pdf 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-9-Phase-9-E2E-Full-W-d5805-n-print-pdf-and-notices-pdf-chromium/error-context.md
+
+  14) [chromium] › e2e/phase-9.spec.ts:141:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › capture light/dark x vi/en visual verification screenshots for Phase 9 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/phase-9-Phase-9-E2E-Full-W-a7349-ion-screenshots-for-Phase-9-chromium/error-context.md
+
+  14 failed
+    [chromium] › e2e/phase-11.spec.ts:22:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › full Phase 11 flow: create subject, grant competencies, forced badge, run, edit VL seat, compare 
+    [chromium] › e2e/phase-11.spec.ts:97:3 › Phase 11.1 E2E: Subjects, Competencies, Forced Placements & Visual Verification › capture light/dark x vi/en screenshots into docs/screenshots/phase-11/ 
+    [chromium] › e2e/phase-12.spec.ts:38:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › flow: import Q table -> compare with optimizer plan -> edit seat in grid -> export 
+    [chromium] › e2e/phase-12.spec.ts:112:3 › Phase 12 E2E: Q Plan Import, Grid Editing, Comparison & Visuals › capture light/dark x vi/en screenshots into docs/screenshots/phase-12/ 
+    [chromium] › e2e/phase-6.spec.ts:15:3 › Phase 6 E2E & Visual Verification › navigates all screens and verifies placeholders & features 
+    [chromium] › e2e/phase-6.spec.ts:50:3 › Phase 6 E2E & Visual Verification › performs campus CRUD, teacher CRUD, and optimistic grade toggle 
+    [chromium] › e2e/phase-6.spec.ts:94:3 › Phase 6 E2E & Visual Verification › captures screenshots in light/dark × vi/en for Campuses and Teachers screens 
+    [chromium] › e2e/phase-7.spec.ts:21:3 › Phase 7 E2E Full Workflow & Visual Verification › full phase 7 workflow: unavailability, indicator, feasibility sheet, go to fix, locks, and presets 
+    [chromium] › e2e/phase-7.spec.ts:93:3 › Phase 7 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 7 screens and feasibility sheet 
+    [chromium] › e2e/phase-8.spec.ts:21:3 › Phase 8 E2E Full Workflow & Visual Verification › full phase 8 workflow: run optimize → compare → duplicate → keyboard replace → undo → save → statistics 
+    [chromium] › e2e/phase-8.spec.ts:109:3 › Phase 8 E2E Full Workflow & Visual Verification › captures screenshots in light/dark × vi/en for all Phase 8 screens 
+    [chromium] › e2e/phase-9.spec.ts:26:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › full phase 9 workflow: import wizard preview & apply, export/print menu, backup & restore in settings 
+    [chromium] › e2e/phase-9.spec.ts:99:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › generate sample print PDFs: plan-print.pdf and notices.pdf 
+    [chromium] › e2e/phase-9.spec.ts:141:3 › Phase 9 E2E Full Workflow, PDF Output & Visual Verification › capture light/dark x vi/en visual verification screenshots for Phase 9 
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,13 @@
+import { prepareRunDir, launchApp, waitUiReady, sleep, sampleRss, OUT_ABS } from './lib/harness.mjs';
+import fs from 'node:fs';
+const run = prepareRunDir('probe', { portable: true });
+const app = await launchApp({ scenario: 'probe', run });
+const ready = await waitUiReady(app);
+const res = { ready_ms: ready, title: await app.b.getTitle(), url: await app.b.getUrl(), size: await app.b.getWindowSize(), pids: app.appPids() };
+await sleep(1500);
+await app.shot('probe');
+res.rss = sampleRss();
+res.tree = fs.readdirSync(run.dataDir, { recursive: true });
+res.body = (await app.b.execute(() => document.body.innerText)).slice(0, 500);
+console.log(JSON.stringify(res, null, 1));
+await app.stop();
