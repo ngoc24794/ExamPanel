@@ -26,6 +26,65 @@ pub struct CandidateEval {
     pub new_total: f64,
 }
 
+/// Index (into `assignments`) of the seat addressed by `slot`.
+///
+/// A setter seat is addressed by its stored `position`; plans that do not carry
+/// distinct positions fall back to the n-th setter in array order.
+fn find_seat(assignments: &[Assignment], slot: &SlotRef) -> Option<usize> {
+    let in_panel = |a: &Assignment| {
+        a.exam_id == slot.exam_id
+            && a.grade_id == slot.grade_id
+            && a.subject_id == slot.subject_id
+            && a.role == slot.role
+    };
+    if slot.role == Role::Reviewer {
+        return assignments.iter().position(in_panel);
+    }
+    assignments
+        .iter()
+        .position(|a| in_panel(a) && a.position == slot.position)
+        .or_else(|| {
+            assignments
+                .iter()
+                .enumerate()
+                .filter(|(_, a)| in_panel(a))
+                .nth(slot.position)
+                .map(|(i, _)| i)
+        })
+}
+
+/// Dense slot of `IncrementalState` that currently holds the seat addressed by `slot`.
+///
+/// `IncrementalState` stores a panel's setters in canonical (teacher-index) order, which
+/// can differ from the stored `Assignment::position`, so the slot is resolved through the
+/// teacher that actually sits in the seat (RA-019).
+fn dense_slot(
+    state: &IncrementalState,
+    panel_idx: usize,
+    assignments: &[Assignment],
+    slot: &SlotRef,
+) -> SlotRole {
+    if slot.role == Role::Reviewer {
+        return SlotRole::Reviewer;
+    }
+    if let Some(i) = find_seat(assignments, slot) {
+        if let Some(&t_idx) = state.teacher_map.get(&assignments[i].teacher_id) {
+            let panel = &state.panels[panel_idx];
+            if panel.setter1 == t_idx {
+                return SlotRole::Setter1;
+            }
+            if panel.setter2 == t_idx {
+                return SlotRole::Setter2;
+            }
+        }
+    }
+    if slot.position == 0 {
+        SlotRole::Setter1
+    } else {
+        SlotRole::Setter2
+    }
+}
+
 /// Evaluates all teachers as candidates for filling a designated slot.
 ///
 /// Uses `IncrementalState` for high-throughput O(1) soft score delta calculation.
@@ -70,19 +129,11 @@ pub fn evaluate_candidates(
         None => return Vec::new(),
     };
 
-    let slot_role = match slot.role {
-        Role::Reviewer => SlotRole::Reviewer,
-        Role::Setter => {
-            if slot.position == 0 {
-                SlotRole::Setter1
-            } else {
-                SlotRole::Setter2
-            }
-        }
-    };
+    let slot_role = dense_slot(&state, panel_idx, assignments, &slot);
 
     let old_t_idx = state.panels[panel_idx].get_slot(slot_role);
 
+    let seat_idx = find_seat(assignments, &slot);
     let mut results = Vec::with_capacity(problem.teachers.len());
 
     for teacher in &problem.teachers {
@@ -93,30 +144,9 @@ pub fn evaluate_candidates(
 
         // Construct modified assignments to check hard violations
         let mut modified = assignments.to_vec();
-        let mut replaced = false;
-        let mut setter_count = 0;
-        for a in &mut modified {
-            if a.exam_id == slot.exam_id
-                && a.grade_id == slot.grade_id
-                && a.subject_id == slot.subject_id
-                && a.role == slot.role
-            {
-                if slot.role == Role::Reviewer {
-                    a.teacher_id = teacher.id;
-                    replaced = true;
-                    break;
-                } else {
-                    if setter_count == slot.position {
-                        a.teacher_id = teacher.id;
-                        replaced = true;
-                        break;
-                    }
-                    setter_count += 1;
-                }
-            }
-        }
-
-        if !replaced {
+        if let Some(i) = seat_idx {
+            modified[i].teacher_id = teacher.id;
+        } else {
             let mut a = Assignment::new(
                 slot.exam_id,
                 slot.grade_id,
@@ -223,26 +253,8 @@ pub fn evaluate_swap(
         .unwrap_or(0);
     let p2 = state.find_panel_idx(e2, g2, s2).unwrap_or(0);
 
-    let role1 = match slot_a.role {
-        Role::Reviewer => SlotRole::Reviewer,
-        Role::Setter => {
-            if slot_a.position == 0 {
-                SlotRole::Setter1
-            } else {
-                SlotRole::Setter2
-            }
-        }
-    };
-    let role2 = match slot_b.role {
-        Role::Reviewer => SlotRole::Reviewer,
-        Role::Setter => {
-            if slot_b.position == 0 {
-                SlotRole::Setter1
-            } else {
-                SlotRole::Setter2
-            }
-        }
-    };
+    let role1 = dense_slot(&state, p1, assignments, &slot_a);
+    let role2 = dense_slot(&state, p2, assignments, &slot_b);
 
     let t1 = state.panels[p1].get_slot(role1);
     let t2 = state.panels[p2].get_slot(role2);
@@ -261,28 +273,11 @@ pub fn evaluate_swap(
     let t1_id = state.teacher_ids[t1];
     let t2_id = state.teacher_ids[t2];
 
-    let mut setter1_count = 0;
-    let mut setter2_count = 0;
-    for a in &mut modified {
-        if a.exam_id == slot_a.exam_id
-            && a.grade_id == slot_a.grade_id
-            && a.subject_id == slot_a.subject_id
-            && a.role == slot_a.role
-        {
-            if slot_a.role == Role::Reviewer || setter1_count == slot_a.position {
-                a.teacher_id = t2_id;
-            }
-            setter1_count += 1;
-        } else if a.exam_id == slot_b.exam_id
-            && a.grade_id == slot_b.grade_id
-            && a.subject_id == slot_b.subject_id
-            && a.role == slot_b.role
-        {
-            if slot_b.role == Role::Reviewer || setter2_count == slot_b.position {
-                a.teacher_id = t1_id;
-            }
-            setter2_count += 1;
-        }
+    if let Some(i) = find_seat(assignments, &slot_a) {
+        modified[i].teacher_id = t2_id;
+    }
+    if let Some(j) = find_seat(assignments, &slot_b) {
+        modified[j].teacher_id = t1_id;
     }
 
     let all_violations = validate_assignments(problem, &modified, &ValidateOptions::default());
@@ -465,6 +460,161 @@ mod tests {
             let full_report = evaluate(&problem, &modified);
             let expected_delta = full_report.total - base_report.total;
             assert!((c.delta_score - expected_delta).abs() < 1e-6);
+        }
+    }
+
+    /// Returns the plan with every two-setter panel re-ordered so that
+    /// position 0 holds the teacher with the HIGHER problem index, i.e. the
+    /// opposite of the canonical order used internally by `IncrementalState`
+    /// (RA-019: setter positions stored in the database are not canonical).
+    fn reverse_setter_positions(problem: &Problem, assignments: &[Assignment]) -> Vec<Assignment> {
+        let idx = |t: TeacherId| problem.teachers.iter().position(|x| x.id == t).unwrap();
+        let mut out = assignments.to_vec();
+        let mut keys: Vec<(ExamId, GradeId, SubjectId)> = out
+            .iter()
+            .filter(|a| a.role == Role::Setter)
+            .map(|a| (a.exam_id, a.grade_id, a.subject_id))
+            .collect();
+        keys.sort_by_key(|k| (k.0 .0, k.1 .0, k.2 .0));
+        keys.dedup();
+        for (e, g, s) in keys {
+            let mut seats: Vec<usize> = out
+                .iter()
+                .enumerate()
+                .filter(|(_, a)| {
+                    a.role == Role::Setter && a.exam_id == e && a.grade_id == g && a.subject_id == s
+                })
+                .map(|(i, _)| i)
+                .collect();
+            if seats.len() != 2 {
+                continue;
+            }
+            seats.sort_by_key(|&i| out[i].position);
+            let (i0, i1) = (seats[0], seats[1]);
+            if idx(out[i0].teacher_id) < idx(out[i1].teacher_id) {
+                let t0 = out[i0].teacher_id;
+                out[i0].teacher_id = out[i1].teacher_id;
+                out[i1].teacher_id = t0;
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn test_ra019_candidate_delta_matches_full_eval_with_non_canonical_setter_order() {
+        let problem = make_seed_demo_problem();
+        let sol = solve_hard(
+            &problem,
+            &SolveOptions {
+                seed: 42,
+                time_limit_ms: 2000,
+                max_nodes: 500_000,
+            },
+        )
+        .expect("solve hard demo");
+        let assignments = reverse_setter_positions(&problem, &sol.assignments);
+        let base = evaluate(&problem, &assignments);
+        let sid = problem.effective_subjects()[0].id;
+
+        let mut checked_nonzero = 0;
+        for position in 0..2usize {
+            let slot = SlotRef {
+                exam_id: ExamId(1),
+                grade_id: GradeId(1),
+                subject_id: sid,
+                role: Role::Setter,
+                position,
+            };
+            let holder = assignments
+                .iter()
+                .find(|a| {
+                    a.exam_id == slot.exam_id
+                        && a.grade_id == slot.grade_id
+                        && a.subject_id == slot.subject_id
+                        && a.role == Role::Setter
+                        && a.position == position
+                })
+                .expect("setter at position")
+                .teacher_id;
+            for c in evaluate_candidates(&problem, &assignments, slot) {
+                if c.teacher_id == holder {
+                    assert!(c.delta_score.abs() < 1e-9, "holder must have zero delta");
+                    continue;
+                }
+                let mut modified = assignments.clone();
+                for a in &mut modified {
+                    if a.exam_id == slot.exam_id
+                        && a.grade_id == slot.grade_id
+                        && a.subject_id == slot.subject_id
+                        && a.role == Role::Setter
+                        && a.position == position
+                    {
+                        a.teacher_id = c.teacher_id;
+                    }
+                }
+                let full = evaluate(&problem, &modified);
+                assert!(
+                    (c.delta_score - (full.total - base.total)).abs() < 1e-6,
+                    "position {position} teacher {:?}: delta {:.4} != full {:.4}",
+                    c.teacher_id,
+                    c.delta_score,
+                    full.total - base.total
+                );
+                if c.delta_score.abs() > 1e-9 {
+                    checked_nonzero += 1;
+                }
+            }
+        }
+        assert!(checked_nonzero > 0, "test must exercise non-zero deltas");
+    }
+
+    #[test]
+    fn test_ra019_swap_delta_matches_full_eval_with_non_canonical_setter_order() {
+        let problem = make_seed_demo_problem();
+        let sol = solve_hard(
+            &problem,
+            &SolveOptions {
+                seed: 42,
+                time_limit_ms: 2000,
+                max_nodes: 500_000,
+            },
+        )
+        .expect("solve hard demo");
+        let assignments = reverse_setter_positions(&problem, &sol.assignments);
+        let base = evaluate(&problem, &assignments);
+        let sid = problem.effective_subjects()[0].id;
+        let seat = |e: u32, g: u32, pos: usize| SlotRef {
+            exam_id: ExamId(e.into()),
+            grade_id: GradeId(g.into()),
+            subject_id: sid,
+            role: Role::Setter,
+            position: pos,
+        };
+        for pos_a in 0..2usize {
+            let (a, b) = (seat(1, 1, pos_a), seat(1, 2, 1 - pos_a));
+            let ev = evaluate_swap(&problem, &assignments, a, b);
+            let find = |s: SlotRef| {
+                assignments
+                    .iter()
+                    .position(|x| {
+                        x.exam_id == s.exam_id
+                            && x.grade_id == s.grade_id
+                            && x.role == Role::Setter
+                            && x.position == s.position
+                    })
+                    .unwrap()
+            };
+            let (ia, ib) = (find(a), find(b));
+            let mut modified = assignments.clone();
+            modified[ia].teacher_id = assignments[ib].teacher_id;
+            modified[ib].teacher_id = assignments[ia].teacher_id;
+            let full = evaluate(&problem, &modified);
+            assert!(
+                (ev.delta_score - (full.total - base.total)).abs() < 1e-6,
+                "swap {pos_a}: delta {:.4} != full {:.4}",
+                ev.delta_score,
+                full.total - base.total
+            );
         }
     }
 

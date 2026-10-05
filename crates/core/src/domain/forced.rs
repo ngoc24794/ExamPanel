@@ -9,12 +9,13 @@ use super::ids::{ExamId, GradeId, SubjectId, TeacherId};
 use super::problem::Problem;
 use std::collections::{HashMap, HashSet};
 
-/// Returns whether a teacher is eligible for a specific role on an exam panel.
+/// Returns whether a teacher is *qualified* for a role on a panel: active, positive load
+/// weight, matching competency and grade scope. Absence (H5) and FORBID locks (H6) are
+/// deliberately not part of qualification so validators can report them under their own rule.
 #[must_use]
-pub fn is_teacher_eligible(
+pub fn is_teacher_qualified(
     problem: &Problem,
     teacher_id: TeacherId,
-    exam_id: ExamId,
     grade_id: GradeId,
     subject_id: SubjectId,
     role: Role,
@@ -24,36 +25,49 @@ pub fn is_teacher_eligible(
         _ => return false,
     };
 
-    // Unavailability in this exam term
-    if problem
-        .unavailabilities
-        .iter()
-        .any(|u| u.teacher_id == teacher.id && u.exam_id == exam_id)
-    {
-        return false;
-    }
-
     // Must have matching competency
-    let comp = problem
+    let comp = match problem
         .competencies
         .iter()
-        .find(|c| c.teacher_id == teacher.id && c.subject_id == subject_id && c.role == role);
-
-    let comp = match comp {
+        .find(|c| c.teacher_id == teacher.id && c.subject_id == subject_id && c.role == role)
+    {
         Some(c) => c,
         None => return false,
     };
 
     // Scope check: Taught requires teacher to teach this grade this year
     if comp.grade_scope == GradeScope::Taught {
-        let teaches_grade = problem.teacher_grades.iter().any(|tg| {
+        return problem.teacher_grades.iter().any(|tg| {
             tg.school_year_id == problem.school_year.id
                 && tg.teacher_id == teacher.id
                 && tg.grade_id == grade_id
         });
-        if !teaches_grade {
-            return false;
-        }
+    }
+    true
+}
+
+/// Returns whether a teacher is eligible for a specific role on an exam panel
+/// (qualified, present in the exam and not forbidden by a lock).
+#[must_use]
+pub fn is_teacher_eligible(
+    problem: &Problem,
+    teacher_id: TeacherId,
+    exam_id: ExamId,
+    grade_id: GradeId,
+    subject_id: SubjectId,
+    role: Role,
+) -> bool {
+    if !is_teacher_qualified(problem, teacher_id, grade_id, subject_id, role) {
+        return false;
+    }
+
+    // Unavailability in this exam term
+    if problem
+        .unavailabilities
+        .iter()
+        .any(|u| u.teacher_id == teacher_id && u.exam_id == exam_id)
+    {
+        return false;
     }
 
     // FORBID lock check
@@ -61,7 +75,7 @@ pub fn is_teacher_eligible(
         lock.exam_id == exam_id
             && lock.grade_id == grade_id
             && lock.subject_id == subject_id
-            && lock.teacher_id == teacher.id
+            && lock.teacher_id == teacher_id
             && lock.kind == LockKind::Forbid
             && (lock.role.is_none() || lock.role == Some(role))
     });
