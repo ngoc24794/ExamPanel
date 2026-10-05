@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@/lib/theme'
@@ -135,5 +136,32 @@ describe('AssignmentsPage live evaluation after edits (RA-020)', () => {
     await waitFor(() => expect(toast.error).toHaveBeenCalled())
     // nothing became dirty: no save button
     expect(screen.queryByTestId('save-plan-assignments-button')).not.toBeInTheDocument()
+  })
+})
+
+describe('AssignmentsPage kept-seat banner (RA-026)', () => {
+  beforeEach(async () => {
+    localStorage.clear()
+    vi.restoreAllMocks()
+    await api.seedDemo()
+  })
+
+  it('shows the kept-seat banner in the default grid view, not only in the detail view', async () => {
+    const user = userEvent.setup()
+    renderPage()
+    const grid = await screen.findByTestId('q-plan-grid-root', undefined, {
+      timeout: 3000,
+    })
+    expect(screen.queryByTestId('kept-slots-banner')).not.toBeInTheDocument()
+
+    const menuButtons = within(grid).getAllByTestId('q-cell-menu-btn')
+    await user.click(menuButtons[0])
+    await user.click(
+      await screen.findByText(/Giữ ô này khi tối ưu lại|Keep Slot in Re-optimization/i),
+    )
+
+    const banner = await screen.findByTestId('kept-slots-banner')
+    expect(banner.textContent).toMatch(/1/)
+    expect(within(banner).getByTestId('reoptimize-kept-button')).toBeInTheDocument()
   })
 })

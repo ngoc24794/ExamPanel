@@ -1,0 +1,179 @@
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.93s
+     Running tests/qa_regression_tests.rs (target/debug/deps/qa_regression_tests-c43107e0f6f973f0)
+
+running 2 tests
+test reoptimize::ra026_kept_setter_seats_keep_their_position ... FAILED
+test reoptimize::ra026_saved_plans_get_unique_names ... FAILED
+
+failures:
+
+---- reoptimize::ra026_kept_setter_seats_keep_their_position stdout ----
+
+thread 'reoptimize::ra026_kept_setter_seats_keep_their_position' (7901) panicked at crates/service/tests/qa_regression_tests.rs:417:17:
+assertion `left == right` failed: kept seat SlotRef { exam_id: ExamId(1), grade_id: GradeId(1), subject_id: SubjectId(1), role: Setter, position: 1 } moved to another position
+  left: TeacherId(6)
+ right: TeacherId(3)
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<exam_panel_core::domain::ids::TeacherId, exam_panel_core::domain::ids::TeacherId>
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:394:5
+   4: qa_regression_tests::reoptimize::ra026_kept_setter_seats_keep_their_position
+             at ./tests/qa_regression_tests.rs:417:17
+   5: qa_regression_tests::reoptimize::ra026_kept_setter_seats_keep_their_position::{closure#0}
+             at ./tests/qa_regression_tests.rs:372:53
+   6: <qa_regression_tests::reoptimize::ra026_kept_setter_seats_keep_their_position::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- reoptimize::ra026_saved_plans_get_unique_names stdout ----
+
+thread 'reoptimize::ra026_saved_plans_get_unique_names' (7902) panicked at crates/service/tests/qa_regression_tests.rs:366:9:
+assertion `left == right` failed: duplicate plan names: [
+    PlanSummary {
+        id: PlanId(
+            3,
+        ),
+        name: "Phương án #1",
+        rank: Some(
+            1,
+        ),
+        score: Some(
+            69.36363636363636,
+        ),
+        created_at: "",
+        is_final: false,
+        source: "optimizer",
+        data_hash: Some(
+            "8d7e24a56bcc419510ddd23651479de589b4a1aeb41af7b90f6aefc71ac348eb",
+        ),
+        rules_hash: Some(
+            "49709fbddadde9854bdf5bdab0d5d47db6296505585a2dceec02ae7b3a31228a",
+        ),
+        is_stale: false,
+    },
+    PlanSummary {
+        id: PlanId(
+            2,
+        ),
+        name: "Phương án #1",
+        rank: Some(
+            1,
+        ),
+        score: Some(
+            69.36363636363636,
+        ),
+        created_at: "",
+        is_final: false,
+        source: "optimizer",
+        data_hash: Some(
+            "8d7e24a56bcc419510ddd23651479de589b4a1aeb41af7b90f6aefc71ac348eb",
+        ),
+        rules_hash: Some(
+            "49709fbddadde9854bdf5bdab0d5d47db6296505585a2dceec02ae7b3a31228a",
+        ),
+        is_stale: false,
+    },
+    PlanSummary {
+        id: PlanId(
+            1,
+        ),
+        name: "Phương án #1",
+        rank: Some(
+            1,
+        ),
+        score: Some(
+            69.36363636363636,
+        ),
+        created_at: "",
+        is_final: false,
+        source: "optimizer",
+        data_hash: Some(
+            "8d7e24a56bcc419510ddd23651479de589b4a1aeb41af7b90f6aefc71ac348eb",
+        ),
+        rules_hash: Some(
+            "49709fbddadde9854bdf5bdab0d5d47db6296505585a2dceec02ae7b3a31228a",
+        ),
+        is_stale: false,
+    },
+    PlanSummary {
+        id: PlanId(
+            4,
+        ),
+        name: "Phương án #2",
+        rank: Some(
+            2,
+        ),
+        score: Some(
+            75.36363636363636,
+        ),
+        created_at: "",
+        is_final: false,
+        source: "optimizer",
+        data_hash: Some(
+            "8d7e24a56bcc419510ddd23651479de589b4a1aeb41af7b90f6aefc71ac348eb",
+        ),
+        rules_hash: Some(
+            "49709fbddadde9854bdf5bdab0d5d47db6296505585a2dceec02ae7b3a31228a",
+        ),
+        is_stale: false,
+    },
+    PlanSummary {
+        id: PlanId(
+            5,
+        ),
+        name: "Phương án #3",
+        rank: Some(
+            3,
+        ),
+        score: Some(
+            74.36363636363636,
+        ),
+        created_at: "",
+        is_final: false,
+        source: "optimizer",
+        data_hash: Some(
+            "8d7e24a56bcc419510ddd23651479de589b4a1aeb41af7b90f6aefc71ac348eb",
+        ),
+        rules_hash: Some(
+            "49709fbddadde9854bdf5bdab0d5d47db6296505585a2dceec02ae7b3a31228a",
+        ),
+        is_stale: false,
+    },
+]
+  left: 3
+ right: 5
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<usize, usize>
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:394:5
+   4: qa_regression_tests::reoptimize::ra026_saved_plans_get_unique_names
+             at ./tests/qa_regression_tests.rs:366:9
+   5: qa_regression_tests::reoptimize::ra026_saved_plans_get_unique_names::{closure#0}
+             at ./tests/qa_regression_tests.rs:350:44
+   6: <qa_regression_tests::reoptimize::ra026_saved_plans_get_unique_names::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    reoptimize::ra026_kept_setter_seats_keep_their_position
+    reoptimize::ra026_saved_plans_get_unique_names
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.17s
+
+error: test failed, to rerun pass `-p exam-panel-service --test qa_regression_tests`

@@ -947,12 +947,31 @@ impl AppService {
         let rules_hash = snapshot.rules_hash();
         let mut batch = Vec::with_capacity(outcome.plans.len());
 
+        // Plans are numbered after the highest number already used in this school year so a new
+        // run (or a re-optimization) never reuses the name of an existing plan (RA-026).
+        let numbering_base = {
+            let store = self
+                .store
+                .lock()
+                .map_err(|_| AppError::new("lock_poisoned"))?;
+            store
+                .list_plans(school_year_id)?
+                .iter()
+                .filter_map(|p| p.name.strip_prefix("Phương án #"))
+                .filter_map(|rest| {
+                    let digits: String = rest.chars().take_while(char::is_ascii_digit).collect();
+                    digits.parse::<usize>().ok()
+                })
+                .max()
+                .unwrap_or(0)
+        };
+
         for rp in outcome.plans {
             let score_json = serde_json::to_string(&rp.report)?;
             let plan = Plan {
                 id: PlanId(0),
                 school_year_id,
-                name: format!("Phương án #{}", rp.rank),
+                name: format!("Phương án #{}", numbering_base + rp.rank),
                 created_at: String::new(),
                 seed: rp.seed,
                 score: Some(rp.report.total),
@@ -1220,9 +1239,13 @@ impl AppService {
                 initial_assignments: Some(assignments),
             };
 
-            let opt_res = optimize(&problem, &opt_options)?;
+            let original = opt_options.initial_assignments.clone().unwrap_or_default();
+            let mut opt_res = optimize(&problem, &opt_options)?;
             if job_cancel.load(std::sync::atomic::Ordering::Relaxed) {
                 return Err(AppError::new("cancelled"));
+            }
+            for ranked in &mut opt_res.plans {
+                restore_kept_setter_positions(&mut ranked.assignments, &keep, &original);
             }
             let lb = lower_bounds(&problem);
             let run_params_json = serde_json::to_string(&request)?;
@@ -1470,5 +1493,48 @@ impl AppService {
             .map_err(|_| AppError::new("lock_poisoned"))?;
         let problem = store.load_problem(school_year_id)?;
         Ok(problem)
+    }
+}
+
+/// The annealer re-emits the two setters of a panel in canonical teacher order, so a kept setter
+/// seat ("Đề 1" / "Đề 2") can come back in the sibling's position. Setters are interchangeable for
+/// scoring, so swap the positions back to what the user kept (RA-026).
+fn restore_kept_setter_positions(
+    assignments: &mut [Assignment],
+    keep: &[exam_panel_core::optimize::SlotRef],
+    original: &[Assignment],
+) {
+    use exam_panel_core::domain::Role;
+    for slot in keep.iter().filter(|s| s.role == Role::Setter) {
+        let in_panel = |a: &Assignment| {
+            a.exam_id == slot.exam_id
+                && a.grade_id == slot.grade_id
+                && a.subject_id == slot.subject_id
+                && a.role == Role::Setter
+        };
+        let Some(kept_teacher) = original
+            .iter()
+            .find(|a| in_panel(a) && a.position == slot.position)
+            .map(|a| a.teacher_id)
+        else {
+            continue;
+        };
+        let Some(i) = assignments
+            .iter()
+            .position(|a| in_panel(a) && a.teacher_id == kept_teacher)
+        else {
+            continue;
+        };
+        if assignments[i].position == slot.position {
+            continue;
+        }
+        if let Some(j) = assignments
+            .iter()
+            .position(|a| in_panel(a) && a.position == slot.position)
+        {
+            let old_position = assignments[i].position;
+            assignments[j].position = old_position;
+        }
+        assignments[i].position = slot.position;
     }
 }

@@ -66,6 +66,14 @@ export interface QPlanGridProps {
   onCreateLock: (slot: SlotRef, teacherId: number, kind: 'pin' | 'forbid') => void
 }
 
+const seatKey = (
+  examId: number,
+  gradeId: number,
+  subjectId: number,
+  role: string,
+  position: number,
+) => `${examId}-${gradeId}-${subjectId}-${role}-${position}`
+
 export const QPlanGrid: React.FC<QPlanGridProps> = ({
   planDetails,
   planStatus,
@@ -98,6 +106,10 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
     slot: SlotRef
     currentTeacherId: number | null
   } | null>(null)
+
+  // Keyboard navigation: one roving tab stop for the whole grid (RA-039)
+  const gridRef = React.useRef<HTMLTableElement>(null)
+  const [rovingCell, setRovingCell] = React.useState<string | null>(null)
 
   // Drag and drop state
   const [draggedSlot, setDraggedSlot] = React.useState<{
@@ -379,6 +391,65 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
     return scoreReport.by_rule || []
   }, [scoreReport])
 
+  const firstSubject = effectiveSubjects.find((sub) => sub.setters > 0)
+  const firstCellKey =
+    exams[0] && grades[0] && firstSubject
+      ? seatKey(exams[0].id, grades[0].id, firstSubject.id, 'setter', 0)
+      : null
+
+  const handleSeatKeyDown = (
+    e: React.KeyboardEvent<HTMLElement>,
+    activate: () => void,
+    row: number,
+    col: number,
+  ) => {
+    if (e.target !== e.currentTarget) return // keys typed inside the cell menu are not ours
+    const move = (dRow: number, dCol: number) => {
+      const root = gridRef.current
+      if (!root) return
+      let r = row + dRow
+      let c = col + dCol
+      // skip blank / non-existing seats until a focusable one is found
+      for (let guard = 0; guard < 200 && r >= 0 && c >= 0; guard++) {
+        const next = root.querySelector<HTMLElement>(`[data-cell-pos="${r}:${c}"]`)
+        if (next) {
+          e.preventDefault()
+          next.focus()
+          return
+        }
+        r += dRow
+        c += dCol
+      }
+    }
+    switch (e.key) {
+      case 'ArrowUp':
+        return move(-1, 0)
+      case 'ArrowDown':
+        return move(1, 0)
+      case 'ArrowLeft':
+        return move(0, -1)
+      case 'ArrowRight':
+        return move(0, 1)
+      case 'Enter':
+      case ' ':
+        e.preventDefault()
+        return activate()
+      case 'ContextMenu':
+      case 'm':
+        e.preventDefault()
+        return e.currentTarget
+          .querySelector<HTMLElement>('[data-testid="q-cell-menu-btn"]')
+          ?.focus()
+      case 'F10':
+        if (e.shiftKey) {
+          e.preventDefault()
+          e.currentTarget
+            .querySelector<HTMLElement>('[data-testid="q-cell-menu-btn"]')
+            ?.focus()
+        }
+    }
+  }
+
   const activeHighlightedTeacherId = focusedTeacherId ?? hoveredTeacherId
 
   return (
@@ -466,6 +537,7 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
         {/* Left: Q-Style Assignment Grid */}
         <div className="flex-1 w-full overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
           <table
+            ref={gridRef}
             className="w-full border-collapse text-xs select-none"
             data-testid="q-plan-grid-table"
           >
@@ -544,329 +616,374 @@ export const QPlanGrid: React.FC<QPlanGridProps> = ({
 
                 const totalExamRows = rowDefs.length
 
-                return rowDefs.map((rowDef, rIdx) => (
-                  <tr
-                    key={`${exam.id}-${rowDef.role}-${rowDef.position}`}
-                    className={`border-b border-border/80 hover:bg-muted/30 transition-colors ${examBg}`}
-                  >
-                    {/* Exam Name Merged Cell */}
-                    {rIdx === 0 && (
-                      <td
-                        rowSpan={totalExamRows}
-                        className="p-2 border-r border-border text-center font-bold text-xs bg-muted/40 align-middle w-20"
-                      >
-                        <div className="font-bold text-foreground" title={exam.name}>
-                          {exam.code}
-                        </div>
+                return rowDefs.map((rowDef, rIdx) => {
+                  const gridRow = examIdx * rowDefs.length + rIdx
+                  return (
+                    <tr
+                      key={`${exam.id}-${rowDef.role}-${rowDef.position}`}
+                      className={`border-b border-border/80 hover:bg-muted/30 transition-colors ${examBg}`}
+                    >
+                      {/* Exam Name Merged Cell */}
+                      {rIdx === 0 && (
+                        <td
+                          rowSpan={totalExamRows}
+                          className="p-2 border-r border-border text-center font-bold text-xs bg-muted/40 align-middle w-20"
+                        >
+                          <div className="font-bold text-foreground" title={exam.name}>
+                            {exam.code}
+                          </div>
+                        </td>
+                      )}
+
+                      {/* Role Label Cell */}
+                      <td className="px-2 py-1 border-r border-border font-semibold text-muted-foreground text-[11px] text-center w-16 bg-muted/20">
+                        {rowDef.label}
                       </td>
-                    )}
 
-                    {/* Role Label Cell */}
-                    <td className="px-2 py-1 border-r border-border font-semibold text-muted-foreground text-[11px] text-center w-16 bg-muted/20">
-                      {rowDef.label}
-                    </td>
+                      {/* Matrix Cells per Grade x Subject */}
+                      {grades.flatMap((grade, gIdx) =>
+                        effectiveSubjects.map((subject, sIdx) => {
+                          const isSlotValid =
+                            rowDef.role === 'setter'
+                              ? rowDef.position < subject.setters
+                              : rowDef.position < subject.reviewers
 
-                    {/* Matrix Cells per Grade x Subject */}
-                    {grades.flatMap((grade) =>
-                      effectiveSubjects.map((subject) => {
-                        const isSlotValid =
-                          rowDef.role === 'setter'
-                            ? rowDef.position < subject.setters
-                            : rowDef.position < subject.reviewers
+                          if (!isSlotValid) {
+                            return (
+                              <td
+                                key={`${exam.id}-${grade.id}-${subject.id}-${rowDef.role}-${rowDef.position}`}
+                                data-testid={`q-grid-blank-${exam.id}-${grade.id}-${subject.code}-${rowDef.role}-${rowDef.position}`}
+                                className="border-r border-border bg-muted/10 p-1"
+                              />
+                            )
+                          }
 
-                        if (!isSlotValid) {
+                          const slotRef: SlotRef = {
+                            exam_id: exam.id,
+                            grade_id: grade.id,
+                            subject_id: subject.id,
+                            role: rowDef.role,
+                            position: rowDef.position,
+                          }
+                          const cellKey = seatKey(
+                            exam.id,
+                            grade.id,
+                            subject.id,
+                            rowDef.role,
+                            rowDef.position,
+                          )
+
+                          const assignment = assignments.find(
+                            (a) =>
+                              a.exam_id === exam.id &&
+                              a.grade_id === grade.id &&
+                              a.subject_id === subject.id &&
+                              a.role === rowDef.role &&
+                              a.position === rowDef.position,
+                          )
+
+                          const teacher = assignment
+                            ? teacherMap.get(assignment.teacher_id)
+                            : null
+
+                          const isForced = isSlotForced(
+                            exam.id,
+                            grade.id,
+                            subject.id,
+                            rowDef.role,
+                            rowDef.position,
+                          )
+                          const isPinned = teacher
+                            ? isSlotLocked(exam.id, grade.id, subject.id, teacher.id)
+                            : false
+                          const isKept = isSlotKept(
+                            exam.id,
+                            grade.id,
+                            subject.id,
+                            rowDef.role,
+                            rowDef.position,
+                          )
+
+                          const activateSeat = () => {
+                            if (teacher) onSelectTeacherFocus(teacher.id)
+                            if (isEditable && !isForced) {
+                              setSelectedSlotForReplace({
+                                slot: slotRef,
+                                currentTeacherId: teacher?.id ?? null,
+                              })
+                            }
+                          }
+
+                          const isHighlighted =
+                            teacher &&
+                            activeHighlightedTeacherId !== null &&
+                            teacher.id === activeHighlightedTeacherId
+
+                          // Relevant soft violations for this panel
+                          const panelViolations =
+                            scoreReport?.violations.filter(
+                              (v) =>
+                                v.panel &&
+                                v.panel.exam_id === exam.id &&
+                                v.panel.grade_id === grade.id &&
+                                v.panel.subject_id === subject.id,
+                            ) || []
+
+                          const teacherStat = teacher
+                            ? teacherStats.get(teacher.id)
+                            : null
+                          const teacherQuota = teacher
+                            ? (teacherQuotas.get(teacher.id) ?? teacher.load_weight * 4)
+                            : 0
+
                           return (
                             <td
                               key={`${exam.id}-${grade.id}-${subject.id}-${rowDef.role}-${rowDef.position}`}
-                              data-testid={`q-grid-blank-${exam.id}-${grade.id}-${subject.code}-${rowDef.role}-${rowDef.position}`}
-                              className="border-r border-border bg-muted/10 p-1"
-                            />
-                          )
-                        }
-
-                        const slotRef: SlotRef = {
-                          exam_id: exam.id,
-                          grade_id: grade.id,
-                          subject_id: subject.id,
-                          role: rowDef.role,
-                          position: rowDef.position,
-                        }
-
-                        const assignment = assignments.find(
-                          (a) =>
-                            a.exam_id === exam.id &&
-                            a.grade_id === grade.id &&
-                            a.subject_id === subject.id &&
-                            a.role === rowDef.role &&
-                            a.position === rowDef.position,
-                        )
-
-                        const teacher = assignment
-                          ? teacherMap.get(assignment.teacher_id)
-                          : null
-
-                        const isForced = isSlotForced(
-                          exam.id,
-                          grade.id,
-                          subject.id,
-                          rowDef.role,
-                          rowDef.position,
-                        )
-                        const isPinned = teacher
-                          ? isSlotLocked(exam.id, grade.id, subject.id, teacher.id)
-                          : false
-                        const isKept = isSlotKept(
-                          exam.id,
-                          grade.id,
-                          subject.id,
-                          rowDef.role,
-                          rowDef.position,
-                        )
-
-                        const isHighlighted =
-                          teacher &&
-                          activeHighlightedTeacherId !== null &&
-                          teacher.id === activeHighlightedTeacherId
-
-                        // Relevant soft violations for this panel
-                        const panelViolations =
-                          scoreReport?.violations.filter(
-                            (v) =>
-                              v.panel &&
-                              v.panel.exam_id === exam.id &&
-                              v.panel.grade_id === grade.id &&
-                              v.panel.subject_id === subject.id,
-                          ) || []
-
-                        const teacherStat = teacher ? teacherStats.get(teacher.id) : null
-                        const teacherQuota = teacher
-                          ? (teacherQuotas.get(teacher.id) ?? teacher.load_weight * 4)
-                          : 0
-
-                        return (
-                          <td
-                            key={`${exam.id}-${grade.id}-${subject.id}-${rowDef.role}-${rowDef.position}`}
-                            className={`border-r border-border p-1 text-center relative group transition-all cursor-pointer ${
-                              isHighlighted
-                                ? 'bg-primary/20 ring-2 ring-primary ring-inset font-bold text-foreground'
-                                : 'hover:bg-accent/40'
-                            }`}
-                            onMouseEnter={() => {
-                              if (teacher) setHoveredTeacherId(teacher.id)
-                            }}
-                            onMouseLeave={() => setHoveredTeacherId(null)}
-                            onClick={() => {
-                              if (teacher) onSelectTeacherFocus(teacher.id)
-                              if (isEditable && !isForced) {
-                                setSelectedSlotForReplace({
-                                  slot: slotRef,
-                                  currentTeacherId: teacher?.id ?? null,
-                                })
+                              className={`border-r border-border p-1 text-center relative group transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset ${
+                                isHighlighted
+                                  ? 'bg-primary/20 ring-2 ring-primary ring-inset font-bold text-foreground'
+                                  : 'hover:bg-accent/40'
+                              }`}
+                              onMouseEnter={() => {
+                                if (teacher) setHoveredTeacherId(teacher.id)
+                              }}
+                              onMouseLeave={() => setHoveredTeacherId(null)}
+                              onClick={activateSeat}
+                              tabIndex={cellKey === (rovingCell ?? firstCellKey) ? 0 : -1}
+                              aria-label={t('assignments.seatAria', {
+                                exam: exam.code,
+                                grade: grade.name,
+                                subject: subject.code,
+                                role: rowDef.label,
+                                teacher: teacher
+                                  ? teacher.display_name || teacher.full_name
+                                  : t('assignments.emptySeat'),
+                              })}
+                              data-cell-pos={`${gridRow}:${gIdx * effectiveSubjects.length + sIdx}`}
+                              onFocus={() => setRovingCell(cellKey)}
+                              onKeyDown={(e) =>
+                                handleSeatKeyDown(
+                                  e,
+                                  activateSeat,
+                                  gridRow,
+                                  gIdx * effectiveSubjects.length + sIdx,
+                                )
                               }
-                            }}
-                            draggable={isEditable && !isForced && !!teacher}
-                            onDragStart={(e) => {
-                              if (!isEditable || isForced || !teacher) return
-                              setDraggedSlot({ slot: slotRef, teacherId: teacher.id })
-                              e.dataTransfer.setData(
-                                'text/plain',
-                                JSON.stringify(slotRef),
-                              )
-                            }}
-                            onDragOver={(e) => {
-                              if (isEditable && !isForced) {
+                              draggable={isEditable && !isForced && !!teacher}
+                              onDragStart={(e) => {
+                                if (!isEditable || isForced || !teacher) return
+                                setDraggedSlot({ slot: slotRef, teacherId: teacher.id })
+                                e.dataTransfer.setData(
+                                  'text/plain',
+                                  JSON.stringify(slotRef),
+                                )
+                              }}
+                              onDragOver={(e) => {
+                                if (isEditable && !isForced) {
+                                  e.preventDefault()
+                                }
+                              }}
+                              onDrop={(e) => {
+                                if (!isEditable || isForced) return
                                 e.preventDefault()
-                              }
-                            }}
-                            onDrop={(e) => {
-                              if (!isEditable || isForced) return
-                              e.preventDefault()
-                              if (draggedSlot) {
-                                handleSwapSlots(draggedSlot.slot, slotRef)
-                                setDraggedSlot(null)
-                              }
-                            }}
-                            data-testid={`q-grid-cell-${exam.id}-${grade.id}-${subject.code}-${rowDef.role}-${rowDef.position}`}
-                          >
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex items-center justify-between gap-1 w-full min-h-[26px] px-1">
-                                    <span className="truncate text-xs font-medium">
-                                      {teacher ? (
-                                        teacher.display_name || teacher.full_name
-                                      ) : (
-                                        <span className="text-muted-foreground/60 italic text-[11px]">
-                                          Trống
-                                        </span>
-                                      )}
-                                    </span>
+                                if (draggedSlot) {
+                                  handleSwapSlots(draggedSlot.slot, slotRef)
+                                  setDraggedSlot(null)
+                                }
+                              }}
+                              data-testid={`q-grid-cell-${exam.id}-${grade.id}-${subject.code}-${rowDef.role}-${rowDef.position}`}
+                            >
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="flex items-center justify-between gap-1 w-full min-h-[26px] px-1">
+                                      <span className="truncate text-xs font-medium">
+                                        {teacher ? (
+                                          teacher.display_name || teacher.full_name
+                                        ) : (
+                                          <span className="text-muted-foreground/60 italic text-[11px]">
+                                            {t('assignments.emptySeat')}
+                                          </span>
+                                        )}
+                                      </span>
 
-                                    {/* Badges / Indicators */}
-                                    <div className="flex items-center gap-0.5 shrink-0">
-                                      {isForced && (
-                                        <LockIcon
-                                          className="h-3 w-3 text-amber-500 shrink-0"
-                                          data-testid="forced-lock-icon"
-                                        />
-                                      )}
-                                      {isPinned && !isForced && (
-                                        <Pin
-                                          className="h-3 w-3 text-primary shrink-0"
-                                          data-testid="pin-slot-icon"
-                                        />
-                                      )}
-                                      {isKept && (
-                                        <BookmarkCheck className="h-3 w-3 text-emerald-500 shrink-0" />
-                                      )}
-                                      {panelViolations.length > 0 && (
-                                        <AlertTriangle
-                                          className="h-3 w-3 text-amber-500 shrink-0"
-                                          data-testid="soft-violation-icon"
-                                        />
-                                      )}
+                                      {/* Badges / Indicators */}
+                                      <div className="flex items-center gap-0.5 shrink-0">
+                                        {isForced && (
+                                          <LockIcon
+                                            className="h-3 w-3 text-amber-500 shrink-0"
+                                            data-testid="forced-lock-icon"
+                                          />
+                                        )}
+                                        {isPinned && !isForced && (
+                                          <Pin
+                                            className="h-3 w-3 text-primary shrink-0"
+                                            data-testid="pin-slot-icon"
+                                          />
+                                        )}
+                                        {isKept && (
+                                          <BookmarkCheck className="h-3 w-3 text-emerald-500 shrink-0" />
+                                        )}
+                                        {panelViolations.length > 0 && (
+                                          <AlertTriangle
+                                            className="h-3 w-3 text-amber-500 shrink-0"
+                                            data-testid="soft-violation-icon"
+                                          />
+                                        )}
 
-                                      {/* Context Dropdown Menu */}
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger
-                                          asChild
-                                          onClick={(e) => e.stopPropagation()}
-                                        >
-                                          <button
-                                            type="button"
-                                            className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-foreground inline-flex items-center justify-center"
-                                            data-testid="q-cell-menu-btn"
+                                        {/* Context Dropdown Menu */}
+                                        <DropdownMenu>
+                                          <DropdownMenuTrigger
+                                            asChild
+                                            onClick={(e) => e.stopPropagation()}
                                           >
-                                            <MoreVertical className="h-3 w-3 text-muted-foreground" />
-                                          </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent
-                                          align="end"
-                                          className="w-52 bg-card border-border text-xs"
-                                        >
-                                          {isEditable && !isForced && (
-                                            <>
-                                              <DropdownMenuItem
-                                                onClick={() =>
-                                                  setSelectedSlotForReplace({
-                                                    slot: slotRef,
-                                                    currentTeacherId: teacher?.id ?? null,
-                                                  })
-                                                }
-                                                className="gap-2"
-                                              >
-                                                <ArrowRightLeft className="h-3.5 w-3.5" />
-                                                <span>
-                                                  {t('assignments.replaceModalTitle')}
-                                                </span>
-                                              </DropdownMenuItem>
-                                              <DropdownMenuSeparator />
-                                            </>
-                                          )}
-
-                                          {teacher && !isForced && (
-                                            <>
-                                              <DropdownMenuItem
-                                                onClick={() =>
-                                                  onCreateLock(slotRef, teacher.id, 'pin')
-                                                }
-                                                className="gap-2"
-                                              >
-                                                <Pin className="h-3.5 w-3.5 text-primary" />
-                                                <span>
-                                                  {t('assignments.pinTeacherSlot')}
-                                                </span>
-                                              </DropdownMenuItem>
-                                              <DropdownMenuItem
-                                                onClick={() =>
-                                                  onCreateLock(
-                                                    slotRef,
-                                                    teacher.id,
-                                                    'forbid',
-                                                  )
-                                                }
-                                                className="gap-2 text-destructive"
-                                              >
-                                                <Ban className="h-3.5 w-3.5" />
-                                                <span>
-                                                  {t('assignments.forbidTeacherSlot')}
-                                                </span>
-                                              </DropdownMenuItem>
-                                              <DropdownMenuSeparator />
-                                            </>
-                                          )}
-
-                                          <DropdownMenuItem
-                                            onClick={() => onToggleKeepSlot(slotRef)}
-                                            className="gap-2"
+                                            <button
+                                              type="button"
+                                              tabIndex={-1}
+                                              aria-label={t('assignments.cellMenu')}
+                                              className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:text-foreground inline-flex items-center justify-center"
+                                              data-testid="q-cell-menu-btn"
+                                            >
+                                              <MoreVertical className="h-3 w-3 text-muted-foreground" />
+                                            </button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent
+                                            align="end"
+                                            className="w-52 bg-card border-border text-xs"
                                           >
-                                            <BookmarkCheck className="h-3.5 w-3.5 text-amber-500" />
-                                            <span>
-                                              {isKept
-                                                ? t('assignments.unkeepSlot')
-                                                : t('assignments.keepSlotReoptimize')}
-                                            </span>
-                                          </DropdownMenuItem>
+                                            {isEditable && !isForced && (
+                                              <>
+                                                <DropdownMenuItem
+                                                  onClick={() =>
+                                                    setSelectedSlotForReplace({
+                                                      slot: slotRef,
+                                                      currentTeacherId:
+                                                        teacher?.id ?? null,
+                                                    })
+                                                  }
+                                                  className="gap-2"
+                                                >
+                                                  <ArrowRightLeft className="h-3.5 w-3.5" />
+                                                  <span>
+                                                    {t('assignments.replaceModalTitle')}
+                                                  </span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                              </>
+                                            )}
 
-                                          <DropdownMenuItem
-                                            onClick={onReoptimizeRemaining}
-                                            className="gap-2"
-                                          >
-                                            <RefreshCw className="h-3.5 w-3.5 text-emerald-600" />
-                                            <span>{t('assignments.reoptimizeRest')}</span>
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
+                                            {teacher && !isForced && (
+                                              <>
+                                                <DropdownMenuItem
+                                                  onClick={() =>
+                                                    onCreateLock(
+                                                      slotRef,
+                                                      teacher.id,
+                                                      'pin',
+                                                    )
+                                                  }
+                                                  className="gap-2"
+                                                >
+                                                  <Pin className="h-3.5 w-3.5 text-primary" />
+                                                  <span>
+                                                    {t('assignments.pinTeacherSlot')}
+                                                  </span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                  onClick={() =>
+                                                    onCreateLock(
+                                                      slotRef,
+                                                      teacher.id,
+                                                      'forbid',
+                                                    )
+                                                  }
+                                                  className="gap-2 text-destructive"
+                                                >
+                                                  <Ban className="h-3.5 w-3.5" />
+                                                  <span>
+                                                    {t('assignments.forbidTeacherSlot')}
+                                                  </span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                              </>
+                                            )}
+
+                                            <DropdownMenuItem
+                                              onClick={() => onToggleKeepSlot(slotRef)}
+                                              className="gap-2"
+                                            >
+                                              <BookmarkCheck className="h-3.5 w-3.5 text-amber-500" />
+                                              <span>
+                                                {isKept
+                                                  ? t('assignments.unkeepSlot')
+                                                  : t('assignments.keepSlotReoptimize')}
+                                              </span>
+                                            </DropdownMenuItem>
+
+                                            <DropdownMenuItem
+                                              onClick={onReoptimizeRemaining}
+                                              className="gap-2"
+                                            >
+                                              <RefreshCw className="h-3.5 w-3.5 text-emerald-600" />
+                                              <span>
+                                                {t('assignments.reoptimizeRest')}
+                                              </span>
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
+                                      </div>
                                     </div>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent className="text-xs space-y-1">
-                                  {teacher ? (
-                                    <>
-                                      <p className="font-bold">
-                                        {teacher.full_name}
-                                        {teacher.display_name
-                                          ? ` (${teacher.display_name})`
-                                          : ''}
-                                      </p>
-                                      <p className="text-muted-foreground">
-                                        {t('assignments.teacherQuotaCount', {
-                                          count: teacherStat?.total ?? 0,
-                                          quota: teacherQuota,
-                                        })}
-                                      </p>
-                                      <p>
-                                        {t('assignments.teacherRoles', {
-                                          setter: teacherStat?.setters ?? 0,
-                                          reviewer: teacherStat?.reviewers ?? 0,
-                                        })}
-                                      </p>
-                                      <p>
-                                        {t('assignments.teacherExams', {
-                                          exams:
-                                            Array.from(teacherStat?.examNames ?? []).join(
-                                              ', ',
-                                            ) || 'Chưa có',
-                                        })}
-                                      </p>
-                                      {isForced && (
-                                        <p className="font-semibold text-amber-600 dark:text-amber-400">
-                                          {t('assignments.forcedSeatLock')}
+                                  </TooltipTrigger>
+                                  <TooltipContent className="text-xs space-y-1">
+                                    {teacher ? (
+                                      <>
+                                        <p className="font-bold">
+                                          {teacher.full_name}
+                                          {teacher.display_name
+                                            ? ` (${teacher.display_name})`
+                                            : ''}
                                         </p>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <p className="italic">Chưa có giáo viên phân công</p>
-                                  )}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </td>
-                        )
-                      }),
-                    )}
-                  </tr>
-                ))
+                                        <p className="text-muted-foreground">
+                                          {t('assignments.teacherQuotaCount', {
+                                            count: teacherStat?.total ?? 0,
+                                            quota: teacherQuota,
+                                          })}
+                                        </p>
+                                        <p>
+                                          {t('assignments.teacherRoles', {
+                                            setter: teacherStat?.setters ?? 0,
+                                            reviewer: teacherStat?.reviewers ?? 0,
+                                          })}
+                                        </p>
+                                        <p>
+                                          {t('assignments.teacherExams', {
+                                            exams:
+                                              Array.from(
+                                                teacherStat?.examNames ?? [],
+                                              ).join(', ') || 'Chưa có',
+                                          })}
+                                        </p>
+                                        {isForced && (
+                                          <p className="font-semibold text-amber-600 dark:text-amber-400">
+                                            {t('assignments.forcedSeatLock')}
+                                          </p>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <p className="italic">
+                                        Chưa có giáo viên phân công
+                                      </p>
+                                    )}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </td>
+                          )
+                        }),
+                      )}
+                    </tr>
+                  )
+                })
               })}
             </tbody>
           </table>

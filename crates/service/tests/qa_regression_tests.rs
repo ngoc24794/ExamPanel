@@ -326,3 +326,97 @@ mod export {
         );
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+// RA-026: re-optimizing around kept seats
+// ---------------------------------------------------------------------------------------------
+
+mod reoptimize {
+    use super::*;
+    use exam_panel_core::domain::Role;
+    use exam_panel_core::optimize::SlotRef;
+
+    fn saved_plan(service: &AppService) -> exam_panel_core::domain::PlanId {
+        let out = service
+            .run_optimize(SchoolYearId(1), request(1), None, None)
+            .expect("optimize");
+        service
+            .save_optimize_result(SchoolYearId(1), out)
+            .expect("save")[0]
+    }
+
+    /// A new optimizer result must never reuse the name of an existing plan.
+    #[test]
+    fn ra026_saved_plans_get_unique_names() {
+        let service = AppService::open_in_memory().unwrap();
+        service.seed_demo().unwrap();
+        saved_plan(&service);
+        saved_plan(&service);
+        let out = service
+            .run_optimize(SchoolYearId(1), request(3), None, None)
+            .unwrap();
+        service.save_optimize_result(SchoolYearId(1), out).unwrap();
+        let plans = service.list_plans(SchoolYearId(1)).unwrap();
+        let mut names: Vec<_> = plans.iter().map(|p| p.name.clone()).collect();
+        let total = names.len();
+        names.sort();
+        names.dedup();
+        assert_eq!(names.len(), total, "duplicate plan names: {plans:#?}");
+    }
+
+    /// Kept setter seats keep their position (Đề 1 / Đề 2): the annealer re-emits a panel's setters
+    /// in canonical teacher order, which swapped the kept seat with its sibling.
+    #[test]
+    fn ra026_kept_setter_seats_keep_their_position() {
+        let service = AppService::open_in_memory().unwrap();
+        service.seed_demo().unwrap();
+        let plan_id = saved_plan(&service);
+        let original = service.get_plan(plan_id).unwrap().assignments;
+
+        // Keep EVERY setter seat at position 1 (the seat that flips when the sibling becomes lower).
+        let keep: Vec<SlotRef> = original
+            .iter()
+            .filter(|a| a.role == Role::Setter && a.position == 1)
+            .map(|a| SlotRef {
+                exam_id: a.exam_id,
+                grade_id: a.grade_id,
+                subject_id: a.subject_id,
+                role: a.role,
+                position: a.position,
+            })
+            .collect();
+        assert!(!keep.is_empty());
+        let out = service
+            .reoptimize_from(plan_id, keep.clone(), request(1), None, None)
+            .expect("reoptimize");
+        for plan in &out.plans {
+            for slot in &keep {
+                let before = original
+                    .iter()
+                    .find(|a| {
+                        a.exam_id == slot.exam_id
+                            && a.grade_id == slot.grade_id
+                            && a.subject_id == slot.subject_id
+                            && a.role == slot.role
+                            && a.position == slot.position
+                    })
+                    .unwrap();
+                let after = plan
+                    .assignments
+                    .iter()
+                    .find(|a| {
+                        a.exam_id == slot.exam_id
+                            && a.grade_id == slot.grade_id
+                            && a.subject_id == slot.subject_id
+                            && a.role == slot.role
+                            && a.position == slot.position
+                    })
+                    .unwrap();
+                assert_eq!(
+                    after.teacher_id, before.teacher_id,
+                    "kept seat {slot:?} moved to another position"
+                );
+            }
+        }
+    }
+}

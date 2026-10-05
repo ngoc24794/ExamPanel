@@ -375,6 +375,35 @@ export function AssignmentsPage() {
         }
       : (planStatus ?? null)
 
+  const keptBanner =
+    keptSlots.length > 0 ? (
+      <div
+        className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs space-y-2"
+        data-testid="kept-slots-banner"
+      >
+        <div className="flex items-center justify-between font-semibold text-amber-700 dark:text-amber-300">
+          <span>{t('assignments.keptBanner', { count: keptSlots.length })}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 text-[10px] px-1 text-muted-foreground"
+            onClick={() => setKeptSlots([])}
+          >
+            {t('assignments.clearKept')}
+          </Button>
+        </div>
+        <Button
+          size="sm"
+          onClick={() => setShowReoptimizeDialog(true)}
+          className="w-full text-xs gap-1.5 bg-amber-600 hover:bg-amber-700 text-white"
+          data-testid="reoptimize-kept-button"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          <span>{t('assignments.reoptimizeRest')}</span>
+        </Button>
+      </div>
+    ) : null
+
   return (
     <div className="space-y-6" data-testid="assignments-page">
       {/* Top Workspace Header */}
@@ -679,24 +708,27 @@ export function AssignmentsPage() {
           {/* Conditional View: Q-Style Grid (Bảng tổ) vs Detailed Matrix (Chi tiết) */}
           {viewMode === 'grid' ? (
             activePlanDetails && (
-              <QPlanGrid
-                planDetails={activePlanDetails}
-                planStatus={effectivePlanStatus}
-                exams={exams}
-                grades={grades}
-                subjects={subjects}
-                teachers={teachers}
-                campuses={campuses}
-                locks={locks}
-                isEditable={isEditable}
-                focusedTeacherId={focusedTeacherId}
-                keptSlots={keptSlots}
-                onSelectTeacherFocus={setFocusedTeacherId}
-                onToggleKeepSlot={handleToggleKeepSlot}
-                onReoptimizeRemaining={() => setShowReoptimizeDialog(true)}
-                onUpdateAssignments={handleUpdateAssignments}
-                onCreateLock={handleCreateLock}
-              />
+              <>
+                {keptBanner}
+                <QPlanGrid
+                  planDetails={activePlanDetails}
+                  planStatus={effectivePlanStatus}
+                  exams={exams}
+                  grades={grades}
+                  subjects={subjects}
+                  teachers={teachers}
+                  campuses={campuses}
+                  locks={locks}
+                  isEditable={isEditable}
+                  focusedTeacherId={focusedTeacherId}
+                  keptSlots={keptSlots}
+                  onSelectTeacherFocus={setFocusedTeacherId}
+                  onToggleKeepSlot={handleToggleKeepSlot}
+                  onReoptimizeRemaining={() => setShowReoptimizeDialog(true)}
+                  onUpdateAssignments={handleUpdateAssignments}
+                  onCreateLock={handleCreateLock}
+                />
+              </>
             )
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -784,31 +816,7 @@ export function AssignmentsPage() {
                   </div>
                 )}
 
-                {/* Kept Slots Banner for B3 */}
-                {keptSlots.length > 0 && (
-                  <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs space-y-2">
-                    <div className="flex items-center justify-between font-semibold text-amber-700 dark:text-amber-300">
-                      <span>Đã chọn giữ: {keptSlots.length} ô</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 text-[10px] px-1 text-muted-foreground"
-                        onClick={() => setKeptSlots([])}
-                      >
-                        Bỏ chọn tất cả
-                      </Button>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => setShowReoptimizeDialog(true)}
-                      className="w-full text-xs gap-1.5 bg-amber-600 hover:bg-amber-700 text-white"
-                      data-testid="reoptimize-kept-button"
-                    >
-                      <RefreshCw className="h-3.5 w-3.5" />
-                      <span>{t('assignments.reoptimizeRest')}</span>
-                    </Button>
-                  </div>
-                )}
+                {keptBanner}
               </div>
             </div>
           )}

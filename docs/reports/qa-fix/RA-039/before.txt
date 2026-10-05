@@ -1,0 +1,37 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/assignments/QPlanGrid.test.tsx (4 tests | 1 failed) 843ms
+   ✓ QPlanGrid Component Tests (Part B) > renders Q-style grid structure, headers, and attached totals panel  365ms
+   ✓ QPlanGrid Component Tests (Part B) > highlights all seats of a teacher on hover and displays tooltip 139ms
+   ✓ QPlanGrid Component Tests (Part B) > renders forced-load teacher indicator and task count markers in totals table 154ms
+   × QPlanGrid Component Tests (Part B) > is operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates 183ms
+     → expected +0 to be 1 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/assignments/QPlanGrid.test.tsx > QPlanGrid Component Tests (Part B) > is operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ src/pages/assignments/QPlanGrid.test.tsx:196:26
+    194|     // roving tabindex: exactly one seat is in the tab order
+    195|     const stops = table.querySelectorAll('[tabindex="0"]')
+    196|     expect(stops.length).toBe(1)
+       |                          ^
+    197|     // the per-seat menu buttons are not tab stops and have an accessi…
+    198|     const menus = table.querySelectorAll('[data-testid="q-cell-menu-bt…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  08:13:47
+   Duration  2.89s (transform 399ms, setup 159ms, collect 1.04s, tests 843ms, environment 380ms, prepare 169ms)
+

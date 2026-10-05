@@ -632,7 +632,12 @@
     "preflightErrorCount": "{{count}} configuration errors prevent the solver from building a valid schedule.",
     "reoptimizeKeptNotice": "{{count}} seats are kept fixed; the solver will rearrange the remaining seats to improve the score.",
     "reoptimizeRunning": "Re-optimizing...",
-    "reoptimizeStart": "Start re-optimizing"
+    "reoptimizeStart": "Start re-optimizing",
+    "seatAria": "{{exam}} · {{grade}} · {{subject}} · {{role}}: {{teacher}}",
+    "emptySeat": "Empty",
+    "cellMenu": "Seat options",
+    "keptBanner": "Kept for re-optimization: {{count}} seats",
+    "clearKept": "Clear all"
   },
   "planImport": {
     "buttonTitle": "Import existing plan",

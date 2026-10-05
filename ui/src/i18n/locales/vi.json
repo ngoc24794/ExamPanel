@@ -632,7 +632,12 @@
     "preflightErrorCount": "{{count}} lỗi cấu hình khiến thuật toán không thể xếp lịch hợp lệ.",
     "reoptimizeKeptNotice": "{{count}} vị trí được giữ cố định, thuật toán sẽ sắp xếp lại các vị trí còn lại để cải thiện điểm số.",
     "reoptimizeRunning": "Đang tối ưu lại...",
-    "reoptimizeStart": "Bắt đầu tối ưu lại"
+    "reoptimizeStart": "Bắt đầu tối ưu lại",
+    "seatAria": "{{exam}} · {{grade}} · {{subject}} · {{role}}: {{teacher}}",
+    "emptySeat": "Trống",
+    "cellMenu": "Tùy chọn vị trí",
+    "keptBanner": "Đã chọn giữ: {{count}} ô",
+    "clearKept": "Bỏ chọn tất cả"
   },
   "planImport": {
     "buttonTitle": "Nhập từ bảng có sẵn",
