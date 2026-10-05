@@ -1,0 +1,16 @@
+[C1] C1.excel-preview-60-seats: pass | observed="60" expected="60"
+[C1] C1.excel-preview-total-score-260.36: pass | observed="116.4" expected="116.36 (S3 not applicable with one campus, RA-017; was 260.36)  [preview shows 1 decimal]"
+[C1] C1.plan-saved-source-manual-origin-import: pass | observed=[{"id":1,"name":"Nhập từ bảng của tổ","source":"manual","run_params_json":"{\"origin\":\"import\"}"}] expected="one plan, source=manual, origin=import"
+[C1] C1.ui-S1-penalty: pass | observed=10 expected=10
+[C1] C1.ui-S2-penalty: pass | observed=3 expected=3
+[C1] C1.ui-S3-penalty: pass | observed=0 expected=0
+[C1] C1.ui-S4-penalty: pass | observed=0 expected=0
+[C1] C1.ui-S5-penalty: pass | observed=6 expected=6
+[C1] C1.ui-S6-penalty: pass | observed=16 expected=16
+[C1] C1.ui-S7-penalty: pass | observed=0 expected=0
+[C1] C1.ui-S8-penalty: pass | observed=36.4 expected=36.36
+[C1] C1.ui-S9-penalty: pass | observed=45 expected=45
+[C1] C1.ui-S10-penalty: pass | observed=0 expected=0
+[C1] C1.ui-total: pass | observed="116.36" expected="116.36 (S3 not applicable, RA-017)"
+[C1] C1.ui-hard-valid: pass | observed="Điều kiện bắt buộc: Hợp lệ (0 vi phạm)" expected="Hợp lệ (0 vi phạm)"
+[C1] C1.export-dialog-and-file: pass | observed={"dr":{"ok":true,"dialog":"Save File","stillOpen":false},"size":15161} expected="xlsx written"

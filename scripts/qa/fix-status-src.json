@@ -80,9 +80,9 @@
   "note": ""
  },
  "RA-017": {
-  "status": "needs-decision",
-  "tests": "—",
-  "note": "**needs-decision.** Options: (a) auto-disable S3 when only one campus exists, (b) keep S3 but exclude it from the headline total, (c) leave as is. Not implemented."
+  "status": "fixed",
+  "tests": "`score::tests::test_ra017_s3_not_applicable_with_a_single_campus`, `test_ra017_s3_still_applies_with_two_campuses` (core); `warm_start_tests` (Q total 116.36); `RulesPage.test.tsx` (S3 note)",
+  "note": "Decision (Q/user): S3 is not applicable when the active teachers span fewer than two campuses (ADR-0051). Stored setting and `rules_hash` unchanged. Real app C1: S3 penalty 0, total 116.36 (was 144 / 260.36). `C1c`/`C1-finalize` expectations were updated but those two scenarios need artefacts of the original QA run and were not re-run."
  },
  "RA-018": {
   "status": "fixed",
@@ -140,9 +140,9 @@
   "note": ""
  },
  "RA-029": {
-  "status": "needs-decision",
-  "tests": "—",
-  "note": "**needs-decision.** What should print/export show when Settings is empty: blank lines, a \"configure the school\" placeholder, or a fixed neutral text? Not implemented."
+  "status": "fixed",
+  "tests": "`export::ra029_empty_organisation_settings_print_no_invented_text` (service); `PrintPages.test.tsx` \"prints no invented organisation text\"; `orgInfo.test.ts`",
+  "note": "Decision: empty settings stay empty; date line starts with \"Ngày …\"; print pages show a screen-only banner pointing to Settings (ADR-0051). Verified by tests only (no real-app run)."
  },
  "RA-030": {
   "status": "fixed",
@@ -180,9 +180,9 @@
   "note": "`seed_demo` returns `not_supported` in the release build."
  },
  "RA-037": {
-  "status": "needs-decision",
-  "tests": "—",
-  "note": "**needs-decision.** SPEC §6/ADR-0006 say \"writable folder ⇒ portable\", the code requires the `ExamPanel.portable` marker (ADR-0034). Which rule is the product rule? Only the factual `%APPDATA%` path in the release checklist was corrected."
+  "status": "fixed",
+  "tests": "docs only (diff and grep saved)",
+  "note": "Decision: the `ExamPanel.portable` marker rule stays; SPEC §6, ARCHITECTURE, ADR-0006 (superseded) and the checklist now describe it, `EXAMPANEL_DATA_DIR` is documented as developer override (ADR-0050)."
  },
  "RA-038": {
   "status": "fixed",

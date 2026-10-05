@@ -1,0 +1,27 @@
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.81s
+     Running tests/qa_regression_tests.rs (target/debug/deps/qa_regression_tests-6dd27994e1030a3d)
+
+running 1 test
+test export::ra029_empty_organisation_settings_print_no_invented_text ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.05s
+
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/lib/query/hooks.stale.test.tsx (19 tests) 177ms
+ ✓ src/pages/print/PrintPages.test.tsx (5 tests) 550ms
+ ✓ src/lib/theme/theme.test.tsx (1 test) 57ms
+ ✓ src/pages/print/orgInfo.test.ts (3 tests) 3ms
+ ✓ src/lib/violations.test.ts (3 tests) 8ms
+ ✓ src/lib/api/tauri-shell.test.ts (2 tests) 7ms
+ ✓ src/lib/api/api.test.ts (13 tests) 4296ms
+   ✓ MockExamPanelApi Contract Tests > streams optimization progress to completion  2011ms
+   ✓ MockExamPanelApi Contract Tests > saves, retrieves, duplicates, renames, marks final, and deletes plans  2009ms
+
+ Test Files  7 passed (7)
+      Tests  46 passed (46)
+   Start at  17:29:37
+   Duration  6.11s (transform 906ms, setup 1.20s, collect 2.89s, tests 5.10s, environment 3.58s, prepare 1.08s)
+

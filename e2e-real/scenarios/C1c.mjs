@@ -23,7 +23,7 @@ await withApp({ scenario: 'C1c', run }, async (app) => {
   const pv = await bodyText(app.b); fs.writeFileSync(path.join(OUT_ABS, 'extracts/C1-plan-preview-tsv.txt'), pv);
   await app.shot('C1-tsv-preview');
   const seats = pv.match(/Tổng số vị trí nạp: (\d+)/); const score = pv.match(/Điểm phạt ước tính: ([\d.]+)/);
-  R.check('C1.tsv-preview-60-seats-and-score', seats && +seats[1] === 60 && score && Math.abs(+score[1] - 260.36) < 0.05, { seats: seats && seats[1], score: score && score[1] }, '60 seats, 260.4 (260.36)', ['extracts/C1-plan-preview-tsv.txt']);
+  R.check('C1.tsv-preview-60-seats-and-score', seats && +seats[1] === 60 && score && Math.abs(+score[1] - 116.36) < 0.05, { seats: seats && seats[1], score: score && score[1] }, '60 seats, 116.4 (116.36; S3 not applicable, RA-017)', ['extracts/C1-plan-preview-tsv.txt']);
   R.check('C1.tsv-preview-valid', /Hợp lệ/.test(pv) && !/Không thể áp dụng/.test(pv), pv.match(/(Hợp lệ|Không thể áp dụng)/)?.[0], 'Hợp lệ');
   await clickTid(app.b, 'btn-plan-import-apply'); await sleep(2500);
   // ---- B) clear C Quí's max-tasks override through the teacher dialog, re-import -> exactly one hard violation ----

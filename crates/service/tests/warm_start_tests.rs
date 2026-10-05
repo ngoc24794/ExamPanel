@@ -18,15 +18,16 @@ fn test_warm_start_initial_score_and_convergence() {
         .find(|r| r.rule == RuleKey::S3)
         .map_or(0.0, |r| r.penalty);
 
+    // RA-017: Q's data has a single campus, so S3 is not applicable and the constant 144 is gone
+    // (it used to give 260.36 = 116.36 + 144).
     assert_eq!(
-        format!("{:.2}", initial_report.total),
-        "260.36",
-        "Initial score with S3 must be exactly 260.36"
+        s3_pen, 0.0,
+        "S3 must not add a penalty with a single campus"
     );
     assert_eq!(
-        format!("{:.2}", initial_report.total - s3_pen),
+        format!("{:.2}", initial_report.total),
         "116.36",
-        "Initial score without S3 must be exactly 116.36"
+        "Initial score of Q's plan (S3 not applicable) must be exactly 116.36"
     );
 
     // 2. Warm run with seed 42
