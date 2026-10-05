@@ -1298,6 +1298,8 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h1',
           code: 'duplicate_teacher_in_panel',
+          teacher: a.teacher_id,
+          panel: { exam_id: a.exam_id, grade_id: a.grade_id, subject_id: a.subject_id },
           params: {
             teacher_id: a.teacher_id.toString(),
             exam_id: a.exam_id.toString(),
@@ -1314,7 +1316,9 @@ export class MockExamPanelApi implements ExamPanelApi {
       if (!t || !t.active || t.load_weight <= 0) {
         violations.push({
           rule: 'h2',
-          code: 'inactive_or_zero_weight',
+          code: !t || !t.active ? 'inactive_teacher' : 'zero_weight_teacher',
+          teacher: a.teacher_id,
+          panel: { exam_id: a.exam_id, grade_id: a.grade_id, subject_id: a.subject_id },
           params: { teacher_id: a.teacher_id.toString() },
         })
       }
@@ -1323,6 +1327,8 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h2',
           code: 'unqualified_grade',
+          teacher: a.teacher_id,
+          panel: { exam_id: a.exam_id, grade_id: a.grade_id, subject_id: a.subject_id },
           params: {
             teacher_id: a.teacher_id.toString(),
             grade_id: a.grade_id.toString(),
@@ -1343,8 +1349,9 @@ export class MockExamPanelApi implements ExamPanelApi {
       if (set.size > 1) {
         violations.push({
           rule: 'h4',
-          code: 'multiple_panels_in_same_exam',
-          params: { teacher_id: a.teacher_id.toString(), exam_id: a.exam_id.toString() },
+          code: 'multiple_panels_in_exam',
+          teacher: a.teacher_id,
+          params: { exam_id: a.exam_id, count: set.size, limit: 1 },
         })
       }
     }
@@ -1358,7 +1365,9 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h5',
           code: 'teacher_unavailable',
-          params: { teacher_id: a.teacher_id.toString(), exam_id: a.exam_id.toString() },
+          teacher: a.teacher_id,
+          panel: { exam_id: a.exam_id, grade_id: a.grade_id, subject_id: a.subject_id },
+          params: { exam_id: a.exam_id },
         })
       }
     }

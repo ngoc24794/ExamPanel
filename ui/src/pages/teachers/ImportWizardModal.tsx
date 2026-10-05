@@ -399,10 +399,8 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                             <TableCell className="text-xs">{row.campus_code}</TableCell>
                             <TableCell className="text-xs">{row.grades_str}</TableCell>
                             <TableCell className="text-xs">{row.load_weight}</TableCell>
-                            <TableCell className="text-xs">
-                              {row.active
-                                ? t('import.statusNew')
-                                : t('import.statusSkipped')}
+                            <TableCell className="text-xs" data-testid="import-row-active">
+                              {row.active ? t('common.yes') : t('common.no')}
                             </TableCell>
                             <TableCell className="text-xs text-muted-foreground">
                               {row.note || '-'}

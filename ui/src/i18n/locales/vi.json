@@ -44,7 +44,9 @@
     "roleSetter": "Ra đề",
     "roleReviewer": "Phản biện",
     "schoolYearName": "Năm học {{name}}",
-    "placeholderDesc": "Các tính năng chuyên sâu của mô-đun này sẽ được phát triển trong các giai đoạn tiếp theo theo kiến trúc dự án."
+    "placeholderDesc": "Các tính năng chuyên sâu của mô-đun này sẽ được phát triển trong các giai đoạn tiếp theo theo kiến trúc dự án.",
+    "yes": "Có",
+    "no": "Không"
   },
   "theme": {
     "toggle": "Chuyển giao diện",
@@ -992,5 +994,25 @@
     "previewTitle": "Dự toán phân bổ chỉ tiêu nhiệm vụ",
     "previewDesc": "Chỉ tiêu nhiệm vụ được tính toán tự động theo trọng số tải, tính khả dụng và loại trừ các nhiệm vụ cố định.",
     "empty": "Chưa có dữ liệu chỉ tiêu."
+  },
+  "violations": {
+    "duplicate_teacher_in_panel": "{{teacher}} xuất hiện hai lần trong cùng một ban đề",
+    "excess_setters": "Ban đề có quá nhiều người ra đề ({{count}} > {{limit}})",
+    "excess_reviewers": "Ban đề có quá nhiều người phản biện ({{count}} > {{limit}})",
+    "panel_incomplete": "Ban đề chưa đủ thành viên ({{setters}} ra đề, {{reviewers}} phản biện)",
+    "inactive_teacher": "{{teacher}} đã ngừng hoạt động nhưng vẫn được phân công",
+    "zero_weight_teacher": "{{teacher}} có hệ số tải bằng 0 nhưng vẫn được phân công",
+    "unqualified_grade": "{{teacher}} không đủ điều kiện chuyên môn / khối",
+    "single_campus_panel": "Ban đề chỉ gồm một phân hiệu ({{campus_count}} < {{min_campuses}})",
+    "max_tasks_per_exam_exceeded": "{{teacher}} có {{count}} nhiệm vụ trong kỳ {{exam}}, vượt giới hạn {{limit}}",
+    "multiple_panels_in_exam": "{{teacher}} tham gia {{count}} ban đề trong kỳ {{exam}}, chỉ được phép {{limit}}",
+    "max_setter_tasks_per_exam_exceeded": "{{teacher}} ra đề {{count}} lần trong kỳ {{exam}}, vượt giới hạn {{limit}}",
+    "teacher_unavailable": "{{teacher}} bận ở kỳ {{exam}} nhưng vẫn được phân công",
+    "forbid_violation": "{{teacher}} bị cấm ở vị trí này nhưng vẫn được phân công",
+    "pin_missing": "{{teacher}} được ghim ở ban đề này nhưng chưa được phân công",
+    "pin_role_mismatch": "{{teacher}} được ghim ở vai trò khác",
+    "quota_exceeded": "{{teacher}} có {{count}} nhiệm vụ, vượt chỉ tiêu tối đa {{hi}}",
+    "quota_unmet": "{{teacher}} chỉ có {{count}} nhiệm vụ, chưa đạt chỉ tiêu tối thiểu {{lo}}",
+    "unknown": "Vi phạm {{rule}}: {{code}}"
   }
 }

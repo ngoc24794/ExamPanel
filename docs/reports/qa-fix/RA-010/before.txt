@@ -1,0 +1,42 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/assignments/GridEditing.test.tsx (9 tests | 1 failed) 2807ms
+   × Grid Editing & Interaction Tests > seat click opens the candidate list with disabled invalid candidates and reasons 504ms
+     → expected 'Ngô Phương Nam(Phân hiệu 1 - Ba Đình)…' not to match /\b[hH]\d: [a-z]+(_[a-z]+)+/
+   ✓ Grid Editing & Interaction Tests > drag-to-swap: drags one seat and drops on another to swap teachers  358ms
+   ✓ Grid Editing & Interaction Tests > keyboard flow: navigates candidates with ArrowDown/ArrowUp and selects with Enter 55ms
+   ✓ Grid Editing & Interaction Tests > undo/redo: records assignment updates and allows undoing and redoing  891ms
+   ✓ Grid Editing & Interaction Tests > forced seats immovable: cannot be dragged, clicked for replacement, or overwritten by drop 230ms
+   ✓ Grid Editing & Interaction Tests > totals panel counts and the ≥2 / ≥3 markers (* and **) 129ms
+   ✓ Grid Editing & Interaction Tests > teacher hover focus: highlights all seats of hovered teacher and totals row 239ms
+   ✓ Grid Editing & Interaction Tests > view-toggle persistence: persists view mode to localStorage and restores on mount 242ms
+   ✓ Grid Editing & Interaction Tests > two-subject layout with blank CN second "Đề" row 157ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/assignments/GridEditing.test.tsx > Grid Editing & Interaction Tests > seat click opens the candidate list with disabled invalid candidates and reasons
+AssertionError: expected 'Ngô Phương Nam(Phân hiệu 1 - Ba Đình)…' not to match /\b[hH]\d: [a-z]+(_[a-z]+)+/
+
+[32m- Expected:[39m 
+/\b[hH]\d: [a-z]+(_[a-z]+)+/
+
+[31m+ Received:[39m 
+"Ngô Phương Nam(Phân hiệu 1 - Ba Đình)H2: unqualified_grade, H4: multiple_panels_in_same_exam"
+
+ ❯ src/pages/assignments/GridEditing.test.tsx:101:36
+     99|     // reasons are sentences, never raw engine codes such as "H4: max_…
+    100|     for (const item of invalidItems) {
+    101|       expect(item.textContent).not.toMatch(/\b[hH]\d: [a-z]+(_[a-z]+)+…
+       |                                    ^
+    102|     }
+    103|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  08:26:27
+   Duration  5.11s (transform 682ms, setup 161ms, collect 1.42s, tests 2.81s, environment 288ms, prepare 196ms)
+

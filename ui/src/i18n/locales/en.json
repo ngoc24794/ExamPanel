@@ -44,7 +44,9 @@
     "roleSetter": "Setter",
     "roleReviewer": "Reviewer",
     "schoolYearName": "School year {{name}}",
-    "placeholderDesc": "The in-depth features of this module will be developed in later phases following the project architecture."
+    "placeholderDesc": "The in-depth features of this module will be developed in later phases following the project architecture.",
+    "yes": "Yes",
+    "no": "No"
   },
   "theme": {
     "toggle": "Toggle Theme",
@@ -992,5 +994,25 @@
     "previewTitle": "Task Quota Allocation Preview",
     "previewDesc": "Task quotas are automatically computed based on load weights, availability, and excluding forced assignments.",
     "empty": "No quota data available."
+  },
+  "violations": {
+    "duplicate_teacher_in_panel": "{{teacher}} appears twice in the same panel",
+    "excess_setters": "The panel has too many setters ({{count}} > {{limit}})",
+    "excess_reviewers": "The panel has too many reviewers ({{count}} > {{limit}})",
+    "panel_incomplete": "The panel is incomplete ({{setters}} setters, {{reviewers}} reviewers)",
+    "inactive_teacher": "{{teacher}} is inactive but still assigned",
+    "zero_weight_teacher": "{{teacher}} has load weight 0 but is still assigned",
+    "unqualified_grade": "{{teacher}} is not qualified for this subject / grade",
+    "single_campus_panel": "The panel has a single campus ({{campus_count}} < {{min_campuses}})",
+    "max_tasks_per_exam_exceeded": "{{teacher}} has {{count}} tasks in {{exam}}, above the limit of {{limit}}",
+    "multiple_panels_in_exam": "{{teacher}} sits on {{count}} panels in {{exam}}, only {{limit}} allowed",
+    "max_setter_tasks_per_exam_exceeded": "{{teacher}} sets {{count}} papers in {{exam}}, above the limit of {{limit}}",
+    "teacher_unavailable": "{{teacher}} is unavailable in {{exam}} but is assigned",
+    "forbid_violation": "{{teacher}} is forbidden for this seat but is assigned",
+    "pin_missing": "{{teacher}} is pinned to this panel but is not assigned",
+    "pin_role_mismatch": "{{teacher}} is pinned to a different role",
+    "quota_exceeded": "{{teacher}} has {{count}} tasks, above the maximum quota {{hi}}",
+    "quota_unmet": "{{teacher}} has only {{count}} tasks, below the minimum quota {{lo}}",
+    "unknown": "Violation {{rule}}: {{code}}"
   }
 }

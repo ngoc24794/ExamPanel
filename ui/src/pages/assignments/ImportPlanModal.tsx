@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
+import { describeViolation, useViolationLookup } from '@/lib/violations'
 import {
   FileSpreadsheet,
   AlertTriangle,
@@ -48,6 +49,7 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation()
+  const lookup = useViolationLookup(schoolYearId)
   const isTauri = isTauriEnvironment()
 
   const [step, setStep] = React.useState<'input' | 'preview'>('input')
@@ -439,9 +441,7 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                         className="flex items-start gap-2 p-2.5 rounded bg-destructive/10 text-destructive text-xs border border-destructive/20"
                       >
                         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-                        <span>
-                          {viol.code ? `${viol.rule}: ${viol.code}` : viol.rule}
-                        </span>
+                        <span>{describeViolation(t, viol, lookup)}</span>
                       </div>
                     ))}
                     {preview.warnings.map((warn, i) => (
@@ -483,7 +483,9 @@ export const ImportPlanModal: React.FC<ImportPlanModalProps> = ({
                             variant={asgn.role === 'setter' ? 'default' : 'secondary'}
                             className="text-[10px]"
                           >
-                            {asgn.role === 'setter' ? t('common.roleSetter') : t('common.roleReviewer')}
+                            {asgn.role === 'setter'
+                              ? t('common.roleSetter')
+                              : t('common.roleReviewer')}
                           </Badge>
                         </TableCell>
                         <TableCell>#{asgn.position}</TableCell>

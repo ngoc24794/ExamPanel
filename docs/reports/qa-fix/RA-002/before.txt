@@ -1,0 +1,36 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/teachers/ImportWizardModal.test.tsx (3 tests | 1 failed) 275ms
+   ✓ ImportWizardModal Component Tests > renders file selection and mode cards when open 118ms
+   ✓ ImportWizardModal Component Tests > navigates from select to preview and displays preview tables and filters 104ms
+   × ImportWizardModal Component Tests > shows Yes/No (not the row status) in the active column of the teachers preview 52ms
+     → expected 'Mới' to match /^(Có|Không|Yes|No)$/
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/teachers/ImportWizardModal.test.tsx > ImportWizardModal Component Tests > shows Yes/No (not the row status) in the active column of the teachers preview
+AssertionError: expected 'Mới' to match /^(Có|Không|Yes|No)$/
+
+[32m- Expected:[39m 
+/^(Có|Không|Yes|No)$/
+
+[31m+ Received:[39m 
+"Mới"
+
+ ❯ src/pages/teachers/ImportWizardModal.test.tsx:112:32
+    110|     expect(cells.length).toBeGreaterThan(0)
+    111|     for (const cell of cells) {
+    112|       expect(cell.textContent).toMatch(/^(Có|Không|Yes|No)$/)
+       |                                ^
+    113|     }
+    114|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  08:24:58
+   Duration  2.33s (transform 342ms, setup 154ms, collect 942ms, tests 275ms, environment 484ms, prepare 194ms)
+

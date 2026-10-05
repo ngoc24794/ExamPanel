@@ -96,6 +96,10 @@ describe('Grid Editing & Interaction Tests', () => {
     const invalidItems = screen.getAllByTestId('candidate-item-invalid')
     expect(invalidItems.length).toBeGreaterThan(0)
     expect(invalidItems[0]).toHaveClass('cursor-not-allowed')
+    // reasons are sentences, never raw engine codes such as "H4: max_setter_tasks_per_exam_exceeded"
+    for (const item of invalidItems) {
+      expect(item.textContent).not.toMatch(/\b[hH]\d: [a-z]+(_[a-z]+)+/)
+    }
   })
 
   // 2. drag-to-swap

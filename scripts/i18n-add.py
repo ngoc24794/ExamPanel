@@ -9,6 +9,26 @@ import json, re, sys, os
 ROOT = os.path.join(os.path.dirname(__file__), '..', 'ui', 'src', 'i18n', 'locales')
 
 
+def create_section(path, lines, section, key, value):
+    """Appends a new top-level section holding `key` (used when a domain is added for the first time)."""
+    end = max(i for i, l in enumerate(lines) if l.strip() == '}')
+    prev = end - 1
+    while not lines[prev].strip():
+        prev -= 1
+    if not lines[prev].rstrip().endswith(','):
+        lines[prev] = lines[prev].rstrip() + ','
+    block = [
+        '  ' + json.dumps(section, ensure_ascii=False) + ': {',
+        '    ' + json.dumps(key, ensure_ascii=False) + ': ' + json.dumps(value, ensure_ascii=False),
+        '  }',
+    ]
+    lines[end:end] = block
+    new = '\n'.join(lines)
+    json.loads(new)
+    open(path, 'w', encoding='utf-8').write(new)
+    return True
+
+
 def insert(path, dotted, value):
     text = open(path, encoding='utf-8').read()
     data = json.loads(text)
@@ -27,6 +47,8 @@ def insert(path, dotted, value):
     for p in parts[:-1]:
         pat = re.compile(r'^' + '  ' * depth + r'  ' + re.escape(json.dumps(p, ensure_ascii=False)) + r': \{\s*$')
         hits = [i for i in range(start, len(lines)) if pat.match(lines[i])]
+        if not hits and depth == 0 and len(parts) == 2:
+            return create_section(path, lines, parts[0], parts[1], value)
         if len(hits) > 1:
             raise SystemExit(f'{path}: section {p!r} is declared twice (duplicate JSON key) - merge it first')
         idx = hits[0] if hits else None
