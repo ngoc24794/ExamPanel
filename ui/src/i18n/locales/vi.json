@@ -314,7 +314,8 @@
     "numberPlaceholder": "Số",
     "examFallback": "Kỳ {{id}}",
     "gradeFallback": "Khối {{id}}",
-    "pickTeacher": "Chọn giáo viên..."
+    "pickTeacher": "Chọn giáo viên...",
+    "s3NotApplicable": "Không áp dụng: chỉ có một phân hiệu nên quy tắc này không thể cải thiện và không tính vào điểm."
   },
   "stats": {
     "title": "Thống kê & Báo cáo",

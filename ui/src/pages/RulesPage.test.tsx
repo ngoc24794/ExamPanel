@@ -1,6 +1,6 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, beforeEach } from 'vitest'
+import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HashRouter } from 'react-router-dom'
 import { RulesPage } from './RulesPage'
@@ -101,5 +101,25 @@ describe('RulesPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('lock-teacher-select')).toBeInTheDocument()
     })
+  })
+
+  // RA-017: S3 cannot be improved with a single campus
+  it('says S3 is not applicable with a single campus, but not with several', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<RulesPage />)
+    await user.click(screen.getByTestId('tab-soft-rules'))
+    await screen.findByTestId('soft-rule-card-s3')
+    await waitFor(() => expect(screen.queryByTestId('s3-not-applicable')).toBeNull())
+  })
+
+  it('shows the S3 not-applicable note when all teachers share one campus', async () => {
+    const real = await api.teachersWithGrades(1)
+    vi.spyOn(api, 'teachersWithGrades').mockResolvedValue(
+      real.map((tg) => ({ ...tg, teacher: { ...tg.teacher, campus_id: 1 } })),
+    )
+    const user = userEvent.setup()
+    renderWithProviders(<RulesPage />)
+    await user.click(screen.getByTestId('tab-soft-rules'))
+    expect(await screen.findByTestId('s3-not-applicable')).toBeInTheDocument()
   })
 })

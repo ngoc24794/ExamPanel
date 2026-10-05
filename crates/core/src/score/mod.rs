@@ -355,10 +355,16 @@ pub fn evaluate(problem: &Problem, assignments: &[Assignment]) -> ScoreReport {
     // -------------------------------------------------------------------------
     // S3: Independent Reviewer
     // -------------------------------------------------------------------------
-    let (s3_enabled, s3_weight) = get_rule_setting(RuleKey::S3, 4.0);
+    let (s3_setting_enabled, s3_weight) = get_rule_setting(RuleKey::S3, 4.0);
+    // Not applicable (and reported as off) when all active teachers share one campus (RA-017).
+    let s3_applicable = problem.campus_independence_applicable();
+    let s3_enabled = s3_setting_enabled && s3_applicable;
     let mut s3_units = 0.0;
 
     for (&(eid, gid, sid), (setters, reviewers)) in &panel_map {
+        if !s3_applicable {
+            break;
+        }
         for r_id in reviewers {
             let r_campus = teacher_map.get(r_id).map(|t| t.campus_id);
             let mut same_campus_setters = Vec::new();
@@ -1338,6 +1344,48 @@ mod tests {
             .iter()
             .any(|v| v.code == "reviewer_same_campus"
                 && v.panel == Some(PanelKey::new(ExamId(1), GradeId(1), SubjectId(1)))));
+    }
+
+    /// RA-017: with a single campus the rule cannot be improved, so it neither adds a constant
+    /// penalty nor flags every seat.
+    #[test]
+    fn test_ra017_s3_not_applicable_with_a_single_campus() {
+        let mut problem = make_test_problem();
+        let campus = problem.teachers[0].campus_id;
+        for t in &mut problem.teachers {
+            t.campus_id = campus;
+        }
+        assert!(!problem.campus_independence_applicable());
+        let assignments = vec![
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(1),
+                Role::Setter,
+                0,
+            ),
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(1),
+                TeacherId(2),
+                Role::Reviewer,
+                0,
+            ),
+        ];
+        let rep = evaluate(&problem, &assignments);
+        let s3 = rep.by_rule.iter().find(|r| r.rule == RuleKey::S3).unwrap();
+        assert_eq!(s3.units, 0.0);
+        assert_eq!(s3.penalty, 0.0);
+        assert!(!s3.enabled, "reported as not applicable");
+        assert!(!rep.violations.iter().any(|v| v.rule == RuleKey::S3));
+    }
+
+    #[test]
+    fn test_ra017_s3_still_applies_with_two_campuses() {
+        let problem = make_test_problem();
+        assert!(problem.campus_independence_applicable());
     }
 
     #[test]

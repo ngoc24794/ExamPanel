@@ -314,7 +314,8 @@
     "numberPlaceholder": "Number",
     "examFallback": "Exam {{id}}",
     "gradeFallback": "Grade {{id}}",
-    "pickTeacher": "Select a teacher..."
+    "pickTeacher": "Select a teacher...",
+    "s3NotApplicable": "Not applicable: with a single campus this rule cannot be improved and is not counted in the score."
   },
   "stats": {
     "title": "Statistics & Reports",

@@ -355,3 +355,10 @@
 - **Context:** SPEC §6 and ADR-0006 said "exe folder writable ⇒ portable", while the code (`crates/storage/src/paths.rs`, ADR-0034) has required the marker file. A user-writable installation folder would otherwise become portable silently and an update or uninstall could remove the data. The real-app run (A2) confirmed that without a marker the data goes to the user data directory.
 - **Decision:** Keep the marker rule. Update SPEC §6, ARCHITECTURE and ADR-0006 to describe it, document `EXAMPANEL_DATA_DIR` as a developer override, and correct the release checklist paths.
 - **Consequences:** Copying the program folder to another PC without the marker leaves the data behind; the portable zip ships the marker and the user guide and checklists say so.
+
+## ADR-0051: Single-Campus S3 Is Not Applicable; Printouts Never Invent Organisation Text (RA-017, RA-029)
+- **Status:** Accepted
+- **Context:** With one campus S3 (independent reviewer) added a constant 144 penalty (55 % of Q's 260.36) and a warning triangle on every VL seat. Exports and print pages filled empty organisation settings with another school's name and a fictitious signer.
+- **Decision:** (1) `Problem::campus_independence_applicable()` is true only when the active teachers span at least two campuses; `evaluate` and the optimizer state then treat S3 as off (no units, no violations, reported `enabled=false`). The stored setting is untouched, so it applies again as soon as a second campus is used; `rules_hash` is unchanged, so existing plans are not marked stale. The Rules screen shows a note. (2) Empty organisation settings stay empty in the Excel export and print pages ("Ngày … tháng … năm …", blank school/department/signer); print pages show a screen-only banner pointing to Settings.
+- **Consequences:** Totals of single-campus plans drop by the former S3 constant when re-evaluated; stored score reports of old plans are not rewritten.
+

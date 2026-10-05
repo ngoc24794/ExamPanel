@@ -120,6 +120,17 @@ pub struct Problem {
 }
 
 impl Problem {
+    /// S3 (reviewer independent from setters' campus) can only matter when the active teachers
+    /// span at least two campuses; with one it adds a constant penalty nobody can remove (RA-017).
+    #[must_use]
+    pub fn campus_independence_applicable(&self) -> bool {
+        let mut campuses = self.teachers.iter().map(|t| t.campus_id);
+        match campuses.next() {
+            Some(first) => campuses.any(|c| c != first),
+            None => false,
+        }
+    }
+
     /// Validates the structural integrity of the problem snapshot.
     ///
     /// Checks for:

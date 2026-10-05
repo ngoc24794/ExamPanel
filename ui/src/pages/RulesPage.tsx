@@ -94,6 +94,9 @@ export const RulesPage: React.FC = () => {
   const { data: exams = [] } = useExams(currentYear?.id)
   const { data: subjects = [] } = useSubjects(currentYear?.id)
   const { data: teachersWithGrades = [] } = useTeachers(currentYear?.id)
+  // S3 compares campuses: with one campus among the teachers it is not applicable (RA-017).
+  const campusIndependenceApplicable =
+    new Set(teachersWithGrades.map((tg) => tg.teacher.campus_id)).size >= 2
   const { data: unavailabilities = [] } = useUnavailabilities(currentYear?.id)
   const { data: serverRuleSettings = [] } = useRuleSettings(currentYear?.id)
   const { data: rulePresets = [] } = useRulePresets()
@@ -786,6 +789,14 @@ export const RulesPage: React.FC = () => {
                   </CardHeader>
                   <CardContent className="p-4 pt-1 space-y-3 text-xs">
                     <p className="text-muted-foreground">{t(descKey)}</p>
+                    {key === 's3' && !campusIndependenceApplicable && (
+                      <p
+                        className="text-[11px] font-medium text-foreground bg-muted p-2 rounded border border-border"
+                        data-testid="s3-not-applicable"
+                      >
+                        {t('rules.s3NotApplicable')}
+                      </p>
+                    )}
                     <p className="text-[11px] text-muted-foreground/80 italic bg-muted/40 p-2 rounded">
                       {t(exKey)}
                     </p>
@@ -987,8 +998,11 @@ export const RulesPage: React.FC = () => {
                             {teacher?.full_name || `GV #${lock.teacher_id}`}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            → {exam?.name || t('rules.examFallback', { id: lock.exam_id })} —{' '}
-                            {grade?.name || t('rules.gradeFallback', { id: lock.grade_id })}
+                            →{' '}
+                            {exam?.name || t('rules.examFallback', { id: lock.exam_id })}{' '}
+                            —{' '}
+                            {grade?.name ||
+                              t('rules.gradeFallback', { id: lock.grade_id })}
                           </span>
                           {lock.role && (
                             <Badge variant="outline" className="text-[10px]">
