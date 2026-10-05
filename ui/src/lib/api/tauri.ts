@@ -103,6 +103,11 @@ export class TauriExamPanelApi implements ExamPanelApi {
     await invoke<void>('open_data_folder')
   }
 
+  async printPage(): Promise<void> {
+    // window.print() is a silent no-op in WebKitGTK; the native webview print works everywhere (RA-030).
+    await invoke<void>('print_page')
+  }
+
   async openLogFolder(): Promise<void> {
     await invoke<void>('open_log_folder')
   }

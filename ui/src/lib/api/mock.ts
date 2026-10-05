@@ -208,6 +208,10 @@ export class MockExamPanelApi implements ExamPanelApi {
     // In mock mode, no native filesystem to open
   }
 
+  async printPage(): Promise<void> {
+    window.print()
+  }
+
   async openLogFolder(): Promise<void> {
     // In mock mode, no native filesystem to open
   }

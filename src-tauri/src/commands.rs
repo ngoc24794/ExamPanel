@@ -65,6 +65,15 @@ pub fn exit_trial_mode(service: State<'_, Arc<AppService>>) -> Result<(), AppErr
     service.exit_trial_mode()
 }
 
+/// Opens the native print dialog for the calling window. `window.print()` does nothing in
+/// WebKitGTK, so printing / "Save as PDF" goes through the webview's own print operation.
+#[tauri::command]
+pub fn print_page(window: tauri::WebviewWindow) -> Result<(), AppError> {
+    window
+        .print()
+        .map_err(|e| AppError::internal(format!("Không thể mở hộp thoại in: {e}")))
+}
+
 #[tauri::command]
 pub fn open_data_folder(app: tauri::AppHandle) -> Result<(), AppError> {
     let data_dir = exam_panel_storage::paths::resolve_data_dir();

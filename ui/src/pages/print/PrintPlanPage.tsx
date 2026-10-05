@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { api } from '@/lib/api'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Printer, ArrowLeft } from 'lucide-react'
@@ -135,7 +136,7 @@ export const PrintPlanPage: React.FC = () => {
           <Button
             data-testid="print-btn"
             size="sm"
-            onClick={() => window.print()}
+            onClick={() => void api.printPage()}
             className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Printer className="h-4 w-4" />

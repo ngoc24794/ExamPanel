@@ -1,10 +1,11 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PrintPlanPage } from './PrintPlanPage'
 import { PrintNoticesPage } from './PrintNoticesPage'
 import '@/i18n'
+import { api } from '@/lib/api'
 
 describe('Print Pages Component Tests', () => {
   let queryClient: QueryClient
@@ -58,4 +59,33 @@ describe('Print Pages Component Tests', () => {
       screen.getAllByText(/Danh sách nhiệm vụ được phân công:/i).length,
     ).toBeGreaterThan(0)
   })
+
+  // RA-030: window.print() is a no-op in WebKitGTK; printing must go through the API (native print)
+  it.each([
+    ['plan', '/print/plan/1', '/print/plan/:id', PrintPlanPage],
+    ['notices', '/print/notices/1', '/print/notices/:id', PrintNoticesPage],
+  ])(
+    'the %s print button uses api.printPage, not window.print',
+    async (_n, url, route, Page) => {
+      const printPage = vi.spyOn(api, 'printPage').mockResolvedValue(undefined)
+      const windowPrint = vi.fn()
+      vi.stubGlobal('print', windowPrint)
+      try {
+        render(
+          <QueryClientProvider client={queryClient}>
+            <MemoryRouter initialEntries={[url]}>
+              <Routes>
+                <Route path={route} element={<Page />} />
+              </Routes>
+            </MemoryRouter>
+          </QueryClientProvider>,
+        )
+        fireEvent.click(await screen.findByTestId('print-btn'))
+        expect(printPage).toHaveBeenCalledTimes(1)
+        expect(windowPrint).not.toHaveBeenCalled()
+      } finally {
+        vi.unstubAllGlobals()
+      }
+    },
+  )
 })

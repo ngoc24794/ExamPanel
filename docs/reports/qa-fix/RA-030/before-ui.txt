@@ -1,0 +1,32 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/print/PrintPages.test.tsx (4 tests | 2 failed) 383ms
+   ✓ Print Pages Component Tests > renders PrintPlanPage with school header, matrix table, and print button 110ms
+   ✓ Print Pages Component Tests > renders PrintNoticesPage with teacher assignment notices 182ms
+   × Print Pages Component Tests > the plan print button uses api.printPage, not window.print 34ms
+     → expected "printPage" to be called 1 times, but got 0 times
+   × Print Pages Component Tests > the notices print button uses api.printPage, not window.print 55ms
+     → expected "printPage" to be called 1 times, but got 0 times
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/print/PrintPages.test.tsx > Print Pages Component Tests > the plan print button uses api.printPage, not window.print
+ FAIL  src/pages/print/PrintPages.test.tsx > Print Pages Component Tests > the notices print button uses api.printPage, not window.print
+AssertionError: expected "printPage" to be called 1 times, but got 0 times
+ ❯ src/pages/print/PrintPages.test.tsx:84:27
+     82|         )
+     83|         fireEvent.click(await screen.findByTestId('print-btn'))
+     84|         expect(printPage).toHaveBeenCalledTimes(1)
+       |                           ^
+     85|         expect(windowPrint).not.toHaveBeenCalled()
+     86|       } finally {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  08:39:36
+   Duration  2.34s (transform 390ms, setup 133ms, collect 1.04s, tests 383ms, environment 411ms, prepare 141ms)
+

@@ -28,4 +28,9 @@ describe('Tauri adapter shell integration', () => {
     expect(invokeMock).toHaveBeenCalledWith('open_data_folder', undefined)
     expect(openPathMock).not.toHaveBeenCalled()
   })
+
+  it('prints through the native print command', async () => {
+    await tauriApi.printPage()
+    expect(invokeMock).toHaveBeenCalledWith('print_page', undefined)
+  })
 })

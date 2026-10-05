@@ -181,6 +181,7 @@ pub fn run() {
             commands::enter_trial_mode,
             commands::exit_trial_mode,
             commands::open_data_folder,
+            commands::print_page,
             commands::open_log_folder,
             commands::list_campuses,
             commands::create_campus,
