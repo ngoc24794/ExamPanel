@@ -30,5 +30,5 @@ Khi kích hoạt chế độ dùng thử, hệ thống tự động khởi tạo
 
 Khi Thầy/Cô đã trải nghiệm xong và muốn quay trở lại làm việc với dữ liệu thật của trường:
 1. Nhấp trực tiếp vào nút **Thoát chế độ dùng thử** ngay trên dải biểu ngữ đầu trang (hoặc vào **Cài đặt** ➔ chọn **Quay lại dữ liệu thật**).
-2. Hệ thống tự động chuyển kết nối trở lại tệp dữ liệu chính của nhà trường (`exampanel.db`).
+2. Hệ thống tự động chuyển kết nối trở lại tệp dữ liệu chính của nhà trường (`exam-panel.db`).
 3. Toàn bộ màn hình làm việc sẽ được nạp lại tức thì với dữ liệu phân công thực tế.

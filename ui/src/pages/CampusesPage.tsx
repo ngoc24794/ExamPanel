@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useSingleFlight } from '@/lib/useSingleFlight'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -48,9 +49,9 @@ import {
 import { type Campus } from '@/lib/api'
 
 const campusSchema = z.object({
-  code: z.string().min(1, 'Mã không được để trống'),
-  name: z.string().min(1, 'Tên không được để trống'),
-  color: z.string().min(1, 'Vui lòng chọn màu'),
+  code: z.string().min(1, 'campuses.errCodeRequired'),
+  name: z.string().min(1, 'campuses.errNameRequired'),
+  color: z.string().min(1, 'campuses.errColorRequired'),
 })
 
 type CampusFormValues = z.infer<typeof campusSchema>
@@ -109,7 +110,7 @@ export const CampusesPage: React.FC = () => {
     setDialogOpen(true)
   }
 
-  const onSubmit = async (values: CampusFormValues) => {
+  const submitCampus = async (values: CampusFormValues) => {
     try {
       if (editingCampus) {
         await updateMutation.mutateAsync({
@@ -130,6 +131,9 @@ export const CampusesPage: React.FC = () => {
       // handled
     }
   }
+
+  const submitOnce = useSingleFlight()
+  const onSubmit = (values: CampusFormValues) => submitOnce(() => submitCampus(values))
 
   const handleDelete = async () => {
     if (!deleteCampusId) return
@@ -283,7 +287,9 @@ export const CampusesPage: React.FC = () => {
                   autoFocus
                 />
                 {errors.code && (
-                  <p className="text-xs text-destructive">{errors.code.message}</p>
+                  <p className="text-xs text-destructive">
+                    {t(errors.code.message ?? '')}
+                  </p>
                 )}
               </div>
 
@@ -296,7 +302,9 @@ export const CampusesPage: React.FC = () => {
                   placeholder={t('campuses.namePlaceholder')}
                 />
                 {errors.name && (
-                  <p className="text-xs text-destructive">{errors.name.message}</p>
+                  <p className="text-xs text-destructive">
+                    {t(errors.name.message ?? '')}
+                  </p>
                 )}
               </div>
 

@@ -21,7 +21,9 @@ import {
 import { useFeasibility } from '@/lib/query/hooks'
 import { api, type OptimizeHandle, type Progress, type OptimizeOutcome } from '@/lib/api'
 import { toast } from 'sonner'
-import { getErrorMessage } from '@/lib/query/query-client'
+import { reportError } from '@/lib/query/query-client'
+import { createProgressAggregator, type AggregateProgress } from './optimizeProgress'
+import { getRunsAndIterations, type EffortLevel } from './effortPresets'
 
 interface RunOptimizeDialogProps {
   open: boolean
@@ -30,8 +32,6 @@ interface RunOptimizeDialogProps {
   onSuccess: (newPlanIds: number[]) => void
   onOpenFeasibility?: () => void
 }
-
-type EffortLevel = 'fast' | 'standard' | 'thorough'
 
 export function RunOptimizeDialog({
   open,
@@ -51,7 +51,8 @@ export function RunOptimizeDialog({
   const [baseSeed, setBaseSeed] = React.useState<string>('42')
 
   const [isRunning, setIsRunning] = React.useState<boolean>(false)
-  const [progress, setProgress] = React.useState<Progress | null>(null)
+  const [progress, setProgress] = React.useState<AggregateProgress | null>(null)
+  const [elapsedMs, setElapsedMs] = React.useState<number>(0)
   const handleRef = React.useRef<OptimizeHandle | null>(null)
 
   React.useEffect(() => {
@@ -62,23 +63,15 @@ export function RunOptimizeDialog({
     }
   }, [])
 
-  const getRunsAndIterations = (level: EffortLevel) => {
-    switch (level) {
-      case 'fast':
-        return { runs: 4, iterations: 50000 }
-      case 'standard':
-        return { runs: 8, iterations: 200000 }
-      case 'thorough':
-        return { runs: 16, iterations: 500000 }
-    }
-  }
-
   const handleStart = async () => {
     if (!isFeasible) return
     setIsRunning(true)
     setProgress(null)
+    setElapsedMs(0)
 
     const { runs, iterations } = getRunsAndIterations(effort)
+    const aggregator = createProgressAggregator(runs, iterations)
+    const startedAt = performance.now()
     const seed = baseSeed.trim() ? parseInt(baseSeed.trim(), 10) : undefined
 
     try {
@@ -91,8 +84,9 @@ export function RunOptimizeDialog({
           k: numPlans,
           diversity_threshold: 0.2,
         },
-        (p) => {
-          setProgress(p)
+        (p: Progress) => {
+          setProgress(aggregator.update(p))
+          setElapsedMs(Math.round(performance.now() - startedAt))
         },
       )
       handleRef.current = handle
@@ -107,7 +101,7 @@ export function RunOptimizeDialog({
       if (errorObj?.code === 'cancelled') {
         toast.info(t('assignments.cancelled'))
       } else {
-        toast.error(getErrorMessage(err))
+        reportError(err)
       }
       setIsRunning(false)
     } finally {
@@ -116,10 +110,9 @@ export function RunOptimizeDialog({
   }
 
   const handleCancel = async () => {
+    // The run promise rejects with { code: 'cancelled' }; handleStart reports it once (RA-011).
     if (handleRef.current) {
       await handleRef.current.cancel()
-      setIsRunning(false)
-      toast.info(t('assignments.cancelled'))
     }
   }
 
@@ -139,8 +132,7 @@ export function RunOptimizeDialog({
               <span>{t('assignments.preflightError')}</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              {blockingErrors.length} lỗi cấu hình khiến thuật toán không thể xếp lịch hợp
-              lệ.
+              {t('assignments.preflightErrorCount', { count: blockingErrors.length })}
             </p>
             {onOpenFeasibility && (
               <Button
@@ -268,23 +260,20 @@ export function RunOptimizeDialog({
                 <span>{t('assignments.running')}</span>
               </div>
               <span className="text-xs text-muted-foreground">
-                {t('assignments.elapsed', { ms: progress?.elapsed_ms ?? 0 })}
+                {t('assignments.elapsed', { ms: elapsedMs })}
               </span>
             </div>
 
-            <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
+            <div
+              className="w-full bg-muted rounded-full h-2.5 overflow-hidden"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round((progress?.fraction ?? 0) * 100)}
+            >
               <div
                 className="bg-primary h-2.5 rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.min(
-                    100,
-                    Math.round(
-                      ((progress?.iteration ?? 0) /
-                        getRunsAndIterations(effort).iterations) *
-                        100,
-                    ),
-                  )}%`,
-                }}
+                style={{ width: `${Math.round((progress?.fraction ?? 0) * 100)}%` }}
               />
             </div>
 
@@ -292,21 +281,24 @@ export function RunOptimizeDialog({
               <div>
                 <span className="text-muted-foreground block">
                   {t('assignments.bestScore', {
-                    score: progress ? progress.best_score.toFixed(2) : '--',
+                    score: progress ? progress.bestScore.toFixed(2) : '--',
                   })}
                 </span>
-                <span className="font-semibold text-foreground text-sm">
-                  {progress ? progress.best_score.toFixed(2) : '--'}
+                <span
+                  className="font-semibold text-foreground text-sm"
+                  data-testid="best-score-value"
+                >
+                  {progress ? progress.bestScore.toFixed(2) : '--'}
                 </span>
               </div>
               <div>
                 <span className="text-muted-foreground block">
                   {t('assignments.currentScore', {
-                    score: progress ? progress.current_score.toFixed(2) : '--',
+                    score: progress ? progress.currentScore.toFixed(2) : '--',
                   })}
                 </span>
                 <span className="font-semibold text-foreground text-sm">
-                  {progress ? progress.current_score.toFixed(2) : '--'}
+                  {progress ? progress.currentScore.toFixed(2) : '--'}
                 </span>
               </div>
             </div>

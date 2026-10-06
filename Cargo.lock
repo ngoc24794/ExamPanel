@@ -1111,6 +1111,7 @@ dependencies = [
  "calamine",
  "exam-panel-core",
  "exam-panel-storage",
+ "log",
  "rusqlite",
  "rust_xlsxwriter",
  "serde",

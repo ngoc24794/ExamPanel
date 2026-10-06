@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+     Running tests/qa_regression_tests.rs (target/debug/deps/qa_regression_tests-c43107e0f6f973f0)
+
+running 2 tests
+test reoptimize::ra026_kept_setter_seats_keep_their_position ... ok
+test reoptimize::ra026_saved_plans_get_unique_names ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.35s
+

@@ -1,0 +1,35 @@
+   Compiling exam-panel-core v0.1.0 (/home/user/ExamPanel/crates/core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.25s
+     Running unittests src/lib.rs (target/debug/deps/exam_panel_core-be841cdb20a3cb99)
+
+running 1 test
+test validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2 ... FAILED
+
+failures:
+
+---- validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2 stdout ----
+
+thread 'validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2' (10642) panicked at crates/core/src/validate/mod.rs:967:9:
+absence must not be reported as H2 unqualified_grade: [Violation { rule: H2, code: "unqualified_grade", panel: Some(PanelKey { exam_id: ExamId(1), grade_id: GradeId(10), subject_id: SubjectId(1) }), teacher: Some(TeacherId(1)), params: {"grade_id": Number(10), "subject_id": Number(1)} }, Violation { rule: H5, code: "teacher_unavailable", panel: Some(PanelKey { exam_id: ExamId(1), grade_id: GradeId(10), subject_id: SubjectId(1) }), teacher: Some(TeacherId(1)), params: {"exam_id": Number(1)} }, Violation { rule: H7, code: "quota_exceeded", panel: None, teacher: Some(TeacherId(1)), params: {"count": Number(1), "hi": Number(0)} }]
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: exam_panel_core::validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2
+             at ./src/validate/mod.rs:967:9
+   3: exam_panel_core::validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2::{closure#0}
+             at ./src/validate/mod.rs:938:58
+   4: <exam_panel_core::validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 92 filtered out; finished in 0.10s
+
+error: test failed, to rerun pass `-p exam-panel-core --lib`

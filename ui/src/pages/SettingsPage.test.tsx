@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { api } from '@/lib/api'
+import i18n from '@/i18n'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HashRouter } from 'react-router-dom'
 import { SettingsPage } from './SettingsPage'
@@ -54,6 +56,23 @@ describe('SettingsPage', () => {
 
     // Click English language button
     await user.click(screen.getByTestId('lang-en-btn'))
+  })
+
+  // RA-033: the Settings buttons only switched the live i18n language and never persisted it.
+  it('persists the language chosen on the Settings page', async () => {
+    const user = userEvent.setup()
+    const persist = vi.spyOn(api, 'setLanguage')
+    renderWithProviders(<SettingsPage />)
+
+    await user.click(await screen.findByTestId('lang-en-btn'))
+    await waitFor(() => expect(persist).toHaveBeenCalledWith('en'))
+    expect(localStorage.getItem('exampanel_language')).toBe('en')
+    expect(await api.getLanguage()).toBe('en')
+
+    await user.click(screen.getByTestId('lang-vi-btn'))
+    await waitFor(() => expect(persist).toHaveBeenLastCalledWith('vi'))
+    expect(i18n.language).toBe('vi')
+    persist.mockRestore()
   })
 
   it('renders organization section and saves organization info', async () => {
@@ -126,6 +145,18 @@ describe('SettingsPage', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('enter-trial-mode-btn')).toBeInTheDocument()
+    })
+  })
+
+  // RA-035: the licences dialog only said the notices exist; it must show them
+  it('shows the bundled THIRD_PARTY_NOTICES text in the licences dialog', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<SettingsPage />)
+    await user.click(await screen.findByTestId('licenses-dialog-trigger'))
+    await waitFor(() => {
+      const text = screen.getByTestId('licenses-text').textContent ?? ''
+      expect(text.length).toBeGreaterThan(5000)
+      expect(text).toContain('Third-Party Software Notices')
     })
   })
 })

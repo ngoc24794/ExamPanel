@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running tests/reopen_tests.rs (target/debug/deps/reopen_tests-ead06516e7e56166)
+
+running 1 test
+test reopening_a_current_database_leaves_the_file_byte_identical ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

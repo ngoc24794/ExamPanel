@@ -116,7 +116,8 @@ pub struct OptimizeResult {
 
 /// Calculates the normalized distance between two complete plans in [0.0, 1.0].
 ///
-/// Distance is defined as the fraction of (exam, grade, role, teacher) slots that differ.
+/// Distance is defined as the fraction of (exam, grade, subject, role, teacher) seats that differ.
+/// The subject is part of the seat: with two subjects a VL seat is never matched with a CN seat.
 #[must_use]
 pub fn plan_distance(p1: &[Assignment], p2: &[Assignment]) -> f64 {
     if p1.is_empty() || p2.is_empty() {
@@ -125,12 +126,12 @@ pub fn plan_distance(p1: &[Assignment], p2: &[Assignment]) -> f64 {
 
     let mut set2 = HashSet::with_capacity(p2.len());
     for a in p2 {
-        set2.insert((a.exam_id, a.grade_id, a.role, a.teacher_id));
+        set2.insert((a.exam_id, a.grade_id, a.subject_id, a.role, a.teacher_id));
     }
 
     let mut differing = 0usize;
     for a in p1 {
-        if !set2.contains(&(a.exam_id, a.grade_id, a.role, a.teacher_id)) {
+        if !set2.contains(&(a.exam_id, a.grade_id, a.subject_id, a.role, a.teacher_id)) {
             differing += 1;
         }
     }
@@ -279,6 +280,27 @@ pub fn optimize(problem: &Problem, opts: &OptimizeOptions) -> Result<OptimizeRes
 
 #[cfg(test)]
 mod tests {
+
+    /// RA-013: a seat is identified by its subject; swapping the reviewers of two subjects
+    /// changes two seats even though the (exam, grade, role, teacher) tuples stay the same.
+    #[test]
+    fn test_plan_distance_is_subject_aware() {
+        use crate::domain::{Assignment, ExamId, GradeId, Role, SubjectId, TeacherId};
+        let seat = |s: u32, t: u32| {
+            Assignment::new(
+                ExamId(1),
+                GradeId(1),
+                SubjectId(s.into()),
+                TeacherId(t.into()),
+                Role::Reviewer,
+                0,
+            )
+        };
+        let a = vec![seat(1, 10), seat(2, 20)];
+        let b = vec![seat(1, 20), seat(2, 10)];
+        assert!((super::plan_distance(&a, &b) - 1.0).abs() < 1e-12);
+        assert!(super::plan_distance(&a, &a).abs() < 1e-12);
+    }
     use super::*;
     use crate::domain::*;
     use crate::validate::{validate_assignments, ValidateOptions};

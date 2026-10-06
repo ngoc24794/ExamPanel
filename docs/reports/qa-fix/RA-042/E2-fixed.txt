@@ -1,0 +1,4 @@
+[E2] E2.no-raw-i18n-keys: fail | observed={"demo.db":["vi:/settings","en:/settings"],"e.g":["en:/settings","en:teacher-dialog","en:exam-dialog"]} expected="no untranslated key patterns a.b.c / {{"
+[E2] E2.forbidden-terms-vi: pass | observed={} expected="no \"cơ sở\", \"Kế hoạch\", \"Ràng buộc cứng/mềm\" in vi UI"
+[E2] E2.en-mode-has-no-vietnamese: fail | observed=["en-page-has-vietnamese: CPH\tChưa phân hiệu\t12 teachers","en-page-has-vietnamese: Chưa phân hiệu\t12\t12\t0\t12.00\t+0.00\tGrade 10, 11, 12\tGK1, CK1, GK2, CK2","en-page-has-vietnamese: Chưa phân h expected="EN pages contain no Vietnamese strings"
+[E2] E2.vi-mode-has-no-english: pass | observed=[] expected="VI pages contain no English UI words"

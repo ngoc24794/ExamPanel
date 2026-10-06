@@ -83,7 +83,7 @@ export function TeacherFocusPanel({
               </Badge>
             </h4>
             <span className="text-xs text-muted-foreground">
-              Hệ số tải: {teacher.load_weight}
+              {t('assignments.focusLoadWeight', { weight: teacher.load_weight })}
             </span>
           </div>
         </div>
@@ -100,9 +100,9 @@ export function TeacherFocusPanel({
           <span className="text-base font-bold text-foreground">{totalCount}</span>
         </div>
         <div className="bg-muted/40 p-2.5 rounded border border-border">
-          <span className="text-muted-foreground block">Vai trò</span>
+          <span className="text-muted-foreground block">{t('assignments.focusRoles')}</span>
           <span className="text-xs font-medium text-foreground">
-            {setterCount} ra đề, {reviewerCount} phản biện
+            {t('assignments.focusRoleCounts', { setters: setterCount, reviewers: reviewerCount })}
           </span>
         </div>
       </div>
@@ -111,17 +111,17 @@ export function TeacherFocusPanel({
         <div className="flex items-start gap-1.5">
           <Calendar className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
           <div>
-            <strong className="text-foreground">Kỳ thi:</strong>{' '}
-            <span className="text-muted-foreground">{examNames || 'Chưa được phân'}</span>
+            <strong className="text-foreground">{t('assignments.focusExams')}:</strong>{' '}
+            <span className="text-muted-foreground">{examNames || t('assignments.focusUnassigned')}</span>
           </div>
         </div>
 
         <div className="flex items-start gap-1.5">
           <Layers className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
           <div>
-            <strong className="text-foreground">Khối lớp:</strong>{' '}
+            <strong className="text-foreground">{t('assignments.focusGrades')}:</strong>{' '}
             <span className="text-muted-foreground">
-              {gradeNames || 'Chưa được phân'}
+              {gradeNames || t('assignments.focusUnassigned')}
             </span>
           </div>
         </div>
@@ -131,7 +131,7 @@ export function TeacherFocusPanel({
         <div className="pt-2 border-t border-border space-y-2">
           <div className="flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
             <AlertTriangle className="h-3.5 w-3.5" />
-            <span>Vi phạm tiêu chí mềm liên quan ({myViolations.length}):</span>
+            <span>{t('assignments.focusSoftViolations', { count: myViolations.length })}</span>
           </div>
           <div className="space-y-1.5">
             {myViolations.map((v, i) => (

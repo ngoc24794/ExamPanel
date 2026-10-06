@@ -95,4 +95,21 @@ describe('ImportWizardModal Component Tests', () => {
       expect(onSuccess).toHaveBeenCalled()
     })
   })
+
+  // RA-002: the "Đang dạy" column printed the row status ("Mới") instead of Có / Không.
+  it('shows Yes/No (not the row status) in the active column of the teachers preview', async () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ImportWizardModal open={true} onOpenChange={vi.fn()} schoolYearId={1} onSuccess={vi.fn()} />
+      </QueryClientProvider>,
+    )
+    fireEvent.change(screen.getByTestId('import-file-input'), { target: { value: 'test.xlsx' } })
+    fireEvent.click(screen.getByTestId('import-run-preview-btn'))
+    await screen.findByTestId('tab-teachers')
+    const cells = await screen.findAllByTestId('import-row-active')
+    expect(cells.length).toBeGreaterThan(0)
+    for (const cell of cells) {
+      expect(cell.textContent).toMatch(/^(Có|Không|Yes|No)$/)
+    }
+  })
 })

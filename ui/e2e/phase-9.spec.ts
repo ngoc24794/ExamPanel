@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test'
+import { artifactDir } from './artifact-dir'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const screenshotsDir = path.resolve(__dirname, '../../docs/screenshots/phase-9')
-const reportsDir = path.resolve(__dirname, '../../docs/reports/phase-9')
+const screenshotsDir = artifactDir('screenshots', 'phase-9')
+const reportsDir = artifactDir('reports', 'phase-9')
 
 test.beforeAll(() => {
   if (!fs.existsSync(screenshotsDir)) {

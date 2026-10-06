@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/assignments/RunOptimizeDialog.test.tsx (1 test) 266ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  07:27:55
+   Duration  2.14s (transform 302ms, setup 136ms, collect 848ms, tests 266ms, environment 416ms, prepare 204ms)
+

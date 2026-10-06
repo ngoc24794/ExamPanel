@@ -1,0 +1,4 @@
+[D3] D3.auto-backups-rotate-to-10: pass | observed={"files":10,"by_reason":{"pre-import":9,"pre-restore":1}} expected="at most 10 automatic backups"
+[D3] D3.rotation-keeps-the-NEWEST-10: pass | observed={"kept_pre_import":9,"kept_pre_restore":1,"expected":"9 pre-import (newest) + 1 pre-restore","ordering_in_list_backups":["exampanel-backup-pre-import-1791188665.db","exampanel-backup-pre-import-179118 expected="rotation by time"
+[D3] D3.list-backups-newest-first: pass | observed={"first_in_list":"exampanel-backup-pre-import-1791188665.db","truly_newest":"exampanel-backup-pre-import-1791188665.db"} expected="list sorted newest first (UI says so)"
+[D3] D3.same-second-backups-not-overwritten: pass | observed={"files_after_two_back_to_back_restores":2} expected="two restores within one second yield two pre-restore backups"

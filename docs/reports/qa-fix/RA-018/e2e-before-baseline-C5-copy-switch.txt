@@ -1,0 +1,1 @@
+[C5] C5.create-edit-copy-switches-to-copy: fail | observed={"switched":1,"of":10} expected="after \"Tạo bản chỉnh sửa\" the new editable copy is shown (every time)"

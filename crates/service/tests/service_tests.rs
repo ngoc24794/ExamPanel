@@ -395,8 +395,9 @@ fn test_lock_not_held_during_optimize_and_cancellation() {
     let cancelled = service.cancel_optimize();
     assert!(cancelled);
 
+    // A cancelled job must not hand out unfinished plans (RA-011).
     let res = handle.join().expect("thread join");
-    assert!(res.is_ok());
+    assert_eq!(res.expect_err("cancelled run").code, "cancelled");
     assert!(!service.is_optimizing());
 }
 

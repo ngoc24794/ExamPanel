@@ -55,13 +55,24 @@ impl AppService {
 
     /// Initializes a service opening a database at the specified path.
     pub fn open_at<P: AsRef<Path>>(path: P) -> Result<Self, AppError> {
+        let path = path.as_ref();
         let store = Store::open_at(path)?;
+        log::info!(
+            "database opened: {} (schema v{})",
+            path.display(),
+            exam_panel_storage::latest_version()
+        );
         Ok(Self::new(store))
     }
 
     /// Initializes a service opening the default portable/app-data database.
     pub fn open_default() -> Result<Self, AppError> {
         let store = Store::open_default()?;
+        log::info!(
+            "database opened: {} (schema v{})",
+            exam_panel_storage::paths::resolve_database_path().display(),
+            exam_panel_storage::latest_version()
+        );
         let service = Self::new(store);
         service.ensure_default_school_year()?;
         Ok(service)
@@ -885,12 +896,16 @@ impl AppService {
             num_runs: request.runs,
             max_plans: request.k,
             diversity_threshold: request.diversity_threshold.unwrap_or(0.20),
-            cancel: Some(job_cancel),
+            cancel: Some(Arc::clone(&job_cancel)),
             progress: progress_sink,
             initial_assignments: None,
         };
 
         let opt_res = optimize(&problem, &opts)?;
+        // A cancelled run only holds unfinished best-so-far plans: never hand them out (RA-011).
+        if job_cancel.load(std::sync::atomic::Ordering::Relaxed) {
+            return Err(AppError::new("cancelled"));
+        }
         let bounds = lower_bounds(&problem);
 
         let run_params_json = serde_json::json!({
@@ -943,12 +958,31 @@ impl AppService {
         let rules_hash = snapshot.rules_hash();
         let mut batch = Vec::with_capacity(outcome.plans.len());
 
+        // Plans are numbered after the highest number already used in this school year so a new
+        // run (or a re-optimization) never reuses the name of an existing plan (RA-026).
+        let numbering_base = {
+            let store = self
+                .store
+                .lock()
+                .map_err(|_| AppError::new("lock_poisoned"))?;
+            store
+                .list_plans(school_year_id)?
+                .iter()
+                .filter_map(|p| p.name.strip_prefix("Phương án #"))
+                .filter_map(|rest| {
+                    let digits: String = rest.chars().take_while(char::is_ascii_digit).collect();
+                    digits.parse::<usize>().ok()
+                })
+                .max()
+                .unwrap_or(0)
+        };
+
         for rp in outcome.plans {
             let score_json = serde_json::to_string(&rp.report)?;
             let plan = Plan {
                 id: PlanId(0),
                 school_year_id,
-                name: format!("Phương án #{}", rp.rank),
+                name: format!("Phương án #{}", numbering_base + rp.rank),
                 created_at: String::new(),
                 seed: rp.seed,
                 score: Some(rp.report.total),
@@ -1107,7 +1141,9 @@ impl AppService {
             return Err(AppError::new("plan_stale"));
         }
         if !status.hard_violations_now.is_empty() {
-            return Err(AppError::new("plan_invalid"));
+            return Err(
+                AppError::new("plan_invalid").with_param("count", status.hard_violations_now.len())
+            );
         }
         let store = self
             .store
@@ -1216,7 +1252,14 @@ impl AppService {
                 initial_assignments: Some(assignments),
             };
 
-            let opt_res = optimize(&problem, &opt_options)?;
+            let original = opt_options.initial_assignments.clone().unwrap_or_default();
+            let mut opt_res = optimize(&problem, &opt_options)?;
+            if job_cancel.load(std::sync::atomic::Ordering::Relaxed) {
+                return Err(AppError::new("cancelled"));
+            }
+            for ranked in &mut opt_res.plans {
+                restore_kept_setter_positions(&mut ranked.assignments, &keep, &original);
+            }
             let lb = lower_bounds(&problem);
             let run_params_json = serde_json::to_string(&request)?;
 
@@ -1348,7 +1391,15 @@ impl AppService {
             &settings,
             &rule_settings,
         )
-        .map_err(|e| AppError::internal(format!("Lỗi xuất phương án Excel: {e}")))?;
+        .map_err(|e| {
+            log::error!("excel export to {} failed: {e}", target_path.display());
+            AppError::internal(format!("Lỗi xuất phương án Excel: {e}"))
+        })?;
+        log::info!(
+            "plan {} exported to {}",
+            plan_id.value(),
+            target_path.display()
+        );
 
         Ok(())
     }
@@ -1410,9 +1461,11 @@ impl AppService {
             .store
             .lock()
             .map_err(|_| AppError::new("lock_poisoned"))?;
-        store
-            .backup_to(target_path)
-            .map_err(|e| AppError::internal(format!("Lỗi sao lưu cơ sở dữ liệu: {e}")))?;
+        store.backup_to(target_path).map_err(|e| {
+            log::error!("backup to {} failed: {e}", target_path.display());
+            AppError::internal(format!("Lỗi sao lưu cơ sở dữ liệu: {e}"))
+        })?;
+        log::info!("backup created: {}", target_path.display());
         Ok(())
     }
 
@@ -1421,9 +1474,11 @@ impl AppService {
             .store
             .lock()
             .map_err(|_| AppError::new("lock_poisoned"))?;
-        store
-            .restore_from(source_path)
-            .map_err(|e| AppError::internal(format!("Lỗi khôi phục cơ sở dữ liệu: {e}")))?;
+        store.restore_from(source_path).map_err(|e| {
+            log::error!("restore from {} failed: {e}", source_path.display());
+            AppError::internal(format!("Lỗi khôi phục cơ sở dữ liệu: {e}"))
+        })?;
+        log::info!("database restored from {}", source_path.display());
         Ok(())
     }
 
@@ -1463,5 +1518,48 @@ impl AppService {
             .map_err(|_| AppError::new("lock_poisoned"))?;
         let problem = store.load_problem(school_year_id)?;
         Ok(problem)
+    }
+}
+
+/// The annealer re-emits the two setters of a panel in canonical teacher order, so a kept setter
+/// seat ("Đề 1" / "Đề 2") can come back in the sibling's position. Setters are interchangeable for
+/// scoring, so swap the positions back to what the user kept (RA-026).
+fn restore_kept_setter_positions(
+    assignments: &mut [Assignment],
+    keep: &[exam_panel_core::optimize::SlotRef],
+    original: &[Assignment],
+) {
+    use exam_panel_core::domain::Role;
+    for slot in keep.iter().filter(|s| s.role == Role::Setter) {
+        let in_panel = |a: &Assignment| {
+            a.exam_id == slot.exam_id
+                && a.grade_id == slot.grade_id
+                && a.subject_id == slot.subject_id
+                && a.role == Role::Setter
+        };
+        let Some(kept_teacher) = original
+            .iter()
+            .find(|a| in_panel(a) && a.position == slot.position)
+            .map(|a| a.teacher_id)
+        else {
+            continue;
+        };
+        let Some(i) = assignments
+            .iter()
+            .position(|a| in_panel(a) && a.teacher_id == kept_teacher)
+        else {
+            continue;
+        };
+        if assignments[i].position == slot.position {
+            continue;
+        }
+        if let Some(j) = assignments
+            .iter()
+            .position(|a| in_panel(a) && a.position == slot.position)
+        {
+            let old_position = assignments[i].position;
+            assignments[j].position = old_position;
+        }
+        assignments[i].position = slot.position;
     }
 }

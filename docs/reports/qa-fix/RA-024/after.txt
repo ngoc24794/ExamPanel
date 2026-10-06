@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/assignments/PlansHistoryList.test.tsx (2 tests) 70ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  08:16:12
+   Duration  2.03s (transform 302ms, setup 130ms, collect 1.03s, tests 70ms, environment 392ms, prepare 137ms)
+

@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/teachers/ImportWizardModal.test.tsx (3 tests) 317ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  08:25:01
+   Duration  2.09s (transform 311ms, setup 139ms, collect 910ms, tests 317ms, environment 298ms, prepare 183ms)
+

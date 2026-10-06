@@ -1,0 +1,14 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/lib/api/tauri-shell.test.ts (2 tests) 6ms
+ ✓ src/pages/print/PrintPages.test.tsx (4 tests) 403ms
+ ✓ src/lib/api/api.test.ts (13 tests) 4288ms
+   ✓ MockExamPanelApi Contract Tests > streams optimization progress to completion  2006ms
+   ✓ MockExamPanelApi Contract Tests > saves, retrieves, duplicates, renames, marks final, and deletes plans  2008ms
+
+ Test Files  3 passed (3)
+      Tests  19 passed (19)
+   Start at  08:39:39
+   Duration  5.64s (transform 503ms, setup 423ms, collect 1.40s, tests 4.70s, environment 1.32s, prepare 757ms)
+

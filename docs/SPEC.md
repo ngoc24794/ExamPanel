@@ -290,9 +290,12 @@ PRNG seeds guarantee exact, bit-for-bit schedule reproducibility for an identica
 ---
 
 ## 6. Portable Storage Specification
-- **Portable detection:** At startup, ExamPanel checks if the directory containing the running executable is writable.
-  - If writable: Database is stored at `<exe_dir>/data/exam-panel.db`.
-  - If not writable (e.g., system Program Files or read-only volume): Falls back to user application data directory (`%APPDATA%/ExamPanel/data` on Windows, `~/.local/share/ExamPanel/data` on Linux, `~/Library/Application Support/ExamPanel/data` on macOS).
+- **Portable detection (ADR-0050):** Portable mode is **explicit**: it is active only when a marker file named `ExamPanel.portable` sits next to the executable (beside the `.app` bundle on macOS) **and** `<exe_dir>/data` is writable.
+  - Marker present and writable: Database is stored at `<exe_dir>/data/exam-panel.db`.
+  - Marker present but folder read-only: the app tells the user and offers the installed location instead of silently losing data.
+  - No marker (default, also when the folder happens to be writable): installed mode, data lives in the user application data directory (`%APPDATA%\ExamPanel\data` on Windows, `~/.local/share/ExamPanel/data` on Linux, `~/Library/Application Support/ExamPanel/data` on macOS).
+  - Developer/test override: the environment variable `EXAMPANEL_DATA_DIR` forces a data directory (treated as portable). It is not intended for end users.
+  - To move the data between computers, use portable mode (create `ExamPanel.portable`; the portable zip already contains it) or copy `exam-panel.db` / a backup file.
 - **Engine:** SQLite with standard rollback journal mode (`PRAGMA journal_mode = DELETE;`) and enforced foreign keys (`PRAGMA foreign_keys = ON;`), ensuring the entire database remains a single self-contained file suitable for USB and portable execution.
 - **Plan Persistence (Migration 0002):**
   - `rank INTEGER`: Rank order among optimizer outputs (1 for global best).

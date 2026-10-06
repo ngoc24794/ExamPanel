@@ -1,0 +1,6 @@
+    Checking exam-panel-core v0.1.0 (/home/user/ExamPanel/crates/core)
+    Checking exam-panel-storage v0.1.0 (/home/user/ExamPanel/crates/storage)
+    Checking exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Checking exam-panel-app v0.1.0 (/home/user/ExamPanel/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 44.10s
+CLIPPY_APP_EXIT=0

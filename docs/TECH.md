@@ -86,6 +86,8 @@ Running the Full Desktop Application:
 ```bash
 # Launch Tauri desktop app in dev mode (requires platform C++ build tools / linker)
 pnpm tauri dev
+# Optional developer-only commands (seed_demo): release builds never include them
+pnpm tauri dev --features dev-tools
 
 # Build unbundled debug binary
 pnpm tauri build --debug --no-bundle

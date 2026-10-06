@@ -1,4 +1,4 @@
 import { recorder } from '../lib/rec.mjs'; import { OUT_ABS } from '../lib/harness.mjs'; import fs from 'node:fs'; import path from 'node:path';
 const R = recorder('C1'); const t = JSON.parse(fs.readFileSync(path.join(OUT_ABS, 'extracts/C1-threeway.json')));
 R.check('C1.threeway-ui-engine-excel-repo', t.mismatches.length === 0 ? 'pass' : 'fail', t.mismatches, 'no mismatch across UI / IPC engine / Excel Tiêu chí / repo task5_comparison (units tolerance 0.011, penalty 0.06)', ['extracts/C1-threeway.json', 'extracts/repo-tool-task5_comparison.md', 'extracts/C1-q-plan-export.json']);
-R.check('C1.engine-total-260.36-without-S3-116.36', Math.abs(t.totals.engine - 260.3636) < 1e-3 && Math.abs(t.totals.engine - 144 - 116.3636) < 1e-3, { total: t.totals.engine, without_S3: t.totals.engine - 144 }, '260.36 / 116.36', ['extracts/C1-threeway.json']);
+R.check('C1.engine-total-116.36-S3-not-applicable', Math.abs(t.totals.engine - 116.3636) < 1e-3, { total: t.totals.engine }, '116.36 (RA-017: S3 off with one campus; used to be 260.36 incl. 144)', ['extracts/C1-threeway.json']);

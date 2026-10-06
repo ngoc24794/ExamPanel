@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/OverviewPage.test.tsx (3 tests) 144ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  08:32:48
+   Duration  1.89s (transform 372ms, setup 125ms, collect 857ms, tests 144ms, environment 345ms, prepare 138ms)
+

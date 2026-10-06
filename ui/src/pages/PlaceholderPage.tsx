@@ -39,8 +39,7 @@ export const PlaceholderPage: React.FC<PlaceholderPageProps> = ({
         </CardHeader>
         <CardContent>
           <p className="text-xs text-muted-foreground">
-            Các tính năng chuyên sâu của mô-đun này sẽ được phát triển trong các giai đoạn
-            tiếp theo theo kiến trúc dự án.
+            {t('common.placeholderDesc')}
           </p>
         </CardContent>
       </Card>

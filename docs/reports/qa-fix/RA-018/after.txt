@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/AssignmentsPage.race.test.tsx (1 test) 1770ms
+   ✓ AssignmentsPage with a real-shaped (asynchronous) backend > selects the new editable copy and shows the edit toolbar  1768ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  07:37:24
+   Duration  4.91s (transform 772ms, setup 209ms, collect 1.76s, tests 1.77s, environment 495ms, prepare 110ms)
+

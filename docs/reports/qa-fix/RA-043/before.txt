@@ -1,0 +1,85 @@
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.59s
+     Running tests/logging_tests.rs (target/debug/deps/logging_tests-7cb60b58c0716a38)
+
+running 3 tests
+test a_rejected_duplicate_write_is_logged_with_its_error_code ... FAILED
+test backup_and_restore_are_logged ... FAILED
+test opening_a_database_logs_path_and_schema_version ... FAILED
+
+failures:
+
+---- a_rejected_duplicate_write_is_logged_with_its_error_code stdout ----
+
+thread 'a_rejected_duplicate_write_is_logged_with_its_error_code' (14169) panicked at crates/service/tests/logging_tests.rs:59:52:
+index out of bounds: the len is 0 but the index is 0
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic_bounds_check
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:271:5
+   3: <usize as core::slice::index::SliceIndex<[exam_panel_core::domain::entities::SchoolYear]>>::index
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/slice/index.rs:272:10
+   4: <[exam_panel_core::domain::entities::SchoolYear] as core::ops::index::Index<usize>>::index
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/slice/index.rs:19:15
+   5: <alloc::vec::Vec<exam_panel_core::domain::entities::SchoolYear> as core::ops::index::Index<usize>>::index
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/alloc/src/vec/mod.rs:3864:9
+   6: logging_tests::a_rejected_duplicate_write_is_logged_with_its_error_code
+             at ./tests/logging_tests.rs:59:52
+   7: logging_tests::a_rejected_duplicate_write_is_logged_with_its_error_code::{closure#0}
+             at ./tests/logging_tests.rs:56:62
+   8: <logging_tests::a_rejected_duplicate_write_is_logged_with_its_error_code::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   9: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- backup_and_restore_are_logged stdout ----
+
+thread 'backup_and_restore_are_logged' (14170) panicked at crates/service/tests/logging_tests.rs:87:5:
+[]
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: logging_tests::backup_and_restore_are_logged
+             at ./tests/logging_tests.rs:87:5
+   3: logging_tests::backup_and_restore_are_logged::{closure#0}
+             at ./tests/logging_tests.rs:79:35
+   4: <logging_tests::backup_and_restore_are_logged::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- opening_a_database_logs_path_and_schema_version stdout ----
+
+thread 'opening_a_database_logs_path_and_schema_version' (14171) panicked at crates/service/tests/logging_tests.rs:48:5:
+[]
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: logging_tests::opening_a_database_logs_path_and_schema_version
+             at ./tests/logging_tests.rs:48:5
+   3: logging_tests::opening_a_database_logs_path_and_schema_version::{closure#0}
+             at ./tests/logging_tests.rs:42:53
+   4: <logging_tests::opening_a_database_logs_path_and_schema_version::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    a_rejected_duplicate_write_is_logged_with_its_error_code
+    backup_and_restore_are_logged
+    opening_a_database_logs_path_and_schema_version
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+error: test failed, to rerun pass `-p exam-panel-service --test logging_tests`

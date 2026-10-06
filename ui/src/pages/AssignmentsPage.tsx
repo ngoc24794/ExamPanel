@@ -8,6 +8,8 @@ import {
   isTauriEnvironment,
 } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { assignmentsSignature, hasDuplicateTeacherInPanel } from './assignments/planEdit'
 import { getCampusDotColor } from '@/lib/theme/campus-colors'
 import {
   useSchoolYears,
@@ -184,6 +186,14 @@ export function AssignmentsPage() {
 
   // Apply assignment changes with undo/redo recording
   const handleUpdateAssignments = (newAssignments: Assignment[]) => {
+    // A teacher can hold only one seat per panel; the edit could never be saved (RA-020).
+    if (
+      hasDuplicateTeacherInPanel(newAssignments) &&
+      !hasDuplicateTeacherInPanel(currentAssignments)
+    ) {
+      toast.error(t('assignments.swapDuplicateTeacher'))
+      return
+    }
     setUndoStack((prev) => [...prev, currentAssignments])
     setRedoStack([])
     setCurrentAssignments(newAssignments)
@@ -228,11 +238,15 @@ export function AssignmentsPage() {
   // Save changes
   const handleSave = async () => {
     if (!selectedPlanId) return
-    await updateAssignmentsMutation.mutateAsync({
-      id: selectedPlanId,
-      assignments: currentAssignments,
-    })
-    setIsDirty(false)
+    try {
+      await updateAssignmentsMutation.mutateAsync({
+        id: selectedPlanId,
+        assignments: currentAssignments,
+      })
+      setIsDirty(false)
+    } catch {
+      // The mutation already reported the error; stay dirty so nothing is lost.
+    }
   }
 
   const handleDiscard = () => {
@@ -247,7 +261,7 @@ export function AssignmentsPage() {
   // Duplicate optimizer plan into an editable draft
   const handleCreateEditableCopy = async () => {
     if (!activePlan) return
-    const copyName = `${activePlan.name} (Chỉnh sửa)`
+    const copyName = `${activePlan.name} (${t('assignments.editSuffix')})`
     const newId = await duplicateMutation.mutateAsync({
       id: activePlan.id,
       name: copyName,
@@ -323,16 +337,72 @@ export function AssignmentsPage() {
       toast.success(t('export.exportSuccess'))
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      toast.error(`Lỗi xuất Excel: ${msg}`)
+      toast.error(t('export.exportError', { message: msg }))
     }
   }
+
+  // While the plan has unsaved edits, score and hard violations come from the engine for the
+  // EDITED seats, not from the loaded plan (RA-020).
+  const { data: liveEvaluation } = useQuery({
+    queryKey: [
+      'liveEvaluation',
+      schoolYearId,
+      selectedPlanId,
+      assignmentsSignature(currentAssignments),
+    ],
+    queryFn: () => api.evaluateAssignments(schoolYearId, currentAssignments),
+    enabled: isDirty && selectedPlanId !== null,
+    placeholderData: keepPreviousData,
+    staleTime: Infinity,
+  })
+  const liveActive = isDirty && liveEvaluation !== undefined
 
   const activePlanDetails: PlanDetails | null = loadedPlanDetails
     ? {
         ...loadedPlanDetails,
         assignments: currentAssignments,
+        score_report: liveActive
+          ? liveEvaluation.score_report
+          : loadedPlanDetails.score_report,
       }
     : null
+  const effectivePlanStatus =
+    planStatus && liveActive
+      ? {
+          ...planStatus,
+          hard_violations_now: liveEvaluation.hard_violations,
+          score_now: liveEvaluation.score_report,
+        }
+      : (planStatus ?? null)
+
+  const keptBanner =
+    keptSlots.length > 0 ? (
+      <div
+        className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs space-y-2"
+        data-testid="kept-slots-banner"
+      >
+        <div className="flex items-center justify-between font-semibold text-amber-700 dark:text-amber-300">
+          <span>{t('assignments.keptBanner', { count: keptSlots.length })}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 text-[10px] px-1 text-muted-foreground"
+            onClick={() => setKeptSlots([])}
+          >
+            {t('assignments.clearKept')}
+          </Button>
+        </div>
+        <Button
+          size="sm"
+          onClick={() => setShowReoptimizeDialog(true)}
+          className="w-full text-xs gap-1.5 bg-amber-600 hover:bg-amber-700 text-white"
+          data-testid="reoptimize-kept-button"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          <span>{t('assignments.reoptimizeRest')}</span>
+        </Button>
+      </div>
+    ) : null
 
   return (
     <div className="space-y-6" data-testid="assignments-page">
@@ -384,7 +454,7 @@ export function AssignmentsPage() {
             data-testid="import-plan-button"
           >
             <FileUp className="h-4 w-4" />
-            {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+            {t('planImport.buttonTitle')}
           </Button>
 
           {/* Plans History Toggle */}
@@ -411,7 +481,7 @@ export function AssignmentsPage() {
               }`}
               data-testid="view-toggle-grid"
             >
-              {t('assignments.viewModeGrid') || 'Bảng tổ'}
+              {t('assignments.viewModeGrid')}
             </button>
             <button
               type="button"
@@ -423,7 +493,7 @@ export function AssignmentsPage() {
               }`}
               data-testid="view-toggle-detail"
             >
-              {t('assignments.viewModeDetail') || 'Chi tiết'}
+              {t('assignments.viewModeDetail')}
             </button>
           </div>
         </div>
@@ -437,8 +507,8 @@ export function AssignmentsPage() {
               <History className="h-4 w-4 text-primary" />
               <span>{t('assignments.history')}</span>
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}>
-              Đóng
+                        <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}>
+              {t('common.close')}
             </Button>
           </div>
           <PlansHistoryList
@@ -469,7 +539,7 @@ export function AssignmentsPage() {
               data-testid="empty-import-plan-button"
             >
               <FileUp className="h-4 w-4" />
-              {t('planImport.buttonTitle') || 'Nhập từ bảng có sẵn'}
+              {t('planImport.buttonTitle')}
             </Button>
           </div>
         </div>
@@ -638,24 +708,27 @@ export function AssignmentsPage() {
           {/* Conditional View: Q-Style Grid (Bảng tổ) vs Detailed Matrix (Chi tiết) */}
           {viewMode === 'grid' ? (
             activePlanDetails && (
-              <QPlanGrid
-                planDetails={activePlanDetails}
-                planStatus={planStatus ?? null}
-                exams={exams}
-                grades={grades}
-                subjects={subjects}
-                teachers={teachers}
-                campuses={campuses}
-                locks={locks}
-                isEditable={isEditable}
-                focusedTeacherId={focusedTeacherId}
-                keptSlots={keptSlots}
-                onSelectTeacherFocus={setFocusedTeacherId}
-                onToggleKeepSlot={handleToggleKeepSlot}
-                onReoptimizeRemaining={() => setShowReoptimizeDialog(true)}
-                onUpdateAssignments={handleUpdateAssignments}
-                onCreateLock={handleCreateLock}
-              />
+              <>
+                {keptBanner}
+                <QPlanGrid
+                  planDetails={activePlanDetails}
+                  planStatus={effectivePlanStatus}
+                  exams={exams}
+                  grades={grades}
+                  subjects={subjects}
+                  teachers={teachers}
+                  campuses={campuses}
+                  locks={locks}
+                  isEditable={isEditable}
+                  focusedTeacherId={focusedTeacherId}
+                  keptSlots={keptSlots}
+                  onSelectTeacherFocus={setFocusedTeacherId}
+                  onToggleKeepSlot={handleToggleKeepSlot}
+                  onReoptimizeRemaining={() => setShowReoptimizeDialog(true)}
+                  onUpdateAssignments={handleUpdateAssignments}
+                  onCreateLock={handleCreateLock}
+                />
+              </>
             )
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -664,7 +737,7 @@ export function AssignmentsPage() {
                 {activePlanDetails && (
                   <PlanMatrixView
                     planDetails={activePlanDetails}
-                    planStatus={planStatus ?? null}
+                    planStatus={effectivePlanStatus}
                     exams={exams}
                     grades={grades}
                     subjects={subjects}
@@ -699,14 +772,13 @@ export function AssignmentsPage() {
                 ) : (
                   <div className="p-4 rounded-lg border border-border bg-card shadow-sm space-y-3 text-xs">
                     <h4 className="font-semibold text-foreground text-sm flex items-center gap-1.5">
-                      <span>Danh sách giáo viên</span>
+                      <span>{t('assignments.teacherList')}</span>
                       <Badge variant="outline" className="text-xs">
                         {teachers.length}
                       </Badge>
                     </h4>
                     <p className="text-muted-foreground">
-                      Nhấp vào tên giáo viên để xem chi tiết tải trọng và các vị trí được
-                      phân công trên ma trận.
+                      {t('assignments.teacherListHint')}
                     </p>
                     <div className="max-h-[500px] overflow-y-auto space-y-1 pr-1">
                       {teachers.map((twg) => {
@@ -734,7 +806,7 @@ export function AssignmentsPage() {
                               </span>
                             </div>
                             <Badge variant="secondary" className="text-[10px]">
-                              {count} lượt
+                              {t('assignments.dutiesCount', { count })}
                             </Badge>
                           </div>
                         )
@@ -743,31 +815,7 @@ export function AssignmentsPage() {
                   </div>
                 )}
 
-                {/* Kept Slots Banner for B3 */}
-                {keptSlots.length > 0 && (
-                  <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs space-y-2">
-                    <div className="flex items-center justify-between font-semibold text-amber-700 dark:text-amber-300">
-                      <span>Đã chọn giữ: {keptSlots.length} ô</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 text-[10px] px-1 text-muted-foreground"
-                        onClick={() => setKeptSlots([])}
-                      >
-                        Bỏ chọn tất cả
-                      </Button>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => setShowReoptimizeDialog(true)}
-                      className="w-full text-xs gap-1.5 bg-amber-600 hover:bg-amber-700 text-white"
-                      data-testid="reoptimize-kept-button"
-                    >
-                      <RefreshCw className="h-3.5 w-3.5" />
-                      <span>{t('assignments.reoptimizeRest')}</span>
-                    </Button>
-                  </div>
-                )}
+                {keptBanner}
               </div>
             </div>
           )}
@@ -779,10 +827,11 @@ export function AssignmentsPage() {
         open={showRunDialog}
         onOpenChange={setShowRunDialog}
         schoolYearId={schoolYearId}
-        onSuccess={(newIds) => {
+        onSuccess={async (newIds) => {
           if (newIds.length > 0) {
+            // Select only once the list contains the new plans (see RA-018).
+            await refetchPlans()
             setSelectedPlanId(newIds[0])
-            refetchPlans()
           }
         }}
         onOpenFeasibility={() => setShowFeasibilitySheet(true)}
@@ -796,6 +845,7 @@ export function AssignmentsPage() {
         initialPlanAId={selectedPlanId ?? undefined}
         exams={exams}
         grades={grades}
+        subjects={subjects}
         teachers={teachers}
         campuses={campuses}
       />
@@ -808,10 +858,10 @@ export function AssignmentsPage() {
           planId={selectedPlanId}
           schoolYearId={schoolYearId}
           keptSlots={keptSlots}
-          onSuccess={(newIds) => {
+          onSuccess={async (newIds) => {
             if (newIds.length > 0) {
+              await refetchPlans()
               setSelectedPlanId(newIds[0])
-              refetchPlans()
             }
           }}
         />

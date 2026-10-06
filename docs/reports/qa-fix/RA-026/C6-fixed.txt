@@ -1,0 +1,6 @@
+[C6] C6.grid-view-feedback-for-kept-seats: pass | observed={"banner_in_grid_view":true,"bookmark_icons_in_cells":5} expected="phase-8 step 9: banner \"Đã chọn giữ: N ô\" (appears only in Chi tiết view)"
+[C6] C6.detail-view-banner-shows-kept-count: pass | observed="Đã chọn giữ: 5 ô" expected="Đã chọn giữ: 5 ô"
+[C6] C6.new-plan-created: pass | observed=[{"id":5,"name":"Phương án #4","source":"optimizer","score":194.36363636363637}] expected="at least one new plan"
+[C6] C6.kept-seats-unchanged: pass | observed=[{"plan":5,"kept_seats_lost":[],"kept_at_same_position":5,"of":5,"seats_changed_elsewhere":33}] expected="every kept seat still held by the same teacher in the same panel/role"
+[C6] C6.kept-seats-same-position: pass | observed=[{"plan":5,"kept_seats_lost":[],"kept_at_same_position":5,"of":5,"seats_changed_elsewhere":33}] expected="kept setter seats keep their slot position (Đề 1 / Đề 2)"
+[C6] C6.rest-was-reoptimised: pass | observed=[{"plan":5,"kept_seats_lost":[],"kept_at_same_position":5,"of":5,"seats_changed_elsewhere":33}] expected="other seats actually change (source plan already at LB so may legitimately stay): informational"

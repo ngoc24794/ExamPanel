@@ -1,0 +1,141 @@
+commit 67a1a261aef0686fff6084c7cc4c7cc1491ad46c
+Author: Claude <noreply@anthropic.com>
+Date:   Mon Oct 5 08:43:02 2026 +0000
+
+    docs: align checklists and DB file name with the product (RA-006, RA-038)
+    
+    Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_013VEQkQLJAdKCkQQkUBTXoW
+
+diff --git a/docs/qa/phase-12-checklist.md b/docs/qa/phase-12-checklist.md
+index 448ea46..9dacef1 100644
+--- a/docs/qa/phase-12-checklist.md
++++ b/docs/qa/phase-12-checklist.md
+@@ -53,7 +53,7 @@ Tài liệu này cung cấp các kịch bản kiểm thử toàn diện trên 
+      - Tất cả các vị trí được phân công của giáo viên đó trên lưới sáng đồng thời.
+      - Tooltip hiển thị: Số lượt/Chỉ tiêu, danh sách vai trò và các kỳ thi tham gia.
+   6. Thử chỉnh sửa trên lưới:
+-     - Bấm hoặc ấn `Enter` vào một ô: Hộp thoại chọn ứng viên hiện ra, sắp xếp theo độ chênh điểm số ($\Delta$ score), các ứng viên vi phạm bị vô hiệu hóa kèm lý do rõ ràng.
++     - Bấm, hoặc dùng phím mũi tên để di chuyển giữa các ô (chỉ có một điểm dừng Tab cho cả bảng) rồi ấn `Enter` / `Space` vào một ô (phím `m` hoặc `Shift+F10` chuyển tiêu điểm tới menu ba chấm của ô): Hộp thoại chọn ứng viên hiện ra, sắp xếp theo độ chênh điểm số ($\Delta$ score), các ứng viên vi phạm bị vô hiệu hóa kèm lý do rõ ràng.
+      - Kéo thả để hoán đổi 2 vị trí (Drag-to-swap).
+      - Phím tắt Hoàn tác (`Ctrl+Z`) và Làm lại (`Ctrl+Y`).
+      - Bấm chuột phải mở menu ngữ cảnh: Ghim vị trí (Pin), Cấm vị trí (Forbid).
+diff --git a/docs/qa/phase-8-checklist.md b/docs/qa/phase-8-checklist.md
+index 599077f..2dd112c 100644
+--- a/docs/qa/phase-8-checklist.md
++++ b/docs/qa/phase-8-checklist.md
+@@ -47,7 +47,7 @@ Tài liệu này cung cấp các bước kiểm thử tuần tự trên ứng d
+ ### Bước 4: Nhân bản để chỉnh sửa thủ công (Duplicate & Edit)
+ - **Thao tác:**
+   1. Trên thanh thông tin phương án của một phương án máy tạo (`optimizer`), nhấp nút **Tạo bản chỉnh sửa**.
+-  2. Nhập tên phương án mới, ví dụ: "Bản chỉnh sửa số 1", bấm **Tạo bản sao**.
++  2. Không có hộp thoại đặt tên: bản sao được tạo ngay với tên `<tên phương án gốc> (Chỉnh sửa)` và tự động được chọn.
+ - **Kết quả mong đợi:**
+   - Bản sao được tạo với nguồn gốc `duplicate`.
+   - Chế độ chỉnh sửa được kích hoạt: xuất hiện các nút **Hoàn tác (Undo)**, **Làm lại (Redo)**, **Hủy thay đổi (Discard)** và **Lưu (Save)**.
+@@ -90,7 +90,7 @@ Tài liệu này cung cấp các bước kiểm thử tuần tự trên ứng d
+ ### Bước 9: Giữ ô và Tối ưu lại phần còn lại (Re-optimize Around Kept Slots)
+ - **Thao tác:**
+   1. Mở menu tại 2 ô phân công hài lòng và chọn **Giữ ô này khi tối ưu lại**.
+-  2. Bảng thông báo xuất hiện: "Đã chọn giữ: 2 ô".
++  2. Biểu ngữ "Đã chọn giữ: 2 ô" xuất hiện phía trên bảng (cả ở chế độ Bảng tổ lẫn Chi tiết).
+   3. Bấm **Tối ưu lại phần còn lại**.
+   4. Chọn số phương án và bấm **Bắt đầu**.
+ - **Kết quả mong đợi:**
+diff --git a/docs/qa/phase-9-checklist.md b/docs/qa/phase-9-checklist.md
+index 4c69c00..4422718 100644
+--- a/docs/qa/phase-9-checklist.md
++++ b/docs/qa/phase-9-checklist.md
+@@ -30,7 +30,7 @@ Tài liệu này cung cấp các bước kiểm thử tuần tự trên ứng d
+   3. Chọn thư mục lưu tệp `mau-nhap-du-lieu.xlsx` trong hộp thoại lưu file của hệ điều hành.
+   4. Mở tệp vừa tải bằng Microsoft Excel.
+ - **Kết quả mong đợi:**
+-  - Tệp có 4 trang tính: "Hướng dẫn", "Phân hiệu", "Giáo viên", "Lịch vắng".
++  - Tệp có 6 trang tính: "Hướng dẫn", "Phân hiệu", "Giáo viên", "Lịch vắng", "Môn", "Môn đảm nhiệm".
+   - Dòng tiêu đề được cố định (freeze panes) và định dạng đậm.
+   - Các cột có Data Validation danh sách thả xuống: Mã phân hiệu, Khối dạy, Hệ số tải (0, 0.25, 0.5, 0.75, 1), Đang dạy (Có, Không), Mã kỳ thi (GK1, CK1, GK2, CK2).
+ 
+@@ -105,7 +105,7 @@ Tài liệu này cung cấp các bước kiểm thử tuần tự trên ứng d
+   1. Vào menu **Cài đặt** (`/settings`).
+   2. Cuộn tới phần **Sao lưu & Phục hồi dữ liệu**.
+   3. Bấm nút **Sao lưu ngay**.
+-  4. Chọn vị trí lưu tệp (tên mặc định dạng `exampanel-backup-YYYYMMDD-HHmm.db`).
++  4. Chọn vị trí lưu tệp (tên mặc định dạng `exampanel-backup-<mốc thời gian>.db`).
+ - **Kết quả mong đợi:**
+   - Quá trình SQLite Online Backup API diễn ra an toàn không khóa giao dịch đọc.
+   - Thông báo thành công hiển thị.
+diff --git a/docs/release/v0.1.0-checklist.md b/docs/release/v0.1.0-checklist.md
+index 2509d53..b8ce473 100644
+--- a/docs/release/v0.1.0-checklist.md
++++ b/docs/release/v0.1.0-checklist.md
+@@ -16,7 +16,7 @@ Tài liệu này dùng cho kỹ thuật viên hoặc chuyên viên kiểm thử
+ - [ ] Xác nhận có tệp đánh dấu `ExamPanel.portable`, tệp `DOC-TOI.txt`, `THIRD_PARTY_NOTICES`, và `ExamPanel-HuongDan-0.1.0.pdf`.
+ - [ ] Khởi chạy `ExamPanel.exe` từ USB:
+   - [ ] Màn hình khởi động xuất hiện nhanh chóng (< 1.5 giây).
+-  - [ ] Thư mục `data/` được tạo tự động ngay cạnh `ExamPanel.exe` trên USB (chứa `exampanel.db`, `logs/`, `backups/`).
++  - [ ] Thư mục `data/` được tạo tự động ngay cạnh `ExamPanel.exe` trên USB (chứa `exam-panel.db`, `logs/`, `backups/`).
+   - [ ] Kiểm tra trường hợp USB bị khóa chống ghi (Read-only):
+     - [ ] Hộp thoại cảnh báo tiếng Việt hiển thị rõ ràng với 2 lựa chọn (Chuyển sang %APPDATA% hoặc Thoát).
+     - [ ] Chọn chuyển %APPDATA% hoạt động trơn tru.
+@@ -30,7 +30,7 @@ Tài liệu này dùng cho kỹ thuật viên hoặc chuyên viên kiểm thử
+ - [ ] Hoàn tất cài đặt:
+   - [ ] Biểu tượng ExamPanel mới (icon vector chuẩn) xuất hiện trên Desktop và Start Menu.
+   - [ ] Khởi chạy từ Start Menu hoạt động hoàn hảo.
+-  - [ ] Thư mục dữ liệu được tạo tại `%APPDATA%\com.exampanel.desktop\`.
++  - [ ] Thư mục dữ liệu được tạo tại `%APPDATA%\ExamPanel\data\` (tệp `exam-panel.db`).
+ - [ ] Gỡ cài đặt (Uninstall):
+   - [ ] Tùy chọn giữ lại dữ liệu người dùng hoạt động chính xác.
+ 
+@@ -43,7 +43,7 @@ Tài liệu này dùng cho kỹ thuật viên hoặc chuyên viên kiểm thử
+   - [ ] Kiểm tra bảng thông báo xác thực và tóm tắt số liệu.
+ - [ ] **Quy tắc & Tiêu chí:**
+   - [ ] Đổi bộ cấu hình (Preset) sang "Ưu tiên phân hiệu" hoặc "Cân bằng toàn diện".
+-  - [ ] Thêm 1 cặp giáo viên tránh làm chung (Avoid Pair).
++  - [ ] Điều chỉnh trọng số tiêu chí mềm S4 (Đa dạng cặp ra đề) và lưu cấu hình. (Không có tính năng "cặp tránh làm chung" riêng; việc tránh lặp cặp do tiêu chí S4 đảm nhiệm.)
+ - [ ] **Tạo phân công & Giải thuật:**
+   - [ ] Nhấn nút tạo phân công. Giải thuật hoàn tất trong vài giây.
+   - [ ] Ma trận phân công hiển thị trực quan, phân biệt rõ Ra đề và Phản biện.
+@@ -51,12 +51,12 @@ Tài liệu này dùng cho kỹ thuật viên hoặc chuyên viên kiểm thử
+ - [ ] **Chỉnh sửa thủ công & Chốt:**
+   - [ ] Kéo thả hoặc đổi vị trí 2 giáo viên. Xác nhận hệ thống tính toán lại vi phạm và cảnh báo tức thì.
+   - [ ] Khóa (Lock) 1 ô phân công.
+-  - [ ] Nhấn "Chốt phương án" (Finalize). Trạng thái phương án chuyển sang "Chính thức".
++  - [ ] Nhấn "Đánh dấu chính thức". Trạng thái phương án chuyển sang "Chính thức" (nút bị chặn khi dữ liệu đã đổi hoặc còn vi phạm bắt buộc).
+ 
+ ---
+ 
+ ## 4. Xuất Báo Cáo & In Ấn (Export & Print)
+-- [ ] **Xuất Excel:** Mở tệp `.xlsx` vừa xuất; kiểm tra cả 2 sheet `MA_TRAN` và `TONG_HOP`.
++- [ ] **Xuất Excel:** Mở tệp `.xlsx` vừa xuất; kiểm tra 5 sheet: `Bảng phân công (mẫu tổ)`, `Phân công`, `Theo giáo viên`, `Thống kê`, `Tiêu chí`.
+ - [ ] **In bảng phân công A4:**
+   - [ ] Khi chưa chốt: có watermark "BẢN NHÁP".
+   - [ ] Khi đã chốt: chữ watermark biến mất; quốc hiệu, tên trường và chân trang hiển thị chuẩn mực.
+@@ -78,7 +78,7 @@ Tài liệu này dùng cho kỹ thuật viên hoặc chuyên viên kiểm thử
+ ## 6. Chế Độ Dùng Thử (Trial Mode Sandbox)
+ - [ ] Bật "Dùng thử với dữ liệu mẫu":
+   - [ ] Dải biểu ngữ màu hổ phách xuất hiện.
+-  - [ ] Dữ liệu mẫu (18 giáo viên, 2 phân hiệu) xuất hiện.
++  - [ ] Dữ liệu mẫu (12 giáo viên theo mẫu của tổ, 4 phân hiệu) xuất hiện.
+   - [ ] Chỉnh sửa hoặc xóa tùy ý trong chế độ dùng thử.
+ - [ ] Thoát chế độ dùng thử:
+   - [ ] Quay lại dữ liệu trường; xác nhận dữ liệu gốc không bị ảnh hưởng hay thay đổi gì.
+@@ -86,7 +86,7 @@ Tài liệu này dùng cho kỹ thuật viên hoặc chuyên viên kiểm thử
+ ---
+ 
+ ## 7. Nâng Cấp Từ Cơ Sở Dữ Liệu Phase 9 (Upgrade Path)
+-- [ ] Chép tệp `exampanel.db` từ phiên bản Phase 9 vào thư mục dữ liệu của bản v0.1.0.
++- [ ] Chép tệp `exam-panel.db` từ phiên bản Phase 9 vào thư mục dữ liệu của bản v0.1.0.
+ - [ ] Khởi chạy ứng dụng:
+   - [ ] Migration tự động chạy thành công, không báo lỗi.
+   - [ ] Toàn bộ năm học và phương án cũ hiển thị nguyên vẹn.
+diff --git a/docs/user-guide/vi/08-che-do-dung-thu.md b/docs/user-guide/vi/08-che-do-dung-thu.md
+index 98473b3..b2af94c 100644
+--- a/docs/user-guide/vi/08-che-do-dung-thu.md
++++ b/docs/user-guide/vi/08-che-do-dung-thu.md
+@@ -30,5 +30,5 @@ Khi kích hoạt chế độ dùng thử, hệ thống tự động khởi tạo
+ 
+ Khi Thầy/Cô đã trải nghiệm xong và muốn quay trở lại làm việc với dữ liệu thật của trường:
+ 1. Nhấp trực tiếp vào nút **Thoát chế độ dùng thử** ngay trên dải biểu ngữ đầu trang (hoặc vào **Cài đặt** ➔ chọn **Quay lại dữ liệu thật**).
+-2. Hệ thống tự động chuyển kết nối trở lại tệp dữ liệu chính của nhà trường (`exampanel.db`).
++2. Hệ thống tự động chuyển kết nối trở lại tệp dữ liệu chính của nhà trường (`exam-panel.db`).
+ 3. Toàn bộ màn hình làm việc sẽ được nạp lại tức thì với dữ liệu phân công thực tế.

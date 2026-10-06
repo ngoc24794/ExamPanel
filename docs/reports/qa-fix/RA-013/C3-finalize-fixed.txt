@@ -1,0 +1,5 @@
+[C3] C3.distance-equals-true-seat-difference: pass | observed={"ui":39,"subject_aware":39,"subject_blind":36} expected="distance = number of seats whose teacher differs (39 subject-aware)"
+[C3] C3.matrix-shows-both-subjects-reviewers: pass | observed={"A_cell_GK1_10":"Giữa kỳ 1\t\nVL\nA: Cô Hiền, Cô Lài | PB: Thầy Phúc\nB: Cô Như, Cô Na | PB: Cô Tú\nCN\nA: Thầy Nghĩa | PB: Cô Hiền"} expected="cell shows VL reviewer (T Phúc) and CN reviewer (C Hiền); Q GK1/10 VL [C Hiền, C Lài | T Phúc] CN [T Nghĩa | C Hiền]"
+[C3] C3.per-rule-differences-match-engine: pass | observed={"ui_lines":10,"engine_A":{"s1":10,"s2":3,"s3":144,"s4":0,"s5":6,"s6":16,"s7":0,"s8":36.36363636363636,"s9":45,"s10":0},"engine_B":{"s1":0,"s2":0,"s3":144,"s4":0,"s5":6,"s6":6,"s7":0,"s8":20.363636363 expected="UI per-rule A→B equals engine penalties (1-decimal rounding in UI)"
+[C3] C3.per-teacher-differences: not-verified | observed="Compare dialog has no per-teacher section (only matrix, per-rule table, distance)" expected="per-teacher differences (task C3 wording)"
+[C3] C3.total-diff: pass | observed="Chênh lệch (B - A): -84.00" expected="-84.00 (176.36-260.36)"

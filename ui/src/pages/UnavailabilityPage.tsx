@@ -44,8 +44,7 @@ import {
   useDeleteUnavailability,
   useFeasibility,
 } from '@/lib/query/hooks'
-import { toast } from 'sonner'
-import { getErrorMessage } from '@/lib/query/query-client'
+import { reportError } from '@/lib/query/query-client'
 import type { Exam, TeacherWithGrades, Unavailability } from '@/lib/api'
 
 export const UnavailabilityPage: React.FC = () => {
@@ -147,7 +146,7 @@ export const UnavailabilityPage: React.FC = () => {
         })
       }
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -177,7 +176,7 @@ export const UnavailabilityPage: React.FC = () => {
       })
       setReasonDialogOpen(false)
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -194,7 +193,7 @@ export const UnavailabilityPage: React.FC = () => {
         }
       }
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -206,7 +205,7 @@ export const UnavailabilityPage: React.FC = () => {
         }
       }
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -317,7 +316,7 @@ export const UnavailabilityPage: React.FC = () => {
                             className="h-7 text-[11px] text-muted-foreground hover:text-foreground px-2"
                             data-testid={`bulk-actions-${teacher.id}`}
                           >
-                            <span>Thao tác</span>
+                            <span>{t('common.actions')}</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="text-xs">

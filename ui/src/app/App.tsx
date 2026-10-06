@@ -28,7 +28,7 @@ import {
   Award,
 } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
-import { queryClient, getErrorMessage } from '@/lib/query/query-client'
+import { queryClient, reportError } from '@/lib/query/query-client'
 import { Toaster } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/lib/theme/ThemeToggle'
@@ -140,7 +140,7 @@ function AppLayout() {
       window.dispatchEvent(new CustomEvent('exampanel:restore'))
       toast.success(t('trial.exited_toast'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -185,7 +185,7 @@ function AppLayout() {
                   ExamPanel
                 </span>
                 <span className="text-[10px] text-muted-foreground truncate">
-                  Phân công ra đề
+                  {t('app.subtitle')}
                 </span>
               </div>
             )}

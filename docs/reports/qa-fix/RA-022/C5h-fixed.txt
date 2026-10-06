@@ -1,0 +1,89 @@
+{
+ "before": [
+  {
+   "id": "plan-item-2",
+   "stale": false
+  },
+  {
+   "id": "plan-item-3",
+   "stale": false
+  },
+  {
+   "id": "plan-item-4",
+   "stale": false
+  },
+  {
+   "id": "plan-item-1",
+   "stale": false
+  }
+ ],
+ "plan_status_keys": [
+  "score_now",
+  "rules_changed",
+  "data_changed",
+  "hard_violations_now"
+ ],
+ "list_plans_is_stale": [
+  [
+   2,
+   true
+  ],
+  [
+   3,
+   true
+  ],
+  [
+   4,
+   true
+  ],
+  [
+   1,
+   true
+  ]
+ ],
+ "banner_text": [
+  "Dữ liệu đã đổi"
+ ],
+ "after_spa_nav": [
+  {
+   "id": "plan-item-2",
+   "stale": true
+  },
+  {
+   "id": "plan-item-3",
+   "stale": true
+  },
+  {
+   "id": "plan-item-4",
+   "stale": true
+  },
+  {
+   "id": "plan-item-1",
+   "stale": true
+  }
+ ],
+ "banner_after_reload": [
+  "Dữ liệu đã đổi"
+ ],
+ "after_reload": [
+  {
+   "id": "plan-item-2",
+   "stale": true
+  },
+  {
+   "id": "plan-item-3",
+   "stale": true
+  },
+  {
+   "id": "plan-item-4",
+   "stale": true
+  },
+  {
+   "id": "plan-item-1",
+   "stale": true
+  }
+ ]
+}
+[C5] C5.stale-flag-from-backend: pass | observed=[[2,true],[3,true],[4,true],[1,true]] expected="list_plans reports is_stale=true after unavailability change"
+[C5] C5.stale-badge-visible-after-spa-navigation: pass | observed=[{"id":"plan-item-2","stale":true},{"id":"plan-item-3","stale":true},{"id":"plan-item-4","stale":true},{"id":"plan-item-1","stale":true}] expected="badge \"Dữ liệu đã đổi\" visible after returning to Phân công"
+[C5] C5.stale-badge-visible-after-reload: pass | observed=[{"id":"plan-item-2","stale":true},{"id":"plan-item-3","stale":true},{"id":"plan-item-4","stale":true},{"id":"plan-item-1","stale":true}] expected="badge visible after reload"

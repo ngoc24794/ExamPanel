@@ -1,0 +1,1 @@
+[C2] C2.real-cancel-saves-partial-plans(finding): fail | observed={"plans_saved":3,"rows":[{"id":1,"score":176.36363636363637},{"id":2,"score":176.36363636363637},{"id":3,"score":312.3636363636364}],"first_toasts":[{"t":82,"toasts":["Đã hủy tiến trình tối ưu | "],"d expected="expected 0 plans after Cancel (phase-8 checklist step 2; task C2)"

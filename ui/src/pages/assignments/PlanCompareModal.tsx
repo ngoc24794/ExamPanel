@@ -6,6 +6,7 @@ import {
   type Grade,
   type PlanDetails,
   type PlanSummary,
+  type Subject,
   type TeacherWithGrades,
   api,
 } from '@/lib/api'
@@ -25,6 +26,7 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { GitCompare } from 'lucide-react'
+import { comparePlans, panelKey, panelMembers } from './planCompare'
 
 interface PlanCompareModalProps {
   open: boolean
@@ -34,6 +36,7 @@ interface PlanCompareModalProps {
   initialPlanBId?: number
   exams: Exam[]
   grades: Grade[]
+  subjects: Subject[]
   teachers: TeacherWithGrades[]
   campuses?: Campus[]
 }
@@ -46,6 +49,7 @@ export function PlanCompareModal({
   initialPlanBId,
   exams,
   grades,
+  subjects,
   teachers,
 }: PlanCompareModalProps) {
   const { t } = useTranslation()
@@ -70,62 +74,20 @@ export function PlanCompareModal({
       .catch(() => {})
   }, [open, planAId, planBId])
 
-  // Compute distance and difference map
+  // Compute distance and difference map per (exam, grade, subject) panel (RA-013).
   const comparison = React.useMemo(() => {
     if (!detailsA || !detailsB) return null
+    return comparePlans(
+      detailsA.assignments,
+      detailsB.assignments,
+      exams,
+      grades,
+      subjects,
+    )
+  }, [detailsA, detailsB, exams, grades, subjects])
 
-    const mapA = new Map<string, number>()
-    detailsA.assignments.forEach((a) => {
-      // Find role position
-      const key = `${a.exam_id}_${a.grade_id}_${a.role}_${a.teacher_id}`
-      mapA.set(key, a.teacher_id)
-    })
-
-    // Compare slot by slot (exam x grade x role x position)
-    let distance = 0
-    const diffSlots = new Set<string>()
-
-    for (const exam of exams) {
-      for (const grade of grades) {
-        const assignA = detailsA.assignments.filter(
-          (a) => a.exam_id === exam.id && a.grade_id === grade.id,
-        )
-        const assignB = detailsB.assignments.filter(
-          (a) => a.exam_id === exam.id && a.grade_id === grade.id,
-        )
-
-        // Compare setters
-        const settersA = assignA
-          .filter((a) => a.role === 'setter')
-          .map((a) => a.teacher_id)
-          .sort()
-        const settersB = assignB
-          .filter((a) => a.role === 'setter')
-          .map((a) => a.teacher_id)
-          .sort()
-        const reviewerA = assignA.find((a) => a.role === 'reviewer')?.teacher_id
-        const reviewerB = assignB.find((a) => a.role === 'reviewer')?.teacher_id
-
-        let panelDiff = false
-        if (reviewerA !== reviewerB) {
-          distance += 1
-          panelDiff = true
-        }
-        for (let i = 0; i < Math.max(settersA.length, settersB.length); i++) {
-          if (settersA[i] !== settersB[i]) {
-            distance += 1
-            panelDiff = true
-          }
-        }
-
-        if (panelDiff) {
-          diffSlots.add(`${exam.id}_${grade.id}`)
-        }
-      }
-    }
-
-    return { distance, diffSlots }
-  }, [detailsA, detailsB, exams, grades])
+  const teacherName = (id: number | undefined) =>
+    teachers.find((tw) => tw.teacher.id === id)?.teacher.full_name ?? ''
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -138,9 +100,7 @@ export function PlanCompareModal({
             <GitCompare className="h-5 w-5 text-primary" />
             <span>{t('assignments.compareTitle')}</span>
           </DialogTitle>
-          <DialogDescription>
-            So sánh chi tiết phân công, điểm số và khác biệt giữa 2 phương án
-          </DialogDescription>
+          <DialogDescription>{t('assignments.compareDescription')}</DialogDescription>
         </DialogHeader>
 
         {/* Plan Selectors */}
@@ -154,12 +114,16 @@ export function PlanCompareModal({
               onValueChange={(val) => setPlanAId(parseInt(val, 10))}
             >
               <SelectTrigger className="w-full text-xs">
-                <SelectValue placeholder="Chọn phương án A" />
+                <SelectValue placeholder={t('assignments.comparePickA')} />
               </SelectTrigger>
               <SelectContent className="bg-card border-border">
                 {plans.map((p) => (
                   <SelectItem key={p.id} value={p.id.toString()} className="text-xs">
-                    {p.name} (Điểm: {p.score?.toFixed(1) ?? '--'})
+                    {p.name} (
+                    {t('assignments.compareScoreShort', {
+                      score: p.score?.toFixed(1) ?? '--',
+                    })}
+                    )
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -175,12 +139,16 @@ export function PlanCompareModal({
               onValueChange={(val) => setPlanBId(parseInt(val, 10))}
             >
               <SelectTrigger className="w-full text-xs">
-                <SelectValue placeholder="Chọn phương án B" />
+                <SelectValue placeholder={t('assignments.comparePickB')} />
               </SelectTrigger>
               <SelectContent className="bg-card border-border">
                 {plans.map((p) => (
                   <SelectItem key={p.id} value={p.id.toString()} className="text-xs">
-                    {p.name} (Điểm: {p.score?.toFixed(1) ?? '--'})
+                    {p.name} (
+                    {t('assignments.compareScoreShort', {
+                      score: p.score?.toFixed(1) ?? '--',
+                    })}
+                    )
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -204,13 +172,15 @@ export function PlanCompareModal({
 
             <div className="flex items-center gap-4">
               <span>
-                Điểm A: <strong>{detailsA.score_report?.total.toFixed(2) ?? '--'}</strong>
+                {t('assignments.compareScoreA')}:{' '}
+                <strong>{detailsA.score_report?.total.toFixed(2) ?? '--'}</strong>
               </span>
               <span>
-                Điểm B: <strong>{detailsB.score_report?.total.toFixed(2) ?? '--'}</strong>
+                {t('assignments.compareScoreB')}:{' '}
+                <strong>{detailsB.score_report?.total.toFixed(2) ?? '--'}</strong>
               </span>
               <span>
-                Chênh lệch (B - A):{' '}
+                {t('assignments.compareScoreDelta')}:{' '}
                 <strong
                   className={
                     (detailsB.score_report?.total ?? 0) <
@@ -233,17 +203,20 @@ export function PlanCompareModal({
         {detailsA && detailsB && comparison && (
           <div className="space-y-4">
             <h4 className="text-sm font-semibold text-foreground">
-              {t('assignments.diffHighlight')} ({comparison.diffSlots.size} ban đề có thay
-              đổi)
+              {t('assignments.diffHighlight')} (
+              {t('assignments.comparePanelsChanged', {
+                count: comparison.diffPanels.size,
+              })}
+              )
             </h4>
 
-            {/* Matrix comparison */}
+            {/* Matrix comparison: one block per subject panel */}
             <div className="overflow-x-auto rounded border border-border">
               <table className="w-full border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
                     <th className="p-2 text-left text-muted-foreground w-28">
-                      Kỳ / Khối
+                      {t('assignments.compareExamGrade')}
                     </th>
                     {grades.map((g) => (
                       <th
@@ -259,65 +232,73 @@ export function PlanCompareModal({
                   {exams.map((exam) => (
                     <tr key={exam.id} className="border-b border-border last:border-0">
                       <td className="p-2 font-medium bg-muted/10">{exam.name}</td>
-                      {grades.map((grade) => {
-                        const isDiff = comparison.diffSlots.has(`${exam.id}_${grade.id}`)
-                        const assignA = detailsA.assignments.filter(
-                          (a) => a.exam_id === exam.id && a.grade_id === grade.id,
-                        )
-                        const assignB = detailsB.assignments.filter(
-                          (a) => a.exam_id === exam.id && a.grade_id === grade.id,
-                        )
-
-                        const getTeacherNames = (arr: typeof assignA) => {
-                          const setters = arr
-                            .filter((a) => a.role === 'setter')
-                            .map(
-                              (a) =>
-                                teachers.find((t) => t.teacher.id === a.teacher_id)
-                                  ?.teacher.full_name,
+                      {grades.map((grade) => (
+                        <td
+                          key={grade.id}
+                          className="p-2 border-l border-border align-top space-y-2"
+                        >
+                          {subjects.map((subject) => {
+                            const isDiff = comparison.diffPanels.has(
+                              panelKey(exam.id, grade.id, subject.id),
                             )
-                            .join(', ')
-                          const reviewer = teachers.find(
-                            (t) =>
-                              t.teacher.id ===
-                              arr.find((a) => a.role === 'reviewer')?.teacher_id,
-                          )?.teacher.full_name
-                          return { setters, reviewer }
-                        }
-
-                        const tA = getTeacherNames(assignA)
-                        const tB = getTeacherNames(assignB)
-
-                        return (
-                          <td
-                            key={grade.id}
-                            className={`p-2 border-l border-border align-top ${
-                              isDiff ? 'bg-amber-500/10' : ''
-                            }`}
-                          >
-                            {isDiff ? (
-                              <div className="space-y-1">
-                                <div className="text-[10px] text-muted-foreground">
-                                  <span className="font-semibold text-foreground">
-                                    A:
-                                  </span>{' '}
-                                  {tA.setters} | PB: {tA.reviewer}
+                            const mA = panelMembers(
+                              detailsA.assignments,
+                              exam.id,
+                              grade.id,
+                              subject.id,
+                            )
+                            const mB = panelMembers(
+                              detailsB.assignments,
+                              exam.id,
+                              grade.id,
+                              subject.id,
+                            )
+                            const describe = (m: typeof mA) =>
+                              `${m.setters.map(teacherName).join(', ')} | ${t('assignments.compareReviewerShort')}: ${m.reviewers
+                                .map(teacherName)
+                                .join(', ')}`
+                            return (
+                              <div
+                                key={subject.id}
+                                className={`rounded px-1.5 py-1 ${isDiff ? 'bg-amber-500/10' : ''}`}
+                              >
+                                <div className="text-[10px] font-semibold text-foreground">
+                                  {subject.code}
                                 </div>
-                                <div className="text-[10px] text-primary font-medium">
-                                  <span className="font-semibold text-foreground">
-                                    B:
-                                  </span>{' '}
-                                  {tB.setters} | PB: {tB.reviewer}
-                                </div>
+                                {isDiff ? (
+                                  <div className="space-y-0.5">
+                                    <div
+                                      className="text-[10px] text-muted-foreground"
+                                      data-testid={`compare-cell-${exam.id}-${grade.id}-${subject.code}-A`}
+                                    >
+                                      <span className="font-semibold text-foreground">
+                                        A:
+                                      </span>{' '}
+                                      {describe(mA)}
+                                    </div>
+                                    <div
+                                      className="text-[10px] text-primary font-medium"
+                                      data-testid={`compare-cell-${exam.id}-${grade.id}-${subject.code}-B`}
+                                    >
+                                      <span className="font-semibold text-foreground">
+                                        B:
+                                      </span>{' '}
+                                      {describe(mB)}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div
+                                    className="text-[11px] text-muted-foreground"
+                                    data-testid={`compare-cell-${exam.id}-${grade.id}-${subject.code}-same`}
+                                  >
+                                    {describe(mA)}
+                                  </div>
+                                )}
                               </div>
-                            ) : (
-                              <div className="text-[11px] text-muted-foreground">
-                                {tA.setters} | {tA.reviewer}
-                              </div>
-                            )}
-                          </td>
-                        )
-                      })}
+                            )
+                          })}
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>

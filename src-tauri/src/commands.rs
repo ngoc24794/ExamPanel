@@ -65,6 +65,26 @@ pub fn exit_trial_mode(service: State<'_, Arc<AppService>>) -> Result<(), AppErr
     service.exit_trial_mode()
 }
 
+/// Opens the native print dialog for the calling window. `window.print()` does nothing in
+/// WebKitGTK, so printing / "Save as PDF" goes through the webview's own print operation.
+#[tauri::command]
+pub fn print_page(window: tauri::WebviewWindow) -> Result<(), AppError> {
+    window
+        .print()
+        .map_err(|e| AppError::internal(format!("Không thể mở hộp thoại in: {e}")))
+}
+
+#[tauri::command]
+pub fn open_data_folder(app: tauri::AppHandle) -> Result<(), AppError> {
+    let data_dir = exam_panel_storage::paths::resolve_data_dir();
+    let _ = std::fs::create_dir_all(&data_dir);
+    use tauri_plugin_opener::OpenerExt;
+    app.opener()
+        .open_path(data_dir.to_string_lossy(), None::<&str>)
+        .map_err(|e| AppError::internal(format!("Không thể mở thư mục dữ liệu: {e}")))?;
+    Ok(())
+}
+
 #[tauri::command]
 pub fn open_log_folder(app: tauri::AppHandle) -> Result<(), AppError> {
     let logs_dir = exam_panel_storage::paths::resolve_logs_dir();
@@ -516,6 +536,7 @@ pub async fn reoptimize_from(
 // -----------------------------------------------------------------------------
 
 #[tauri::command]
+#[cfg_attr(not(feature = "dev-tools"), allow(unused_variables))]
 pub fn seed_demo(service: State<'_, Arc<AppService>>) -> Result<(), AppError> {
     #[cfg(feature = "dev-tools")]
     {

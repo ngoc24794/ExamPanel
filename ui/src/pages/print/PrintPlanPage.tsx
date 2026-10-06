@@ -1,4 +1,6 @@
 import * as React from 'react'
+import { api } from '@/lib/api'
+import { orgInfo, signatureDate } from './orgInfo'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Printer, ArrowLeft } from 'lucide-react'
@@ -49,14 +51,9 @@ export const PrintPlanPage: React.FC = () => {
   const assignments = planDetails.assignments
   const isDraft = !plan.is_final
 
-  const schoolName = settings?.school_name || 'TRƯỜNG THPT CHUYÊN'
-  const deptName = settings?.department_name || 'TỔ TOÁN - TIN'
-  const signerTitle = settings?.signer_title || 'TỔ TRƯỞNG CHUYÊN MÔN'
-  const signerName = settings?.signer_name || 'Nguyễn Văn A'
-  const placeName = settings?.place_name || 'Hà Nội'
-
-  const currentDate = new Date()
-  const dateStr = `${placeName}, ngày ${currentDate.getDate()} tháng ${currentDate.getMonth() + 1} năm ${currentDate.getFullYear()}`
+  const org = orgInfo(settings)
+  const { schoolName, deptName, signerTitle, signerName } = org
+  const dateStr = signatureDate(org.placeName, new Date())
 
   const effectiveSubjects =
     subjects.length > 0
@@ -117,6 +114,16 @@ export const PrintPlanPage: React.FC = () => {
         }
       `}</style>
 
+      {org.isEmpty && (
+        <div
+          role="status"
+          data-testid="org-missing-banner"
+          className="no-print mb-3 max-w-6xl mx-auto rounded-lg border border-neutral-300 bg-neutral-100 p-3 text-xs text-neutral-700"
+        >
+          {t('print.orgMissing')}
+        </div>
+      )}
+
       {/* Top Action Bar (hidden on print) */}
       <div className="no-print mb-6 max-w-6xl mx-auto flex items-center justify-between bg-neutral-100 p-4 rounded-lg border border-neutral-300">
         <Button
@@ -135,7 +142,7 @@ export const PrintPlanPage: React.FC = () => {
           <Button
             data-testid="print-btn"
             size="sm"
-            onClick={() => window.print()}
+            onClick={() => void api.printPage()}
             className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Printer className="h-4 w-4" />

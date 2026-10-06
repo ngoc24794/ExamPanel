@@ -157,7 +157,7 @@ export class MockExamPanelApi implements ExamPanelApi {
       mode: 'mock',
       data_dir: '/mock/data',
       is_portable: true,
-      db_path: this.inTrialMode ? '/mock/data/demo.db' : '/mock/data/exampanel.db',
+      db_path: this.inTrialMode ? '/mock/data/demo.db' : '/mock/data/exam-panel.db',
       commit_hash: '0c24c8e',
       build_date: '2026-10-02',
       in_trial_mode: this.inTrialMode,
@@ -206,6 +206,10 @@ export class MockExamPanelApi implements ExamPanelApi {
 
   async openDataFolder(): Promise<void> {
     // In mock mode, no native filesystem to open
+  }
+
+  async printPage(): Promise<void> {
+    window.print()
   }
 
   async openLogFolder(): Promise<void> {
@@ -1125,7 +1129,7 @@ export class MockExamPanelApi implements ExamPanelApi {
   // Optimization
   startOptimize(
     schoolYearId: number,
-    _request: OptimizeRequest,
+    request: OptimizeRequest,
     onProgress?: (progress: Progress) => void,
   ): OptimizeHandle {
     if (this.isOptimizing) {
@@ -1172,18 +1176,20 @@ export class MockExamPanelApi implements ExamPanelApi {
         }
 
         step += 1
-        const iteration = Math.floor((step / totalSteps) * 200000)
+        // Real shape: every event carries the counters of ONE run; all runs advance together.
+        const budget = request.budget.value
         const best_score = Math.max(2.6, 25.0 - step * 2.2)
-        const current_score = best_score + Math.random() * 3.0
-
         if (onProgress) {
-          onProgress({
-            run: 1 + Math.floor(step / 3),
-            iteration,
-            best_score: Number(best_score.toFixed(2)),
-            current_score: Number(current_score.toFixed(2)),
-            elapsed_ms: step * stepDurationMs,
-          })
+          for (let run = 0; run < Math.max(1, request.runs); run++) {
+            const current_score = best_score + Math.random() * 3.0
+            onProgress({
+              run,
+              iteration: Math.floor((step / totalSteps) * budget),
+              best_score: Number((best_score + run * 0.01).toFixed(2)),
+              current_score: Number(current_score.toFixed(2)),
+              elapsed_ms: step * stepDurationMs,
+            })
+          }
         }
 
         if (step >= totalSteps) {
@@ -1296,6 +1302,8 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h1',
           code: 'duplicate_teacher_in_panel',
+          teacher: a.teacher_id,
+          panel: { exam_id: a.exam_id, grade_id: a.grade_id, subject_id: a.subject_id },
           params: {
             teacher_id: a.teacher_id.toString(),
             exam_id: a.exam_id.toString(),
@@ -1312,7 +1320,9 @@ export class MockExamPanelApi implements ExamPanelApi {
       if (!t || !t.active || t.load_weight <= 0) {
         violations.push({
           rule: 'h2',
-          code: 'inactive_or_zero_weight',
+          code: !t || !t.active ? 'inactive_teacher' : 'zero_weight_teacher',
+          teacher: a.teacher_id,
+          panel: { exam_id: a.exam_id, grade_id: a.grade_id, subject_id: a.subject_id },
           params: { teacher_id: a.teacher_id.toString() },
         })
       }
@@ -1321,6 +1331,8 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h2',
           code: 'unqualified_grade',
+          teacher: a.teacher_id,
+          panel: { exam_id: a.exam_id, grade_id: a.grade_id, subject_id: a.subject_id },
           params: {
             teacher_id: a.teacher_id.toString(),
             grade_id: a.grade_id.toString(),
@@ -1341,8 +1353,9 @@ export class MockExamPanelApi implements ExamPanelApi {
       if (set.size > 1) {
         violations.push({
           rule: 'h4',
-          code: 'multiple_panels_in_same_exam',
-          params: { teacher_id: a.teacher_id.toString(), exam_id: a.exam_id.toString() },
+          code: 'multiple_panels_in_exam',
+          teacher: a.teacher_id,
+          params: { exam_id: a.exam_id, count: set.size, limit: 1 },
         })
       }
     }
@@ -1356,7 +1369,9 @@ export class MockExamPanelApi implements ExamPanelApi {
         violations.push({
           rule: 'h5',
           code: 'teacher_unavailable',
-          params: { teacher_id: a.teacher_id.toString(), exam_id: a.exam_id.toString() },
+          teacher: a.teacher_id,
+          panel: { exam_id: a.exam_id, grade_id: a.grade_id, subject_id: a.subject_id },
+          params: { exam_id: a.exam_id },
         })
       }
     }
@@ -1595,29 +1610,35 @@ export class MockExamPanelApi implements ExamPanelApi {
   }
 
   reoptimizeFrom(
-    _req: ReoptimizeRequest,
+    req: ReoptimizeRequest,
     onProgress?: (progress: Progress) => void,
   ): OptimizeHandle {
     let cancelled = false
-    const promise = new Promise<OptimizeOutcome>((resolve) => {
-      let it = 0
-      const totalIt = 1000
+    let rejectRun: ((err: unknown) => void) | null = null
+    const runs = Math.max(1, req.request.runs)
+    const budget = req.request.budget.value
+    const promise = new Promise<OptimizeOutcome>((resolve, reject) => {
+      rejectRun = reject
+      let step = 0
+      const totalSteps = 5
       const interval = setInterval(() => {
         if (cancelled) {
           clearInterval(interval)
           return
         }
-        it += 200
+        step += 1
         if (onProgress) {
-          onProgress({
-            run: 1,
-            iteration: it,
-            elapsed_ms: it * 2,
-            current_score: 120.0 - it * 0.05,
-            best_score: 100.0 - it * 0.04,
-          })
+          for (let run = 0; run < runs; run++) {
+            onProgress({
+              run,
+              iteration: Math.floor((step / totalSteps) * budget),
+              elapsed_ms: step * 100,
+              current_score: 120.0 - step * 10,
+              best_score: 100.0 - step * 8 + run * 0.01,
+            })
+          }
         }
-        if (it >= totalIt) {
+        if (step >= totalSteps) {
           clearInterval(interval)
           const outcome: OptimizeOutcome = JSON.parse(JSON.stringify(demoOutcome))
           resolve(outcome)
@@ -1629,6 +1650,11 @@ export class MockExamPanelApi implements ExamPanelApi {
       promise,
       cancel: async () => {
         cancelled = true
+        // Like the real backend (RA-011): a cancelled job rejects with `cancelled`.
+        rejectRun?.({
+          code: 'cancelled',
+          params: { message: 'Optimization was cancelled' },
+        })
         return true
       },
     }
@@ -1932,7 +1958,21 @@ export class MockExamPanelApi implements ExamPanelApi {
         school_years_count: 0,
         teachers_count: 0,
         plans_count: 0,
-        error: 'Tệp sao lưu không hợp lệ hoặc bị hỏng (PRAGMA integrity_check failed)',
+        error: 'Database integrity failure: *** in database main ***',
+        error_code: 'corrupted',
+        supported_version: 5,
+      }
+    }
+    if (filename.includes('newer')) {
+      return {
+        valid: false,
+        user_version: 99,
+        school_years_count: 0,
+        teachers_count: 0,
+        plans_count: 0,
+        error: 'Unsupported future database version: 99 > supported 5',
+        error_code: 'newer_version',
+        supported_version: 5,
       }
     }
     return {
@@ -1942,6 +1982,8 @@ export class MockExamPanelApi implements ExamPanelApi {
       teachers_count: 18,
       plans_count: 3,
       error: null,
+      error_code: null,
+      supported_version: 5,
     }
   }
 

@@ -24,6 +24,7 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card'
+import { coWorkingCounts, reviewRelationCounts, campusMix } from './statsMatrices'
 import { BarChart3, Users, Building2, Layers, ArrowUpDown, Loader2 } from 'lucide-react'
 
 export function StatisticsPage() {
@@ -153,95 +154,27 @@ export function StatisticsPage() {
     })
   }, [teacherRows, sortKey, sortAsc])
 
-  // Co-working matrix (teacher × teacher: count on same panel)
-  const coWorkingMatrix = React.useMemo(() => {
-    if (!planDetails) return null
-    const assignments = planDetails.assignments
+  // Co-working / review matrices and campus mix are computed per subject panel (RA-027)
+  const coWorkingMatrix = React.useMemo(
+    () => (planDetails ? coWorkingCounts(planDetails.assignments) : null),
+    [planDetails],
+  )
 
-    // Panel key -> teacher ids in that panel
-    const panelTeachers = new Map<string, number[]>()
-    for (const a of assignments) {
-      const key = `${a.exam_id}_${a.grade_id}`
-      if (!panelTeachers.has(key)) panelTeachers.set(key, [])
-      panelTeachers.get(key)!.push(a.teacher_id)
-    }
+  const reviewRelationMatrix = React.useMemo(
+    () => (planDetails ? reviewRelationCounts(planDetails.assignments) : null),
+    [planDetails],
+  )
 
-    const matrix = new Map<string, number>()
-    for (const [, tIds] of panelTeachers) {
-      for (let i = 0; i < tIds.length; i++) {
-        for (let j = 0; j < tIds.length; j++) {
-          if (i !== j) {
-            const key = `${tIds[i]}_${tIds[j]}`
-            matrix.set(key, (matrix.get(key) || 0) + 1)
-          }
-        }
-      }
-    }
-    return matrix
-  }, [planDetails])
-
-  // Review-relation matrix (reviewer → setter)
-  const reviewRelationMatrix = React.useMemo(() => {
-    if (!planDetails) return null
-    const assignments = planDetails.assignments
-
-    const matrix = new Map<string, number>()
-    for (const exam of exams) {
-      for (const grade of grades) {
-        const panelAssign = assignments.filter(
-          (a) => a.exam_id === exam.id && a.grade_id === grade.id,
-        )
-        const reviewer = panelAssign.find((a) => a.role === 'reviewer')?.teacher_id
-        const setters = panelAssign
-          .filter((a) => a.role === 'setter')
-          .map((a) => a.teacher_id)
-
-        if (reviewer) {
-          for (const s of setters) {
-            const key = `${reviewer}_${s}`
-            matrix.set(key, (matrix.get(key) || 0) + 1)
-          }
-        }
-      }
-    }
-    return matrix
-  }, [planDetails, exams, grades])
-
-  // Campus mix analysis
   const campusMixStats = React.useMemo(() => {
     if (!planDetails) return { mix1: 0, mix2: 0, mix3: 0, total: 0 }
-    const assignments = planDetails.assignments
+    return campusMix(
+      planDetails.assignments,
+      (id) => teachers.find((tw) => tw.teacher.id === id)?.teacher.campus_id,
+    )
+  }, [planDetails, teachers])
 
-    let mix1 = 0
-    let mix2 = 0
-    let mix3 = 0
-    let total = 0
-
-    for (const exam of exams) {
-      for (const grade of grades) {
-        const panelAssign = assignments.filter(
-          (a) => a.exam_id === exam.id && a.grade_id === grade.id,
-        )
-        if (panelAssign.length === 0) continue
-        total += 1
-
-        const campusIds = new Set(
-          panelAssign
-            .map(
-              (a) =>
-                teachers.find((t) => t.teacher.id === a.teacher_id)?.teacher.campus_id,
-            )
-            .filter(Boolean),
-        )
-
-        if (campusIds.size === 1) mix1 += 1
-        else if (campusIds.size === 2) mix2 += 1
-        else if (campusIds.size >= 3) mix3 += 1
-      }
-    }
-
-    return { mix1, mix2, mix3, total }
-  }, [planDetails, exams, grades, teachers])
+  const teacherLabel = (tw: (typeof teachers)[number]) =>
+    tw.teacher.display_name || tw.teacher.full_name
 
   return (
     <div className="space-y-6" data-testid="statistics-page">
@@ -269,12 +202,12 @@ export function StatisticsPage() {
             onValueChange={(val) => setSelectedPlanId(parseInt(val, 10))}
           >
             <SelectTrigger className="text-xs w-full bg-card border-border">
-              <SelectValue placeholder="Chọn phương án" />
+              <SelectValue placeholder={t('statistics.selectPlanPlaceholder')} />
             </SelectTrigger>
             <SelectContent className="bg-card border-border">
               {plans.map((p) => (
                 <SelectItem key={p.id} value={p.id.toString()} className="text-xs">
-                  {p.name} {p.is_final ? '★ (Chính thức)' : ''}
+                  {p.name} {p.is_final ? t('statistics.finalSuffix') : ''}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -287,7 +220,7 @@ export function StatisticsPage() {
 
       {plans.length === 0 ? (
         <div className="p-8 text-center border rounded-lg bg-card text-muted-foreground border-dashed">
-          Chưa có phương án nào để xem thống kê. Hãy chạy tối ưu trong mục Phân công.
+          {t('statistics.noPlans')}
         </div>
       ) : (
         <div className="space-y-6">
@@ -301,7 +234,7 @@ export function StatisticsPage() {
                     <span>{t('statistics.loadChartTitle')}</span>
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    So sánh số lượt phân công thực tế với chỉ tiêu phân bổ định mức
+                    {t('statistics.loadChartDesc')}
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-3 text-xs">
@@ -491,7 +424,7 @@ export function StatisticsPage() {
                             </span>
                           </td>
                           <td className="p-2.5 text-muted-foreground">
-                            Khối {r.gradesStr || '--'}
+                            {t('statistics.gradePrefix', { grades: r.gradesStr || '--' })}
                           </td>
                           <td className="p-2.5 text-muted-foreground">
                             {r.examsStr || '--'}
@@ -513,7 +446,8 @@ export function StatisticsPage() {
                 <span>{t('statistics.campusMixTitle')}</span>
               </CardTitle>
               <CardDescription className="text-xs">
-                {t('statistics.campusMixDesc')} (Tổng số: {campusMixStats.total} ban đề)
+                {t('statistics.campusMixDesc')} (
+                {t('statistics.panelsTotal', { count: campusMixStats.total })})
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -582,23 +516,28 @@ export function StatisticsPage() {
                     <thead>
                       <tr>
                         <th className="p-1"></th>
-                        {teachers.slice(0, 11).map((tW) => (
+                        {teachers.map((tW) => (
                           <th
                             key={tW.teacher.id}
-                            className="p-1 font-normal text-muted-foreground w-6 text-center truncate"
+                            title={tW.teacher.full_name}
+                            data-testid={`cowork-head-${tW.teacher.id}`}
+                            className="p-1 font-normal text-muted-foreground text-center truncate max-w-[56px]"
                           >
-                            {tW.teacher.id}
+                            {teacherLabel(tW)}
                           </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {teachers.slice(0, 11).map((tA) => (
-                        <tr key={tA.teacher.id}>
+                      {teachers.map((tA) => (
+                        <tr
+                          key={tA.teacher.id}
+                          data-testid={`cowork-row-${tA.teacher.id}`}
+                        >
                           <td className="p-1 font-medium text-muted-foreground text-right pr-2 truncate max-w-[80px]">
-                            {tA.teacher.full_name}
+                            {teacherLabel(tA)}
                           </td>
-                          {teachers.slice(0, 11).map((tB) => {
+                          {teachers.map((tB) => {
                             if (tA.teacher.id === tB.teacher.id) {
                               return (
                                 <td
@@ -615,6 +554,7 @@ export function StatisticsPage() {
                             return (
                               <td
                                 key={tB.teacher.id}
+                                data-testid={`cowork-cell-${tA.teacher.id}-${tB.teacher.id}`}
                                 className={`p-1 text-center font-mono ${
                                   count > 2
                                     ? 'bg-primary text-primary-foreground font-bold'
@@ -652,23 +592,28 @@ export function StatisticsPage() {
                     <thead>
                       <tr>
                         <th className="p-1"></th>
-                        {teachers.slice(0, 11).map((tW) => (
+                        {teachers.map((tW) => (
                           <th
                             key={tW.teacher.id}
-                            className="p-1 font-normal text-muted-foreground w-6 text-center truncate"
+                            title={tW.teacher.full_name}
+                            data-testid={`review-head-${tW.teacher.id}`}
+                            className="p-1 font-normal text-muted-foreground text-center truncate max-w-[56px]"
                           >
-                            {tW.teacher.id}
+                            {teacherLabel(tW)}
                           </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {teachers.slice(0, 11).map((tA) => (
-                        <tr key={tA.teacher.id}>
+                      {teachers.map((tA) => (
+                        <tr
+                          key={tA.teacher.id}
+                          data-testid={`review-row-${tA.teacher.id}`}
+                        >
                           <td className="p-1 font-medium text-muted-foreground text-right pr-2 truncate max-w-[80px]">
-                            {tA.teacher.full_name}
+                            {teacherLabel(tA)}
                           </td>
-                          {teachers.slice(0, 11).map((tB) => {
+                          {teachers.map((tB) => {
                             if (tA.teacher.id === tB.teacher.id) {
                               return (
                                 <td
@@ -686,6 +631,7 @@ export function StatisticsPage() {
                             return (
                               <td
                                 key={tB.teacher.id}
+                                data-testid={`review-cell-${tA.teacher.id}-${tB.teacher.id}`}
                                 className={`p-1 text-center font-mono ${
                                   count > 1
                                     ? 'bg-amber-500 text-white font-bold'

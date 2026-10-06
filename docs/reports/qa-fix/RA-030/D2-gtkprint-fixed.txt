@@ -1,0 +1,3 @@
+windows: [{"id":"4194307","name":"ExamPanel","geom":"Window 4194307   Position: 321,170 (screen: 0)   Geometry: 1280x800"},{"id":"4194355","name":"Print","geom":"Window 4194355   Position: 655,333 (screen: 0)   Geometry: 614x518"}]
+page responsive? ok
+windows after esc: [{"id":"4194307","name":"ExamPanel","geom":"Window 4194307   Position: 321,170 (screen: 0)   Geometry: 1280x800"}]

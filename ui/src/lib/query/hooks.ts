@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from '@tanstack/react-query'
 import {
   api,
   type Assignment,
@@ -26,7 +31,7 @@ import {
 } from '@/lib/api'
 import { toast } from 'sonner'
 import i18n from '@/i18n'
-import { getErrorMessage } from './query-client'
+import { reportError } from './query-client'
 
 export const queryKeys = {
   appInfo: ['appInfo'] as const,
@@ -50,6 +55,19 @@ export const queryKeys = {
   planDetails: (planId: number) => ['planDetails', planId] as const,
   planStatus: (planId: number) => ['planStatus', planId] as const,
   previewQuotas: (schoolYearId: number) => ['previewQuotas', schoolYearId] as const,
+}
+
+/**
+ * Saved plans become stale when problem data changes (the backend flags them in `list_plans`),
+ * so every problem-data mutation refreshes feasibility, the plans lists and the plan statuses
+ * together. Without this the "Dữ liệu đã đổi" badge only appeared after a reload (RA-022).
+ */
+export function invalidateProblemData(qc: QueryClient, schoolYearId: number) {
+  return Promise.all([
+    qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) }),
+    qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) }),
+    qc.invalidateQueries({ queryKey: ['planStatus'] }),
+  ])
 }
 
 // Queries
@@ -204,7 +222,7 @@ export function useCreateTeacher(schoolYearId: number) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.teachers(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
       qc.invalidateQueries({ queryKey: queryKeys.campuses })
     },
   })
@@ -227,7 +245,7 @@ export function useUpdateTeacher(schoolYearId: number) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.teachers(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
       qc.invalidateQueries({ queryKey: queryKeys.campuses })
     },
   })
@@ -239,7 +257,7 @@ export function useDeleteTeacher(schoolYearId: number) {
     mutationFn: (id: number) => api.deleteTeacher(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.teachers(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
       qc.invalidateQueries({ queryKey: queryKeys.campuses })
     },
   })
@@ -251,7 +269,7 @@ export function useDeactivateTeacher(schoolYearId: number) {
     mutationFn: (id: number) => api.deactivateTeacher(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.teachers(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -282,11 +300,11 @@ export function useToggleTeacherGrade(schoolYearId: number) {
       if (context?.previous) {
         qc.setQueryData(queryKeys.teachers(schoolYearId), context.previous)
       }
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.teachers(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -299,9 +317,7 @@ export function useCreateSchoolYear() {
     onSuccess: (newYear) => {
       qc.invalidateQueries({ queryKey: queryKeys.schoolYears })
       qc.invalidateQueries({ queryKey: queryKeys.settings })
-      toast.success(
-        i18n.t('schoolYear.createSuccess', { defaultValue: 'Tạo năm học thành công' }),
-      )
+      toast.success(i18n.t('schoolYear.createSuccess'))
       return newYear
     },
   })
@@ -325,9 +341,7 @@ export function useSeedDemo() {
     mutationFn: () => api.seedDemo(),
     onSuccess: () => {
       qc.invalidateQueries()
-      toast.success(
-        i18n.t('dev.seedSuccess', { defaultValue: 'Đã nạp dữ liệu mẫu thành công' }),
-      )
+      toast.success(i18n.t('dev.seedSuccess'))
     },
   })
 }
@@ -373,7 +387,7 @@ export function useCreateExam(schoolYearId: number) {
     mutationFn: (input: CreateExamInput) => api.createExam(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.exams(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -384,7 +398,7 @@ export function useUpdateExam(schoolYearId: number) {
     mutationFn: (exam: Exam) => api.updateExam(exam),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.exams(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -395,7 +409,7 @@ export function useDeleteExam(schoolYearId: number) {
     mutationFn: (id: number) => api.deleteExam(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.exams(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -406,7 +420,7 @@ export function useReorderExams(schoolYearId: number) {
     mutationFn: (examIds: number[]) => api.reorderExams(examIds),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.exams(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -436,11 +450,11 @@ export function useSetUnavailability(schoolYearId: number) {
       if (context?.previous) {
         qc.setQueryData(queryKeys.unavailabilities(schoolYearId), context.previous)
       }
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.unavailabilities(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -467,11 +481,11 @@ export function useDeleteUnavailability(schoolYearId: number) {
       if (context?.previous) {
         qc.setQueryData(queryKeys.unavailabilities(schoolYearId), context.previous)
       }
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.unavailabilities(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -483,7 +497,7 @@ export function useCreateLock(schoolYearId: number) {
     mutationFn: (input: CreateLockInput) => api.createLock(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.locks(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -494,7 +508,7 @@ export function useDeleteLock(schoolYearId: number) {
     mutationFn: (id: number) => api.deleteLock(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.locks(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -506,12 +520,8 @@ export function useSaveRuleSettings(schoolYearId: number) {
     mutationFn: (settings: RuleSetting[]) => api.saveRuleSettings(schoolYearId, settings),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.ruleSettings(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
-      toast.success(
-        i18n.t('rules.saveSuccess', {
-          defaultValue: 'Đã lưu cấu hình quy tắc thành công',
-        }),
-      )
+      invalidateProblemData(qc, schoolYearId)
+      toast.success(i18n.t('rules.saveSuccess'))
     },
   })
 }
@@ -522,7 +532,7 @@ export function useResetRuleSettings(schoolYearId: number) {
     mutationFn: () => api.resetRuleSettingsToDefaults(schoolYearId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.ruleSettings(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
   })
 }
@@ -564,7 +574,7 @@ export function useRenamePlan(schoolYearId: number) {
       qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -577,7 +587,7 @@ export function useDeletePlan(schoolYearId: number) {
       qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -588,14 +598,23 @@ export function useMarkFinal(schoolYearId: number) {
     mutationFn: (id: number) => api.markFinal(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
-      toast.success(
-        i18n.t('assignments.markFinalSuccess', {
-          defaultValue: 'Đã đánh dấu phương án chính thức thành công',
-        }),
-      )
+      toast.success(i18n.t('assignments.markFinalSuccess'))
     },
+    // One translated toast per failure (RA-025): the engine codes plan_stale / plan_invalid get
+    // their own sentences instead of being shown a second time as raw codes.
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      const e = err as { code?: string; params?: Record<string, unknown> }
+      if (e?.code === 'plan_stale') {
+        toast.error(i18n.t('assignments.cannotMarkFinalStale'))
+      } else if (e?.code === 'plan_invalid') {
+        toast.error(
+          i18n.t('assignments.cannotMarkFinalInvalid', {
+            count: Number(e.params?.count ?? e.params?.violations ?? 1),
+          }),
+        )
+      } else {
+        reportError(err)
+      }
     },
   })
 }
@@ -605,11 +624,11 @@ export function useCreateManualCopy(schoolYearId: number) {
   return useMutation({
     mutationFn: ({ id, name }: { id: number; name: string }) =>
       api.createManualCopy(id, name),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
-    },
+    // Returned so `mutateAsync` resolves only once the plans list contains the new copy;
+    // otherwise the page selected an id that was not listed yet and fell back (RA-018).
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) }),
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -620,17 +639,15 @@ export function useUpdatePlanAssignments(schoolYearId: number) {
     mutationFn: ({ id, assignments }: { id: number; assignments: Assignment[] }) =>
       api.updatePlanAssignments(id, assignments),
     onSuccess: (_, vars) => {
-      qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.planDetails(vars.id) })
-      qc.invalidateQueries({ queryKey: queryKeys.planStatus(vars.id) })
-      toast.success(
-        i18n.t('assignments.saveAssignmentsSuccess', {
-          defaultValue: 'Đã lưu phương án phân công',
-        }),
-      )
+      toast.success(i18n.t('assignments.saveAssignmentsSuccess'))
+      return Promise.all([
+        qc.invalidateQueries({ queryKey: queryKeys.plans(schoolYearId) }),
+        qc.invalidateQueries({ queryKey: queryKeys.planDetails(vars.id) }),
+        qc.invalidateQueries({ queryKey: queryKeys.planStatus(vars.id) }),
+      ])
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -698,15 +715,11 @@ export function useCreateSubject() {
     mutationFn: (input: CreateSubjectInput) => api.createSubject(input),
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: queryKeys.subjects(vars.school_year_id) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(vars.school_year_id) })
-      toast.success(
-        i18n.t('subjects.createSuccess', {
-          defaultValue: 'Đã tạo môn học thành công',
-        }),
-      )
+      invalidateProblemData(qc, vars.school_year_id)
+      toast.success(i18n.t('subjects.createSuccess'))
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -717,15 +730,11 @@ export function useUpdateSubject(schoolYearId: number) {
     mutationFn: (input: UpdateSubjectInput) => api.updateSubject(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.subjects(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
-      toast.success(
-        i18n.t('subjects.updateSuccess', {
-          defaultValue: 'Đã cập nhật môn học thành công',
-        }),
-      )
+      invalidateProblemData(qc, schoolYearId)
+      toast.success(i18n.t('subjects.updateSuccess'))
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -736,15 +745,11 @@ export function useDeleteSubject(schoolYearId: number) {
     mutationFn: (id: number) => api.deleteSubject(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.subjects(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
-      toast.success(
-        i18n.t('subjects.deleteSuccess', {
-          defaultValue: 'Đã xóa môn học thành công',
-        }),
-      )
+      invalidateProblemData(qc, schoolYearId)
+      toast.success(i18n.t('subjects.deleteSuccess'))
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -757,7 +762,7 @@ export function useReorderSubjects(schoolYearId: number) {
       qc.invalidateQueries({ queryKey: queryKeys.subjects(schoolYearId) })
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -769,10 +774,10 @@ export function useSetCompetency(schoolYearId: number) {
     mutationFn: (input: SetCompetencyInput) => api.setCompetency(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.competencies(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -783,10 +788,10 @@ export function useDeleteCompetency(schoolYearId: number) {
     mutationFn: (input: DeleteCompetencyInput) => api.deleteCompetency(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.competencies(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }
@@ -798,10 +803,10 @@ export function useReplaceTeacherCompetencies(schoolYearId: number) {
       api.replaceTeacherCompetencies(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.competencies(schoolYearId) })
-      qc.invalidateQueries({ queryKey: queryKeys.feasibility(schoolYearId) })
+      invalidateProblemData(qc, schoolYearId)
     },
     onError: (err) => {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     },
   })
 }

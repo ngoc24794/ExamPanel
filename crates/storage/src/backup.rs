@@ -21,6 +21,14 @@ pub struct BackupValidationSummary {
     pub teachers_count: usize,
     pub plans_count: usize,
     pub error: Option<String>,
+    /// Stable machine-readable reason (`file_missing`, `not_a_database`, `corrupted`,
+    /// `newer_version`, `missing_table`, `unreadable`) so the UI can show a localized message;
+    /// `error` keeps the raw technical text for the log.
+    #[serde(default)]
+    pub error_code: Option<String>,
+    /// Highest schema version this build understands.
+    #[serde(default)]
+    pub supported_version: i32,
 }
 
 /// Metadata about an automatic backup file.
@@ -70,17 +78,28 @@ pub fn backup_database(conn: &Connection, target_path: &Path) -> Result<(), Stor
     Ok(())
 }
 
+/// Builds the summary of a rejected file.
+fn invalid_summary(
+    code: &str,
+    error: String,
+    user_version: i32,
+) -> Result<BackupValidationSummary, StorageError> {
+    Ok(BackupValidationSummary {
+        valid: false,
+        user_version,
+        school_years_count: 0,
+        teachers_count: 0,
+        plans_count: 0,
+        error: Some(error),
+        error_code: Some(code.to_string()),
+        supported_version: latest_version(),
+    })
+}
+
 /// Validates an existing SQLite database file without modifying current state.
 pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, StorageError> {
     if !path.exists() {
-        return Ok(BackupValidationSummary {
-            valid: false,
-            user_version: 0,
-            school_years_count: 0,
-            teachers_count: 0,
-            plans_count: 0,
-            error: Some("File does not exist".to_string()),
-        });
+        return invalid_summary("file_missing", "File does not exist".to_string(), 0);
     }
 
     let conn = match Connection::open_with_flags(
@@ -89,14 +108,7 @@ pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, Stor
     ) {
         Ok(c) => c,
         Err(err) => {
-            return Ok(BackupValidationSummary {
-                valid: false,
-                user_version: 0,
-                school_years_count: 0,
-                teachers_count: 0,
-                plans_count: 0,
-                error: Some(format!("Cannot open database: {err}")),
-            });
+            return invalid_summary("unreadable", format!("Cannot open database: {err}"), 0)
         }
     };
 
@@ -104,55 +116,41 @@ pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, Stor
     let integrity: String = match conn.query_row("PRAGMA integrity_check", [], |row| row.get(0)) {
         Ok(s) => s,
         Err(e) => {
-            return Ok(BackupValidationSummary {
-                valid: false,
-                user_version: 0,
-                school_years_count: 0,
-                teachers_count: 0,
-                plans_count: 0,
-                error: Some(format!("Integrity check query failed: {e}")),
-            });
+            let text = e.to_string();
+            let code = if text.contains("not a database") {
+                "not_a_database"
+            } else {
+                "corrupted"
+            };
+            return invalid_summary(code, format!("Integrity check query failed: {e}"), 0);
         }
     };
 
     if integrity != "ok" {
-        return Ok(BackupValidationSummary {
-            valid: false,
-            user_version: 0,
-            school_years_count: 0,
-            teachers_count: 0,
-            plans_count: 0,
-            error: Some(format!("Database integrity failure: {integrity}")),
-        });
+        return invalid_summary(
+            "corrupted",
+            format!("Database integrity failure: {integrity}"),
+            0,
+        );
     }
 
     // 2. PRAGMA user_version <= latest_version()
     let user_version: i32 = match conn.query_row("PRAGMA user_version", [], |row| row.get(0)) {
         Ok(v) => v,
         Err(e) => {
-            return Ok(BackupValidationSummary {
-                valid: false,
-                user_version: 0,
-                school_years_count: 0,
-                teachers_count: 0,
-                plans_count: 0,
-                error: Some(format!("Failed to read user_version: {e}")),
-            });
+            return invalid_summary("unreadable", format!("Failed to read user_version: {e}"), 0)
         }
     };
 
     if user_version > latest_version() {
-        return Ok(BackupValidationSummary {
-            valid: false,
-            user_version,
-            school_years_count: 0,
-            teachers_count: 0,
-            plans_count: 0,
-            error: Some(format!(
+        return invalid_summary(
+            "newer_version",
+            format!(
                 "Unsupported future database version: {user_version} > supported {}",
                 latest_version()
-            )),
-        });
+            ),
+            user_version,
+        );
     }
 
     // 3. Expected tables check
@@ -165,14 +163,11 @@ pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, Stor
             )
             .unwrap_or(false);
         if !exists {
-            return Ok(BackupValidationSummary {
-                valid: false,
+            return invalid_summary(
+                "missing_table",
+                format!("Missing required table: {tbl}"),
                 user_version,
-                school_years_count: 0,
-                teachers_count: 0,
-                plans_count: 0,
-                error: Some(format!("Missing required table: {tbl}")),
-            });
+            );
         }
     }
 
@@ -194,6 +189,8 @@ pub fn validate_backup_file(path: &Path) -> Result<BackupValidationSummary, Stor
         teachers_count,
         plans_count,
         error: None,
+        error_code: None,
+        supported_version: latest_version(),
     })
 }
 
@@ -242,7 +239,20 @@ pub fn backups_dir() -> PathBuf {
 /// Creates a timestamped automatic backup with the specified reason tag.
 /// Also prunes backups to keep only the latest `MAX_AUTO_BACKUPS`.
 pub fn create_automatic_backup(conn: &Connection, reason: &str) -> Result<PathBuf, StorageError> {
-    let dir = backups_dir();
+    create_automatic_backup_in(conn, &backups_dir(), reason)
+}
+
+/// Same as [`create_automatic_backup`] but writes into an explicit `dir`.
+///
+/// File names are `exampanel-backup-<reason>-<epoch_secs>[_<n>].db`. A backup never
+/// overwrites an existing file: when the second is already taken a `_<n>` suffix is added
+/// so two operations in the same second each keep their own safety copy (RA-031).
+pub fn create_automatic_backup_in(
+    conn: &Connection,
+    dir: &Path,
+    reason: &str,
+) -> Result<PathBuf, StorageError> {
+    fs::create_dir_all(dir)?;
     let now = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap_or_default()
@@ -253,61 +263,85 @@ pub fn create_automatic_backup(conn: &Connection, reason: &str) -> Result<PathBu
         .filter(|c| c.is_alphanumeric() || *c == '-' || *c == '_')
         .collect::<String>();
 
-    let filename = format!("exampanel-backup-{clean_reason}-{now}.db");
-    let target = dir.join(&filename);
+    let mut target = dir.join(format!("exampanel-backup-{clean_reason}-{now}.db"));
+    let mut seq = 1u32;
+    while target.exists() {
+        target = dir.join(format!("exampanel-backup-{clean_reason}-{now}_{seq}.db"));
+        seq += 1;
+    }
 
     backup_database(conn, &target)?;
-    let _ = prune_automatic_backups(MAX_AUTO_BACKUPS);
+    let _ = prune_backups_in(dir, MAX_AUTO_BACKUPS);
 
     Ok(target)
 }
 
+/// Sort key `(epoch_secs, sequence)` of an automatic backup, parsed from its file name
+/// (`…-<epoch>` or `…-<epoch>_<n>`). Falls back to the file's modification time so
+/// hand-named files still order sensibly.
+fn backup_sort_key(filename: &str, mtime_secs: u64) -> (u64, u64) {
+    let stem = filename.strip_suffix(".db").unwrap_or(filename);
+    if let Some(tail) = stem.rsplit('-').next() {
+        let mut parts = tail.splitn(2, '_');
+        if let Some(Ok(epoch)) = parts.next().map(str::parse::<u64>) {
+            let seq = parts.next().and_then(|n| n.parse().ok()).unwrap_or(0);
+            return (epoch, seq);
+        }
+    }
+    (mtime_secs, 0)
+}
+
 /// Lists all automatic backups in the backups directory sorted from newest to oldest.
 pub fn list_automatic_backups() -> Result<Vec<BackupFileInfo>, StorageError> {
-    let dir = backups_dir();
+    list_backups_in(&backups_dir())
+}
+
+/// Lists the backups in `dir`, newest first by the timestamp in the file name (not by the
+/// alphabetical order of the reason prefix).
+pub fn list_backups_in(dir: &Path) -> Result<Vec<BackupFileInfo>, StorageError> {
     if !dir.exists() {
         return Ok(Vec::new());
     }
 
     let mut list = Vec::new();
-    let entries = fs::read_dir(&dir)?;
-    for entry in entries.flatten() {
+    for entry in fs::read_dir(dir)?.flatten() {
         let path = entry.path();
-        if path.is_file() {
-            if let Some(ext) = path.extension() {
-                if ext == "db" {
-                    let metadata = entry.metadata()?;
-                    let filename = entry.file_name().to_string_lossy().to_string();
-                    let modified_at = metadata
-                        .modified()
-                        .ok()
-                        .and_then(|t| t.duration_since(SystemTime::UNIX_EPOCH).ok())
-                        .map(|d| d.as_secs().to_string())
-                        .unwrap_or_default();
+        if path.is_file() && path.extension().is_some_and(|ext| ext == "db") {
+            let metadata = entry.metadata()?;
+            let filename = entry.file_name().to_string_lossy().to_string();
+            let modified_secs = metadata
+                .modified()
+                .ok()
+                .and_then(|t| t.duration_since(SystemTime::UNIX_EPOCH).ok())
+                .map_or(0, |d| d.as_secs());
 
-                    list.push(BackupFileInfo {
-                        filename,
-                        path: path.to_string_lossy().to_string(),
-                        size_bytes: metadata.len(),
-                        modified_at,
-                    });
-                }
-            }
+            list.push((
+                backup_sort_key(&filename, modified_secs),
+                BackupFileInfo {
+                    filename,
+                    path: path.to_string_lossy().to_string(),
+                    size_bytes: metadata.len(),
+                    modified_at: modified_secs.to_string(),
+                },
+            ));
         }
     }
 
-    // Sort newest first by filename/modified_at
-    list.sort_by(|a, b| b.filename.cmp(&a.filename));
-    Ok(list)
+    list.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| b.1.filename.cmp(&a.1.filename)));
+    Ok(list.into_iter().map(|(_, info)| info).collect())
 }
 
 /// Prunes old automatic backup files so at most `keep_count` remain.
 pub fn prune_automatic_backups(keep_count: usize) -> Result<(), StorageError> {
-    let mut backups = list_automatic_backups()?;
+    prune_backups_in(&backups_dir(), keep_count)
+}
+
+/// Prunes `dir` so only the `keep_count` newest backups remain.
+pub fn prune_backups_in(dir: &Path, keep_count: usize) -> Result<(), StorageError> {
+    let mut backups = list_backups_in(dir)?;
     if backups.len() > keep_count {
         for old in backups.drain(keep_count..) {
-            let path = PathBuf::from(old.path);
-            let _ = fs::remove_file(path);
+            let _ = fs::remove_file(PathBuf::from(old.path));
         }
     }
     Ok(())

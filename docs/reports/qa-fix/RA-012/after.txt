@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/assignments/RunOptimizeDialog.test.tsx (2 tests) 732ms
+   ✓ RunOptimizeDialog cancel handling (RA-011) > cancelling a run saves nothing, shows ONE cancelled toast and keeps the dialog open  315ms
+   ✓ RunOptimizeDialog progress (RA-012) > keeps the progress bar and best score monotonic across parallel waves  415ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  07:52:33
+   Duration  4.25s (transform 637ms, setup 177ms, collect 1.86s, tests 732ms, environment 545ms, prepare 291ms)
+

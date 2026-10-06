@@ -1,0 +1,27 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/assignments/RunOptimizeDialog.test.tsx (1 test | 1 failed) 223ms
+   × RunOptimizeDialog cancel handling (RA-011) > cancelling a run saves nothing, shows ONE cancelled toast and keeps the dialog open 222ms
+     → expected "spy" to be called 1 times, but got 2 times
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/assignments/RunOptimizeDialog.test.tsx > RunOptimizeDialog cancel handling (RA-011) > cancelling a run saves nothing, shows ONE cancelled toast and keeps the dialog open
+AssertionError: expected "spy" to be called 1 times, but got 2 times
+ ❯ src/pages/assignments/RunOptimizeDialog.test.tsx:59:24
+     57|     await waitFor(() => expect(toast.info).toHaveBeenCalled())
+     58|     await new Promise((r) => setTimeout(r, 50))
+     59|     expect(toast.info).toHaveBeenCalledTimes(1)
+       |                        ^
+     60|     expect(toast.success).not.toHaveBeenCalled()
+     61|     expect(toast.error).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  07:27:47
+   Duration  2.05s (transform 350ms, setup 144ms, collect 914ms, tests 223ms, environment 407ms, prepare 121ms)
+

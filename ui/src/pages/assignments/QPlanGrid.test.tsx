@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { QPlanGrid, type QPlanGridProps } from './QPlanGrid'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@/lib/theme'
@@ -80,11 +80,14 @@ describe('QPlanGrid Component Tests (Part B)', () => {
     expect(screen.getByText(/Khối 12/i)).toBeInTheDocument()
 
     // Attached Totals Panel headers: GV, Tổng, Đề, PB
-    expect(screen.getByText('Tổng cộng')).toBeInTheDocument()
+    expect(screen.getByText(/Tổng cộng|Grand total/)).toBeInTheDocument()
 
-    // Exam rows exist (GK1, CK1, GK2, CK2)
+    // The grade header never doubles the word (RA-003)
+    expect(screen.queryByText(/Khối Khối/i)).not.toBeInTheDocument()
+
+    // Exam rows and totals columns use the paper codes GK1, CK1, GK2, CK2 (RA-015)
     for (const ex of exams) {
-      expect(screen.getAllByText(ex.name).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(ex.code).length).toBeGreaterThan(1) // grid row + totals header
     }
   })
 
@@ -161,5 +164,97 @@ describe('QPlanGrid Component Tests (Part B)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('q-totals-row-1')).toHaveTextContent(/cố định|fixed/i)
     })
+  })
+
+  // RA-039: seats were not focusable and the only tab stops were 60 invisible menu buttons.
+  it('is operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates', async () => {
+    const plans = await api.listPlans(1)
+    const planDetails = (await api.getPlan(plans[0].id)) as PlanDetails
+    const planStatus = (await api.planStatus(plans[0].id)) as PlanStatus
+    renderWithClient({
+      planDetails,
+      planStatus,
+      exams: await api.listExams(1),
+      grades: await api.listGrades(),
+      subjects: await api.listSubjects(1),
+      teachers: await api.teachersWithGrades(1),
+      campuses: await api.listCampuses(),
+      locks: await api.listLocks(1),
+      isEditable: true,
+      focusedTeacherId: null,
+      keptSlots: [],
+      onSelectTeacherFocus: vi.fn(),
+      onToggleKeepSlot: vi.fn(),
+      onReoptimizeRemaining: vi.fn(),
+      onUpdateAssignments: vi.fn(),
+      onCreateLock: vi.fn(),
+    })
+
+    const table = await screen.findByTestId('q-plan-grid-table')
+    // roving tabindex: exactly one seat is in the tab order
+    const stops = table.querySelectorAll('[tabindex="0"]')
+    expect(stops.length).toBe(1)
+    // the per-seat menu buttons are not tab stops and have an accessible name
+    const menus = table.querySelectorAll('[data-testid="q-cell-menu-btn"]')
+    expect(menus.length).toBeGreaterThan(10)
+    menus.forEach((m) => {
+      expect(m.getAttribute('tabindex')).toBe('-1')
+      expect(m.getAttribute('aria-label')).toBeTruthy()
+    })
+
+    const first = stops[0] as HTMLElement
+    first.focus()
+    expect(first.getAttribute('aria-label')).toBeTruthy()
+    fireEvent.keyDown(first, { key: 'ArrowDown' })
+    const second = document.activeElement as HTMLElement
+    expect(second).not.toBe(first)
+    expect(table.contains(second)).toBe(true)
+    expect(second.getAttribute('tabindex')).toBe('0')
+    expect(first.getAttribute('tabindex')).toBe('-1')
+
+    fireEvent.keyDown(second, { key: 'Enter' })
+    await waitFor(() => {
+      expect(screen.getByTestId('candidate-select-modal')).toBeInTheDocument()
+    })
+  })
+
+  // RA-016: the S8 chip printed the raw float 2.545454545454545
+  it('rounds fractional penalty units in the S-chips', async () => {
+    const plans = await api.listPlans(1)
+    const planDetails = (await api.getPlan(plans[0].id)) as PlanDetails
+    const planStatus = (await api.planStatus(plans[0].id)) as PlanStatus
+    const report = planDetails.score_report!
+    const patched: PlanDetails = {
+      ...planDetails,
+      score_report: {
+        ...report,
+        by_rule: report.by_rule.map((r, i) =>
+          i === 0
+            ? { ...r, units: 2.545454545454545, lower_bound: 2.545454545454545 }
+            : r,
+        ),
+      },
+    }
+    renderWithClient({
+      planDetails: patched,
+      planStatus,
+      exams: await api.listExams(1),
+      grades: await api.listGrades(),
+      subjects: await api.listSubjects(1),
+      teachers: await api.teachersWithGrades(1),
+      campuses: await api.listCampuses(),
+      locks: await api.listLocks(1),
+      isEditable: false,
+      focusedTeacherId: null,
+      keptSlots: [],
+      onSelectTeacherFocus: vi.fn(),
+      onToggleKeepSlot: vi.fn(),
+      onReoptimizeRemaining: vi.fn(),
+      onUpdateAssignments: vi.fn(),
+      onCreateLock: vi.fn(),
+    })
+    const bar = await screen.findByTestId('q-grid-summary-bar')
+    expect(bar.textContent).toContain('2.55')
+    expect(bar.textContent).not.toMatch(/2\.5454/)
   })
 })

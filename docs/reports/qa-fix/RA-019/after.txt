@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running unittests src/lib.rs (target/debug/deps/exam_panel_core-be841cdb20a3cb99)
+
+running 2 tests
+test optimize::eval_edit::tests::test_ra019_swap_delta_matches_full_eval_with_non_canonical_setter_order ... ok
+test optimize::eval_edit::tests::test_ra019_candidate_delta_matches_full_eval_with_non_canonical_setter_order ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 90 filtered out; finished in 0.09s
+

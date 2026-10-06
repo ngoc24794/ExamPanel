@@ -1,0 +1,21 @@
+$ git show --stat HEAD~1 -- docs (portable rule docs)
+commit e5d531b558712be342ce1a2791d9333f6b1afadd
+Author: Claude <noreply@anthropic.com>
+Date:   Mon Oct 5 17:11:39 2026 +0000
+
+    fix: do not invent organisation text on exports and printouts (RA-029); docs: portable marker rule (RA-037, ADR-0050)
+    
+    Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_013VEQkQLJAdKCkQQkUBTXoW
+
+ docs/ARCHITECTURE.md             | 2 +-
+ docs/DECISIONS.md                | 8 +++++++-
+ docs/SPEC.md                     | 9 ++++++---
+ docs/release/v0.1.0-checklist.md | 1 +
+ 4 files changed, 15 insertions(+), 5 deletions(-)
+
+$ grep -n "ExamPanel.portable\|EXAMPANEL_DATA_DIR" docs/SPEC.md docs/ARCHITECTURE.md
+docs/SPEC.md:293:- **Portable detection (ADR-0050):** Portable mode is **explicit**: it is active only when a marker file named `ExamPanel.portable` sits next to the executable (beside the `.app` bundle on macOS) **and** `<exe_dir>/data` is writable.
+docs/SPEC.md:297:  - Developer/test override: the environment variable `EXAMPANEL_DATA_DIR` forces a data directory (treated as portable). It is not intended for end users.
+docs/SPEC.md:298:  - To move the data between computers, use portable mode (create `ExamPanel.portable`; the portable zip already contains it) or copy `exam-panel.db` / a backup file.
+docs/ARCHITECTURE.md:92:  - `paths`: Resolves the database path: `<exe_dir>/data/exam-panel.db` only when the `ExamPanel.portable` marker exists next to the executable and the folder is writable; the OS app-data directory otherwise (ADR-0050). `EXAMPANEL_DATA_DIR` overrides both for developers and tests.

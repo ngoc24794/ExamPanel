@@ -1,0 +1,6 @@
+[A7] A7.user_version-latest: pass | observed={"before":4,"after":5} expected="user_version 5 (migrations.rs latest)"
+[A7] A7.rows-preserved: pass | observed=[] expected="no table loses rows"
+[A7] A7.teachers-identical: pass | observed={"n_before":12,"n_after":12} expected="identical teacher rows"
+[A7] A7.plans-identical: pass | observed={"before":[{"id":1,"name":"Phương án v4 mẫu","source":"optimizer","is_final":1}],"after":[{"id":1,"name":"Phương án v4 mẫu","source":"optimizer","is_final":1}]} expected="identical plan rows"
+[A7] A7.automatic-pre-migration-backup: pass | observed=["exampanel-backup-pre-migration-1791188287.db"] expected="a pre-migration backup in data/backups (task expectation; SPEC/ADR do not promise it)"
+[A7] A7.ui-shows-teachers: pass | observed={"shown":12,"total":12} expected="all teachers visible"

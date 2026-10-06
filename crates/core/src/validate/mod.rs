@@ -4,7 +4,7 @@
 //! Supports both complete plans and partial plans during manual construction.
 
 use crate::domain::{
-    calculate_quotas, is_teacher_eligible, Assignment, LockKind, PanelKey, Problem, Role, RuleKey,
+    calculate_quotas, is_teacher_qualified, Assignment, LockKind, PanelKey, Problem, Role, RuleKey,
     TeacherId,
 };
 use serde::{Deserialize, Serialize};
@@ -191,14 +191,7 @@ pub fn validate_assignments(
                             .with_teacher(a.teacher_id),
                     );
                 }
-                if !is_teacher_eligible(
-                    problem,
-                    a.teacher_id,
-                    a.exam_id,
-                    a.grade_id,
-                    a.subject_id,
-                    a.role,
-                ) {
+                if !is_teacher_qualified(problem, a.teacher_id, a.grade_id, a.subject_id, a.role) {
                     violations.push(
                         Violation::new(RuleKey::H2, "unqualified_grade")
                             .with_panel(*panel)
@@ -932,6 +925,42 @@ mod tests {
             },
         );
         assert!(violations.iter().any(|v| v.code == "teacher_unavailable"));
+    }
+
+    #[test]
+    fn test_ra023_absent_teacher_reports_only_h5_not_h2() {
+        let mut problem = make_test_problem();
+        let baseline_assignments = vec![Assignment::new(
+            ExamId(1),
+            GradeId(10),
+            SubjectId(1),
+            TeacherId(1),
+            Role::Setter,
+            0,
+        )];
+        let opts = ValidateOptions {
+            require_complete: false,
+        };
+        let base = validate_assignments(&problem, &baseline_assignments, &opts);
+        assert!(
+            !base.iter().any(|v| v.rule == RuleKey::H2),
+            "baseline has no H2: {base:?}"
+        );
+
+        problem.unavailabilities.push(Unavailability {
+            teacher_id: TeacherId(1),
+            exam_id: ExamId(1),
+            reason: None,
+        });
+        let violations = validate_assignments(&problem, &baseline_assignments, &opts);
+        assert!(
+            violations.iter().any(|v| v.code == "teacher_unavailable"),
+            "H5 expected: {violations:?}"
+        );
+        assert!(
+            !violations.iter().any(|v| v.rule == RuleKey::H2),
+            "absence must not be reported as H2 unqualified_grade: {violations:?}"
+        );
     }
 
     #[test]

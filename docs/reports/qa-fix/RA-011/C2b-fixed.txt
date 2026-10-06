@@ -1,0 +1,1 @@
+[C2] C2.real-cancel-saves-partial-plans(finding): pass | observed={"plans_saved":0,"rows":[],"first_toasts":[{"t":380,"toasts":["Đã hủy tiến trình tối ưu | "],"dialog":true,"plans":0,"hash":"#/assignments"},{"t":579,"toasts":["Đã hủy tiến trình tối ưu | "],"dialog": expected="expected 0 plans after Cancel (phase-8 checklist step 2; task C2)"

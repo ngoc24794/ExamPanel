@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
+import { artifactDir } from './artifact-dir'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const screenshotsDir = path.resolve(__dirname, '../../docs/screenshots/phase-6')
+const screenshotsDir = artifactDir('screenshots', 'phase-6')
 
 test.describe('Phase 6 E2E & Visual Verification', () => {
   test.beforeEach(async ({ page }) => {

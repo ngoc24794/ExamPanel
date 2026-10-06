@@ -1,0 +1,10 @@
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.13s
+     Running tests/qa_regression_tests.rs (target/debug/deps/qa_regression_tests-c43107e0f6f973f0)
+
+running 2 tests
+test ra011_cancelled_optimize_returns_cancelled_error_and_no_plans ... ok
+test ra011_cancel_during_run_returns_cancelled_error ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+

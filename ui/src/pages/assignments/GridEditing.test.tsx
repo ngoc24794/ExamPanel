@@ -96,6 +96,10 @@ describe('Grid Editing & Interaction Tests', () => {
     const invalidItems = screen.getAllByTestId('candidate-item-invalid')
     expect(invalidItems.length).toBeGreaterThan(0)
     expect(invalidItems[0]).toHaveClass('cursor-not-allowed')
+    // reasons are sentences, never raw engine codes such as "H4: max_setter_tasks_per_exam_exceeded"
+    for (const item of invalidItems) {
+      expect(item.textContent).not.toMatch(/\b[hH]\d: [a-z]+(_[a-z]+)+/)
+    }
   })
 
   // 2. drag-to-swap
@@ -567,8 +571,9 @@ describe('Grid Editing & Interaction Tests', () => {
     const vlCell = screen.getByTestId('q-grid-cell-1-1-VL-setter-1')
     expect(vlCell).toBeInTheDocument()
 
-    // For CN setter position 1, it is invalid (position >= subject.setters = 1), so it renders as a blank cell containing "—"
-    const cellsWithDash = screen.getAllByText('—')
-    expect(cellsWithDash.length).toBeGreaterThan(0)
+    // For CN setter position 1 the seat does not exist (position >= subject.setters = 1): the
+    // paper sheet leaves that cell blank, no placeholder glyph (RA-015)
+    const blank = screen.getByTestId('q-grid-blank-1-1-CN-setter-1')
+    expect(blank.textContent).toBe('')
   })
 })

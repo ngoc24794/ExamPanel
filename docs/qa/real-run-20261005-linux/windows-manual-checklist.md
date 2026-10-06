@@ -68,3 +68,27 @@ Optional: Narrator reads the sidebar, dialogs trap focus, high-contrast theme ke
 
 ## W15 — Upgrade path (v0.1.0 checklist §7)
 Copy a Phase-9 `exam-panel.db` (user_version 4 — fixture `crates/storage/fixtures/v4_synthetic.db` is equivalent) into `data\` of the new build. **Expected:** migration runs, all years/plans visible (verified on Linux A7: user_version 4→5, rows preserved). **Also note RA-007:** no automatic pre-migration backup exists.
+
+---
+
+# Addendum — checks for the fixes made after this run (branch `fix/qa-real-run-linux`)
+
+These fixes were verified on Linux/WebKitGTK only (`docs/reports/qa-fix/`). The items below are **not verified on Windows**; do them on a real Windows machine.
+
+## W16 — Startup dialogs after the RA-001 fix (ADR-0044)
+Repeat W1 and W5, and additionally press **OK** in "Lỗi ghi dữ liệu di động" (expected: the main window opens and data is created under `%APPDATA%\ExamPanel\data`), press **Cancel** (expected: process exits with code 0, no window), press OK in the newer-database dialog (expected: exit code 1), and press OK in the damaged-database dialog with a backup present (expected: backup restored, app starts). Confirm no blank window ever appears before a dialog.
+
+## W17 — Native print command (RA-030, ADR-0046)
+In "In / Xuất PDF" pages the button now calls the Rust command `print_page` (WebView2 `ShowPrintUI`). Confirm the Windows print dialog opens from the button, that "Microsoft Print to PDF" produces a landscape A4 page for the plan and portrait pages for notices.
+
+## W18 — Folder buttons after RA-034
+"Mở thư mục dữ liệu" must open Explorer on `%APPDATA%\ExamPanel\data` (or the portable `data\`) without an ACL error; "Mở thư mục nhật ký" must open `data\logs`, which now contains `app.log` lines (startup, database opened, backups).
+
+## W19 — Release build contains no dev tools (RA-036)
+From the webview console of the release build `window.__TAURI_INTERNALS__.invoke('seed_demo')` must reject with `not_supported`; the database must stay unchanged.
+
+## W20 — Backups (RA-031, RA-007)
+After several imports/restores `data\backups` keeps the 10 newest files (newest listed first in Settings); opening a v4 database leaves an `exampanel-backup-pre-migration-<epoch>.db` copy.
+
+## W21 — Grid at 125 % / 150 % scaling (RA-014)
+At effective 1280×720 the Q grid (all 6 columns) is fully visible without sideways scrolling; the totals panel sits below the grid under 1440 px and to its right at 1440 px and above.

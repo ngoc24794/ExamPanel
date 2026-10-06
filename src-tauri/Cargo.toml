@@ -13,7 +13,9 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2.0", features = [] }
 
 [features]
-default = ["dev-tools"]
+# Release builds must NOT ship dev-tools (seed_demo writes demo data into the real DB).
+# Enable explicitly for development: `pnpm tauri dev --features dev-tools`.
+default = []
 dev-tools = ["exam-panel-service/dev-tools"]
 
 [dependencies]

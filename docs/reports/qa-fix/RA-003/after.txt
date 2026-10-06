@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/assignments/QPlanGrid.test.tsx (3 tests) 863ms
+   ✓ QPlanGrid Component Tests (Part B) > renders Q-style grid structure, headers, and attached totals panel  422ms
+ ✓ src/pages/assignments/GridEditing.test.tsx (9 tests) 3038ms
+   ✓ Grid Editing & Interaction Tests > seat click opens the candidate list with disabled invalid candidates and reasons  595ms
+   ✓ Grid Editing & Interaction Tests > drag-to-swap: drags one seat and drops on another to swap teachers  412ms
+   ✓ Grid Editing & Interaction Tests > undo/redo: records assignment updates and allows undoing and redoing  950ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  07:46:42
+   Duration  5.28s (transform 694ms, setup 245ms, collect 2.18s, tests 3.90s, environment 871ms, prepare 360ms)
+

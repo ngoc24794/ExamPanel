@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
+import { describeViolation, useViolationLookup } from '@/lib/violations'
 import {
   type Assignment,
   type CandidateEval,
@@ -45,6 +46,7 @@ export function CandidateSelectModal({
   onSelectTeacher,
 }: CandidateSelectModalProps) {
   const { t } = useTranslation()
+  const lookup = useViolationLookup(schoolYearId)
   const [search, setSearch] = React.useState('')
   const [candidates, setCandidates] = React.useState<CandidateEval[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
@@ -148,7 +150,7 @@ export function CandidateSelectModal({
 
             {!isLoading && filteredCandidates.length === 0 && (
               <div className="p-4 text-center text-xs text-muted-foreground">
-                Không tìm thấy giáo viên phù hợp
+                {t('assignments.noCandidates')}
               </div>
             )}
 
@@ -195,7 +197,7 @@ export function CandidateSelectModal({
                           </span>
                           {isCurrent && (
                             <Badge variant="outline" className="text-[10px] px-1 py-0">
-                              Hiện tại
+                              {t('assignments.currentHolder')}
                             </Badge>
                           )}
                           <span className="text-[11px] text-muted-foreground">
@@ -209,7 +211,7 @@ export function CandidateSelectModal({
                             <AlertCircle className="h-3 w-3 shrink-0" />
                             <span>
                               {cand.hard_violations
-                                .map((v) => `${v.rule.toUpperCase()}: ${v.code}`)
+                                .map((v) => describeViolation(t, v, lookup))
                                 .join(', ')}
                             </span>
                           </div>
@@ -245,7 +247,9 @@ export function CandidateSelectModal({
                             )}
                           </span>
                           <span className="text-[10px] text-muted-foreground block">
-                            Tổng: {cand.new_total.toFixed(1)}
+                            {t('assignments.candidateTotal', {
+                              total: cand.new_total.toFixed(1),
+                            })}
                           </span>
                         </div>
                       )}
@@ -272,7 +276,7 @@ export function CandidateSelectModal({
         </div>
 
         <DialogFooter className="flex justify-between items-center text-xs text-muted-foreground">
-          <span>Gợi ý: Dùng phím ↑ ↓ để chọn, Enter để áp dụng</span>
+          <span>{t('assignments.candidateKeyboardHint')}</span>
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
             {t('common.cancel')}
           </Button>

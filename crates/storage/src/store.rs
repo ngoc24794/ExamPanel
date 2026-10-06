@@ -96,6 +96,19 @@ impl Store {
             return Err(StorageError::DatabaseCorrupted(integrity));
         }
 
+        // An existing database with an older schema is about to be migrated in place: keep a
+        // safety copy next to it first (RA-007). Fresh and current databases need none.
+        let version = crate::migrations::get_current_version(&conn)?;
+        if version > 0 && version < crate::migrations::latest_version() {
+            if let Some(dir) = p.parent() {
+                crate::backup::create_automatic_backup_in(
+                    &conn,
+                    &dir.join("backups"),
+                    "pre-migration",
+                )?;
+            }
+        }
+
         run_migrations(&mut conn)?;
         seed_defaults(&conn)?;
         Ok(Self {

@@ -39,9 +39,44 @@ import {
 import { useTheme } from '@/lib/theme'
 import { useAppInfo, useSettings } from '@/lib/query/hooks'
 import { api } from '@/lib/api'
+import { setLanguage } from '@/i18n'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
-import { getErrorMessage } from '@/lib/query/query-client'
+import { reportError } from '@/lib/query/query-client'
+
+/** Loads the bundled THIRD_PARTY_NOTICES text on demand (44 KB, only when the dialog opens). */
+function LicensesText() {
+  const { t } = useTranslation()
+  const [text, setText] = React.useState<string | null>(null)
+  const [failed, setFailed] = React.useState(false)
+
+  React.useEffect(() => {
+    let active = true
+    import('../../../THIRD_PARTY_NOTICES.md?raw')
+      .then((m) => active && setText(m.default))
+      .catch(() => active && setFailed(true))
+    return () => {
+      active = false
+    }
+  }, [])
+
+  return (
+    <div
+      className="flex-1 overflow-y-auto p-3 bg-muted/40 rounded-md border border-border text-xs"
+      data-testid="licenses-text"
+    >
+      {failed ? (
+        <p className="text-destructive">{t('settings.licensesUnavailable')}</p>
+      ) : text === null ? (
+        <p className="text-muted-foreground">{t('common.loading')}</p>
+      ) : (
+        <pre className="whitespace-pre-wrap break-words font-mono text-[11px] text-foreground">
+          {text}
+        </pre>
+      )}
+    </div>
+  )
+}
 
 export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation()
@@ -80,7 +115,7 @@ export const SettingsPage: React.FC = () => {
       await refetchSettings()
       toast.success(t('settings.saveOrgInfoSuccess'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     } finally {
       setSavingOrg(false)
     }
@@ -99,7 +134,7 @@ export const SettingsPage: React.FC = () => {
     try {
       await api.openDataFolder()
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -107,7 +142,7 @@ export const SettingsPage: React.FC = () => {
     try {
       await api.openLogFolder()
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -118,7 +153,7 @@ export const SettingsPage: React.FC = () => {
       window.dispatchEvent(new CustomEvent('exampanel:restore'))
       toast.success(t('trial.entered_toast'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -129,7 +164,7 @@ export const SettingsPage: React.FC = () => {
       window.dispatchEvent(new CustomEvent('exampanel:restore'))
       toast.success(t('trial.exited_toast'))
     } catch (err) {
-      toast.error(getErrorMessage(err))
+      reportError(err)
     }
   }
 
@@ -161,7 +196,7 @@ export const SettingsPage: React.FC = () => {
                   {t('settings.themeLabel')}
                 </label>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Tùy chỉnh giao diện hiển thị sáng, tối hoặc theo hệ điều hành.
+                  {t('settings.themeHelp')}
                 </p>
               </div>
               <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg border border-border">
@@ -205,14 +240,14 @@ export const SettingsPage: React.FC = () => {
                   {t('settings.languageLabel')}
                 </label>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Chọn ngôn ngữ giao diện (Tiếng Việt mặc định hoặc English).
+                  {t('settings.languageHelp')}
                 </p>
               </div>
               <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg border border-border">
                 <Button
                   variant={i18n.language === 'vi' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => i18n.changeLanguage('vi')}
+                  onClick={() => setLanguage('vi')}
                   className="h-7 px-3 text-xs gap-1.5"
                   data-testid="lang-vi-btn"
                 >
@@ -222,7 +257,7 @@ export const SettingsPage: React.FC = () => {
                 <Button
                   variant={i18n.language === 'en' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => i18n.changeLanguage('en')}
+                  onClick={() => setLanguage('en')}
                   className="h-7 px-3 text-xs gap-1.5"
                   data-testid="lang-en-btn"
                 >
@@ -544,24 +579,7 @@ export const SettingsPage: React.FC = () => {
                       {t('settings.licensesDescription')}
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="flex-1 overflow-y-auto p-3 bg-muted/40 rounded-md border border-border text-xs space-y-2">
-                    <p className="font-semibold text-foreground">
-                      Rust & JavaScript Components
-                    </p>
-                    <p className="text-muted-foreground">
-                      ExamPanel v0.1.0 builds upon open-source software libraries licensed
-                      under permissive terms: MIT, Apache-2.0, BSD-3-Clause, Unicode-3.0,
-                      Zlib, and ISC.
-                    </p>
-                    <p className="text-muted-foreground">
-                      The complete notices and copyright statements are preserved in the
-                      bundled{' '}
-                      <code className="font-mono bg-muted px-1 rounded">
-                        THIRD_PARTY_NOTICES
-                      </code>{' '}
-                      document included with every installation and release package.
-                    </p>
-                  </div>
+                  <LicensesText />
                 </DialogContent>
               </Dialog>
             </div>

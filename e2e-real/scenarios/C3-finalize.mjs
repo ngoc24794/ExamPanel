@@ -8,8 +8,8 @@ const blindKey = (s) => [s[0], s[1], s[3], s[4]].join('.'); const bb = new Set(B
 const ui = +txt.match(/Khoảng cách sai khác: (\d+)/)[1];
 R.note('distance', { ui, subject_aware_seats_A_not_in_B: aware, core_plan_distance_style_blind_unique_keys: blindDiff });
 R.check('C3.distance-equals-true-seat-difference', ui === aware, { ui, subject_aware: aware, subject_blind: blindDiff }, 'distance = number of seats whose teacher differs (39 subject-aware)', ['extracts/C3-compare-dialog.txt', 'extracts/C3-engine-plans.json']);
-const m = txt.match(/Giữa kỳ 1\s*\nA: ([^\n]*)\| PB: ([^\n]*)\n/);
-R.check('C3.matrix-shows-both-subjects-reviewers', !!m && /,/.test(m[2]), m && { A_cell_GK1_10: m[0].trim() }, 'cell shows VL reviewer (T Phúc) and CN reviewer (C Hiền); Q GK1/10 VL [C Hiền, C Lài | T Phúc] CN [T Nghĩa | C Hiền]', ['extracts/C3-compare-dialog.txt', 'screenshots/C3-compare-dialog-page.png']);
+const m = txt.match(/Giữa kỳ 1\s*\nVL\nA: ([^\n]*)\| PB: ([^\n]*)\nB: [^\n]*\nCN\nA: ([^\n]*)\| PB: ([^\n]*)\n/);
+R.check('C3.matrix-shows-both-subjects-reviewers', !!m && /Thầy Phúc/.test(m[2]) && /Cô Hiền/.test(m[4]), m && { A_cell_GK1_10: m[0].trim() }, 'cell shows VL reviewer (T Phúc) and CN reviewer (C Hiền); Q GK1/10 VL [C Hiền, C Lài | T Phúc] CN [T Nghĩa | C Hiền]', ['extracts/C3-compare-dialog.txt', 'screenshots/C3-compare-dialog-page.png']);
 const ruleOK = ['S1 10 0', 'S6 16 6', 'S9 45 0'].every((x) => true) && /S1\n10.0 → 0.0\n-10.0/.test(txt) && /S9\n45.0 → 0.0\n-45.0/.test(txt) && /S8\n36.4 → 20.4\n-16.0/.test(txt);
 const byA = Object.fromEntries(eng['1'].by_rule.map((r) => [r[0], r[2]])), byB = Object.fromEntries(eng['2'].by_rule.map((r) => [r[0], r[2]]));
 R.check('C3.per-rule-differences-match-engine', ruleOK && Math.abs(byA.s9 - 45) < 1e-6 && Math.abs(byB.s8 - 20.3636) < 1e-3, { ui_lines: txt.match(/S\d+\n[\d.]+ → [\d.]+\n-?[\d.]+/g)?.length, engine_A: byA, engine_B: byB }, 'UI per-rule A→B equals engine penalties (1-decimal rounding in UI)');

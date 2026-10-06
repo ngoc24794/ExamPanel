@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { formatUnits } from '@/lib/format'
 import { useTranslation } from 'react-i18next'
 import {
   type Assignment,
@@ -356,11 +357,18 @@ export function PlanMatrixView({
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="text-xs space-y-1 bg-popover text-popover-foreground border-border">
-                      <p className="font-bold uppercase">Tiêu chí {r.rule}</p>
-                      <p>
-                        Hệ số: {r.weight} | Đơn vị vi phạm: {r.units}
+                      <p className="font-bold uppercase">
+                        {t('assignments.ruleCriterion', { rule: r.rule })}
                       </p>
-                      <p>Điểm phạt: {r.penalty.toFixed(2)}</p>
+                      <p>
+                        {t('assignments.ruleWeightUnits', {
+                          weight: r.weight,
+                          units: formatUnits(r.units),
+                        })}
+                      </p>
+                      <p>
+                        {t('assignments.rulePenalty', { penalty: r.penalty.toFixed(2) })}
+                      </p>
                       <p>
                         {t('assignments.lowerBoundLabel', {
                           bound: r.lower_bound.toFixed(2),
@@ -384,7 +392,7 @@ export function PlanMatrixView({
       {effectiveSubjects.length > 1 && (
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">
-            {t('subjects.subject') || 'Môn học'}:
+            {t('subjects.subject')}:
           </span>
           <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-lg border border-border">
             <Button
@@ -393,7 +401,7 @@ export function PlanMatrixView({
               className="h-7 text-xs px-2.5"
               onClick={() => setSelectedSubjectFilter('all')}
             >
-              {t('common.all') || 'Tất cả'} ({effectiveSubjects.length})
+              {t('common.all')} ({effectiveSubjects.length})
             </Button>
             {effectiveSubjects.map((s) => (
               <Button
@@ -416,7 +424,7 @@ export function PlanMatrixView({
           <thead>
             <tr className="border-b border-border bg-muted/30">
               <th className="p-3 text-left font-semibold text-muted-foreground w-40">
-                Kỳ thi / Khối
+                {t('assignments.compareExamGrade')}
               </th>
               {grades.map((grade) => (
                 <th
@@ -797,7 +805,9 @@ function SlotChip({
           ) : (
             <FileEdit className="h-2.5 w-2.5" />
           )}
-          {isReviewer ? 'PB' : 'Đề'}
+          {isReviewer
+            ? t('assignments.roleReviewerShort')
+            : t('assignments.roleSetterShort')}
         </span>
         <span
           className={`font-medium truncate ${
@@ -814,7 +824,9 @@ function SlotChip({
           {teacher ? (
             teacher.display_name || teacher.full_name
           ) : (
-            <span className="text-muted-foreground italic">Trống</span>
+            <span className="text-muted-foreground italic">
+              {t('assignments.emptySeat')}
+            </span>
           )}
         </span>
       </div>

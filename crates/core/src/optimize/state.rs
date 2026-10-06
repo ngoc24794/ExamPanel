@@ -304,6 +304,11 @@ impl IncrementalState {
             }
         }
 
+        // S3 cannot be improved with a single campus: keep the engine consistent with `evaluate` (RA-017).
+        if !problem.campus_independence_applicable() {
+            rule_enabled[2] = false;
+        }
+
         // Populate panels and initial assignments
         let num_panels = num_exams * num_grades * num_subjects;
         let mut panels = Vec::with_capacity(num_panels);

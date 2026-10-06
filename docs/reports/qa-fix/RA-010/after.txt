@@ -1,0 +1,20 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/lib/query/hooks.stale.test.tsx (17 tests) 116ms
+ ✓ src/lib/theme/theme.test.tsx (1 test) 39ms
+ ✓ src/lib/violations.test.ts (3 tests) 7ms
+ ✓ src/lib/api/tauri-shell.test.ts (1 test) 4ms
+ ✓ src/pages/assignments/GridEditing.test.tsx (9 tests) 2968ms
+   ✓ Grid Editing & Interaction Tests > seat click opens the candidate list with disabled invalid candidates and reasons  588ms
+   ✓ Grid Editing & Interaction Tests > drag-to-swap: drags one seat and drops on another to swap teachers  574ms
+   ✓ Grid Editing & Interaction Tests > undo/redo: records assignment updates and allows undoing and redoing  907ms
+ ✓ src/lib/api/api.test.ts (13 tests) 4286ms
+   ✓ MockExamPanelApi Contract Tests > streams optimization progress to completion  2013ms
+   ✓ MockExamPanelApi Contract Tests > saves, retrieves, duplicates, renames, marks final, and deletes plans  2007ms
+
+ Test Files  6 passed (6)
+      Tests  44 passed (44)
+   Start at  08:28:15
+   Duration  5.53s (transform 836ms, setup 748ms, collect 2.17s, tests 7.42s, environment 2.59s, prepare 736ms)
+

@@ -1,0 +1,41 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ❯ src/pages/ExamsPage.submit.test.tsx (2 tests | 2 failed) 1313ms
+   × Exam dialog submit (RA-041) > a double click on Save sends ONE request and ONE success toast 663ms
+     → expected "createExam" to be called 1 times, but got 2 times
+   × Exam dialog submit (RA-041) > a failing save raises ONE error toast (not one from the global handler and one from the page) 649ms
+     → expected "spy" to be called 1 times, but got 2 times
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/ExamsPage.submit.test.tsx > Exam dialog submit (RA-041) > a double click on Save sends ONE request and ONE success toast
+AssertionError: expected "createExam" to be called 1 times, but got 2 times
+ ❯ src/pages/ExamsPage.submit.test.tsx:58:20
+     56|     await waitFor(() => expect(toast.success).toHaveBeenCalled())
+     57|     await new Promise((r) => setTimeout(r, 100))
+     58|     expect(create).toHaveBeenCalledTimes(1)
+       |                    ^
+     59|     expect(toast.success).toHaveBeenCalledTimes(1)
+     60|     expect(toast.error).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/ExamsPage.submit.test.tsx > Exam dialog submit (RA-041) > a failing save raises ONE error toast (not one from the global handler and one from the page)
+AssertionError: expected "spy" to be called 1 times, but got 2 times
+ ❯ src/pages/ExamsPage.submit.test.tsx:72:25
+     70|     await waitFor(() => expect(toast.error).toHaveBeenCalled())
+     71|     await new Promise((r) => setTimeout(r, 100))
+     72|     expect(toast.error).toHaveBeenCalledTimes(1)
+       |                         ^
+     73|   })
+     74| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  08:34:47
+   Duration  3.54s (transform 423ms, setup 166ms, collect 1.09s, tests 1.31s, environment 514ms, prepare 219ms)
+

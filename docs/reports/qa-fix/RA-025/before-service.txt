@@ -1,0 +1,42 @@
+   Compiling exam-panel-storage v0.1.0 (/home/user/ExamPanel/crates/storage)
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.44s
+     Running tests/qa_regression_tests.rs (target/debug/deps/qa_regression_tests-6dd27994e1030a3d)
+
+running 1 test
+test ra025_plan_invalid_error_reports_the_hard_violation_count ... FAILED
+
+failures:
+
+---- ra025_plan_invalid_error_reports_the_hard_violation_count stdout ----
+
+thread 'ra025_plan_invalid_error_reports_the_hard_violation_count' (30266) panicked at crates/service/tests/qa_regression_tests.rs:465:5:
+assertion `left == right` failed
+  left: None
+ right: Some(Number(1))
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:439:17
+   3: core::panicking::assert_failed::<core::option::Option<&serde_json::value::Value>, core::option::Option<&serde_json::value::Value>>
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/panicking.rs:394:5
+   4: qa_regression_tests::ra025_plan_invalid_error_reports_the_hard_violation_count
+             at ./tests/qa_regression_tests.rs:465:5
+   5: qa_regression_tests::ra025_plan_invalid_error_reports_the_hard_violation_count::{closure#0}
+             at ./tests/qa_regression_tests.rs:429:63
+   6: <qa_regression_tests::ra025_plan_invalid_error_reports_the_hard_violation_count::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    ra025_plan_invalid_error_reports_the_hard_violation_count
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.58s
+
+error: test failed, to rerun pass `-p exam-panel-service --test qa_regression_tests`

@@ -1,0 +1,669 @@
+
+> exam-panel@0.1.0 check-all /home/user/ExamPanel
+> pnpm check-version && pnpm check-adr && cargo fmt -- --check && cargo clippy -- -D warnings && cargo test && cargo test -p exam-panel-service --features typegen --test generate_types && pnpm -C ui lint && pnpm -C ui typecheck && pnpm -C ui test && pnpm -C ui build
+
+
+> exam-panel@0.1.0 check-version /home/user/ExamPanel
+> node scripts/check-version.mjs
+
+Checking version consistency (Source of truth: Cargo.toml = 0.1.0):
+  - Cargo.toml:             0.1.0
+  - src-tauri/tauri.conf:   0.1.0
+  - ui/package.json:        0.1.0
+  - package.json:           0.1.0
+
+Version consistency verified: 0.1.0 matches across all configuration files.
+
+> exam-panel@0.1.0 check-adr /home/user/ExamPanel
+> node scripts/check-adr.mjs
+
+✓ All 51 ADRs are strictly unique and sequential (ADR-0001 to ADR-0051).
+    Checking exam-panel-core v0.1.0 (/home/user/ExamPanel/crates/core)
+    Checking exam-panel-storage v0.1.0 (/home/user/ExamPanel/crates/storage)
+    Checking exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.50s
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.63s
+     Running unittests src/lib.rs (target/debug/deps/exam_panel_core-39cbc041999564d8)
+
+running 96 tests
+test domain::entities::tests::test_lock_kind_string_and_serde ... ok
+test domain::entities::tests::test_panel_composition_constants ... ok
+test domain::entities::tests::test_role_string_and_serde ... ok
+test domain::entities::tests::test_rule_presets ... ok
+test domain::entities::tests::test_rule_key_strings_and_serde ... ok
+test domain::forced::tests::test_forced_placement_infeasible_excess_pins ... ok
+test domain::forced::tests::test_forced_placement_cascade_propagation ... ok
+test domain::forced::tests::test_forced_placement_infeasible_zero_candidates ... ok
+test domain::forced::tests::test_forced_placement_single_candidate_propagates ... ok
+test domain::ids::tests::test_id_display_and_conversion ... ok
+test domain::ids::tests::test_id_serde_roundtrip ... ok
+test domain::problem::tests::test_duplicate_exam_code_error ... ok
+test domain::problem::tests::test_invalid_load_weight_error ... ok
+test domain::problem::tests::test_lock_unknown_teacher ... ok
+test domain::problem::tests::test_unavailability_unknown_exam ... ok
+test domain::problem::tests::test_unknown_campus_error ... ok
+test domain::problem::tests::test_valid_problem_passes ... ok
+test domain::problem::tests::test_problem_serde_roundtrip ... ok
+test domain::quota::tests::test_quota_v2_regression_legacy_demo_equals_phase_3 ... ok
+test feasibility::maxflow::tests::test_dinic_basic_flow ... ok
+test feasibility::maxflow::tests::test_h4_exam_bottleneck_scenario ... ok
+test feasibility::tests::test_diagnostic_capacity_and_warnings ... ok
+test feasibility::tests::test_degenerate_database_diagnostics ... ok
+test feasibility::tests::test_diagnostic_exam_capacity_bottleneck_under_h4 ... ok
+test feasibility::tests::test_diagnostic_excess_pinned_setters_and_reviewers_and_pins ... ok
+test feasibility::tests::test_diagnostic_insufficient_panel_teachers_and_campuses ... ok
+test domain::problem::tests::test_canonical_hash_stability_under_reordering ... ok
+test feasibility::tests::test_diagnostic_insufficient_setters_and_reviewers ... ok
+test feasibility::tests::test_diagnostic_lock_conflict_and_excess_pins ... ok
+test feasibility::tests::test_diagnostic_pinned_campus_monopoly ... ok
+test feasibility::tests::test_diagnostic_pinned_quota_exceeded ... ok
+test feasibility::tests::test_diagnostic_pinned_teacher_multiple_panels ... ok
+test domain::problem::tests::test_canonical_hash_changes_on_modification ... ok
+test feasibility::tests::test_valid_problem_feasibility ... ok
+test feasibility::tests::test_diagnostic_pinned_teacher_ineligible_due_to_unavailability ... ok
+test feasibility::tests::test_diagnostic_h3_reviewer_pool_reduced ... ok
+test feasibility::tests::test_diagnostic_structural_error ... ok
+test optimize::eval_edit::tests::test_evaluate_swap_delta_matches_full_eval ... ok
+test optimize::eval_edit::tests::test_ra019_swap_delta_matches_full_eval_with_non_canonical_setter_order ... ok
+test optimize::tests::bench_demo_200k_iterations ... ignored
+test optimize::tests::bench_synthetic_40_200k_iterations ... ignored
+test optimize::tests::test_cancellation_stops_promptly ... ok
+test optimize::eval_edit::tests::test_reoptimize_keeps_slots_fixed_and_valid ... ok
+test optimize::eval_edit::tests::test_ra019_candidate_delta_matches_full_eval_with_non_canonical_setter_order ... ok
+test optimize::eval_edit::tests::test_evaluate_candidates_delta_matches_full_eval ... ok
+test optimize::tests::test_d2_random_walk_hard_invariants_preserved ... ok
+test optimize::tests::test_determinism_across_runs ... ok
+test optimize::tests::test_diversity_threshold_respected ... ok
+test optimize::tests::test_fairness_regression_demo_seed ... ok
+test optimize::tests::test_h3_multi_campus_verification_and_q_plan_4_campuses ... ok
+test optimize::tests::test_improvement_over_solve_hard_demo_seed ... ok
+test optimize::tests::test_lower_bound_awareness_demo_seed ... ok
+test optimize::tests::test_optimize_never_returns_worse_total_than_initial_plan ... ok
+test optimize::tests::test_d1_incremental_state_consistency_demo_10k_moves ... ok
+test optimize::tests::test_pinned_slots_never_move ... ok
+test optimize::tests::test_plan_distance_is_subject_aware ... ok
+test optimize::tests::test_performance_timing_demo_default_run ... ok
+test optimize::tests::test_proptest_d1_incremental_state_consistency ... ok
+test score::bounds::tests::test_lower_bounds_validity_exhaustive_tiny_instances ... ok
+test score::bounds::tests::test_s6_exact_per_teacher_minimum_function ... ok
+test score::bounds::tests::test_s6_lower_bound_q_shaped_nocampus ... ok
+test score::tests::test_lower_bounds_calculation ... ok
+test score::tests::test_ra017_s3_not_applicable_with_a_single_campus ... ok
+test score::tests::test_ra017_s3_still_applies_with_two_campuses ... ok
+test score::tests::test_s1_reviewer_count_violations ... ok
+test score::tests::test_s2_role_balance ... ok
+test score::tests::test_s3_independent_reviewer ... ok
+test score::tests::test_s4_setter_pair_repeated ... ok
+test score::tests::test_s5_review_relation_repeated ... ok
+test score::tests::test_s6_setter_consecutive ... ok
+test score::tests::test_s7_grade_rotation ... ok
+test score::tests::test_s8_load_deviation ... ok
+test score::tests::test_s8_verification_q_plan ... ok
+test score::tests::test_s9_avoidable_crowding_q_plan_nocampus ... ok
+test optimize::tests::test_proptest_d2_random_walk_hard_invariants ... ok
+test solver::tests::test_performance_synthetic_40_teacher_instance ... ok
+test solver::tests::test_performance_timing_demo_seed ... ok
+test solver::tests::test_solve_demo_seed_returns_valid_solution ... ok
+test solver::tests::test_solve_hard_produces_zero_violations ... ok
+test solver::tests::test_solver_determinism_and_multi_seed_variation ... ok
+test solver::tests::test_solver_stops_early_on_infeasible_problem ... ok
+test tests::test_core_version_returns_package_version ... ok
+test validate::tests::test_h1_duplicate_teacher_in_panel ... ok
+test validate::tests::test_h2_inactive_and_zero_weight ... ok
+test validate::tests::test_h2_unqualified_grade ... ok
+test validate::tests::test_h3_single_campus_panel ... ok
+test validate::tests::test_h4_multiple_panels_in_same_exam ... ok
+test validate::tests::test_h5_teacher_unavailable ... ok
+test validate::tests::test_h6_forbid_and_pin_locks ... ok
+test validate::tests::test_h7_quota_exceeded_and_unmet ... ok
+test validate::tests::test_partial_mode_permits_incomplete_panel ... ok
+test validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2 ... ok
+test validate::tests::test_valid_complete_assignment ... ok
+test solver::tests::test_cross_check_300_tiny_instances ... ok
+test optimize::tests::test_d1_incremental_state_consistency_q_shaped_10k_moves ... ok
+test optimize::tests::test_d1_incremental_state_consistency_synthetic_40_10k_moves has been running for over 60 seconds
+test optimize::tests::test_d1_incremental_state_consistency_synthetic_40_10k_moves ... ok
+
+test result: ok. 94 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 69.94s
+
+     Running unittests src/lib.rs (target/debug/deps/exam_panel_service-a1edeadf93432467)
+
+running 4 tests
+test excel::normalize::tests::test_normalize_text_and_code ... ok
+test excel::normalize::tests::test_parse_boolean ... ok
+test excel::normalize::tests::test_parse_load_weight ... ok
+test excel::normalize::tests::test_parse_grade_codes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/generate_presets_report.rs (target/debug/deps/generate_presets_report-d57176bb7141421d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/import_q_data.rs (target/debug/deps/import_q_data-056dcdd222d7b37c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/phase11_report.rs (target/debug/deps/phase11_report-5b70cb6c6a9ff78f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/task5_comparison.rs (target/debug/deps/task5_comparison-d9100293bc5e6809)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/task6_h3.rs (target/debug/deps/task6_h3-b63d33428f0a90bc)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/task7_perf.rs (target/debug/deps/task7_perf-1fb3045746ece57b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/comparison_tests.rs (target/debug/deps/comparison_tests-62a8cb33a55adf81)
+
+running 1 test
+test test_comparison_integrity_and_lower_bounds ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/excel_tests.rs (target/debug/deps/excel_tests-c8462cf4441faa91)
+
+running 9 tests
+test test_export_q_plan_golden_calamine ... ok
+test test_sync_mode_deactivates_omitted_teachers ... ok
+test test_standard_template_feasibility_and_generate_downloads ... ok
+test test_q_sample_template_v2_generation_and_import ... ok
+test test_export_workbook_calamine_verification ... ok
+test test_teacher_matching_and_ambiguity_detection ... ok
+test test_transactional_apply_rollback_on_error ... ok
+test test_template_roundtrip_preview_and_apply ... ok
+test test_template_generation_and_calamine_sheets ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests/logging_tests.rs (target/debug/deps/logging_tests-dc089e8a5d84c239)
+
+running 3 tests
+test a_rejected_duplicate_write_is_logged_with_its_error_code ... ok
+test backup_and_restore_are_logged ... ok
+test opening_a_database_logs_path_and_schema_version ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/part_b_tests.rs (target/debug/deps/part_b_tests-7b2a02fcdf062964)
+
+running 4 tests
+test test_part_b_plan_status_and_staleness ... ok
+test test_part_b_reoptimize_from_plan ... ok
+test test_part_b_manual_editing_and_immutability ... ok
+test test_part_a1_staleness_split_data_vs_rules ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+
+     Running tests/pipeline_report_test.rs (target/debug/deps/pipeline_report_test-6e56c1f03843757b)
+
+running 1 test
+test test_pipeline_report_zero_hard_violations_and_bounds_respected ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.34s
+
+     Running tests/plan_import_tests.rs (target/debug/deps/plan_import_tests-ee45f75155eb7382)
+
+running 10 tests
+test test_plan_import_accent_insensitive_unique_match ... ok
+test test_plan_import_ambiguity_error ... ok
+test test_plan_import_missing_seat ... ok
+test test_plan_import_nfc_nfd_names ... ok
+test test_plan_import_totals_column_mismatch_warning ... ok
+test test_plan_import_tsv_clipboard ... ok
+test test_plan_import_tsv_parse_grid_region ... ok
+test test_plan_import_golden_q_table ... ok
+test test_plan_import_apply_manual_origin_import ... ok
+test test_plan_import_export_roundtrip ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/qa_regression_tests.rs (target/debug/deps/qa_regression_tests-e435c324d4f3f994)
+
+running 10 tests
+test export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds ... ok
+test export::ra029_empty_organisation_settings_print_no_invented_text ... ok
+test export::ra028_co_panelists_are_limited_to_the_same_subject_panel ... ok
+test ra034_capability_does_not_grant_frontend_open_path ... ok
+test ra036_release_manifest_does_not_enable_dev_tools_by_default ... ok
+test ra011_cancel_during_run_returns_cancelled_error ... ok
+test ra011_cancelled_optimize_returns_cancelled_error_and_no_plans ... ok
+test ra025_plan_invalid_error_reports_the_hard_violation_count ... ok
+test reoptimize::ra026_kept_setter_seats_keep_their_position ... ok
+test reoptimize::ra026_saved_plans_get_unique_names ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.49s
+
+     Running tests/service_tests.rs (target/debug/deps/service_tests-f63247930e76bce8)
+
+running 13 tests
+test test_app_info_and_settings ... ok
+test test_ensure_default_school_year ... ok
+test test_campuses_and_grades_crud ... ok
+test test_busy_job_rejection ... ok
+test test_error_mapping ... ok
+test test_exam_crud_and_reorder ... ok
+test test_feasibility_and_evaluation ... ok
+test test_lock_not_held_during_optimize_and_cancellation ... ok
+test test_school_years_and_exams ... ok
+test test_rule_presets_and_quota_preview ... ok
+test test_teachers_and_grades ... ok
+test test_optimization_persistence_and_plan_crud ... ok
+test test_unavailabilities_locks_and_rule_settings ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+
+     Running tests/trial_mode_tests.rs (target/debug/deps/trial_mode_tests-485789daeebda6b3)
+
+running 2 tests
+test test_startup_error_classification ... ok
+test test_trial_mode_isolation_real_db_untouched ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/warm_start_tests.rs (target/debug/deps/warm_start_tests-2472c87b8df927ea)
+
+running 1 test
+test test_warm_start_initial_score_and_convergence ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running unittests src/lib.rs (target/debug/deps/exam_panel_storage-96a595875aaaae9c)
+
+running 35 tests
+test backup::tests::test_corrupted_file_rejection ... ok
+test backup::tests::test_missing_table_rejection ... ok
+test backup::tests::test_newer_user_version_rejection ... ok
+test backup::tests::test_backup_and_restore_roundtrip ... ok
+test backup::tests::test_restore_reopens_connection_on_file_store ... ok
+test migrations::tests::test_legacy_equivalence_v4_to_v5 ... ok
+test migrations::tests::test_migrations_fresh_db_reaches_latest_version ... ok
+test migrations::tests::test_migrations_rejects_higher_user_version ... ok
+test backup::tests::test_restore_committed_v4_backup_fixture ... ok
+test migrations::tests::test_upgrade_from_v3_to_v4_backfills_data_hash_and_drops_problem_hash ... ok
+test migrations::tests::test_upgrade_from_v1_to_v5_preserves_data ... ok
+test paths::tests::test_is_dir_writable_in_temp_dir ... ok
+test paths::tests::test_portable_marker_absent_defaults_to_installed ... ok
+test migrations::tests::test_migrations_idempotent ... ok
+test paths::tests::test_portable_marker_macos_app_bundle_adjacent ... ok
+test paths::tests::test_portable_marker_macos_app_bundle_inside ... ok
+test paths::tests::test_portable_marker_present_and_writable ... ok
+test paths::tests::test_portable_marker_read_only_folder ... ok
+test paths::tests::test_portable_marker_macos_app_bundle_readonly ... ok
+test paths::tests::test_resolve_database_path_ends_with_db_filename ... ok
+test migrations::tests::test_upgrade_from_v4_to_v5_backfills_subjects_and_competencies ... ok
+test backup::tests::test_restore_v4_backup_triggers_migration ... ok
+test tests::test_create_school_year_and_copy_teacher_grades ... ok
+test tests::test_fk_and_check_constraints ... ok
+test tests::test_open_in_memory_connection_succeeds ... ok
+test tests::test_locks_lock_id_delete_and_unique_expression_index ... ok
+test tests::test_migrations_and_idempotency ... ok
+test tests::test_partial_unique_indexes ... ok
+test tests::test_protect_historical_plans_on_delete_restrict ... ok
+test tests::test_save_and_load_plan_roundtrip ... ok
+test tests::test_plan_batch_operations_and_methods ... ok
+test tests::test_no_forbidden_terms_in_fixtures_and_seeds ... ok
+test tests::test_seed_legacy_demo_validation ... ok
+test tests::test_seed_demo_and_load_problem_validation ... ok
+test tests::test_subjects_and_competencies_crud ... ok
+
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s
+
+     Running tests/backup_rotation_tests.rs (target/debug/deps/backup_rotation_tests-5ba7228db3e39bfc)
+
+running 6 tests
+test ra031_list_is_sorted_newest_first_by_timestamp ... ok
+test ra031_prune_keeps_the_newest_ten_across_reasons ... ok
+test ra007_opening_an_older_database_creates_a_pre_migration_backup ... ok
+test ra007_opening_a_current_database_creates_no_backup ... ok
+test ra032_validation_errors_carry_stable_codes ... ok
+test ra031_two_backups_in_the_same_second_both_survive ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/reopen_tests.rs (target/debug/deps/reopen_tests-545bd3d2fd20112c)
+
+running 1 test
+test reopening_a_current_database_leaves_the_file_byte_identical ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/v4_migration_tests.rs (target/debug/deps/v4_migration_tests-e4049b5ef9aeee01)
+
+running 2 tests
+test test_v4_synthetic_fixture_schema_integrity ... ok
+test test_restore_v4_synthetic_fixture_with_migration_and_legacy_equivalence ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+   Doc-tests exam_panel_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests exam_panel_service
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests exam_panel_storage
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling exam-panel-service v0.1.0 (/home/user/ExamPanel/crates/service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.82s
+     Running tests/generate_types.rs (target/debug/deps/generate_types-4bc6a7c21cb4a8b1)
+
+running 1 test
+test test_typescript_types_freshness ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+> exam-panel-ui@0.1.0 lint /home/user/ExamPanel/ui
+> eslint . --max-warnings 0
+
+
+> exam-panel-ui@0.1.0 typecheck /home/user/ExamPanel/ui
+> tsc --noEmit
+
+
+> exam-panel-ui@0.1.0 test /home/user/ExamPanel/ui
+> vitest run
+
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/lib/api/api.test.ts (13 tests) 4308ms
+   ✓ MockExamPanelApi Contract Tests > streams optimization progress to completion  2013ms
+   ✓ MockExamPanelApi Contract Tests > saves, retrieves, duplicates, renames, marks final, and deletes plans  2020ms
+stderr | src/pages/AssignmentsPage.test.tsx > AssignmentsPage Component Tests > supports duplicate for editing, keyboard candidate replace, undo/redo, and save
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (/home/user/ExamPanel/ui/src/pages/AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+    at Router (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (/home/user/ExamPanel/ui/src/pages/AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+    at Router (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (/home/user/ExamPanel/ui/src/pages/AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+    at Router (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (/home/user/ExamPanel/ui/src/pages/AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+    at Router (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (/home/user/ExamPanel/ui/src/pages/AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+    at Router (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (/home/user/ExamPanel/ui/src/pages/AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+    at Router (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (/home/user/ExamPanel/ui/src/pages/AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+    at Router (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///home/user/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+
+ ✓ src/pages/AssignmentsPage.test.tsx (7 tests) 4289ms
+   ✓ AssignmentsPage Component Tests > renders assignment workspace, header actions, and plan view  1277ms
+   ✓ AssignmentsPage Component Tests > opens Run Optimizer dialog, displays effort options, seed and feasibility status  304ms
+   ✓ AssignmentsPage Component Tests > focuses on teacher when chip or teacher row is clicked in detail view  568ms
+   ✓ AssignmentsPage Component Tests > opens Compare modal when compare button is clicked  450ms
+   ✓ AssignmentsPage Component Tests > supports duplicate for editing, keyboard candidate replace, undo/redo, and save  1062ms
+   ✓ AssignmentsPage Component Tests > renders Q-style grid with attached totals, task markers, and search filter  509ms
+ ✓ src/pages/TeachersPage.test.tsx (8 tests) 5211ms
+   ✓ TeachersPage > renders teacher roster and coverage panel matrix  722ms
+   ✓ TeachersPage > filters teachers by name search  445ms
+   ✓ TeachersPage > optimistically updates grades taught on toggle  683ms
+   ✓ TeachersPage > rolls back optimistic grade toggle when API call fails  647ms
+   ✓ TeachersPage > offers "Deactivate instead" flow when deleting a teacher in use  1098ms
+   ✓ TeachersPage > validates inputs and creates a new teacher with assigned grades  1111ms
+   ✓ TeachersPage > displays coverage panel status badges derived from feasibility  353ms
+ ✓ src/pages/AssignmentsPage.edit.test.tsx (3 tests) 3807ms
+   ✓ AssignmentsPage live evaluation after edits (RA-020) > updates the header score and hard-violation count after a swap  1444ms
+   ✓ AssignmentsPage live evaluation after edits (RA-020) > rejects a swap that puts the same teacher twice in one panel  967ms
+   ✓ AssignmentsPage kept-seat banner (RA-026) > shows the kept-seat banner in the default grid view, not only in the detail view  1395ms
+ ✓ src/pages/assignments/GridEditing.test.tsx (9 tests) 4145ms
+   ✓ Grid Editing & Interaction Tests > seat click opens the candidate list with disabled invalid candidates and reasons  788ms
+   ✓ Grid Editing & Interaction Tests > drag-to-swap: drags one seat and drops on another to swap teachers  512ms
+   ✓ Grid Editing & Interaction Tests > undo/redo: records assignment updates and allows undoing and redoing  1408ms
+   ✓ Grid Editing & Interaction Tests > forced seats immovable: cannot be dragged, clicked for replacement, or overwritten by drop  346ms
+   ✓ Grid Editing & Interaction Tests > teacher hover focus: highlights all seats of hovered teacher and totals row  315ms
+   ✓ Grid Editing & Interaction Tests > view-toggle persistence: persists view mode to localStorage and restores on mount  345ms
+ ✓ src/app/App.test.tsx (4 tests) 2763ms
+   ✓ App > renders application brand, sidebar navigation, and ping response  377ms
+   ✓ App > switches navigation tab when sidebar item is clicked  649ms
+   ✓ App > switches school year through selector and refetches data  930ms
+   ✓ App > renders persistent trial mode banner and allows exiting trial mode  804ms
+stderr | src/pages/assignments/QPlanGrid.test.tsx > QPlanGrid Component Tests (Part B) > is operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates
+Warning: An update to QPlanGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at QPlanGrid (/home/user/ExamPanel/ui/src/pages/assignments/QPlanGrid.tsx:30:3)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+
+ ✓ src/pages/assignments/QPlanGrid.test.tsx (5 tests) 2192ms
+   ✓ QPlanGrid Component Tests (Part B) > renders Q-style grid structure, headers, and attached totals panel  694ms
+   ✓ QPlanGrid Component Tests (Part B) > renders forced-load teacher indicator and task count markers in totals table  306ms
+   ✓ QPlanGrid Component Tests (Part B) > is operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates  618ms
+ ✓ src/pages/AssignmentsPage.race.test.tsx (1 test) 2008ms
+   ✓ AssignmentsPage with a real-shaped (asynchronous) backend > selects the new editable copy and shows the edit toolbar  2006ms
+ ✓ src/pages/UnavailabilityPage.test.tsx (3 tests) 1963ms
+   ✓ UnavailabilityPage > renders unavailability grid and teacher rows  424ms
+   ✓ UnavailabilityPage > toggles absence on click and allows adding reason  1093ms
+   ✓ UnavailabilityPage > performs bulk actions: vắng cả học kỳ 1 and có mặt tất cả  443ms
+ ✓ src/pages/SettingsPage.test.tsx (8 tests) 1676ms
+   ✓ SettingsPage > renders settings page, data path, and copies path to clipboard  315ms
+   ✓ SettingsPage > renders organization section and saves organization info  584ms
+ ✓ src/pages/RulesPage.test.tsx (6 tests) 1356ms
+   ✓ RulesPage > navigates to soft rules tab, renders S1/S9/S10 and applies presets  427ms
+ ✓ src/pages/ExamsPage.test.tsx (3 tests) 1378ms
+   ✓ ExamsPage > creates, reorders, and deletes an exam  828ms
+   ✓ ExamsPage > creates and edits a grade  366ms
+ ✓ src/pages/ExamsPage.submit.test.tsx (2 tests) 1213ms
+   ✓ Exam dialog submit (RA-041) > a double click on Save sends ONE request and ONE success toast  716ms
+   ✓ Exam dialog submit (RA-041) > a failing save raises ONE error toast (not one from the global handler and one from the page)  495ms
+ ✓ src/pages/CampusesPage.test.tsx (3 tests) 742ms
+   ✓ CampusesPage > opens create dialog, validates inputs, and creates a new campus  372ms
+ ✓ src/pages/print/PrintPages.test.tsx (5 tests) 692ms
+ ✓ src/pages/assignments/RunOptimizeDialog.test.tsx (2 tests) 615ms
+   ✓ RunOptimizeDialog progress (RA-012) > keeps the progress bar and best score monotonic across parallel waves  317ms
+stderr | src/pages/StatisticsPage.test.tsx > StatisticsPage Component Tests > supports sorting teacher statistics table by columns
+Warning: An update to StatisticsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at StatisticsPage (/home/user/ExamPanel/ui/src/pages/StatisticsPage.tsx:23:57)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+Warning: An update to StatisticsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at StatisticsPage (/home/user/ExamPanel/ui/src/pages/StatisticsPage.tsx:23:57)
+    at QueryClientProvider (file:///home/user/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (/home/user/ExamPanel/ui/src/lib/theme/ThemeProvider.tsx:10:26)
+
+ ✓ src/pages/StatisticsPage.test.tsx (2 tests) 594ms
+   ✓ StatisticsPage Component Tests > renders statistics page header, plan selector, and summary cards  328ms
+ ✓ src/pages/settings/BackupSection.test.tsx (3 tests) 561ms
+   ✓ BackupSection Component Tests > validates backup and executes restore flow on confirm  314ms
+ ✓ src/pages/StatisticsPage.heatmaps.test.tsx (3 tests) 416ms
+   ✓ StatisticsPage heatmaps with 12 teachers > lists every teacher (no truncation at 11) with names as column headers  412ms
+ ✓ src/components/FeasibilityIndicator.test.tsx (3 tests) 388ms
+ ✓ src/pages/teachers/ImportWizardModal.test.tsx (3 tests) 434ms
+ ✓ src/pages/assignments/ReoptimizeDialog.test.tsx (2 tests) 362ms
+ ✓ src/pages/assignments/PlanCompareModal.test.tsx (2 tests) 366ms
+ ✓ src/pages/assignments/ImportPlanModal.test.tsx (2 tests) 302ms
+ ✓ src/lib/query/hooks.stale.test.tsx (19 tests) 168ms
+ ✓ src/lib/theme/theme.test.tsx (1 test) 59ms
+ ✓ src/pages/assignments/PlansHistoryList.test.tsx (2 tests) 125ms
+ ✓ src/pages/OverviewPage.test.tsx (3 tests) 257ms
+ ✓ src/i18n/i18n.test.ts (7 tests) 20ms
+ ✓ src/i18n/i18n-keys.test.ts (4 tests) 16ms
+ ✓ src/i18n/no-hardcoded-text.test.ts (1 test) 21ms
+ ✓ src/lib/violations.test.ts (3 tests) 8ms
+ ✓ src/lib/api/tauri-shell.test.ts (2 tests) 7ms
+ ✓ src/pages/print/orgInfo.test.ts (3 tests) 4ms
+
+ Test Files  34 passed (34)
+      Tests  147 passed (147)
+   Start at  17:32:57
+   Duration  35.88s (transform 2.55s, setup 5.59s, collect 28.65s, tests 42.47s, environment 17.57s, prepare 3.88s)
+
+
+> exam-panel-ui@0.1.0 build /home/user/ExamPanel/ui
+> tsc -b && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 1932 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                  0.47 kB │ gzip:   0.31 kB
+dist/assets/index-CTRpsLZs.css                  45.43 kB │ gzip:   8.51 kB
+dist/assets/index-B3e4mKZf.js                    1.25 kB │ gzip:   0.48 kB
+dist/assets/THIRD_PARTY_NOTICES-CMxyJvry.js     44.94 kB │ gzip:   8.04 kB
+dist/assets/index-EJv5Uboq.js                1,100.42 kB │ gzip: 302.23 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 6.81s
+CHECK_ALL_EXIT=0

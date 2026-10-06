@@ -1,0 +1,7 @@
+$ grep -rIn "examination-panel.db\|exampanel.db" docs README.md  (stale DB file names; expect none outside qa reports)
+exit=1
+
+$ grep -rIc "exam-panel.db" docs/RELEASE_CHECKLIST.md docs/*.md
+docs/ARCHITECTURE.md:2
+docs/DECISIONS.md:2
+docs/SPEC.md:1

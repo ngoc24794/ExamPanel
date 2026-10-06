@@ -1,0 +1,60 @@
+   Compiling exam-panel-core v0.1.0 (/home/user/ExamPanel/crates/core)
+   Compiling exam-panel-storage v0.1.0 (/home/user/ExamPanel/crates/storage)
+error[E0609]: no field `error_code` on type `BackupValidationSummary`
+   --> crates/storage/tests/backup_rotation_tests.rs:159:18
+    |
+159 |     assert_eq!(s.error_code.as_deref(), Some("not_a_database"));
+    |                  ^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `valid`, `user_version`, `school_years_count`, `teachers_count`, `plans_count`, `error`
+
+error[E0609]: no field `error_code` on type `BackupValidationSummary`
+   --> crates/storage/tests/backup_rotation_tests.rs:163:49
+    |
+163 |         validate_backup_file(&missing).unwrap().error_code.as_deref(),
+    |                                                 ^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `valid`, `user_version`, `school_years_count`, `teachers_count`, `plans_count`, `error`
+
+error[E0609]: no field `error_code` on type `BackupValidationSummary`
+   --> crates/storage/tests/backup_rotation_tests.rs:170:28
+    |
+170 |     assert!(ok.valid && ok.error_code.is_none());
+    |                            ^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `valid`, `user_version`, `school_years_count`, `teachers_count`, `plans_count`, `error`
+
+error[E0609]: no field `error_code` on type `BackupValidationSummary`
+   --> crates/storage/tests/backup_rotation_tests.rs:179:18
+    |
+179 |     assert_eq!(n.error_code.as_deref(), Some("newer_version"));
+    |                  ^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `valid`, `user_version`, `school_years_count`, `teachers_count`, `plans_count`, `error`
+
+error[E0609]: no field `supported_version` on type `BackupValidationSummary`
+   --> crates/storage/tests/backup_rotation_tests.rs:181:15
+    |
+181 |     assert!(n.supported_version >= 5);
+    |               ^^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `valid`, `user_version`, `school_years_count`, `teachers_count`, `plans_count`, `error`
+
+error[E0609]: no field `error_code` on type `BackupValidationSummary`
+   --> crates/storage/tests/backup_rotation_tests.rs:190:20
+    |
+190 |         matches!(t.error_code.as_deref(), Some("corrupted") | Some("not_a_database")),
+    |                    ^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `valid`, `user_version`, `school_years_count`, `teachers_count`, `plans_count`, `error`
+
+error[E0609]: no field `error_code` on type `BackupValidationSummary`
+   --> crates/storage/tests/backup_rotation_tests.rs:192:11
+    |
+192 |         t.error_code
+    |           ^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `valid`, `user_version`, `school_years_count`, `teachers_count`, `plans_count`, `error`
+
+For more information about this error, try `rustc --explain E0609`.
+error: could not compile `exam-panel-storage` (test "backup_rotation_tests") due to 7 previous errors

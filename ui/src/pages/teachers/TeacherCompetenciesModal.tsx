@@ -168,9 +168,7 @@ export function TeacherCompetenciesModal({
         school_year_id: schoolYearId,
         competencies,
       })
-      toast.success(
-        t('competencies.saveSuccess') || 'Cập nhật phân công chuyên môn thành công',
-      )
+      toast.success(t('competencies.saveSuccess'))
       onOpenChange(false)
     } catch {
       // Error handled by mutation hook
@@ -205,10 +203,7 @@ export function TeacherCompetenciesModal({
           competencies,
         })
       }
-      toast.success(
-        t('competencies.bulkAssignSuccess') ||
-          'Đã gán chuyên môn theo khối đang dạy cho toàn bộ giáo viên',
-      )
+      toast.success(t('competencies.bulkAssignSuccess'))
       onOpenChange(false)
     } catch {
       // Error handled by mutation
@@ -223,7 +218,7 @@ export function TeacherCompetenciesModal({
             <div className="flex items-center gap-2">
               <Award className="h-5 w-5 text-primary" />
               <DialogTitle className="text-base font-semibold text-foreground">
-                {t('competencies.modalTitle') || 'Phân công chuyên môn'}
+                {t('competencies.modalTitle')}
                 {teacher && (
                   <span className="text-primary ml-1.5 font-normal">
                     - {teacher.full_name}{' '}
@@ -234,14 +229,13 @@ export function TeacherCompetenciesModal({
             </div>
           </div>
           <DialogDescription className="text-xs text-muted-foreground">
-            {t('competencies.modalDesc') ||
-              'Chỉ định các môn học và vai trò (ra đề / phản biện) giáo viên có thẩm quyền đảm nhận.'}
+            {t('competencies.modalDesc')}
           </DialogDescription>
         </DialogHeader>
 
         {/* Bulk Action Button Bar */}
         <div className="flex items-center justify-between p-2.5 rounded bg-muted/30 border border-border text-xs">
-          <span className="text-muted-foreground">Thao tác nhanh cho toàn trường:</span>
+          <span className="text-muted-foreground">{t('teachers.compQuickActions')}</span>
           <Button
             type="button"
             variant="outline"
@@ -251,27 +245,26 @@ export function TeacherCompetenciesModal({
             data-testid="bulk-assign-competencies-btn"
           >
             <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-            {t('competencies.bulkAssignTaught') ||
-              'Gán theo khối đang dạy cho tất cả giáo viên'}
+            {t('competencies.bulkAssignTaught')}
           </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto min-h-[240px] border rounded border-border">
           {isLoading ? (
             <div className="p-8 text-center text-sm text-muted-foreground">
-              {t('common.loading') || 'Đang tải thông tin chuyên môn...'}
+              {t('teachers.competenciesLoading')}
             </div>
           ) : subjects.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted-foreground">
-              {t('subjects.noSubjects') || 'Chưa có môn thi nào được cấu hình.'}
+              {t('subjects.noSubjects')}
             </div>
           ) : (
             <Table className="text-xs">
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-40">Môn học</TableHead>
-                  <TableHead>Vai trò Ra đề (Đề)</TableHead>
-                  <TableHead>Vai trò Phản biện (PB)</TableHead>
+                  <TableHead className="w-40">{t('teachers.compSubject')}</TableHead>
+                  <TableHead>{t('teachers.compSetterRole')}</TableHead>
+                  <TableHead>{t('teachers.compReviewerRole')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -309,7 +302,8 @@ export function TeacherCompetenciesModal({
                             htmlFor={`setter-${s.id}`}
                             className="text-xs font-medium cursor-pointer"
                           >
-                            Đảm nhận
+                                                        {t('teachers.compTakesRole')}
+
                           </label>
 
                           {cfg.setter.enabled && (
@@ -323,8 +317,8 @@ export function TeacherCompetenciesModal({
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="bg-popover border-border text-xs">
-                                <SelectItem value="taught">Khối đang dạy</SelectItem>
-                                <SelectItem value="any">Mọi khối</SelectItem>
+                                <SelectItem value="taught">{t('teachers.compScopeTaught')}</SelectItem>
+                                <SelectItem value="any">{t('teachers.compScopeAny')}</SelectItem>
                               </SelectContent>
                             </Select>
                           )}
@@ -345,7 +339,8 @@ export function TeacherCompetenciesModal({
                             htmlFor={`reviewer-${s.id}`}
                             className="text-xs font-medium cursor-pointer"
                           >
-                            Đảm nhận
+                                                        {t('teachers.compTakesRole')}
+
                           </label>
 
                           {cfg.reviewer.enabled && (
@@ -359,8 +354,8 @@ export function TeacherCompetenciesModal({
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="bg-popover border-border text-xs">
-                                <SelectItem value="taught">Khối đang dạy</SelectItem>
-                                <SelectItem value="any">Mọi khối</SelectItem>
+                                <SelectItem value="taught">{t('teachers.compScopeTaught')}</SelectItem>
+                                <SelectItem value="any">{t('teachers.compScopeAny')}</SelectItem>
                               </SelectContent>
                             </Select>
                           )}
@@ -382,7 +377,7 @@ export function TeacherCompetenciesModal({
             onClick={() => onOpenChange(false)}
             className="text-xs"
           >
-            {t('common.cancel') || 'Hủy'}
+            {t('common.cancel')}
           </Button>
           <Button
             type="button"
@@ -392,7 +387,7 @@ export function TeacherCompetenciesModal({
             className="text-xs bg-primary text-primary-foreground hover:bg-primary/90"
             data-testid="save-competencies-btn"
           >
-            {t('common.save') || 'Lưu chuyên môn'}
+            {t('common.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

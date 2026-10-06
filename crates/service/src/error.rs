@@ -52,6 +52,17 @@ impl AppError {
 
 impl From<exam_panel_storage::StorageError> for AppError {
     fn from(err: exam_panel_storage::StorageError) -> Self {
+        let app = Self::from_storage(err);
+        // NotFound is routine control flow; everything else must leave a trace in app.log (RA-043).
+        if app.code != "not_found" {
+            log::warn!("storage error mapped to {}: {:?}", app.code, app.params);
+        }
+        app
+    }
+}
+
+impl AppError {
+    fn from_storage(err: exam_panel_storage::StorageError) -> Self {
         match err {
             exam_panel_storage::StorageError::NotFound(msg) => {
                 Self::new("not_found").with_param("message", msg)

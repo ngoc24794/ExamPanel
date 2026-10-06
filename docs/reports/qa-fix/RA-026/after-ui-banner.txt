@@ -1,0 +1,13 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/AssignmentsPage.edit.test.tsx (3 tests) 2538ms
+   ✓ AssignmentsPage live evaluation after edits (RA-020) > updates the header score and hard-violation count after a swap  1078ms
+   ✓ AssignmentsPage live evaluation after edits (RA-020) > rejects a swap that puts the same teacher twice in one panel  565ms
+   ✓ AssignmentsPage kept-seat banner (RA-026) > shows the kept-seat banner in the default grid view, not only in the detail view  893ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  08:15:27
+   Duration  5.19s (transform 662ms, setup 164ms, collect 1.44s, tests 2.54s, environment 514ms, prepare 172ms)
+

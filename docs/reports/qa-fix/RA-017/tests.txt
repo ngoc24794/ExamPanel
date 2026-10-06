@@ -1,0 +1,29 @@
+   Compiling exam-panel-core v0.1.0 (/home/user/ExamPanel/crates/core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.01s
+     Running unittests src/lib.rs (target/debug/deps/exam_panel_core-be841cdb20a3cb99)
+
+running 2 tests
+test score::tests::test_ra017_s3_still_applies_with_two_campuses ... ok
+test score::tests::test_ra017_s3_not_applicable_with_a_single_campus ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 94 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running tests/warm_start_tests.rs (target/debug/deps/warm_start_tests-5c6068bafee7d143)
+
+running 1 test
+test test_warm_start_initial_score_and_convergence ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/RulesPage.test.tsx (6 tests) 1162ms
+   ✓ RulesPage > navigates to soft rules tab, renders S1/S9/S10 and applies presets  314ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  17:29:32
+   Duration  3.69s (transform 611ms, setup 179ms, collect 1.48s, tests 1.16s, environment 400ms, prepare 189ms)
+

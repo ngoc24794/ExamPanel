@@ -68,6 +68,8 @@ export interface ExamPanelApi {
   setLanguage(lang: string): Promise<void>
   openDataFolder(): Promise<void>
   openLogFolder(): Promise<void>
+  /** Opens the system print dialog for the current page (print / save as PDF). */
+  printPage(): Promise<void>
   enterTrialMode(): Promise<void>
   exitTrialMode(): Promise<void>
 

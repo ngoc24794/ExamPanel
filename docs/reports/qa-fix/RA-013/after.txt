@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /home/user/ExamPanel/ui
+
+ ✓ src/pages/assignments/PlanCompareModal.test.tsx (2 tests) 238ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  07:41:37
+   Duration  2.05s (transform 328ms, setup 152ms, collect 898ms, tests 238ms, environment 381ms, prepare 123ms)
+
