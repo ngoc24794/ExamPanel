@@ -147,7 +147,7 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
     guide_sheet.write_with_format(
         r,
         2,
-        "Chỉ định số lượt nhiệm vụ cả năm cho giáo viên (VD: 12). Tùy chọn, ghi đè công thức q.",
+        "Chỉ định số lượt nhiệm vụ cả năm cho giáo viên (VD: 12). Tùy chọn, ghi đè công thức q. Tổng chỉ tiêu của các giáo viên dạy một môn phải đủ phủ hết số lượt của môn đó (mẫu: môn CN đặt 8 cho GV016–GV018 = 24 lượt).",
         &instruction_format,
     )?;
     r += 1;
@@ -225,7 +225,7 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
     guide_sheet.write_with_format(
         r,
         2,
-        "Số phân hiệu tối thiểu đại diện trong mỗi ban đề (mặc định 2 theo H3).",
+        "Số phân hiệu tối thiểu đại diện trong mỗi ban đề (mặc định 2 theo H3). Nếu một môn chỉ có ít giáo viên và họ tập trung ở cùng phân hiệu thì phải hạ xuống 1, nếu không sẽ không thể lấp đủ ban đề (mẫu: môn CN đặt 1).",
         &instruction_format,
     )?;
     r += 1;
@@ -526,7 +526,7 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
             "1",
             "Có",
             "",
-            "",
+            "8",
             "",
         ),
         (
@@ -538,7 +538,7 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
             "1",
             "Có",
             "",
-            "",
+            "8",
             "",
         ),
         (
@@ -550,8 +550,8 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
             "1",
             "Có",
             "",
-            "12",
-            "3",
+            "8",
+            "2",
         ),
     ];
 
@@ -629,9 +629,11 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
     subject_sheet.write_with_format(0, 5, "Màu", &header_format)?;
 
     // Sample subjects
+    // CN (Công nghệ) is only taught by GV016..GV018 in the sample roster, and those three sit in
+    // two campuses, so `min_campuses = 1` is the only setting that leaves every panel staffable.
     let default_subjects = [
         ("VL", "Vật lí", 2, 1, 2, "#2563EB"),
-        ("CN", "Công nghệ", 1, 1, 2, "#10B981"),
+        ("CN", "Công nghệ", 1, 1, 1, "#10B981"),
     ];
     for (i, (code, name, setters, reviewers, min_camp, color)) in
         default_subjects.iter().enumerate()

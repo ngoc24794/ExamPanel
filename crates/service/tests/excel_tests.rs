@@ -603,6 +603,50 @@ fn test_standard_template_feasibility_and_generate_downloads() {
         );
         assert_eq!(feas.report.errors.len(), 0);
     }
+
+    // Passing the pre-checks is not enough: the shipped sample must actually be schedulable.
+    service
+        .apply_import(sy.id, &preview)
+        .expect("apply standard template");
+    let problem = service.load_problem(sy.id).expect("load problem");
+    let solution = exam_panel_core::solver::solve_hard(
+        &problem,
+        &exam_panel_core::solver::SolveOptions {
+            seed: 42,
+            time_limit_ms: 10_000,
+            max_nodes: 2_000_000,
+        },
+    )
+    .expect("standard template must be schedulable");
+
+    let expected_assignments: usize = problem
+        .all_panels()
+        .iter()
+        .map(|panel| {
+            problem
+                .subjects
+                .iter()
+                .find(|s| s.id == panel.subject_id)
+                .map_or(0, |s| (s.setters + s.reviewers) as usize)
+        })
+        .sum();
+    assert_eq!(
+        solution.assignments.len(),
+        expected_assignments,
+        "standard template must fill every seat"
+    );
+
+    let violations = exam_panel_core::validate::validate_assignments(
+        &problem,
+        &solution.assignments,
+        &exam_panel_core::validate::ValidateOptions {
+            require_complete: true,
+        },
+    );
+    assert!(
+        violations.is_empty(),
+        "standard template plan has violations: {violations:?}"
+    );
 }
 
 #[test]
