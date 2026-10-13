@@ -1,17 +1,18 @@
    Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.17s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.22s
      Running tests\excel_tests.rs (target\debug\deps\excel_tests-2c05f2b2e0704534.exe)
 
-running 9 tests
+running 10 tests
 test test_export_q_plan_golden_calamine ... ok
 test test_transactional_apply_rollback_on_error ... ok
 test test_sync_mode_deactivates_omitted_teachers ... ok
-test test_template_generation_and_calamine_sheets ... ok
 test test_template_roundtrip_preview_and_apply ... ok
+test test_template_generation_and_calamine_sheets ... ok
 test test_teacher_matching_and_ambiguity_detection ... ok
-test test_export_workbook_calamine_verification ... ok
 test test_q_sample_template_v2_generation_and_import ... ok
+test test_reimport_detects_quota_and_max_task_changes ... ok
 test test_standard_template_feasibility_and_generate_downloads ... ok
+test test_export_workbook_calamine_verification ... ok
 
-test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
 

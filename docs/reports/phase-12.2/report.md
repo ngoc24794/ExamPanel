@@ -10,6 +10,7 @@
 | File | Produced by |
 | --- | --- |
 | [`real-data-diagnosis.txt`](real-data-diagnosis.txt) | `cargo run -q -p exam-panel-service --example real_data_diagnosis` against a copy of the reporter's database |
+| [`reimport-fixed-template.txt`](reimport-fixed-template.txt) | importing the corrected template over the reporter's database (`AppService::preview_import` + `apply_import` + `solve_hard`) |
 | [`template-checks-before-data-fix.txt`](template-checks-before-data-fix.txt) | `cargo test -p exam-panel-service --test excel_tests test_standard_template_feasibility` (new checks added, sample data not yet fixed) |
 | [`core-feasibility-tests.txt`](core-feasibility-tests.txt) | `cargo test -p exam-panel-core feasibility` |
 | [`excel-template-tests.txt`](excel-template-tests.txt) | `cargo test -p exam-panel-service --test excel_tests` |
@@ -47,19 +48,32 @@ Both checks were absent, so `check_feasibility` returned `is_feasible = true, er
 - `crates/service/src/excel/template.rs` — the bundled sample is now schedulable: CN row uses
   `min_campuses = 1` and GV016–GV018 carry explicit quotas `8` (8 × 3 = the 24 CN seats). The guide
   sheet documents both traps (minimum campuses per panel, explicit quotas must cover a subject's
-  seats).
+  seats, blank quota keeps the stored value).
+- `crates/service/src/excel/import.rs` — a third defect blocked the recovery path: the change
+  detection ignored `"Cách gọi"`, `"Chỉ tiêu riêng"` and `"Số việc tối đa mỗi kỳ"`, so editing only
+  those columns and importing again reported every teacher row as `Unchanged` and wrote nothing
+  (the subject change to `min_campuses` did apply, which hid part of the problem). The optional
+  columns now follow the `COALESCE` semantics of `apply_import`: a filled cell must match, an empty
+  cell keeps the stored value.
 - `crates/service/tests/excel_tests.rs` — `test_standard_template_feasibility_and_generate_downloads`
   now applies the preview, runs `solve_hard`, asserts 60/60 assignments and zero violations, so an
-  unschedulable sample can no longer ship.
+  unschedulable sample can no longer ship; `test_reimport_detects_quota_and_max_task_changes` covers
+  the optional-column update and idempotency.
 - `ui/src/i18n/locales/{vi,en}.json` + `ui/src/i18n/i18n.test.ts` — messages for both new
   diagnostics; `errors.problem_infeasible` now reports the error count and points at the feasibility
   indicator.
-- `docs/SPEC.md` §4.1/§4.2, `docs/DECISIONS.md` ADR-0052 (the two new checks) and ADR-0053 (bundled
-  templates must be schedulable and are guarded by a test).
+- `docs/SPEC.md` §4.1/§4.2/§10.2, `docs/DECISIONS.md` ADR-0052 (the two new checks), ADR-0053
+  (bundled templates must be schedulable and are guarded by a test) and ADR-0054 (re-import change
+  detection).
 
-## Verified data fixes for an existing school file
+## Recovery paths for the affected school
 
-Both fixes were run against the reporter's exact database (`real-data-diagnosis.txt`):
+**Simplest (no manual editing):** download the template again (**Tải file mẫu**) and import it over the
+existing data. `reimport-fixed-template.txt` shows the result against the reporter's own database:
+3 teacher rows and 1 subject row updated, feasibility clean, `solve_hard: OK assignments=60 nodes=25`.
+
+**Manual editing of an existing school file:** both variants below were run against the reporter's
+database (`real-data-diagnosis.txt`):
 
 | Fix | Result |
 | --- | --- |

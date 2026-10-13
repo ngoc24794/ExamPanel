@@ -147,7 +147,7 @@ pub fn generate_import_template(target_path: &Path, campuses: &[Campus]) -> Resu
     guide_sheet.write_with_format(
         r,
         2,
-        "Chỉ định số lượt nhiệm vụ cả năm cho giáo viên (VD: 12). Tùy chọn, ghi đè công thức q. Tổng chỉ tiêu của các giáo viên dạy một môn phải đủ phủ hết số lượt của môn đó (mẫu: môn CN đặt 8 cho GV016–GV018 = 24 lượt).",
+        "Chỉ định số lượt nhiệm vụ cả năm cho giáo viên (VD: 12). Tùy chọn, ghi đè công thức q; để trống là giữ nguyên giá trị đang có. Tổng chỉ tiêu của các giáo viên dạy một môn phải đủ phủ hết số lượt của môn đó (mẫu: môn CN đặt 8 cho GV016–GV018 = 24 lượt).",
         &instruction_format,
     )?;
     r += 1;

@@ -8,52 +8,51 @@ Checking version consistency (Source of truth: Cargo.toml = 0.1.0):
 
 Version consistency verified: 0.1.0 matches across all configuration files.
 $ node scripts/check-adr.mjs
-Γ£ô All 53 ADRs are strictly unique and sequential (ADR-0001 to ADR-0053).
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.24s
-   Compiling exam-panel-storage v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\storage)
+Γ£ô All 54 ADRs are strictly unique and sequential (ADR-0001 to ADR-0054).
+    Checking exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.07s
    Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
-   Compiling exam-panel-core v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\core)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.90s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.74s
      Running unittests src\lib.rs (target\debug\deps\exam_panel_core-f9cfb79fd29a0d4f.exe)
 
 running 98 tests
 test domain::entities::tests::test_panel_composition_constants ... ok
-test domain::ids::tests::test_id_display_and_conversion ... ok
 test domain::entities::tests::test_lock_kind_string_and_serde ... ok
 test domain::entities::tests::test_role_string_and_serde ... ok
-test domain::ids::tests::test_id_serde_roundtrip ... ok
 test domain::entities::tests::test_rule_key_strings_and_serde ... ok
-test domain::forced::tests::test_forced_placement_infeasible_zero_candidates ... ok
 test domain::entities::tests::test_rule_presets ... ok
+test domain::ids::tests::test_id_display_and_conversion ... ok
 test domain::forced::tests::test_forced_placement_infeasible_excess_pins ... ok
+test domain::forced::tests::test_forced_placement_infeasible_zero_candidates ... ok
 test domain::forced::tests::test_forced_placement_cascade_propagation ... ok
 test domain::forced::tests::test_forced_placement_single_candidate_propagates ... ok
-test domain::problem::tests::test_unavailability_unknown_exam ... ok
-test domain::problem::tests::test_duplicate_exam_code_error ... ok
+test domain::ids::tests::test_id_serde_roundtrip ... ok
 test domain::problem::tests::test_invalid_load_weight_error ... ok
-test domain::problem::tests::test_unknown_campus_error ... ok
+test domain::problem::tests::test_duplicate_exam_code_error ... ok
 test domain::problem::tests::test_lock_unknown_teacher ... ok
-test domain::problem::tests::test_problem_serde_roundtrip ... ok
+test domain::problem::tests::test_unavailability_unknown_exam ... ok
+test domain::problem::tests::test_unknown_campus_error ... ok
 test domain::problem::tests::test_valid_problem_passes ... ok
 test feasibility::maxflow::tests::test_dinic_basic_flow ... ok
 test feasibility::maxflow::tests::test_h4_exam_bottleneck_scenario ... ok
+test domain::problem::tests::test_problem_serde_roundtrip ... ok
 test feasibility::tests::test_degenerate_database_diagnostics ... ok
-test domain::quota::tests::test_quota_v2_regression_legacy_demo_equals_phase_3 ... ok
 test feasibility::tests::test_diagnostic_capacity_and_warnings ... ok
+test domain::quota::tests::test_quota_v2_regression_legacy_demo_equals_phase_3 ... ok
+test feasibility::tests::test_diagnostic_insufficient_panel_teachers_and_campuses ... ok
 test feasibility::tests::test_diagnostic_insufficient_setters_and_reviewers ... ok
 test feasibility::tests::test_diagnostic_exam_capacity_bottleneck_under_h4 ... ok
-test domain::problem::tests::test_canonical_hash_stability_under_reordering ... ok
 test feasibility::tests::test_diagnostic_excess_pinned_setters_and_reviewers_and_pins ... ok
-test feasibility::tests::test_diagnostic_insufficient_subject_capacity ... ok
 test feasibility::tests::test_diagnostic_pinned_teacher_ineligible_due_to_unavailability ... ok
-test feasibility::tests::test_diagnostic_pinned_teacher_multiple_panels ... ok
 test feasibility::tests::test_diagnostic_lock_conflict_and_excess_pins ... ok
-test feasibility::tests::test_diagnostic_pinned_campus_monopoly ... ok
-test feasibility::tests::test_diagnostic_insufficient_panel_teachers_and_campuses ... ok
-test feasibility::tests::test_diagnostic_structural_error ... ok
-test feasibility::tests::test_valid_problem_feasibility ... ok
-test domain::problem::tests::test_canonical_hash_changes_on_modification ... ok
+test feasibility::tests::test_diagnostic_insufficient_subject_capacity ... ok
+test feasibility::tests::test_diagnostic_pinned_teacher_multiple_panels ... ok
 test feasibility::tests::test_diagnostic_h3_forced_over_exam_cap ... ok
+test feasibility::tests::test_valid_problem_feasibility ... ok
+test domain::problem::tests::test_canonical_hash_stability_under_reordering ... ok
+test domain::problem::tests::test_canonical_hash_changes_on_modification ... ok
+test feasibility::tests::test_diagnostic_pinned_campus_monopoly ... ok
+test feasibility::tests::test_diagnostic_structural_error ... ok
 test feasibility::tests::test_diagnostic_pinned_quota_exceeded ... ok
 test optimize::tests::bench_demo_200k_iterations ... ignored
 test optimize::tests::bench_synthetic_40_200k_iterations ... ignored
@@ -61,15 +60,15 @@ test feasibility::tests::test_diagnostic_h3_reviewer_pool_reduced ... ok
 test optimize::eval_edit::tests::test_evaluate_swap_delta_matches_full_eval ... ok
 test optimize::eval_edit::tests::test_ra019_swap_delta_matches_full_eval_with_non_canonical_setter_order ... ok
 test optimize::tests::test_cancellation_stops_promptly ... ok
+test optimize::eval_edit::tests::test_reoptimize_keeps_slots_fixed_and_valid ... ok
 test optimize::tests::test_h3_multi_campus_verification_and_q_plan_4_campuses ... ok
 test optimize::eval_edit::tests::test_evaluate_candidates_delta_matches_full_eval ... ok
 test optimize::eval_edit::tests::test_ra019_candidate_delta_matches_full_eval_with_non_canonical_setter_order ... ok
-test optimize::eval_edit::tests::test_reoptimize_keeps_slots_fixed_and_valid ... ok
 test optimize::tests::test_d2_random_walk_hard_invariants_preserved ... ok
 test optimize::tests::test_plan_distance_is_subject_aware ... ok
 test optimize::tests::test_proptest_d1_incremental_state_consistency ... ok
 test optimize::tests::test_pinned_slots_never_move ... ok
-test optimize::tests::test_optimize_never_returns_worse_total_than_initial_plan ... ok
+test optimize::tests::test_performance_timing_demo_default_run ... ok
 test score::bounds::tests::test_s6_exact_per_teacher_minimum_function ... ok
 test score::bounds::tests::test_s6_lower_bound_q_shaped_nocampus ... ok
 test score::tests::test_lower_bounds_calculation ... ok
@@ -84,31 +83,31 @@ test score::tests::test_s6_setter_consecutive ... ok
 test score::tests::test_s7_grade_rotation ... ok
 test score::tests::test_s8_load_deviation ... ok
 test score::tests::test_s8_verification_q_plan ... ok
-test optimize::tests::test_lower_bound_awareness_demo_seed ... ok
-test optimize::tests::test_determinism_across_runs ... ok
-test optimize::tests::test_performance_timing_demo_default_run ... ok
+test optimize::tests::test_optimize_never_returns_worse_total_than_initial_plan ... ok
 test optimize::tests::test_improvement_over_solve_hard_demo_seed ... ok
 test optimize::tests::test_diversity_threshold_respected ... ok
 test solver::tests::test_performance_timing_demo_seed ... ok
 test solver::tests::test_solve_demo_seed_returns_valid_solution ... ok
 test solver::tests::test_solve_hard_produces_zero_violations ... ok
-test solver::tests::test_solver_stops_early_on_infeasible_problem ... ok
 test solver::tests::test_solver_determinism_and_multi_seed_variation ... ok
+test solver::tests::test_solver_stops_early_on_infeasible_problem ... ok
 test tests::test_core_version_returns_package_version ... ok
+test solver::tests::test_performance_synthetic_40_teacher_instance ... ok
 test validate::tests::test_h1_duplicate_teacher_in_panel ... ok
 test validate::tests::test_h2_inactive_and_zero_weight ... ok
-test optimize::tests::test_fairness_regression_demo_seed ... ok
 test validate::tests::test_h2_unqualified_grade ... ok
+test validate::tests::test_h3_single_campus_panel ... ok
+test validate::tests::test_h4_multiple_panels_in_same_exam ... ok
 test validate::tests::test_h5_teacher_unavailable ... ok
 test validate::tests::test_h6_forbid_and_pin_locks ... ok
-test solver::tests::test_performance_synthetic_40_teacher_instance ... ok
-test validate::tests::test_h4_multiple_panels_in_same_exam ... ok
-test validate::tests::test_h3_single_campus_panel ... ok
 test validate::tests::test_h7_quota_exceeded_and_unmet ... ok
 test validate::tests::test_partial_mode_permits_incomplete_panel ... ok
 test validate::tests::test_ra023_absent_teacher_reports_only_h5_not_h2 ... ok
 test validate::tests::test_valid_complete_assignment ... ok
 test score::tests::test_s9_avoidable_crowding_q_plan_nocampus ... ok
+test optimize::tests::test_lower_bound_awareness_demo_seed ... ok
+test optimize::tests::test_fairness_regression_demo_seed ... ok
+test optimize::tests::test_determinism_across_runs ... ok
 test score::bounds::tests::test_lower_bounds_validity_exhaustive_tiny_instances ... ok
 test optimize::tests::test_proptest_d2_random_walk_hard_invariants ... ok
 test optimize::tests::test_d1_incremental_state_consistency_demo_10k_moves ... ok
@@ -117,7 +116,7 @@ test optimize::tests::test_d1_incremental_state_consistency_q_shaped_10k_moves .
 test optimize::tests::test_d1_incremental_state_consistency_synthetic_40_10k_moves has been running for over 60 seconds
 test optimize::tests::test_d1_incremental_state_consistency_synthetic_40_10k_moves ... ok
 
-test result: ok. 96 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 60.59s
+test result: ok. 96 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 67.51s
 
      Running unittests src\lib.rs (target\debug\deps\exam_panel_service-9a432100b9323086.exe)
 
@@ -170,31 +169,32 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 1 test
 test test_comparison_integrity_and_lower_bounds ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
 
      Running tests\excel_tests.rs (target\debug\deps\excel_tests-2c05f2b2e0704534.exe)
 
-running 9 tests
-test test_export_q_plan_golden_calamine ... ok
-test test_transactional_apply_rollback_on_error ... ok
-test test_template_roundtrip_preview_and_apply ... ok
-test test_template_generation_and_calamine_sheets ... ok
+running 10 tests
 test test_teacher_matching_and_ambiguity_detection ... ok
+test test_transactional_apply_rollback_on_error ... ok
 test test_sync_mode_deactivates_omitted_teachers ... ok
-test test_q_sample_template_v2_generation_and_import ... ok
-test test_standard_template_feasibility_and_generate_downloads ... ok
+test test_template_generation_and_calamine_sheets ... ok
+test test_export_q_plan_golden_calamine ... ok
 test test_export_workbook_calamine_verification ... ok
+test test_standard_template_feasibility_and_generate_downloads ... ok
+test test_reimport_detects_quota_and_max_task_changes ... ok
+test test_template_roundtrip_preview_and_apply ... ok
+test test_q_sample_template_v2_generation_and_import ... ok
 
-test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
 
      Running tests\logging_tests.rs (target\debug\deps\logging_tests-7a32fcb851191048.exe)
 
 running 3 tests
-test backup_and_restore_are_logged ... ok
 test a_rejected_duplicate_write_is_logged_with_its_error_code ... ok
+test backup_and_restore_are_logged ... ok
 test opening_a_database_logs_path_and_schema_version ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
 
      Running tests\part_b_tests.rs (target\debug\deps\part_b_tests-1ba5bcdb1d539c7e.exe)
 
@@ -204,46 +204,46 @@ test test_part_a1_staleness_split_data_vs_rules ... ok
 test test_part_b_manual_editing_and_immutability ... ok
 test test_part_b_plan_status_and_staleness ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.55s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.67s
 
      Running tests\pipeline_report_test.rs (target\debug\deps\pipeline_report_test-d68346e176d00801.exe)
 
 running 1 test
 test test_pipeline_report_zero_hard_violations_and_bounds_respected ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.45s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.42s
 
      Running tests\plan_import_tests.rs (target\debug\deps\plan_import_tests-d588eeea974f6c84.exe)
 
 running 10 tests
 test test_plan_import_ambiguity_error ... ok
 test test_plan_import_nfc_nfd_names ... ok
-test test_plan_import_accent_insensitive_unique_match ... ok
 test test_plan_import_missing_seat ... ok
-test test_plan_import_tsv_parse_grid_region ... ok
+test test_plan_import_accent_insensitive_unique_match ... ok
 test test_plan_import_totals_column_mismatch_warning ... ok
-test test_plan_import_tsv_clipboard ... ok
-test test_plan_import_apply_manual_origin_import ... ok
 test test_plan_import_golden_q_table ... ok
+test test_plan_import_tsv_clipboard ... ok
+test test_plan_import_tsv_parse_grid_region ... ok
 test test_plan_import_export_roundtrip ... ok
+test test_plan_import_apply_manual_origin_import ... ok
 
-test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s
 
      Running tests\qa_regression_tests.rs (target\debug\deps\qa_regression_tests-bcf903c48ea52aef.exe)
 
 running 10 tests
-test ra036_release_manifest_does_not_enable_dev_tools_by_default ... ok
 test ra034_capability_does_not_grant_frontend_open_path ... ok
+test ra036_release_manifest_does_not_enable_dev_tools_by_default ... ok
 test export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds ... ok
 test export::ra028_co_panelists_are_limited_to_the_same_subject_panel ... ok
 test export::ra029_empty_organisation_settings_print_no_invented_text ... ok
-test ra011_cancel_during_run_returns_cancelled_error ... ok
 test ra011_cancelled_optimize_returns_cancelled_error_and_no_plans ... ok
+test ra011_cancel_during_run_returns_cancelled_error ... ok
 test ra025_plan_invalid_error_reports_the_hard_violation_count ... ok
-test reoptimize::ra026_kept_setter_seats_keep_their_position ... ok
 test reoptimize::ra026_saved_plans_get_unique_names ... ok
+test reoptimize::ra026_kept_setter_seats_keep_their_position ... ok
 
-test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.02s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.19s
 
      Running tests\service_tests.rs (target\debug\deps\service_tests-1e94f5e34a0df48e.exe)
 
@@ -251,18 +251,18 @@ running 13 tests
 test test_error_mapping ... ok
 test test_ensure_default_school_year ... ok
 test test_school_years_and_exams ... ok
-test test_app_info_and_settings ... ok
-test test_rule_presets_and_quota_preview ... ok
-test test_campuses_and_grades_crud ... ok
-test test_exam_crud_and_reorder ... ok
-test test_busy_job_rejection ... ok
-test test_teachers_and_grades ... ok
 test test_feasibility_and_evaluation ... ok
-test test_unavailabilities_locks_and_rule_settings ... ok
+test test_exam_crud_and_reorder ... ok
+test test_rule_presets_and_quota_preview ... ok
+test test_app_info_and_settings ... ok
+test test_campuses_and_grades_crud ... ok
+test test_teachers_and_grades ... ok
+test test_busy_job_rejection ... ok
 test test_lock_not_held_during_optimize_and_cancellation ... ok
+test test_unavailabilities_locks_and_rule_settings ... ok
 test test_optimization_persistence_and_plan_crud ... ok
 
-test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
 
      Running tests\trial_mode_tests.rs (target\debug\deps\trial_mode_tests-fa19f1c8a16102f0.exe)
 
@@ -270,74 +270,74 @@ running 2 tests
 test test_startup_error_classification ... ok
 test test_trial_mode_isolation_real_db_untouched ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
 
      Running tests\warm_start_tests.rs (target\debug\deps\warm_start_tests-dac9b787a0082167.exe)
 
 running 1 test
 test test_warm_start_initial_score_and_convergence ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
 
      Running unittests src\lib.rs (target\debug\deps\exam_panel_storage-bd8eff6c72555ba9.exe)
 
 running 35 tests
 test migrations::tests::test_migrations_rejects_higher_user_version ... ok
-test backup::tests::test_corrupted_file_rejection ... ok
 test backup::tests::test_missing_table_rejection ... ok
+test backup::tests::test_corrupted_file_rejection ... ok
 test paths::tests::test_is_dir_writable_in_temp_dir ... ok
 test paths::tests::test_portable_marker_absent_defaults_to_installed ... ok
 test paths::tests::test_portable_marker_macos_app_bundle_adjacent ... ok
-test migrations::tests::test_migrations_idempotent ... ok
 test paths::tests::test_portable_marker_macos_app_bundle_inside ... ok
-test migrations::tests::test_migrations_fresh_db_reaches_latest_version ... ok
-test migrations::tests::test_upgrade_from_v4_to_v5_backfills_subjects_and_competencies ... ok
+test migrations::tests::test_migrations_idempotent ... ok
 test paths::tests::test_portable_marker_macos_app_bundle_readonly ... ok
-test paths::tests::test_resolve_database_path_ends_with_db_filename ... ok
-test migrations::tests::test_upgrade_from_v3_to_v4_backfills_data_hash_and_drops_problem_hash ... ok
-test migrations::tests::test_upgrade_from_v1_to_v5_preserves_data ... ok
-test paths::tests::test_portable_marker_present_and_writable ... ok
 test paths::tests::test_portable_marker_read_only_folder ... ok
+test paths::tests::test_resolve_database_path_ends_with_db_filename ... ok
 test backup::tests::test_newer_user_version_rejection ... ok
-test tests::test_open_in_memory_connection_succeeds ... ok
+test paths::tests::test_portable_marker_present_and_writable ... ok
+test migrations::tests::test_upgrade_from_v1_to_v5_preserves_data ... ok
+test migrations::tests::test_migrations_fresh_db_reaches_latest_version ... ok
+test migrations::tests::test_upgrade_from_v3_to_v4_backfills_data_hash_and_drops_problem_hash ... ok
 test migrations::tests::test_legacy_equivalence_v4_to_v5 ... ok
-test backup::tests::test_backup_and_restore_roundtrip ... ok
+test tests::test_open_in_memory_connection_succeeds ... ok
+test migrations::tests::test_upgrade_from_v4_to_v5_backfills_subjects_and_competencies ... ok
 test backup::tests::test_restore_committed_v4_backup_fixture ... ok
 test tests::test_create_school_year_and_copy_teacher_grades ... ok
-test tests::test_migrations_and_idempotency ... ok
-test tests::test_partial_unique_indexes ... ok
+test backup::tests::test_backup_and_restore_roundtrip ... ok
 test backup::tests::test_restore_reopens_connection_on_file_store ... ok
+test tests::test_partial_unique_indexes ... ok
 test tests::test_fk_and_check_constraints ... ok
 test tests::test_locks_lock_id_delete_and_unique_expression_index ... ok
-test tests::test_plan_batch_operations_and_methods ... ok
-test tests::test_save_and_load_plan_roundtrip ... ok
 test tests::test_protect_historical_plans_on_delete_restrict ... ok
+test tests::test_plan_batch_operations_and_methods ... ok
+test tests::test_migrations_and_idempotency ... ok
+test backup::tests::test_restore_v4_backup_triggers_migration ... ok
 test tests::test_seed_legacy_demo_validation ... ok
 test tests::test_seed_demo_and_load_problem_validation ... ok
 test tests::test_subjects_and_competencies_crud ... ok
+test tests::test_save_and_load_plan_roundtrip ... ok
 test tests::test_no_forbidden_terms_in_fixtures_and_seeds ... ok
-test backup::tests::test_restore_v4_backup_triggers_migration ... ok
 
-test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s
 
      Running tests\backup_rotation_tests.rs (target\debug\deps\backup_rotation_tests-89a38353ae07fee1.exe)
 
 running 6 tests
 test ra031_list_is_sorted_newest_first_by_timestamp ... ok
 test ra031_prune_keeps_the_newest_ten_across_reasons ... ok
-test ra007_opening_an_older_database_creates_a_pre_migration_backup ... ok
 test ra031_two_backups_in_the_same_second_both_survive ... ok
-test ra007_opening_a_current_database_creates_no_backup ... ok
 test ra032_validation_errors_carry_stable_codes ... ok
+test ra007_opening_an_older_database_creates_a_pre_migration_backup ... ok
+test ra007_opening_a_current_database_creates_no_backup ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
 
      Running tests\reopen_tests.rs (target\debug\deps\reopen_tests-79ddbb23faf42461.exe)
 
 running 1 test
 test reopening_a_current_database_leaves_the_file_byte_identical ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
 
      Running tests\v4_migration_tests.rs (target\debug\deps\v4_migration_tests-546f35484c19f5bb.exe)
 
@@ -366,7 +366,7 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
    Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.94s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.18s
      Running tests\generate_types.rs (target\debug\deps\generate_types-9a67f75990557e37.exe)
 
 running 1 test
@@ -380,12 +380,9 @@ $ vitest run
 
 [1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui[39m
 
- [32mΓ£ô[39m src/lib/api/api.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 4450[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m MockExamPanelApi Contract Tests[2m > [22mstreams optimization progress to completion [33m 2084[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m MockExamPanelApi Contract Tests[2m > [22msaves, retrieves, duplicates, renames, marks final, and deletes plans [33m 2089[2mms[22m[39m
- [32mΓ£ô[39m src/pages/assignments/RunOptimizeDialog.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1774[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m RunOptimizeDialog cancel handling (RA-011)[2m > [22mcancelling a run saves nothing, shows ONE cancelled toast and keeps the dialog open [33m 608[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m RunOptimizeDialog progress (RA-012)[2m > [22mkeeps the progress bar and best score monotonic across parallel waves [33m 1164[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/api/api.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 4467[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m MockExamPanelApi Contract Tests[2m > [22mstreams optimization progress to completion [33m 2093[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m MockExamPanelApi Contract Tests[2m > [22msaves, retrieves, duplicates, renames, marks final, and deletes plans [33m 2094[2mms[22m[39m
 stderr | src/pages/assignments/QPlanGrid.test.tsx > QPlanGrid Component Tests (Part B) > is operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates
 Warning: An update to QPlanGrid inside a test was not wrapped in act(...).
 
@@ -401,33 +398,35 @@ This ensures that you're testing the behavior the user would see in the browser.
     at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
     at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
 
- [32mΓ£ô[39m src/pages/assignments/QPlanGrid.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 3878[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mrenders Q-style grid structure, headers, and attached totals panel [33m 1442[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mhighlights all seats of a teacher on hover and displays tooltip [33m 471[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mrenders forced-load teacher indicator and task count markers in totals table [33m 508[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mis operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates [33m 1125[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mrounds fractional penalty units in the S-chips [33m 329[2mms[22m[39m
- [32mΓ£ô[39m src/pages/RulesPage.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 3777[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mrenders hard rules section with H3 and H4 toggles and limits [33m 957[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mnavigates to soft rules tab, renders S1/S9/S10 and applies presets [33m 1233[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mrenders quota preview and updates with H7 tolerance [33m 407[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mcreates a lock and displays in locks tab [33m 563[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22msays S3 is not applicable with a single campus, but not with several [33m 333[2mms[22m[39m
- [32mΓ£ô[39m src/pages/ExamsPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 4464[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m ExamsPage[2m > [22mrenders exams and grades lists [33m 632[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m ExamsPage[2m > [22mcreates, reorders, and deletes an exam [33m 2764[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m ExamsPage[2m > [22mcreates and edits a grade [33m 1061[2mms[22m[39m
- [32mΓ£ô[39m src/pages/SettingsPage.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 5456[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mrenders settings page, data path, and copies path to clipboard [33m 1482[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mallows switching theme and language [33m 530[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mpersists the language chosen on the Settings page [33m 404[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mrenders organization section and saves organization info [33m 1598[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mrenders trial mode card and supports entering/exiting trial mode [33m 465[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mshows the bundled THIRD_PARTY_NOTICES text in the licences dialog [33m 634[2mms[22m[39m
- [32mΓ£ô[39m src/pages/UnavailabilityPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 6286[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m UnavailabilityPage[2m > [22mrenders unavailability grid and teacher rows [33m 1403[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m UnavailabilityPage[2m > [22mtoggles absence on click and allows adding reason [33m 2860[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m UnavailabilityPage[2m > [22mperforms bulk actions: vß║»ng cß║ú hß╗ìc kß╗│ 1 and c├│ mß║╖t tß║Ñt cß║ú [33m 1997[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/QPlanGrid.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 3832[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mrenders Q-style grid structure, headers, and attached totals panel [33m 1404[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mhighlights all seats of a teacher on hover and displays tooltip [33m 462[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mrenders forced-load teacher indicator and task count markers in totals table [33m 383[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mis operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates [33m 1200[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mrounds fractional penalty units in the S-chips [33m 381[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/ExamsPage.submit.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 4228[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Exam dialog submit (RA-041)[2m > [22ma double click on Save sends ONE request and ONE success toast [33m 2658[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Exam dialog submit (RA-041)[2m > [22ma failing save raises ONE error toast (not one from the global handler and one from the page) [33m 1568[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/RulesPage.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 3750[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mrenders hard rules section with H3 and H4 toggles and limits [33m 853[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mnavigates to soft rules tab, renders S1/S9/S10 and applies presets [33m 1064[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mrenders quota preview and updates with H7 tolerance [33m 555[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mcreates a lock and displays in locks tab [33m 776[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/ExamsPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 4869[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ExamsPage[2m > [22mrenders exams and grades lists [33m 949[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ExamsPage[2m > [22mcreates, reorders, and deletes an exam [33m 3031[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ExamsPage[2m > [22mcreates and edits a grade [33m 887[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/SettingsPage.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 5008[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mrenders settings page, data path, and copies path to clipboard [33m 1330[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mallows switching theme and language [33m 459[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mpersists the language chosen on the Settings page [33m 607[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mrenders organization section and saves organization info [33m 1692[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mrenders trial mode card and supports entering/exiting trial mode [33m 326[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mshows the bundled THIRD_PARTY_NOTICES text in the licences dialog [33m 331[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/UnavailabilityPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 4280[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m UnavailabilityPage[2m > [22mrenders unavailability grid and teacher rows [33m 807[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m UnavailabilityPage[2m > [22mtoggles absence on click and allows adding reason [33m 2340[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m UnavailabilityPage[2m > [22mperforms bulk actions: vß║»ng cß║ú hß╗ìc kß╗│ 1 and c├│ mß║╖t tß║Ñt cß║ú [33m 1130[2mms[22m[39m
 stderr | src/pages/AssignmentsPage.test.tsx > AssignmentsPage Component Tests > supports duplicate for editing, keyboard candidate replace, undo/redo, and save
 Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
 
@@ -535,53 +534,29 @@ This ensures that you're testing the behavior the user would see in the browser.
     at Router (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
     at MemoryRouter (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
 
- [32mΓ£ô[39m src/pages/AssignmentsPage.edit.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 7129[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage live evaluation after edits (RA-020)[2m > [22mupdates the header score and hard-violation count after a swap [33m 2395[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage live evaluation after edits (RA-020)[2m > [22mrejects a swap that puts the same teacher twice in one panel [33m 1645[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage kept-seat banner (RA-026)[2m > [22mshows the kept-seat banner in the default grid view, not only in the detail view [33m 3086[2mms[22m[39m
- [32mΓ£ô[39m src/pages/assignments/GridEditing.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 7907[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mseat click opens the candidate list with disabled invalid candidates and reasons [33m 1820[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mdrag-to-swap: drags one seat and drops on another to swap teachers [33m 946[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mundo/redo: records assignment updates and allows undoing and redoing [33m 2632[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mforced seats immovable: cannot be dragged, clicked for replacement, or overwritten by drop [33m 595[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mteacher hover focus: highlights all seats of hovered teacher and totals row [33m 584[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mview-toggle persistence: persists view mode to localStorage and restores on mount [33m 571[2mms[22m[39m
- [32mΓ£ô[39m src/pages/AssignmentsPage.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 7958[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mrenders assignment workspace, header actions, and plan view [33m 2328[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mopens Run Optimizer dialog, displays effort options, seed and feasibility status [33m 902[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mfocuses on teacher when chip or teacher row is clicked in detail view [33m 1097[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mopens Compare modal when compare button is clicked [33m 1268[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22msupports duplicate for editing, keyboard candidate replace, undo/redo, and save [33m 1433[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mrenders Q-style grid with attached totals, task markers, and search filter [33m 681[2mms[22m[39m
- [32mΓ£ô[39m src/app/App.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 6361[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m App[2m > [22mrenders application brand, sidebar navigation, and ping response [33m 1009[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m App[2m > [22mswitches navigation tab when sidebar item is clicked [33m 1483[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m App[2m > [22mswitches school year through selector and refetches data [33m 2266[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m App[2m > [22mrenders persistent trial mode banner and allows exiting trial mode [33m 1597[2mms[22m[39m
- [32mΓ£ô[39m src/pages/TeachersPage.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 10718[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mrenders teacher roster and coverage panel matrix [33m 1866[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mfilters teachers by name search [33m 915[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22moptimistically updates grades taught on toggle [33m 1829[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mrolls back optimistic grade toggle when API call fails [33m 1456[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22moffers "Deactivate instead" flow when deleting a teacher in use [33m 2247[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mvalidates inputs and creates a new teacher with assigned grades [33m 1572[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mdisplays coverage panel status badges derived from feasibility [33m 547[2mms[22m[39m
- [32mΓ£ô[39m src/pages/print/PrintPages.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1017[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m Print Pages Component Tests[2m > [22mrenders PrintNoticesPage with teacher assignment notices [33m 485[2mms[22m[39m
- [32mΓ£ô[39m src/pages/ExamsPage.submit.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 3246[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m Exam dialog submit (RA-041)[2m > [22ma double click on Save sends ONE request and ONE success toast [33m 2039[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m Exam dialog submit (RA-041)[2m > [22ma failing save raises ONE error toast (not one from the global handler and one from the page) [33m 1204[2mms[22m[39m
- [32mΓ£ô[39m src/pages/CampusesPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1787[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m CampusesPage[2m > [22mrenders the campuses list with codes, names, and color chips [33m 313[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m CampusesPage[2m > [22mopens create dialog, validates inputs, and creates a new campus [33m 1057[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m CampusesPage[2m > [22mshows campus_in_use advice when attempting to delete a campus with assigned teachers [33m 414[2mms[22m[39m
- [32mΓ£ô[39m src/pages/AssignmentsPage.race.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 2684[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m AssignmentsPage with a real-shaped (asynchronous) backend[2m > [22mselects the new editable copy and shows the edit toolbar [33m 2681[2mms[22m[39m
- [32mΓ£ô[39m src/pages/teachers/ImportWizardModal.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1490[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m ImportWizardModal Component Tests[2m > [22mrenders file selection and mode cards when open [33m 486[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m ImportWizardModal Component Tests[2m > [22mnavigates from select to preview and displays preview tables and filters [33m 641[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m ImportWizardModal Component Tests[2m > [22mshows Yes/No (not the row status) in the active column of the teachers preview [33m 360[2mms[22m[39m
- [32mΓ£ô[39m src/lib/query/hooks.stale.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 797[2mms[22m[39m
+ [32mΓ£ô[39m src/app/App.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 4762[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m App[2m > [22mrenders application brand, sidebar navigation, and ping response [33m 548[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m App[2m > [22mswitches navigation tab when sidebar item is clicked [33m 1041[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m App[2m > [22mswitches school year through selector and refetches data [33m 1609[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m App[2m > [22mrenders persistent trial mode banner and allows exiting trial mode [33m 1561[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/AssignmentsPage.edit.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 5951[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage live evaluation after edits (RA-020)[2m > [22mupdates the header score and hard-violation count after a swap [33m 2301[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage live evaluation after edits (RA-020)[2m > [22mrejects a swap that puts the same teacher twice in one panel [33m 1343[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage kept-seat banner (RA-026)[2m > [22mshows the kept-seat banner in the default grid view, not only in the detail view [33m 2304[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/AssignmentsPage.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 6013[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mrenders assignment workspace, header actions, and plan view [33m 2002[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mopens Run Optimizer dialog, displays effort options, seed and feasibility status [33m 616[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mfocuses on teacher when chip or teacher row is clicked in detail view [33m 670[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mopens Compare modal when compare button is clicked [33m 576[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22msupports duplicate for editing, keyboard candidate replace, undo/redo, and save [33m 1366[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mrenders Q-style grid with attached totals, task markers, and search filter [33m 621[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/GridEditing.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 6699[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mseat click opens the candidate list with disabled invalid candidates and reasons [33m 1570[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mdrag-to-swap: drags one seat and drops on another to swap teachers [33m 853[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mundo/redo: records assignment updates and allows undoing and redoing [33m 2053[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mforced seats immovable: cannot be dragged, clicked for replacement, or overwritten by drop [33m 625[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mteacher hover focus: highlights all seats of hovered teacher and totals row [33m 543[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mview-toggle persistence: persists view mode to localStorage and restores on mount [33m 456[2mms[22m[39m
 stderr | src/pages/StatisticsPage.test.tsx > StatisticsPage Component Tests > supports sorting teacher statistics table by columns
 Warning: An update to StatisticsPage inside a test was not wrapped in act(...).
 
@@ -610,40 +585,57 @@ This ensures that you're testing the behavior the user would see in the browser.
     at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
     at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
 
- [32mΓ£ô[39m src/pages/StatisticsPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1842[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m StatisticsPage Component Tests[2m > [22mrenders statistics page header, plan selector, and summary cards [33m 1212[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m StatisticsPage Component Tests[2m > [22msupports sorting teacher statistics table by columns [33m 615[2mms[22m[39m
- [32mΓ£ô[39m src/pages/settings/BackupSection.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1476[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m BackupSection Component Tests[2m > [22mvalidates backup and executes restore flow on confirm [33m 601[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m BackupSection restore dialog errors (RA-032)[2m > [22mshows a Vietnamese reason, not the raw English engine text, for a newer-version file [33m 589[2mms[22m[39m
- [32mΓ£ô[39m src/components/FeasibilityIndicator.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1394[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m FeasibilityIndicator & FeasibilitySheet[2m > [22mopens sheet on click, lists diagnostics, and handles "Go to fix" navigation [33m 858[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m FeasibilityIndicator & FeasibilitySheet[2m > [22mrenders forced-placement info group and warning diagnostics like h3_reviewer_pool_reduced [33m 374[2mms[22m[39m
- [32mΓ£ô[39m src/lib/theme/theme.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 125[2mms[22m[39m
- [32mΓ£ô[39m src/pages/assignments/PlanCompareModal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1213[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m PlanCompareModal with two subjects (RA-013)[2m > [22mcounts every seat whose teacher differs, per subject [33m 733[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m PlanCompareModal with two subjects (RA-013)[2m > [22mshows the VL and CN panels separately in the changed cell [33m 478[2mms[22m[39m
- [32mΓ£ô[39m src/pages/assignments/ImportPlanModal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1393[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m ImportPlanModal Component Tests (Part D)[2m > [22mrenders modal in input step with Excel and TSV tabs [33m 787[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m ImportPlanModal Component Tests (Part D)[2m > [22mswitches to TSV tab, enters table data, runs preview and displays results [33m 601[2mms[22m[39m
- [32mΓ£ô[39m src/i18n/i18n.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 55[2mms[22m[39m
- [32mΓ£ô[39m src/i18n/no-hardcoded-text.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 37[2mms[22m[39m
- [32mΓ£ô[39m src/i18n/i18n-keys.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 24[2mms[22m[39m
- [32mΓ£ô[39m src/lib/api/tauri-shell.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32mΓ£ô[39m src/lib/violations.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
- [32mΓ£ô[39m src/pages/OverviewPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 645[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m OverviewPage & Onboarding[2m > [22mrenders overview stats cards and ping response [33m 477[2mms[22m[39m
- [32mΓ£ô[39m src/pages/print/orgInfo.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32mΓ£ô[39m src/pages/StatisticsPage.heatmaps.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 481[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m StatisticsPage heatmaps with 12 teachers[2m > [22mlists every teacher (no truncation at 11) with names as column headers [33m 467[2mms[22m[39m
- [32mΓ£ô[39m src/pages/assignments/ReoptimizeDialog.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 517[2mms[22m[39m
-   [33m[2mΓ£ô[22m[39m ReoptimizeDialog (RA-026 UI, RA-011)[2m > [22msends the chosen number of plans and effort [33m 395[2mms[22m[39m
- [32mΓ£ô[39m src/pages/assignments/PlansHistoryList.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 119[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/StatisticsPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1204[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m StatisticsPage Component Tests[2m > [22mrenders statistics page header, plan selector, and summary cards [33m 805[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m StatisticsPage Component Tests[2m > [22msupports sorting teacher statistics table by columns [33m 396[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/TeachersPage.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 9286[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mrenders teacher roster and coverage panel matrix [33m 1840[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mfilters teachers by name search [33m 790[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22moptimistically updates grades taught on toggle [33m 1158[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mrolls back optimistic grade toggle when API call fails [33m 1232[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22moffers "Deactivate instead" flow when deleting a teacher in use [33m 1901[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mvalidates inputs and creates a new teacher with assigned grades [33m 1534[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mdisplays coverage panel status badges derived from feasibility [33m 581[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/teachers/ImportWizardModal.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 900[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ImportWizardModal Component Tests[2m > [22mnavigates from select to preview and displays preview tables and filters [33m 371[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/RunOptimizeDialog.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1597[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RunOptimizeDialog cancel handling (RA-011)[2m > [22mcancelling a run saves nothing, shows ONE cancelled toast and keeps the dialog open [33m 562[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RunOptimizeDialog progress (RA-012)[2m > [22mkeeps the progress bar and best score monotonic across parallel waves [33m 1031[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/CampusesPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1676[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m CampusesPage[2m > [22mopens create dialog, validates inputs, and creates a new campus [33m 999[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m CampusesPage[2m > [22mshows campus_in_use advice when attempting to delete a campus with assigned teachers [33m 392[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/AssignmentsPage.race.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 2557[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage with a real-shaped (asynchronous) backend[2m > [22mselects the new editable copy and shows the edit toolbar [33m 2554[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/settings/BackupSection.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1124[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m BackupSection Component Tests[2m > [22mvalidates backup and executes restore flow on confirm [33m 634[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/ImportPlanModal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 625[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ImportPlanModal Component Tests (Part D)[2m > [22mrenders modal in input step with Excel and TSV tabs [33m 324[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/PlanCompareModal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 798[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m PlanCompareModal with two subjects (RA-013)[2m > [22mcounts every seat whose teacher differs, per subject [33m 604[2mms[22m[39m
+ [32mΓ£ô[39m src/components/FeasibilityIndicator.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 842[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m FeasibilityIndicator & FeasibilitySheet[2m > [22mopens sheet on click, lists diagnostics, and handles "Go to fix" navigation [33m 614[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/query/hooks.stale.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 690[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/theme/theme.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 115[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/print/PrintPages.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1035[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Print Pages Component Tests[2m > [22mrenders PrintNoticesPage with teacher assignment notices [33m 445[2mms[22m[39m
+ [32mΓ£ô[39m src/i18n/i18n.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+ [32mΓ£ô[39m src/i18n/no-hardcoded-text.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32mΓ£ô[39m src/i18n/i18n-keys.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/OverviewPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 492[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m OverviewPage & Onboarding[2m > [22mrenders overview stats cards and ping response [33m 324[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/violations.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/api/tauri-shell.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/print/orgInfo.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/ReoptimizeDialog.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 578[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ReoptimizeDialog (RA-026 UI, RA-011)[2m > [22msends the chosen number of plans and effort [33m 453[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/PlansHistoryList.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 113[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/StatisticsPage.heatmaps.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 417[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m StatisticsPage heatmaps with 12 teachers[2m > [22mlists every teacher (no truncation at 11) with names as column headers [33m 410[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m34 passed[39m[22m[90m (34)[39m
 [2m      Tests [22m [1m[32m147 passed[39m[22m[90m (147)[39m
-[2m   Start at [22m 14:45:33
-[2m   Duration [22m 75.52s[2m (transform 10.55s, setup 81.01s, collect 427.26s, tests 90.53s, environment 178.42s, prepare 15.13s)[22m
+[2m   Start at [22m 14:55:01
+[2m   Duration [22m 81.59s[2m (transform 14.55s, setup 94.33s, collect 455.80s, tests 78.08s, environment 218.27s, prepare 19.40s)[22m
 
 $ tsc -b && vite build
 [36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
@@ -673,4 +665,4 @@ computing gzip size...
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-[32mΓ£ô built in 9.98s[39m
+[32mΓ£ô built in 5.63s[39m

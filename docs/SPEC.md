@@ -433,6 +433,8 @@ Evaluation on `nocampus` with $R = 8 \times 200,000$ iterations (seed 42):
 
 ### 10.2 Excel Template v2 and Print Layout
 - **Template v2:** Standard workbook includes sheets `"Hướng dẫn"`, `"Phân hiệu"`, `"Giáo viên"`, `"Lịch vắng"`, `"Môn"`, and `"Môn đảm nhiệm"`. Teachers sheet includes columns `"Cách gọi"`, `"Chỉ tiêu riêng"`, and `"Số việc tối đa mỗi kỳ"`.
+- **Re-import semantics:** A row is `Update` when any imported value differs, including the optional columns `"Cách gọi"`, `"Chỉ tiêu riêng"` and `"Số việc tối đa mỗi kỳ"`. An **empty** optional cell keeps the stored value (`COALESCE` on apply), a filled cell replaces it; re-importing the same workbook is reported as `Unchanged`.
+- **Sample data:** The workbook downloaded from *Tải file mẫu* must be schedulable as-is. `crates/service/tests/excel_tests.rs` imports it and runs the hard solver, asserting a complete, violation-free plan.
 - **School Format Print & Export:** First sheet `"Bảng phân công (mẫu tổ)"` reproduces Coordinator Q's official landscape format with signature blocks, title header, spacer column, and summary statistics readable in grayscale. Printable via route `/print/plan/:id`.
 - **Existing Plan Import:** Directly parses imported Excel workbooks or TSV clipboard data with accent-folded name resolution, structure detection, and atomic rollback on error.
 

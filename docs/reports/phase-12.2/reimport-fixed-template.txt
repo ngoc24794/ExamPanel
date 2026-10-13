@@ -1,0 +1,5 @@
+preview: can_apply=true teachers=18 subjects=2 teachers_summary=ImportSummaryCounts { new_count: 0, update_count: 3, unchanged_count: 15, error_count: 0 } subjects_summary=ImportSummaryCounts { new_count: 0, update_count: 1, unchanged_count: 1, error_count: 0 }
+preview feasibility: is_feasible=true errors=0
+applied: teachers_created=0 teachers_updated=3 subjects_created=0 subjects_updated=1
+feasibility after re-import: is_feasible=true errors=0
+solve_hard: OK assignments=60 nodes=25

@@ -374,3 +374,9 @@
 - **Decision:** (1) The CN row of the sample is authored as `min_campuses = 1` and GV016–GV018 carry explicit quotas `8` each, which sums to exactly the 24 CN seats. (2) The template's own guide sheet documents both traps (minimum campuses, explicit quotas covering a subject's seats). (3) `test_standard_template_feasibility_and_generate_downloads` now applies the preview to a real store, runs `solve_hard`, asserts every seat is filled and validates the plan with zero violations, so a future sample edit that cannot be scheduled fails `cargo test`.
 - **Consequences:** The downloaded sample always yields a complete plan; keeps the demo honest about what H3/H4/H7 allow, and any change to the sample data must keep a passing solve.
 
+## ADR-0054: Re-Import Change Detection Covers the Optional Teacher Columns
+- **Status:** Accepted
+- **Context:** `preview_import` compared code, name, campus, load, active, note and per-year grades, but ignored `"Cách gọi"`, `"Chỉ tiêu riêng"` and `"Số việc tối đa mỗi kỳ"`. Editing only those columns and importing again reported every row as `Unchanged`, so `apply_import` skipped them and the database kept the old quotas: re-importing the corrected sample reported `16 unchanged / 0 updates`, leaving the school unable to repair its data through the UI (the subject sheet's `min_campuses` change did apply, which masked part of the problem).
+- **Decision:** The row is `Update` when an imported optional value differs from the stored one, matching the `COALESCE` semantics of `apply_import`: an empty cell keeps the stored value, a filled cell must match it. `test_reimport_detects_quota_and_max_task_changes` covers the edit, the applied values and the idempotent third import.
+- **Consequences:** Editing "Cách gọi"/"Chỉ tiêu riêng"/"Số việc tối đa mỗi kỳ" and re-importing now updates the database; clearing an override still requires editing the value (an empty cell is "keep", not "clear").
+
