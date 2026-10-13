@@ -516,13 +516,36 @@ pub fn preview_import(
                         (None, Some(_)) => true,  // leaving blank preserves existing code
                     };
 
+                    // Optional columns follow the apply semantics of `apply_import`: an empty cell
+                    // keeps the stored value, a filled cell must match it. Without this, editing
+                    // "Cách gọi" / "Chỉ tiêu riêng" / "Số việc tối đa mỗi kỳ" and importing again
+                    // reported every row as unchanged and silently wrote nothing (RA-043).
+                    let same_display_name = match display_name_opt.as_deref() {
+                        Some(imported) => {
+                            existing
+                                .display_name
+                                .as_deref()
+                                .map(normalize_text)
+                                .as_deref()
+                                == Some(imported)
+                        }
+                        None => true,
+                    };
+                    let same_quota =
+                        quota_override.is_none_or(|value| existing.quota_override == Some(value));
+                    let same_max_tasks = max_tasks_per_exam_override
+                        .is_none_or(|value| existing.max_tasks_per_exam_override == Some(value));
+
                     let same_data = same_code
+                        && same_display_name
                         && normalize_text(&existing.full_name) == full_name
                         && matched_campus_id == Some(existing.campus_id)
                         && (existing.load_weight - load_weight).abs() < 1e-6
                         && existing.active == active
                         && existing.note.as_deref().map(normalize_text) == note
-                        && current_gids == imported_gids;
+                        && current_gids == imported_gids
+                        && same_quota
+                        && same_max_tasks;
 
                     if same_data {
                         ImportRowStatus::Unchanged

@@ -650,6 +650,106 @@ fn test_standard_template_feasibility_and_generate_downloads() {
 }
 
 #[test]
+fn test_reimport_detects_quota_and_max_task_changes() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let service = AppService::open_in_memory().unwrap();
+    let sy = service
+        .create_school_year(CreateSchoolYearInput {
+            name: "2026-2027".to_string(),
+            is_current: true,
+            copy_grades_from: None,
+        })
+        .unwrap();
+
+    let write_workbook = |path: &std::path::Path, quota: &str, max_tasks: &str| {
+        let mut wb = Workbook::new();
+
+        let campuses = wb.add_worksheet();
+        campuses.set_name("Phân hiệu").unwrap();
+        campuses.write(0, 0, "Mã phân hiệu (*)").unwrap();
+        campuses.write(0, 1, "Tên phân hiệu (*)").unwrap();
+        campuses.write(1, 0, "PH1").unwrap();
+        campuses.write(1, 1, "Phân hiệu 1").unwrap();
+
+        let teachers = wb.add_worksheet();
+        teachers.set_name("Giáo viên").unwrap();
+        teachers.write(0, 0, "Mã GV").unwrap();
+        teachers.write(0, 1, "Họ và tên (*)").unwrap();
+        teachers.write(0, 2, "Cách gọi").unwrap();
+        teachers.write(0, 3, "Mã phân hiệu (*)").unwrap();
+        teachers.write(0, 4, "Khối dạy (*)").unwrap();
+        teachers.write(0, 5, "Hệ số tải").unwrap();
+        teachers.write(0, 6, "Đang dạy").unwrap();
+        teachers.write(0, 7, "Ghi chú").unwrap();
+        teachers.write(0, 8, "Chỉ tiêu riêng").unwrap();
+        teachers.write(0, 9, "Số việc tối đa mỗi kỳ").unwrap();
+
+        teachers.write(1, 0, "GV001").unwrap();
+        teachers.write(1, 1, "Nguyễn Văn An").unwrap();
+        teachers.write(1, 2, "T An").unwrap();
+        teachers.write(1, 3, "PH1").unwrap();
+        teachers.write(1, 4, "10").unwrap();
+        teachers.write(1, 5, "1").unwrap();
+        teachers.write(1, 6, "Có").unwrap();
+        if !quota.is_empty() {
+            teachers.write(1, 8, quota).unwrap();
+        }
+        if !max_tasks.is_empty() {
+            teachers.write(1, 9, max_tasks).unwrap();
+        }
+
+        wb.save(path).unwrap();
+    };
+
+    let first = temp_dir.path().join("first.xlsx");
+    write_workbook(&first, "", "");
+    let preview = service
+        .preview_import(sy.id, &first, "upsert")
+        .expect("preview first import");
+    assert!(
+        preview.can_apply,
+        "first import must apply: {:?}",
+        preview
+            .teachers
+            .iter()
+            .map(|t| &t.errors)
+            .collect::<Vec<_>>()
+    );
+    assert_eq!(preview.teachers_summary.new_count, 1);
+    service.apply_import(sy.id, &preview).expect("apply first");
+
+    // Filling "Chỉ tiêu riêng" / "Số việc tối đa mỗi kỳ" and importing again must be an update:
+    // these columns used to be ignored by the change detection, so the edit was silently dropped.
+    let second = temp_dir.path().join("second.xlsx");
+    write_workbook(&second, "2", "2");
+    let preview2 = service
+        .preview_import(sy.id, &second, "upsert")
+        .expect("preview second import");
+    assert!(preview2.can_apply);
+    assert_eq!(preview2.teachers_summary.update_count, 1);
+    assert_eq!(preview2.teachers_summary.unchanged_count, 0);
+    service
+        .apply_import(sy.id, &preview2)
+        .expect("apply second");
+
+    let teacher = service
+        .list_teachers()
+        .unwrap()
+        .into_iter()
+        .find(|t| t.code.as_deref() == Some("GV001"))
+        .expect("GV001 exists");
+    assert_eq!(teacher.quota_override, Some(2));
+    assert_eq!(teacher.max_tasks_per_exam_override, Some(2));
+
+    // Re-importing the very same file is idempotent.
+    let preview3 = service
+        .preview_import(sy.id, &second, "upsert")
+        .expect("preview third import");
+    assert_eq!(preview3.teachers_summary.unchanged_count, 1);
+    assert_eq!(preview3.teachers_summary.update_count, 0);
+}
+
+#[test]
 fn test_export_q_plan_golden_calamine() {
     use calamine::DataType;
     use exam_panel_core::domain::fixtures::{
