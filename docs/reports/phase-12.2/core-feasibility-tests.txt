@@ -1,0 +1,25 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.08s
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_core-28c72d77f7bbea70.exe)
+
+running 18 tests
+test feasibility::maxflow::tests::test_h4_exam_bottleneck_scenario ... ok
+test feasibility::maxflow::tests::test_dinic_basic_flow ... ok
+test feasibility::tests::test_degenerate_database_diagnostics ... ok
+test feasibility::tests::test_diagnostic_insufficient_setters_and_reviewers ... ok
+test feasibility::tests::test_diagnostic_capacity_and_warnings ... ok
+test feasibility::tests::test_diagnostic_insufficient_panel_teachers_and_campuses ... ok
+test feasibility::tests::test_diagnostic_lock_conflict_and_excess_pins ... ok
+test feasibility::tests::test_diagnostic_pinned_campus_monopoly ... ok
+test feasibility::tests::test_diagnostic_exam_capacity_bottleneck_under_h4 ... ok
+test feasibility::tests::test_diagnostic_excess_pinned_setters_and_reviewers_and_pins ... ok
+test feasibility::tests::test_diagnostic_pinned_quota_exceeded ... ok
+test feasibility::tests::test_valid_problem_feasibility ... ok
+test feasibility::tests::test_diagnostic_pinned_teacher_ineligible_due_to_unavailability ... ok
+test feasibility::tests::test_diagnostic_insufficient_subject_capacity ... ok
+test feasibility::tests::test_diagnostic_pinned_teacher_multiple_panels ... ok
+test feasibility::tests::test_diagnostic_structural_error ... ok
+test feasibility::tests::test_diagnostic_h3_forced_over_exam_cap ... ok
+test feasibility::tests::test_diagnostic_h3_reviewer_pool_reduced ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 80 filtered out; finished in 0.01s
+

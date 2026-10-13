@@ -1,0 +1,26 @@
+imported snapshot
+  teachers=18 campuses=4 grades=3 subjects=2 exams=4 teacher_grades=39 competencies=36 unavailabilities=1
+  panels=24
+
+=== imported snapshot ===
+check_feasibility: is_feasible=false errors=5 warnings=0
+  error insufficient_subject_capacity params={"capacity": Number(20), "seats": Number(24), "subject": String("CN")}
+  error h3_forced_over_exam_cap params={"count": Number(3), "exam": String("CK1"), "limit": Number(2), "teacher_name": String("Hß╗ô Thß╗ï Uy├¬n")}
+  error h3_forced_over_exam_cap params={"count": Number(3), "exam": String("GK2"), "limit": Number(2), "teacher_name": String("Hß╗ô Thß╗ï Uy├¬n")}
+  error h3_forced_over_exam_cap params={"count": Number(3), "exam": String("GK1"), "limit": Number(2), "teacher_name": String("Hß╗ô Thß╗ï Uy├¬n")}
+  error h3_forced_over_exam_cap params={"count": Number(3), "exam": String("CK2"), "limit": Number(2), "teacher_name": String("Hß╗ô Thß╗ï Uy├¬n")}
+  subject VL: panels=12 seats=36 sum_hi=59
+  subject CN: panels=12 seats=24 sum_hi=20
+solve_hard: FAIL problem is mathematically infeasible (5 errors)
+
+=== fix A: CN min_campuses=1 + CN quotas 8/8/8 ===
+check_feasibility: is_feasible=true errors=0 warnings=0
+  subject VL: panels=12 seats=36 sum_hi=58
+  subject CN: panels=12 seats=24 sum_hi=24
+solve_hard: OK assignments=60 nodes=25 violations=0
+
+=== fix B: +1 CN teacher at PH3, CN min=2, quotas 6x4=24 ===
+check_feasibility: is_feasible=true errors=0 warnings=0
+  subject VL: panels=12 seats=36 sum_hi=58
+  subject CN: panels=12 seats=24 sum_hi=24
+solve_hard: OK assignments=60 nodes=25 violations=0

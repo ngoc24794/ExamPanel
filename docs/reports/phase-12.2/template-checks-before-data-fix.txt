@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running tests\excel_tests.rs (target\debug\deps\excel_tests-2c05f2b2e0704534.exe)
+
+running 1 test
+test test_standard_template_feasibility_and_generate_downloads ... FAILED
+
+failures:
+
+---- test_standard_template_feasibility_and_generate_downloads stdout ----
+
+thread 'test_standard_template_feasibility_and_generate_downloads' (22816) panicked at crates\service\tests\excel_tests.rs:599:9:
+Standard template must be 100% feasible, errors: [Diagnostic { rule: None, code: "insufficient_subject_capacity", panel: None, teacher: None, params: {"capacity": Number(20), "seats": Number(24), "subject": String("CN")} }, Diagnostic { rule: None, code: "h3_forced_over_exam_cap", panel: None, teacher: Some(TeacherId(20018)), params: {"count": Number(3), "exam": String("CK1"), "limit": Number(2), "teacher_name": String("Hß╗ô Thß╗ï Uy├¬n")} }, Diagnostic { rule: None, code: "h3_forced_over_exam_cap", panel: None, teacher: Some(TeacherId(20018)), params: {"count": Number(3), "exam": String("GK1"), "limit": Number(2), "teacher_name": String("Hß╗ô Thß╗ï Uy├¬n")} }, Diagnostic { rule: None, code: "h3_forced_over_exam_cap", panel: None, teacher: Some(TeacherId(20018)), params: {"count": Number(3), "exam": String("GK2"), "limit": Number(2), "teacher_name": String("Hß╗ô Thß╗ï Uy├¬n")} }, Diagnostic { rule: None, code: "h3_forced_over_exam_cap", panel: None, teacher: Some(TeacherId(20018)), params: {"count": Number(3), "exam": String("CK2"), "limit": Number(2), "teacher_name": String("Hß╗ô Thß╗ï Uy├¬n")} }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    test_standard_template_feasibility_and_generate_downloads
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `-p exam-panel-service --test excel_tests`
