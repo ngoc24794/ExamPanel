@@ -1,0 +1,159 @@
+   Compiling exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.02s
+     Running `target\debug\examples\q17_comparison.exe docs/reports/edu-2026/q17`
+[q17] building synthetic 17-teacher problem...
+[q17] building deterministic round-robin manual plan...
+[q17] running cold-start optimizer (seed 42, R = 8, 200000 iters/run)...
+# Q17 — Kiểm định 17 giáo viên, 4 phân hiệu (dữ liệu mô phỏng)
+
+> Toàn bộ dữ liệu trong tệp này là **dữ liệu mô phỏng**: tên giáo viên là GV01…GV17, phân hiệu là PH1…PH4. Không có dữ liệu cá nhân thật. Tệp được sinh trực tiếp bởi `crates/service/examples/q17_comparison.rs`; mọi con số do chương trình in ra, không viết tay. Đầu ra lệnh gốc: `run.log` cùng thư mục.
+
+## 1. Cấu hình bộ dữ liệu
+
+- Quy mô: **17 giáo viên** (10 Vật lí + 7 Công nghệ), 4 phân hiệu, 4 kỳ × 3 khối.
+- Vị trí: 12 ban đề Vật lí × 3 người + 12 ban đề Công nghệ × 2 người = **60 vị trí**.
+- Ràng buộc cứng H1–H7 bật mặc định; H3 yêu cầu mỗi ban đề có giáo viên từ ≥ 2 phân hiệu (áp dụng cho cả VL và CN). H4 mặc định: tối đa 2 việc/kỳ, tối đa 1 lượt ra đề/kỳ. H7: dung sai 1. Không dùng quota override hay max-task override.
+- Trọng số mềm mặc định: S1 = 10, S2 = 3, S3 = 4, S4 = 6, S5 = 6, S6 = 2, S7 = 1, S8 = 8, S9 = 5, S10 = 4.
+- Kiểm tra khả thi trước khi giải: **KHẢ THI** (0 lỗi, 0 cảnh báo).
+
+| Mã GV | Môn | Phân hiệu | Khối dạy | Hệ số tải | Chỉ tiêu q | lo | hi |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| GV01 | VL | PH1 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV02 | VL | PH2 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV03 | VL | PH3 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV04 | VL | PH4 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV05 | VL | PH1 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV06 | VL | PH2 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV07 | VL | PH3 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV08 | VL | PH4 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV09 | VL | PH1 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV10 | VL | PH2 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV11 | CN | PH3 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV12 | CN | PH4 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV13 | CN | PH1 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV14 | CN | PH2 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV15 | CN | PH3 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV16 | CN | PH4 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+| GV17 | CN | PH2 | 10/11/12 | 1.0 | 3.5294 | 2 | 5 |
+
+## 2. Phương án thủ công (do chương trình sinh, không phải người thật)
+
+Đây là **một** phương án tham chiếu sinh bằng quy trình xoay vòng tất định, không dùng bộ giải và không tinh chỉnh theo quy tắc mềm. Mô tả:
+- Danh sách Vật lí lấy theo mã GV tăng dần (GV01…GV10); danh sách Công nghệ lấy theo mã GV tăng dần (GV11…GV17).
+- Với kỳ thứ e (e = 0…3), con trỏ Vật lí bắt đầu tại `(9 × e) mod 10`; lần lượt lấp 9 ghế theo thứ tự K10-ra đề 1, K10-ra đề 2, K10-phản biện, K11-ra đề 1, …, K12-phản biện.
+- Con trỏ Công nghệ bắt đầu tại `(6 × e) mod 7`; lần lượt lấp 6 ghế theo thứ tự K10-ra đề, K10-phản biện, K11-ra đề, K11-phản biện, K12-ra đề, K12-phản biện.
+- Con trỏ chỉ chạy tiếp qua các kỳ; quy trình không kiểm tra lại ràng buộc mềm, không hoán đổi để giảm điểm, và không gọi thuật toán tối ưu.
+
+## 3. Cận dưới lý thuyết (do `lower_bounds` tính)
+
+| Quy tắc | Cận dưới (đơn vị) | Phạt tại trọng số mặc định | Phương pháp |
+| :--- | :---: | :---: | :--- |
+| S1 Tần suất phản biện | 0.0000 | 0.00 | `reviewer_capacity_pigeonhole` |
+| S2 Cân bằng vai trò | 0.0000 | 0.00 | `trivial` |
+| S3 Độc lập cơ sở | 0.0000 | 0.00 | `trivial` |
+| S4 Đa dạng cặp ra đề | 0.0000 | 0.00 | `trivial` |
+| S5 Đa dạng quan hệ phản biện | 0.0000 | 0.00 | `trivial` |
+| S6 Ra đề liên tiếp | 2.0000 | 4.00 | `pigeonhole_setter_adjacency` |
+| S7 Xoay vòng khối | 0.0000 | 0.00 | `trivial` |
+| S8 Cân bằng khối lượng | 4.2353 | 33.88 | `greedy_marginal_cost_allocation` |
+| S9 Dồn việc trong kỳ | 0.0000 | 0.00 | `exam_crowding_pigeonhole` |
+| S10 Thiếu môn phản biện | 0.0000 | 0.00 | `trivial` |
+| **Tổng cận dưới** | **6.2353** | **37.88** | |
+
+Ghi chú: cận dưới S3 = 0 là cận độc lập (không xét xung đột cơ sở cụ thể); S8 dùng phân bổ số nguyên tối ưu theo chỉ tiêu q. Vì vậy tổng cận dưới ở trên là mốc tham chiếu cho phần mềm, không phải giá trị mà mọi phương án đều đạt.
+
+## 4. Điểm phạt từng quy tắc: thủ công vs tối ưu (cold start)
+
+- Tham số tối ưu: base seed = 42, R = 8, 200000 vòng/lần chạy, K = 3 phương án giữ lại.
+- Thời gian chạy tối ưu: **2361 ms**; tổng vòng lặp: **1600000**; số phương án trả về: **3**.
+- Phương án tối ưu tốt nhất: hạng 1, seed thắng = **43**.
+
+| Quy tắc | Trọng số | Thủ công đơn vị | Thủ công phạt | Tối ưu đơn vị | Tối ưu phạt | Giảm phạt |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| S1 Tần suất phản biện | 10.0 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| S2 Cân bằng vai trò | 3.0 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| S3 Độc lập cơ sở | 4.0 | 2.00 | 8.00 | 0.00 | 0.00 | 8.00 |
+| S4 Đa dạng cặp ra đề | 6.0 | 2.00 | 12.00 | 0.00 | 0.00 | 12.00 |
+| S5 Đa dạng quan hệ phản biện | 6.0 | 9.00 | 54.00 | 0.00 | 0.00 | 54.00 |
+| S6 Ra đề liên tiếp | 2.0 | 9.00 | 18.00 | 6.00 | 12.00 | 6.00 |
+| S7 Xoay vòng khối | 1.0 | 18.00 | 18.00 | 0.00 | 0.00 | 18.00 |
+| S8 Cân bằng khối lượng | 8.0 | 4.24 | 33.88 | 4.24 | 33.88 | 0.00 |
+| S9 Dồn việc trong kỳ | 5.0 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| S10 Thiếu môn phản biện | 4.0 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| **Tổng (có S3)** | | | **143.88** | | **45.88** | **98.00** |
+| **Tổng (không S3)** | | | **135.88** | | **45.88** | **90.00** |
+
+**Tỉ lệ giảm điểm phạt (có S3): 68.11%.** Tỉ lệ giảm khi không tính S3: **66.23%**.
+
+## 5. Ràng buộc cứng và vi phạm H3
+
+| Phương án | Tổng vi phạm cứng | Vi phạm H3 | Số ban đề H3 không đạt |
+| :--- | :---: | :---: | :---: |
+| Thủ công | 0 | 0 | 0 |
+| Tối ưu | 0 | 0 | 0 |
+
+- Phương án thủ công: không có ban đề nào vi phạm H3.
+- Phương án tối ưu: không có ban đề nào vi phạm H3.
+
+## 6. Dồn việc trong cùng một kỳ
+
+"Trường hợp dồn việc" ở đây là một cặp (giáo viên, kỳ thi) có từ 2 việc trở lên. S9 đo phần dồn việc có thể tránh được sau khi trừ phần bắt buộc.
+
+| Phương án | Số trường hợp dồn việc | Số GV bị dồn việc | S9 đơn vị | S9 phạt |
+| :--- | :---: | :---: | :---: | :---: |
+| Thủ công | 0 | 0 | 0.00 | 0.00 |
+| Tối ưu | 0 | 0 | 0.00 | 0.00 |
+
+## 7. Khối lượng theo giáo viên
+
+### Phương án thủ công
+
+| Mã GV | Môn | Phân hiệu | q | Tổng | Ra đề | Phản biện | GK1 | CK1 | GK2 | CK2 |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| GV01 | VL | PH1 | 3.5294 | 4 | 3 | 1 | 1 | 1 | 1 | 1 |
+| GV02 | VL | PH2 | 3.5294 | 4 | 3 | 1 | 1 | 1 | 1 | 1 |
+| GV03 | VL | PH3 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+| GV04 | VL | PH4 | 3.5294 | 4 | 3 | 1 | 1 | 1 | 1 | 1 |
+| GV05 | VL | PH1 | 3.5294 | 4 | 3 | 1 | 1 | 1 | 1 | 1 |
+| GV06 | VL | PH2 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+| GV07 | VL | PH3 | 3.5294 | 3 | 2 | 1 | 1 | 1 | 1 | 0 |
+| GV08 | VL | PH4 | 3.5294 | 3 | 2 | 1 | 1 | 1 | 0 | 1 |
+| GV09 | VL | PH1 | 3.5294 | 3 | 2 | 1 | 1 | 0 | 1 | 1 |
+| GV10 | VL | PH2 | 3.5294 | 3 | 2 | 1 | 0 | 1 | 1 | 1 |
+| GV11 | CN | PH3 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+| GV12 | CN | PH4 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+| GV13 | CN | PH1 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+| GV14 | CN | PH2 | 3.5294 | 3 | 1 | 2 | 1 | 1 | 1 | 0 |
+| GV15 | CN | PH3 | 3.5294 | 3 | 2 | 1 | 1 | 1 | 0 | 1 |
+| GV16 | CN | PH4 | 3.5294 | 3 | 1 | 2 | 1 | 0 | 1 | 1 |
+| GV17 | CN | PH2 | 3.5294 | 3 | 2 | 1 | 0 | 1 | 1 | 1 |
+
+### Phương án tối ưu
+
+| Mã GV | Môn | Phân hiệu | q | Tổng | Ra đề | Phản biện | GK1 | CK1 | GK2 | CK2 |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| GV01 | VL | PH1 | 3.5294 | 4 | 3 | 1 | 1 | 1 | 1 | 1 |
+| GV02 | VL | PH2 | 3.5294 | 3 | 2 | 1 | 1 | 1 | 1 | 0 |
+| GV03 | VL | PH3 | 3.5294 | 3 | 2 | 1 | 1 | 0 | 1 | 1 |
+| GV04 | VL | PH4 | 3.5294 | 4 | 3 | 1 | 1 | 1 | 1 | 1 |
+| GV05 | VL | PH1 | 3.5294 | 4 | 3 | 1 | 1 | 1 | 1 | 1 |
+| GV06 | VL | PH2 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+| GV07 | VL | PH3 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+| GV08 | VL | PH4 | 3.5294 | 3 | 2 | 1 | 1 | 1 | 0 | 1 |
+| GV09 | VL | PH1 | 3.5294 | 4 | 3 | 1 | 1 | 1 | 1 | 1 |
+| GV10 | VL | PH2 | 3.5294 | 3 | 2 | 1 | 0 | 1 | 1 | 1 |
+| GV11 | CN | PH3 | 3.5294 | 3 | 1 | 2 | 0 | 1 | 1 | 1 |
+| GV12 | CN | PH4 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+| GV13 | CN | PH1 | 3.5294 | 3 | 2 | 1 | 1 | 1 | 1 | 0 |
+| GV14 | CN | PH2 | 3.5294 | 3 | 2 | 1 | 1 | 1 | 0 | 1 |
+| GV15 | CN | PH3 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+| GV16 | CN | PH4 | 3.5294 | 3 | 1 | 2 | 1 | 0 | 1 | 1 |
+| GV17 | CN | PH2 | 3.5294 | 4 | 2 | 2 | 1 | 1 | 1 | 1 |
+
+## 8. Tệp sinh kèm
+
+- `q17_problem.json`: ảnh chụp bài toán 17 GV (cấu hình, quy tắc, chỉ tiêu).
+- `q17_manual_plan.json`: 60 phân công thủ công + điểm + vi phạm cứng.
+- `q17_optimized_plan.json`: 60 phân công tối ưu + điểm + vi phạm cứng.
+- `q17_scores.json`: bảng điểm hai phương án, cận dưới, thống kê dồn việc.
+

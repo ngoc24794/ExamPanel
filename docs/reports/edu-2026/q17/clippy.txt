@@ -1,0 +1,2 @@
+    Checking exam-panel-service v0.1.0 (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\crates\service)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.38s

@@ -1,0 +1,2020 @@
+{
+  "assignments": [
+    {
+      "exam_id": 1,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 4
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 3
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 6
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 13
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 14
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 1
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 5
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 8
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 12
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 15
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 9
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 7
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 2
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 17
+    },
+    {
+      "exam_id": 1,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 16
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 10
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 8
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 5
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 11
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 12
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 9
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 2
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 7
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 14
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 13
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 6
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 1
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 4
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 15
+    },
+    {
+      "exam_id": 2,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 17
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 2
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 7
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 9
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 17
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 15
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 4
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 6
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 1
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 16
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 11
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 3
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 5
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 10
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 13
+    },
+    {
+      "exam_id": 3,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 12
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 1
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 4
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 7
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 15
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 1,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 16
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 10
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 5
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 3
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 12
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 2,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 17
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 9
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 1,
+      "role": "setter",
+      "subject_id": 1,
+      "teacher_id": 8
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 1,
+      "teacher_id": 6
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "setter",
+      "subject_id": 2,
+      "teacher_id": 14
+    },
+    {
+      "exam_id": 4,
+      "grade_id": 3,
+      "plan_id": 0,
+      "position": 0,
+      "role": "reviewer",
+      "subject_id": 2,
+      "teacher_id": 11
+    }
+  ],
+  "hard_violations": [],
+  "problem": {
+    "campuses": [
+      {
+        "code": "PH1",
+        "color": "palette-1",
+        "id": 1,
+        "name": "Phân hiệu 1 (mô phỏng)"
+      },
+      {
+        "code": "PH2",
+        "color": "palette-2",
+        "id": 2,
+        "name": "Phân hiệu 2 (mô phỏng)"
+      },
+      {
+        "code": "PH3",
+        "color": "palette-3",
+        "id": 3,
+        "name": "Phân hiệu 3 (mô phỏng)"
+      },
+      {
+        "code": "PH4",
+        "color": "palette-4",
+        "id": 4,
+        "name": "Phân hiệu 4 (mô phỏng)"
+      }
+    ],
+    "competencies": [
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 1
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 1
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 2
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 2
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 3
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 3
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 4
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 4
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 5
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 5
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 6
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 6
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 7
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 7
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 8
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 8
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 9
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 9
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 1,
+        "teacher_id": 10
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 1,
+        "teacher_id": 10
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 2,
+        "teacher_id": 11
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 2,
+        "teacher_id": 11
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 2,
+        "teacher_id": 12
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 2,
+        "teacher_id": 12
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 2,
+        "teacher_id": 13
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 2,
+        "teacher_id": 13
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 2,
+        "teacher_id": 14
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 2,
+        "teacher_id": 14
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 2,
+        "teacher_id": 15
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 2,
+        "teacher_id": 15
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 2,
+        "teacher_id": 16
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 2,
+        "teacher_id": 16
+      },
+      {
+        "grade_scope": "taught",
+        "role": "setter",
+        "subject_id": 2,
+        "teacher_id": 17
+      },
+      {
+        "grade_scope": "taught",
+        "role": "reviewer",
+        "subject_id": 2,
+        "teacher_id": 17
+      }
+    ],
+    "exams": [
+      {
+        "code": "GK1",
+        "id": 1,
+        "name": "Giữa kỳ 1",
+        "school_year_id": 1,
+        "sort_order": 1
+      },
+      {
+        "code": "CK1",
+        "id": 2,
+        "name": "Cuối kỳ 1",
+        "school_year_id": 1,
+        "sort_order": 2
+      },
+      {
+        "code": "GK2",
+        "id": 3,
+        "name": "Giữa kỳ 2",
+        "school_year_id": 1,
+        "sort_order": 3
+      },
+      {
+        "code": "CK2",
+        "id": 4,
+        "name": "Cuối kỳ 2",
+        "school_year_id": 1,
+        "sort_order": 4
+      }
+    ],
+    "grades": [
+      {
+        "code": 10,
+        "id": 1,
+        "name": "Khối 10",
+        "sort_order": 1
+      },
+      {
+        "code": 11,
+        "id": 2,
+        "name": "Khối 11",
+        "sort_order": 2
+      },
+      {
+        "code": 12,
+        "id": 3,
+        "name": "Khối 12",
+        "sort_order": 3
+      }
+    ],
+    "locks": [],
+    "rule_settings": [
+      {
+        "enabled": true,
+        "key": "h3",
+        "params": {
+          "enabled": true
+        },
+        "weight": 100.0
+      },
+      {
+        "enabled": true,
+        "key": "h4",
+        "params": {
+          "max_setter_per_exam": 1,
+          "max_tasks_per_exam": 2
+        },
+        "weight": 100.0
+      },
+      {
+        "enabled": true,
+        "key": "h7",
+        "params": {
+          "tolerance": 1
+        },
+        "weight": 100.0
+      },
+      {
+        "enabled": true,
+        "key": "s1",
+        "params": {
+          "max": "auto",
+          "min": 1
+        },
+        "weight": 10.0
+      },
+      {
+        "enabled": true,
+        "key": "s2",
+        "params": {},
+        "weight": 3.0
+      },
+      {
+        "enabled": true,
+        "key": "s3",
+        "params": {},
+        "weight": 4.0
+      },
+      {
+        "enabled": true,
+        "key": "s4",
+        "params": {},
+        "weight": 6.0
+      },
+      {
+        "enabled": true,
+        "key": "s5",
+        "params": {},
+        "weight": 6.0
+      },
+      {
+        "enabled": true,
+        "key": "s6",
+        "params": {},
+        "weight": 2.0
+      },
+      {
+        "enabled": true,
+        "key": "s7",
+        "params": {},
+        "weight": 1.0
+      },
+      {
+        "enabled": true,
+        "key": "s8",
+        "params": {},
+        "weight": 8.0
+      },
+      {
+        "enabled": true,
+        "key": "s9",
+        "params": {},
+        "weight": 5.0
+      },
+      {
+        "enabled": true,
+        "key": "s10",
+        "params": {},
+        "weight": 4.0
+      }
+    ],
+    "school_year": {
+      "id": 1,
+      "is_current": true,
+      "name": "2026-2027"
+    },
+    "subjects": [
+      {
+        "code": "VL",
+        "color": "palette-1",
+        "id": 1,
+        "min_campuses": 2,
+        "name": "Vật lí",
+        "reviewers": 1,
+        "setters": 2,
+        "sort_order": 1
+      },
+      {
+        "code": "CN",
+        "color": "palette-2",
+        "id": 2,
+        "min_campuses": 2,
+        "name": "Công nghệ",
+        "reviewers": 1,
+        "setters": 1,
+        "sort_order": 2
+      }
+    ],
+    "teacher_grades": [
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 1
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 1
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 1
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 2
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 2
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 2
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 3
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 3
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 3
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 4
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 4
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 4
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 5
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 5
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 5
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 6
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 6
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 6
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 7
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 7
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 7
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 8
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 8
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 8
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 9
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 9
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 9
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 10
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 10
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 10
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 11
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 11
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 11
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 12
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 12
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 12
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 13
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 13
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 13
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 14
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 14
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 14
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 15
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 15
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 15
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 16
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 16
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 16
+      },
+      {
+        "grade_id": 1,
+        "school_year_id": 1,
+        "teacher_id": 17
+      },
+      {
+        "grade_id": 2,
+        "school_year_id": 1,
+        "teacher_id": 17
+      },
+      {
+        "grade_id": 3,
+        "school_year_id": 1,
+        "teacher_id": 17
+      }
+    ],
+    "teachers": [
+      {
+        "active": true,
+        "campus_id": 1,
+        "code": "GV01",
+        "display_name": "GV01",
+        "full_name": "Giáo viên mô phỏng GV01",
+        "id": 1,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 2,
+        "code": "GV02",
+        "display_name": "GV02",
+        "full_name": "Giáo viên mô phỏng GV02",
+        "id": 2,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 3,
+        "code": "GV03",
+        "display_name": "GV03",
+        "full_name": "Giáo viên mô phỏng GV03",
+        "id": 3,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 4,
+        "code": "GV04",
+        "display_name": "GV04",
+        "full_name": "Giáo viên mô phỏng GV04",
+        "id": 4,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 1,
+        "code": "GV05",
+        "display_name": "GV05",
+        "full_name": "Giáo viên mô phỏng GV05",
+        "id": 5,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 2,
+        "code": "GV06",
+        "display_name": "GV06",
+        "full_name": "Giáo viên mô phỏng GV06",
+        "id": 6,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 3,
+        "code": "GV07",
+        "display_name": "GV07",
+        "full_name": "Giáo viên mô phỏng GV07",
+        "id": 7,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 4,
+        "code": "GV08",
+        "display_name": "GV08",
+        "full_name": "Giáo viên mô phỏng GV08",
+        "id": 8,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 1,
+        "code": "GV09",
+        "display_name": "GV09",
+        "full_name": "Giáo viên mô phỏng GV09",
+        "id": 9,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 2,
+        "code": "GV10",
+        "display_name": "GV10",
+        "full_name": "Giáo viên mô phỏng GV10",
+        "id": 10,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 3,
+        "code": "GV11",
+        "display_name": "GV11",
+        "full_name": "Giáo viên mô phỏng GV11",
+        "id": 11,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 4,
+        "code": "GV12",
+        "display_name": "GV12",
+        "full_name": "Giáo viên mô phỏng GV12",
+        "id": 12,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 1,
+        "code": "GV13",
+        "display_name": "GV13",
+        "full_name": "Giáo viên mô phỏng GV13",
+        "id": 13,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 2,
+        "code": "GV14",
+        "display_name": "GV14",
+        "full_name": "Giáo viên mô phỏng GV14",
+        "id": 14,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 3,
+        "code": "GV15",
+        "display_name": "GV15",
+        "full_name": "Giáo viên mô phỏng GV15",
+        "id": 15,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 4,
+        "code": "GV16",
+        "display_name": "GV16",
+        "full_name": "Giáo viên mô phỏng GV16",
+        "id": 16,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      },
+      {
+        "active": true,
+        "campus_id": 2,
+        "code": "GV17",
+        "display_name": "GV17",
+        "full_name": "Giáo viên mô phỏng GV17",
+        "id": 17,
+        "load_weight": 1.0,
+        "max_tasks_per_exam_override": null,
+        "note": "Dữ liệu mô phỏng",
+        "quota_override": null
+      }
+    ],
+    "unavailabilities": []
+  },
+  "score": {
+    "by_rule": [
+      {
+        "enabled": true,
+        "lower_bound": 0.0,
+        "penalty": 0.0,
+        "rule": "s1",
+        "units": 0.0,
+        "weight": 10.0
+      },
+      {
+        "enabled": true,
+        "lower_bound": 0.0,
+        "penalty": 0.0,
+        "rule": "s2",
+        "units": 0.0,
+        "weight": 3.0
+      },
+      {
+        "enabled": true,
+        "lower_bound": 0.0,
+        "penalty": 0.0,
+        "rule": "s3",
+        "units": 0.0,
+        "weight": 4.0
+      },
+      {
+        "enabled": true,
+        "lower_bound": 0.0,
+        "penalty": 0.0,
+        "rule": "s4",
+        "units": 0.0,
+        "weight": 6.0
+      },
+      {
+        "enabled": true,
+        "lower_bound": 0.0,
+        "penalty": 0.0,
+        "rule": "s5",
+        "units": 0.0,
+        "weight": 6.0
+      },
+      {
+        "enabled": true,
+        "lower_bound": 2.0,
+        "penalty": 12.0,
+        "rule": "s6",
+        "units": 6.0,
+        "weight": 2.0
+      },
+      {
+        "enabled": true,
+        "lower_bound": 0.0,
+        "penalty": 0.0,
+        "rule": "s7",
+        "units": 0.0,
+        "weight": 1.0
+      },
+      {
+        "enabled": true,
+        "lower_bound": 4.235294117647058,
+        "penalty": 33.882352941176464,
+        "rule": "s8",
+        "units": 4.235294117647058,
+        "weight": 8.0
+      },
+      {
+        "enabled": true,
+        "lower_bound": 0.0,
+        "penalty": 0.0,
+        "rule": "s9",
+        "units": 0.0,
+        "weight": 5.0
+      },
+      {
+        "enabled": true,
+        "lower_bound": 0.0,
+        "penalty": 0.0,
+        "rule": "s10",
+        "units": 0.0,
+        "weight": 4.0
+      }
+    ],
+    "per_teacher": [
+      {
+        "count": 4,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 3,
+        "teacher_id": 1
+      },
+      {
+        "count": 3,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 2,
+        "teacher_id": 2
+      },
+      {
+        "count": 3,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 2,
+        "teacher_id": 3
+      },
+      {
+        "count": 4,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 3,
+        "teacher_id": 4
+      },
+      {
+        "count": 4,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 3,
+        "teacher_id": 5
+      },
+      {
+        "count": 4,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 2,
+        "setter": 2,
+        "teacher_id": 6
+      },
+      {
+        "count": 4,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 2,
+        "setter": 2,
+        "teacher_id": 7
+      },
+      {
+        "count": 3,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 2,
+        "teacher_id": 8
+      },
+      {
+        "count": 4,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 3,
+        "teacher_id": 9
+      },
+      {
+        "count": 3,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 2,
+        "teacher_id": 10
+      },
+      {
+        "count": 3,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 2,
+        "setter": 1,
+        "teacher_id": 11
+      },
+      {
+        "count": 4,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 2,
+        "setter": 2,
+        "teacher_id": 12
+      },
+      {
+        "count": 3,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 2,
+        "teacher_id": 13
+      },
+      {
+        "count": 3,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 1,
+        "setter": 2,
+        "teacher_id": 14
+      },
+      {
+        "count": 4,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 2,
+        "setter": 2,
+        "teacher_id": 15
+      },
+      {
+        "count": 3,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 2,
+        "setter": 1,
+        "teacher_id": 16
+      },
+      {
+        "count": 4,
+        "grades_assigned": [
+          1,
+          2,
+          3
+        ],
+        "quota": 3.5294117647058805,
+        "reviewer": 2,
+        "setter": 2,
+        "teacher_id": 17
+      }
+    ],
+    "total": 45.882352941176464,
+    "violations": [
+      {
+        "code": "setter_consecutive",
+        "panel": null,
+        "params": {
+          "exam1": "GK1",
+          "exam2": "CK1",
+          "teacher": "Giáo viên mô phỏng GV01"
+        },
+        "rule": "s6",
+        "teachers": [
+          1
+        ]
+      },
+      {
+        "code": "setter_consecutive",
+        "panel": null,
+        "params": {
+          "exam1": "CK1",
+          "exam2": "GK2",
+          "teacher": "Giáo viên mô phỏng GV02"
+        },
+        "rule": "s6",
+        "teachers": [
+          2
+        ]
+      },
+      {
+        "code": "setter_consecutive",
+        "panel": null,
+        "params": {
+          "exam1": "GK2",
+          "exam2": "CK2",
+          "teacher": "Giáo viên mô phỏng GV04"
+        },
+        "rule": "s6",
+        "teachers": [
+          4
+        ]
+      },
+      {
+        "code": "setter_consecutive",
+        "panel": null,
+        "params": {
+          "exam1": "GK2",
+          "exam2": "CK2",
+          "teacher": "Giáo viên mô phỏng GV05"
+        },
+        "rule": "s6",
+        "teachers": [
+          5
+        ]
+      },
+      {
+        "code": "setter_consecutive",
+        "panel": null,
+        "params": {
+          "exam1": "CK1",
+          "exam2": "GK2",
+          "teacher": "Giáo viên mô phỏng GV06"
+        },
+        "rule": "s6",
+        "teachers": [
+          6
+        ]
+      },
+      {
+        "code": "setter_consecutive",
+        "panel": null,
+        "params": {
+          "exam1": "GK1",
+          "exam2": "CK1",
+          "teacher": "Giáo viên mô phỏng GV09"
+        },
+        "rule": "s6",
+        "teachers": [
+          9
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "4",
+          "deviation": "+0.47",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV01"
+        },
+        "rule": "s8",
+        "teachers": [
+          1
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "3",
+          "deviation": "-0.53",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV02"
+        },
+        "rule": "s8",
+        "teachers": [
+          2
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "3",
+          "deviation": "-0.53",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV03"
+        },
+        "rule": "s8",
+        "teachers": [
+          3
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "4",
+          "deviation": "+0.47",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV04"
+        },
+        "rule": "s8",
+        "teachers": [
+          4
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "4",
+          "deviation": "+0.47",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV05"
+        },
+        "rule": "s8",
+        "teachers": [
+          5
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "4",
+          "deviation": "+0.47",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV06"
+        },
+        "rule": "s8",
+        "teachers": [
+          6
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "4",
+          "deviation": "+0.47",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV07"
+        },
+        "rule": "s8",
+        "teachers": [
+          7
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "3",
+          "deviation": "-0.53",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV08"
+        },
+        "rule": "s8",
+        "teachers": [
+          8
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "4",
+          "deviation": "+0.47",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV09"
+        },
+        "rule": "s8",
+        "teachers": [
+          9
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "3",
+          "deviation": "-0.53",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV10"
+        },
+        "rule": "s8",
+        "teachers": [
+          10
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "3",
+          "deviation": "-0.53",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV11"
+        },
+        "rule": "s8",
+        "teachers": [
+          11
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "4",
+          "deviation": "+0.47",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV12"
+        },
+        "rule": "s8",
+        "teachers": [
+          12
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "3",
+          "deviation": "-0.53",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV13"
+        },
+        "rule": "s8",
+        "teachers": [
+          13
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "3",
+          "deviation": "-0.53",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV14"
+        },
+        "rule": "s8",
+        "teachers": [
+          14
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "4",
+          "deviation": "+0.47",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV15"
+        },
+        "rule": "s8",
+        "teachers": [
+          15
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "3",
+          "deviation": "-0.53",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV16"
+        },
+        "rule": "s8",
+        "teachers": [
+          16
+        ]
+      },
+      {
+        "code": "load_deviation",
+        "panel": null,
+        "params": {
+          "count": "4",
+          "deviation": "+0.47",
+          "quota": "3.53",
+          "teacher": "Giáo viên mô phỏng GV17"
+        },
+        "rule": "s8",
+        "teachers": [
+          17
+        ]
+      }
+    ]
+  }
+}

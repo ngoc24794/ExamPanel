@@ -1,0 +1,643 @@
+{
+  "campuses": [
+    {
+      "code": "PH1",
+      "color": "palette-1",
+      "id": 1,
+      "name": "Phân hiệu 1 (mô phỏng)"
+    },
+    {
+      "code": "PH2",
+      "color": "palette-2",
+      "id": 2,
+      "name": "Phân hiệu 2 (mô phỏng)"
+    },
+    {
+      "code": "PH3",
+      "color": "palette-3",
+      "id": 3,
+      "name": "Phân hiệu 3 (mô phỏng)"
+    },
+    {
+      "code": "PH4",
+      "color": "palette-4",
+      "id": 4,
+      "name": "Phân hiệu 4 (mô phỏng)"
+    }
+  ],
+  "exams": [
+    {
+      "code": "GK1",
+      "id": 1,
+      "name": "Giữa kỳ 1",
+      "school_year_id": 1,
+      "sort_order": 1
+    },
+    {
+      "code": "CK1",
+      "id": 2,
+      "name": "Cuối kỳ 1",
+      "school_year_id": 1,
+      "sort_order": 2
+    },
+    {
+      "code": "GK2",
+      "id": 3,
+      "name": "Giữa kỳ 2",
+      "school_year_id": 1,
+      "sort_order": 3
+    },
+    {
+      "code": "CK2",
+      "id": 4,
+      "name": "Cuối kỳ 2",
+      "school_year_id": 1,
+      "sort_order": 4
+    }
+  ],
+  "feasibility": {
+    "errors": [],
+    "is_feasible": true,
+    "quotas": [
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 1
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 2
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 3
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 4
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 5
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 6
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 7
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 8
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 9
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 10
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 11
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 12
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 13
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 14
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 15
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 16
+      },
+      {
+        "available_exams": 4,
+        "hi": 5,
+        "lo": 2,
+        "quota": 3.5294117647058805,
+        "teacher_id": 17
+      }
+    ],
+    "warnings": []
+  },
+  "grades": [
+    {
+      "code": 10,
+      "id": 1,
+      "name": "Khối 10",
+      "sort_order": 1
+    },
+    {
+      "code": 11,
+      "id": 2,
+      "name": "Khối 11",
+      "sort_order": 2
+    },
+    {
+      "code": 12,
+      "id": 3,
+      "name": "Khối 12",
+      "sort_order": 3
+    }
+  ],
+  "quotas": [
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 1
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 2
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 3
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 4
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 5
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 6
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 7
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 8
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 9
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 10
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 11
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 12
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 13
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 14
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 15
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 16
+    },
+    {
+      "available_exams": 4,
+      "hi": 5,
+      "lo": 2,
+      "quota": 3.5294117647058805,
+      "teacher_id": 17
+    }
+  ],
+  "rule_settings": [
+    {
+      "enabled": true,
+      "key": "h3",
+      "params": {
+        "enabled": true
+      },
+      "weight": 100.0
+    },
+    {
+      "enabled": true,
+      "key": "h4",
+      "params": {
+        "max_setter_per_exam": 1,
+        "max_tasks_per_exam": 2
+      },
+      "weight": 100.0
+    },
+    {
+      "enabled": true,
+      "key": "h7",
+      "params": {
+        "tolerance": 1
+      },
+      "weight": 100.0
+    },
+    {
+      "enabled": true,
+      "key": "s1",
+      "params": {
+        "max": "auto",
+        "min": 1
+      },
+      "weight": 10.0
+    },
+    {
+      "enabled": true,
+      "key": "s2",
+      "params": {},
+      "weight": 3.0
+    },
+    {
+      "enabled": true,
+      "key": "s3",
+      "params": {},
+      "weight": 4.0
+    },
+    {
+      "enabled": true,
+      "key": "s4",
+      "params": {},
+      "weight": 6.0
+    },
+    {
+      "enabled": true,
+      "key": "s5",
+      "params": {},
+      "weight": 6.0
+    },
+    {
+      "enabled": true,
+      "key": "s6",
+      "params": {},
+      "weight": 2.0
+    },
+    {
+      "enabled": true,
+      "key": "s7",
+      "params": {},
+      "weight": 1.0
+    },
+    {
+      "enabled": true,
+      "key": "s8",
+      "params": {},
+      "weight": 8.0
+    },
+    {
+      "enabled": true,
+      "key": "s9",
+      "params": {},
+      "weight": 5.0
+    },
+    {
+      "enabled": true,
+      "key": "s10",
+      "params": {},
+      "weight": 4.0
+    }
+  ],
+  "subjects": [
+    {
+      "code": "VL",
+      "color": "palette-1",
+      "id": 1,
+      "min_campuses": 2,
+      "name": "Vật lí",
+      "reviewers": 1,
+      "setters": 2,
+      "sort_order": 1
+    },
+    {
+      "code": "CN",
+      "color": "palette-2",
+      "id": 2,
+      "min_campuses": 2,
+      "name": "Công nghệ",
+      "reviewers": 1,
+      "setters": 1,
+      "sort_order": 2
+    }
+  ],
+  "teachers": [
+    {
+      "active": true,
+      "campus_id": 1,
+      "code": "GV01",
+      "display_name": "GV01",
+      "full_name": "Giáo viên mô phỏng GV01",
+      "id": 1,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 2,
+      "code": "GV02",
+      "display_name": "GV02",
+      "full_name": "Giáo viên mô phỏng GV02",
+      "id": 2,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 3,
+      "code": "GV03",
+      "display_name": "GV03",
+      "full_name": "Giáo viên mô phỏng GV03",
+      "id": 3,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 4,
+      "code": "GV04",
+      "display_name": "GV04",
+      "full_name": "Giáo viên mô phỏng GV04",
+      "id": 4,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 1,
+      "code": "GV05",
+      "display_name": "GV05",
+      "full_name": "Giáo viên mô phỏng GV05",
+      "id": 5,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 2,
+      "code": "GV06",
+      "display_name": "GV06",
+      "full_name": "Giáo viên mô phỏng GV06",
+      "id": 6,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 3,
+      "code": "GV07",
+      "display_name": "GV07",
+      "full_name": "Giáo viên mô phỏng GV07",
+      "id": 7,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 4,
+      "code": "GV08",
+      "display_name": "GV08",
+      "full_name": "Giáo viên mô phỏng GV08",
+      "id": 8,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 1,
+      "code": "GV09",
+      "display_name": "GV09",
+      "full_name": "Giáo viên mô phỏng GV09",
+      "id": 9,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 2,
+      "code": "GV10",
+      "display_name": "GV10",
+      "full_name": "Giáo viên mô phỏng GV10",
+      "id": 10,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 3,
+      "code": "GV11",
+      "display_name": "GV11",
+      "full_name": "Giáo viên mô phỏng GV11",
+      "id": 11,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 4,
+      "code": "GV12",
+      "display_name": "GV12",
+      "full_name": "Giáo viên mô phỏng GV12",
+      "id": 12,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 1,
+      "code": "GV13",
+      "display_name": "GV13",
+      "full_name": "Giáo viên mô phỏng GV13",
+      "id": 13,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 2,
+      "code": "GV14",
+      "display_name": "GV14",
+      "full_name": "Giáo viên mô phỏng GV14",
+      "id": 14,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 3,
+      "code": "GV15",
+      "display_name": "GV15",
+      "full_name": "Giáo viên mô phỏng GV15",
+      "id": 15,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 4,
+      "code": "GV16",
+      "display_name": "GV16",
+      "full_name": "Giáo viên mô phỏng GV16",
+      "id": 16,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    },
+    {
+      "active": true,
+      "campus_id": 2,
+      "code": "GV17",
+      "display_name": "GV17",
+      "full_name": "Giáo viên mô phỏng GV17",
+      "id": 17,
+      "load_weight": 1.0,
+      "max_tasks_per_exam_override": null,
+      "note": "Dữ liệu mô phỏng",
+      "quota_override": null
+    }
+  ]
+}

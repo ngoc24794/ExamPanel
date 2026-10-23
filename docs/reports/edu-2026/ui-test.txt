@@ -1,0 +1,256 @@
+$ vitest run
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui[39m
+
+ [32mΓ£ô[39m src/i18n/i18n-keys.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/query/hooks.stale.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 491[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/api/api.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 4466[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m MockExamPanelApi Contract Tests[2m > [22mstreams optimization progress to completion [33m 2100[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m MockExamPanelApi Contract Tests[2m > [22msaves, retrieves, duplicates, renames, marks final, and deletes plans [33m 2087[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/PlanCompareModal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 533[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m PlanCompareModal with two subjects (RA-013)[2m > [22mcounts every seat whose teacher differs, per subject [33m 410[2mms[22m[39m
+stderr | src/pages/assignments/QPlanGrid.test.tsx > QPlanGrid Component Tests (Part B) > is operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates
+Warning: An update to QPlanGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at QPlanGrid (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\assignments\QPlanGrid.tsx:30:3)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+
+ [32mΓ£ô[39m src/pages/assignments/QPlanGrid.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 2669[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mrenders Q-style grid structure, headers, and attached totals panel [33m 794[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mhighlights all seats of a teacher on hover and displays tooltip [33m 359[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mrenders forced-load teacher indicator and task count markers in totals table [33m 316[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mis operable with the keyboard: one tab stop, arrow navigation, Enter opens candidates [33m 886[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m QPlanGrid Component Tests (Part B)[2m > [22mrounds fractional penalty units in the S-chips [33m 311[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/RulesPage.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 2416[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mrenders hard rules section with H3 and H4 toggles and limits [33m 524[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mnavigates to soft rules tab, renders S1/S9/S10 and applies presets [33m 677[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RulesPage[2m > [22mcreates a lock and displays in locks tab [33m 518[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/ExamsPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2732[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ExamsPage[2m > [22mcreates, reorders, and deletes an exam [33m 1765[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ExamsPage[2m > [22mcreates and edits a grade [33m 687[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/SettingsPage.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 3593[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mrenders settings page, data path, and copies path to clipboard [33m 901[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mrenders organization section and saves organization info [33m 1217[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mrenders trial mode card and supports entering/exiting trial mode [33m 314[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m SettingsPage[2m > [22mshows the bundled THIRD_PARTY_NOTICES text in the licences dialog [33m 312[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/UnavailabilityPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 3946[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m UnavailabilityPage[2m > [22mrenders unavailability grid and teacher rows [33m 622[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m UnavailabilityPage[2m > [22mtoggles absence on click and allows adding reason [33m 2349[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m UnavailabilityPage[2m > [22mperforms bulk actions: vß║»ng cß║ú hß╗ìc kß╗│ 1 and c├│ mß║╖t tß║Ñt cß║ú [33m 973[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/AssignmentsPage.edit.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 4583[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage live evaluation after edits (RA-020)[2m > [22mupdates the header score and hard-violation count after a swap [33m 1943[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage live evaluation after edits (RA-020)[2m > [22mrejects a swap that puts the same teacher twice in one panel [33m 830[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage kept-seat banner (RA-026)[2m > [22mshows the kept-seat banner in the default grid view, not only in the detail view [33m 1807[2mms[22m[39m
+stderr | src/pages/AssignmentsPage.test.tsx > AssignmentsPage Component Tests > supports duplicate for editing, keyboard candidate replace, undo/redo, and save
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+    at Router (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+    at Router (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+    at Router (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+    at Router (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+    at Router (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+    at Router (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+Warning: An update to AssignmentsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AssignmentsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\AssignmentsPage.tsx:51:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+    at Router (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7134:13)
+    at MemoryRouter (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/react-router@7.18.4_react-d_b23148a65a2584a0b0d4dbb6bf53bfd3/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs:7044:3)
+
+ [32mΓ£ô[39m src/app/App.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 4530[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m App[2m > [22mrenders application brand, sidebar navigation, and ping response [33m 653[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m App[2m > [22mswitches navigation tab when sidebar item is clicked [33m 959[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m App[2m > [22mswitches school year through selector and refetches data [33m 1514[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m App[2m > [22mrenders persistent trial mode banner and allows exiting trial mode [33m 1402[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/AssignmentsPage.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 5717[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mrenders assignment workspace, header actions, and plan view [33m 1716[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mopens Run Optimizer dialog, displays effort options, seed and feasibility status [33m 583[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mfocuses on teacher when chip or teacher row is clicked in detail view [33m 708[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mopens Compare modal when compare button is clicked [33m 594[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22msupports duplicate for editing, keyboard candidate replace, undo/redo, and save [33m 1252[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage Component Tests[2m > [22mrenders Q-style grid with attached totals, task markers, and search filter [33m 647[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/GridEditing.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 5909[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mseat click opens the candidate list with disabled invalid candidates and reasons [33m 1103[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mdrag-to-swap: drags one seat and drops on another to swap teachers [33m 756[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mundo/redo: records assignment updates and allows undoing and redoing [33m 1905[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mforced seats immovable: cannot be dragged, clicked for replacement, or overwritten by drop [33m 583[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mteacher hover focus: highlights all seats of hovered teacher and totals row [33m 531[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Grid Editing & Interaction Tests[2m > [22mview-toggle persistence: persists view mode to localStorage and restores on mount [33m 463[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/RunOptimizeDialog.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1517[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RunOptimizeDialog cancel handling (RA-011)[2m > [22mcancelling a run saves nothing, shows ONE cancelled toast and keeps the dialog open [33m 691[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m RunOptimizeDialog progress (RA-012)[2m > [22mkeeps the progress bar and best score monotonic across parallel waves [33m 823[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/TeachersPage.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 8045[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mrenders teacher roster and coverage panel matrix [33m 1394[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mfilters teachers by name search [33m 711[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22moptimistically updates grades taught on toggle [33m 1093[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mrolls back optimistic grade toggle when API call fails [33m 946[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22moffers "Deactivate instead" flow when deleting a teacher in use [33m 1762[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mvalidates inputs and creates a new teacher with assigned grades [33m 1424[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m TeachersPage[2m > [22mdisplays coverage panel status badges derived from feasibility [33m 469[2mms[22m[39m
+stderr | src/pages/StatisticsPage.test.tsx > StatisticsPage Component Tests > supports sorting teacher statistics table by columns
+Warning: An update to StatisticsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at StatisticsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\StatisticsPage.tsx:23:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+Warning: An update to StatisticsPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at StatisticsPage (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\pages\StatisticsPage.tsx:23:57)
+    at QueryClientProvider (file:///C:/Users/ngocnv.HUONGVIETGROUP/source/repos/ExamPanel/ui/node_modules/.pnpm/@tanstack+react-query@5.104.0_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)
+    at ThemeProvider (C:\Users\ngocnv.HUONGVIETGROUP\source\repos\ExamPanel\ui\src\lib\theme\ThemeProvider.tsx:10:26)
+
+ [32mΓ£ô[39m src/pages/StatisticsPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 926[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m StatisticsPage Component Tests[2m > [22mrenders statistics page header, plan selector, and summary cards [33m 571[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m StatisticsPage Component Tests[2m > [22msupports sorting teacher statistics table by columns [33m 352[2mms[22m[39m
+ [32mΓ£ô[39m src/i18n/i18n.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32mΓ£ô[39m src/components/FeasibilityIndicator.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 746[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m FeasibilityIndicator & FeasibilitySheet[2m > [22mopens sheet on click, lists diagnostics, and handles "Go to fix" navigation [33m 453[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/CampusesPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1278[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m CampusesPage[2m > [22mopens create dialog, validates inputs, and creates a new campus [33m 707[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/print/PrintPages.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 980[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Print Pages Component Tests[2m > [22mrenders PrintNoticesPage with teacher assignment notices [33m 431[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/settings/BackupSection.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 832[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m BackupSection Component Tests[2m > [22mvalidates backup and executes restore flow on confirm [33m 446[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/ImportPlanModal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 562[2mms[22m[39m
+ [32mΓ£ô[39m src/i18n/no-hardcoded-text.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/OverviewPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 484[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m OverviewPage & Onboarding[2m > [22mrenders overview stats cards and ping response [33m 324[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/teachers/ImportWizardModal.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 880[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ImportWizardModal Component Tests[2m > [22mrenders file selection and mode cards when open [33m 388[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ImportWizardModal Component Tests[2m > [22mnavigates from select to preview and displays preview tables and filters [33m 343[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/violations.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/theme/theme.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/api/tauri-shell.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/StatisticsPage.heatmaps.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 471[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m StatisticsPage heatmaps with 12 teachers[2m > [22mlists every teacher (no truncation at 11) with names as column headers [33m 465[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/print/orgInfo.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/ReoptimizeDialog.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 381[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m ReoptimizeDialog (RA-026 UI, RA-011)[2m > [22msends the chosen number of plans and effort [33m 303[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/assignments/PlansHistoryList.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/ExamsPage.submit.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1401[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Exam dialog submit (RA-041)[2m > [22ma double click on Save sends ONE request and ONE success toast [33m 832[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Exam dialog submit (RA-041)[2m > [22ma failing save raises ONE error toast (not one from the global handler and one from the page) [33m 567[2mms[22m[39m
+ [32mΓ£ô[39m src/pages/AssignmentsPage.race.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 1164[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m AssignmentsPage with a real-shaped (asynchronous) backend[2m > [22mselects the new editable copy and shows the edit toolbar [33m 1163[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m34 passed[39m[22m[90m (34)[39m
+[2m      Tests [22m [1m[32m147 passed[39m[22m[90m (147)[39m
+[2m   Start at [22m 21:39:01
+[2m   Duration [22m 59.07s[2m (transform 4.68s, setup 64.09s, collect 271.51s, tests 61.51s, environment 132.93s, prepare 13.49s)[22m
+

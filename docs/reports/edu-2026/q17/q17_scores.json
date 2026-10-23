@@ -1,0 +1,1722 @@
+{
+  "lower_bound_total_penalty": 37.882352941176464,
+  "lower_bounds": [
+    {
+      "method": "reviewer_capacity_pigeonhole",
+      "rule": "s1",
+      "units_lower_bound": 0.0
+    },
+    {
+      "method": "trivial",
+      "rule": "s2",
+      "units_lower_bound": 0.0
+    },
+    {
+      "method": "trivial",
+      "rule": "s3",
+      "units_lower_bound": 0.0
+    },
+    {
+      "method": "trivial",
+      "rule": "s4",
+      "units_lower_bound": 0.0
+    },
+    {
+      "method": "trivial",
+      "rule": "s5",
+      "units_lower_bound": 0.0
+    },
+    {
+      "method": "pigeonhole_setter_adjacency",
+      "rule": "s6",
+      "units_lower_bound": 2.0
+    },
+    {
+      "method": "trivial",
+      "rule": "s7",
+      "units_lower_bound": 0.0
+    },
+    {
+      "method": "greedy_marginal_cost_allocation",
+      "rule": "s8",
+      "units_lower_bound": 4.235294117647058
+    },
+    {
+      "method": "exam_crowding_pigeonhole",
+      "rule": "s9",
+      "units_lower_bound": 0.0
+    },
+    {
+      "method": "trivial",
+      "rule": "s10",
+      "units_lower_bound": 0.0
+    }
+  ],
+  "manual": {
+    "crowding_cases": 0,
+    "h3_violations": 0,
+    "hard_violations_total": 0,
+    "score": {
+      "by_rule": [
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s1",
+          "units": 0.0,
+          "weight": 10.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s2",
+          "units": 0.0,
+          "weight": 3.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 8.0,
+          "rule": "s3",
+          "units": 2.0,
+          "weight": 4.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 12.0,
+          "rule": "s4",
+          "units": 2.0,
+          "weight": 6.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 54.0,
+          "rule": "s5",
+          "units": 9.0,
+          "weight": 6.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 2.0,
+          "penalty": 18.0,
+          "rule": "s6",
+          "units": 9.0,
+          "weight": 2.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 18.0,
+          "rule": "s7",
+          "units": 18.0,
+          "weight": 1.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 4.235294117647058,
+          "penalty": 33.882352941176464,
+          "rule": "s8",
+          "units": 4.235294117647058,
+          "weight": 8.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s9",
+          "units": 0.0,
+          "weight": 5.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s10",
+          "units": 0.0,
+          "weight": 4.0
+        }
+      ],
+      "per_teacher": [
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 3,
+          "teacher_id": 1
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 3,
+          "teacher_id": 2
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 3
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 3,
+          "teacher_id": 4
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 3,
+          "teacher_id": 5
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 6
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 7
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 8
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 9
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 10
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 11
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 12
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 13
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 1,
+          "teacher_id": 14
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 15
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 1,
+          "teacher_id": 16
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            2
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 17
+        }
+      ],
+      "total": 143.88235294117646,
+      "violations": [
+        {
+          "code": "reviewer_same_campus",
+          "panel": {
+            "exam_id": 2,
+            "grade_id": 1,
+            "subject_id": 1
+          },
+          "params": {
+            "count": "1",
+            "exam": "CK1",
+            "grade": "10"
+          },
+          "rule": "s3",
+          "teachers": [
+            2,
+            10
+          ]
+        },
+        {
+          "code": "reviewer_same_campus",
+          "panel": {
+            "exam_id": 3,
+            "grade_id": 1,
+            "subject_id": 1
+          },
+          "params": {
+            "count": "1",
+            "exam": "GK2",
+            "grade": "10"
+          },
+          "rule": "s3",
+          "teachers": [
+            1,
+            9
+          ]
+        },
+        {
+          "code": "setter_pair_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "teacher1": "Giáo viên mô phỏng GV01",
+            "teacher2": "Giáo viên mô phỏng GV02"
+          },
+          "rule": "s4",
+          "teachers": [
+            1,
+            2
+          ]
+        },
+        {
+          "code": "setter_pair_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "teacher1": "Giáo viên mô phỏng GV04",
+            "teacher2": "Giáo viên mô phỏng GV05"
+          },
+          "rule": "s4",
+          "teachers": [
+            4,
+            5
+          ]
+        },
+        {
+          "code": "review_relation_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "reviewer": "Giáo viên mô phỏng GV03",
+            "setter": "Giáo viên mô phỏng GV01"
+          },
+          "rule": "s5",
+          "teachers": [
+            3,
+            1
+          ]
+        },
+        {
+          "code": "review_relation_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "reviewer": "Giáo viên mô phỏng GV03",
+            "setter": "Giáo viên mô phỏng GV02"
+          },
+          "rule": "s5",
+          "teachers": [
+            3,
+            2
+          ]
+        },
+        {
+          "code": "review_relation_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "reviewer": "Giáo viên mô phỏng GV06",
+            "setter": "Giáo viên mô phỏng GV04"
+          },
+          "rule": "s5",
+          "teachers": [
+            6,
+            4
+          ]
+        },
+        {
+          "code": "review_relation_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "reviewer": "Giáo viên mô phỏng GV06",
+            "setter": "Giáo viên mô phỏng GV05"
+          },
+          "rule": "s5",
+          "teachers": [
+            6,
+            5
+          ]
+        },
+        {
+          "code": "review_relation_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "reviewer": "Giáo viên mô phỏng GV11",
+            "setter": "Giáo viên mô phỏng GV17"
+          },
+          "rule": "s5",
+          "teachers": [
+            11,
+            17
+          ]
+        },
+        {
+          "code": "review_relation_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "reviewer": "Giáo viên mô phỏng GV12",
+            "setter": "Giáo viên mô phỏng GV11"
+          },
+          "rule": "s5",
+          "teachers": [
+            12,
+            11
+          ]
+        },
+        {
+          "code": "review_relation_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "reviewer": "Giáo viên mô phỏng GV13",
+            "setter": "Giáo viên mô phỏng GV12"
+          },
+          "rule": "s5",
+          "teachers": [
+            13,
+            12
+          ]
+        },
+        {
+          "code": "review_relation_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "reviewer": "Giáo viên mô phỏng GV14",
+            "setter": "Giáo viên mô phỏng GV13"
+          },
+          "rule": "s5",
+          "teachers": [
+            14,
+            13
+          ]
+        },
+        {
+          "code": "review_relation_repeated",
+          "panel": null,
+          "params": {
+            "count": "2",
+            "reviewer": "Giáo viên mô phỏng GV16",
+            "setter": "Giáo viên mô phỏng GV15"
+          },
+          "rule": "s5",
+          "teachers": [
+            16,
+            15
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK1",
+            "exam2": "CK1",
+            "teacher": "Giáo viên mô phỏng GV01"
+          },
+          "rule": "s6",
+          "teachers": [
+            1
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK2",
+            "exam2": "CK2",
+            "teacher": "Giáo viên mô phỏng GV02"
+          },
+          "rule": "s6",
+          "teachers": [
+            2
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "CK1",
+            "exam2": "GK2",
+            "teacher": "Giáo viên mô phỏng GV03"
+          },
+          "rule": "s6",
+          "teachers": [
+            3
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK1",
+            "exam2": "CK1",
+            "teacher": "Giáo viên mô phỏng GV04"
+          },
+          "rule": "s6",
+          "teachers": [
+            4
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK2",
+            "exam2": "CK2",
+            "teacher": "Giáo viên mô phỏng GV05"
+          },
+          "rule": "s6",
+          "teachers": [
+            5
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "CK1",
+            "exam2": "GK2",
+            "teacher": "Giáo viên mô phỏng GV06"
+          },
+          "rule": "s6",
+          "teachers": [
+            6
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK1",
+            "exam2": "CK1",
+            "teacher": "Giáo viên mô phỏng GV07"
+          },
+          "rule": "s6",
+          "teachers": [
+            7
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK2",
+            "exam2": "CK2",
+            "teacher": "Giáo viên mô phỏng GV09"
+          },
+          "rule": "s6",
+          "teachers": [
+            9
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "CK1",
+            "exam2": "GK2",
+            "teacher": "Giáo viên mô phỏng GV10"
+          },
+          "rule": "s6",
+          "teachers": [
+            10
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV01"
+          },
+          "rule": "s7",
+          "teachers": [
+            1
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV02"
+          },
+          "rule": "s7",
+          "teachers": [
+            2
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV03"
+          },
+          "rule": "s7",
+          "teachers": [
+            3
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV04"
+          },
+          "rule": "s7",
+          "teachers": [
+            4
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV05"
+          },
+          "rule": "s7",
+          "teachers": [
+            5
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV06"
+          },
+          "rule": "s7",
+          "teachers": [
+            6
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "1",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV07"
+          },
+          "rule": "s7",
+          "teachers": [
+            7
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV08"
+          },
+          "rule": "s7",
+          "teachers": [
+            8
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV09"
+          },
+          "rule": "s7",
+          "teachers": [
+            9
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "1",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV10"
+          },
+          "rule": "s7",
+          "teachers": [
+            10
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV11"
+          },
+          "rule": "s7",
+          "teachers": [
+            11
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV13"
+          },
+          "rule": "s7",
+          "teachers": [
+            13
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV14"
+          },
+          "rule": "s7",
+          "teachers": [
+            14
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV15"
+          },
+          "rule": "s7",
+          "teachers": [
+            15
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV16"
+          },
+          "rule": "s7",
+          "teachers": [
+            16
+          ]
+        },
+        {
+          "code": "grade_not_rotated",
+          "panel": null,
+          "params": {
+            "assigned": "2",
+            "target": "3",
+            "teacher": "Giáo viên mô phỏng GV17"
+          },
+          "rule": "s7",
+          "teachers": [
+            17
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV01"
+          },
+          "rule": "s8",
+          "teachers": [
+            1
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV02"
+          },
+          "rule": "s8",
+          "teachers": [
+            2
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV03"
+          },
+          "rule": "s8",
+          "teachers": [
+            3
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV04"
+          },
+          "rule": "s8",
+          "teachers": [
+            4
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV05"
+          },
+          "rule": "s8",
+          "teachers": [
+            5
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV06"
+          },
+          "rule": "s8",
+          "teachers": [
+            6
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV07"
+          },
+          "rule": "s8",
+          "teachers": [
+            7
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV08"
+          },
+          "rule": "s8",
+          "teachers": [
+            8
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV09"
+          },
+          "rule": "s8",
+          "teachers": [
+            9
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV10"
+          },
+          "rule": "s8",
+          "teachers": [
+            10
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV11"
+          },
+          "rule": "s8",
+          "teachers": [
+            11
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV12"
+          },
+          "rule": "s8",
+          "teachers": [
+            12
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV13"
+          },
+          "rule": "s8",
+          "teachers": [
+            13
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV14"
+          },
+          "rule": "s8",
+          "teachers": [
+            14
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV15"
+          },
+          "rule": "s8",
+          "teachers": [
+            15
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV16"
+          },
+          "rule": "s8",
+          "teachers": [
+            16
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV17"
+          },
+          "rule": "s8",
+          "teachers": [
+            17
+          ]
+        }
+      ]
+    },
+    "total": 143.88235294117646,
+    "total_without_s3": 135.88235294117646
+  },
+  "optimized": {
+    "crowding_cases": 0,
+    "h3_violations": 0,
+    "hard_violations_total": 0,
+    "rank": 1,
+    "score": {
+      "by_rule": [
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s1",
+          "units": 0.0,
+          "weight": 10.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s2",
+          "units": 0.0,
+          "weight": 3.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s3",
+          "units": 0.0,
+          "weight": 4.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s4",
+          "units": 0.0,
+          "weight": 6.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s5",
+          "units": 0.0,
+          "weight": 6.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 2.0,
+          "penalty": 12.0,
+          "rule": "s6",
+          "units": 6.0,
+          "weight": 2.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s7",
+          "units": 0.0,
+          "weight": 1.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 4.235294117647058,
+          "penalty": 33.882352941176464,
+          "rule": "s8",
+          "units": 4.235294117647058,
+          "weight": 8.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s9",
+          "units": 0.0,
+          "weight": 5.0
+        },
+        {
+          "enabled": true,
+          "lower_bound": 0.0,
+          "penalty": 0.0,
+          "rule": "s10",
+          "units": 0.0,
+          "weight": 4.0
+        }
+      ],
+      "per_teacher": [
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 3,
+          "teacher_id": 1
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 2
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 3
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 3,
+          "teacher_id": 4
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 3,
+          "teacher_id": 5
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 6
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 7
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 8
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 3,
+          "teacher_id": 9
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 10
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 1,
+          "teacher_id": 11
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 12
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 13
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 1,
+          "setter": 2,
+          "teacher_id": 14
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 15
+        },
+        {
+          "count": 3,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 1,
+          "teacher_id": 16
+        },
+        {
+          "count": 4,
+          "grades_assigned": [
+            1,
+            2,
+            3
+          ],
+          "quota": 3.5294117647058805,
+          "reviewer": 2,
+          "setter": 2,
+          "teacher_id": 17
+        }
+      ],
+      "total": 45.882352941176464,
+      "violations": [
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK1",
+            "exam2": "CK1",
+            "teacher": "Giáo viên mô phỏng GV01"
+          },
+          "rule": "s6",
+          "teachers": [
+            1
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "CK1",
+            "exam2": "GK2",
+            "teacher": "Giáo viên mô phỏng GV02"
+          },
+          "rule": "s6",
+          "teachers": [
+            2
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK2",
+            "exam2": "CK2",
+            "teacher": "Giáo viên mô phỏng GV04"
+          },
+          "rule": "s6",
+          "teachers": [
+            4
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK2",
+            "exam2": "CK2",
+            "teacher": "Giáo viên mô phỏng GV05"
+          },
+          "rule": "s6",
+          "teachers": [
+            5
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "CK1",
+            "exam2": "GK2",
+            "teacher": "Giáo viên mô phỏng GV06"
+          },
+          "rule": "s6",
+          "teachers": [
+            6
+          ]
+        },
+        {
+          "code": "setter_consecutive",
+          "panel": null,
+          "params": {
+            "exam1": "GK1",
+            "exam2": "CK1",
+            "teacher": "Giáo viên mô phỏng GV09"
+          },
+          "rule": "s6",
+          "teachers": [
+            9
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV01"
+          },
+          "rule": "s8",
+          "teachers": [
+            1
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV02"
+          },
+          "rule": "s8",
+          "teachers": [
+            2
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV03"
+          },
+          "rule": "s8",
+          "teachers": [
+            3
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV04"
+          },
+          "rule": "s8",
+          "teachers": [
+            4
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV05"
+          },
+          "rule": "s8",
+          "teachers": [
+            5
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV06"
+          },
+          "rule": "s8",
+          "teachers": [
+            6
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV07"
+          },
+          "rule": "s8",
+          "teachers": [
+            7
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV08"
+          },
+          "rule": "s8",
+          "teachers": [
+            8
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV09"
+          },
+          "rule": "s8",
+          "teachers": [
+            9
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV10"
+          },
+          "rule": "s8",
+          "teachers": [
+            10
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV11"
+          },
+          "rule": "s8",
+          "teachers": [
+            11
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV12"
+          },
+          "rule": "s8",
+          "teachers": [
+            12
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV13"
+          },
+          "rule": "s8",
+          "teachers": [
+            13
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV14"
+          },
+          "rule": "s8",
+          "teachers": [
+            14
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV15"
+          },
+          "rule": "s8",
+          "teachers": [
+            15
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "3",
+            "deviation": "-0.53",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV16"
+          },
+          "rule": "s8",
+          "teachers": [
+            16
+          ]
+        },
+        {
+          "code": "load_deviation",
+          "panel": null,
+          "params": {
+            "count": "4",
+            "deviation": "+0.47",
+            "quota": "3.53",
+            "teacher": "Giáo viên mô phỏng GV17"
+          },
+          "rule": "s8",
+          "teachers": [
+            17
+          ]
+        }
+      ]
+    },
+    "seed": 43,
+    "total": 45.882352941176464,
+    "total_without_s3": 45.882352941176464
+  },
+  "optimizer_stats": {
+    "elapsed_ms": 2361,
+    "total_iterations": 1600000,
+    "total_runs": 8
+  },
+  "parameters": {
+    "base_seed": 42,
+    "diversity_threshold": 0.2,
+    "iterations_per_run": 200000,
+    "max_plans": 3,
+    "num_runs": 8
+  },
+  "reduction_percent": 68.11120196238758,
+  "reduction_percent_without_s3": 66.23376623376623
+}

@@ -1,0 +1,168 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running unittests src\lib.rs (target\debug\deps\exam_panel_service-9a432100b9323086.exe)
+
+running 4 tests
+test excel::normalize::tests::test_normalize_text_and_code ... ok
+test excel::normalize::tests::test_parse_boolean ... ok
+test excel::normalize::tests::test_parse_load_weight ... ok
+test excel::normalize::tests::test_parse_grade_codes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\bin\generate_presets_report.rs (target\debug\deps\generate_presets_report-c4e7d1432ab57123.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\bin\import_q_data.rs (target\debug\deps\import_q_data-d7d414acfbaf382d.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\bin\phase11_report.rs (target\debug\deps\phase11_report-10314076b301a98d.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\bin\task5_comparison.rs (target\debug\deps\task5_comparison-f495d2cbe2fa04d5.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\bin\task6_h3.rs (target\debug\deps\task6_h3-205d77847be6bcfc.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\bin\task7_perf.rs (target\debug\deps\task7_perf-02c0faaea605fbfd.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\comparison_tests.rs (target\debug\deps\comparison_tests-f157605dd7b03197.exe)
+
+running 1 test
+test test_comparison_integrity_and_lower_bounds ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests\excel_tests.rs (target\debug\deps\excel_tests-2c05f2b2e0704534.exe)
+
+running 10 tests
+test test_export_q_plan_golden_calamine ... ok
+test test_transactional_apply_rollback_on_error ... ok
+test test_sync_mode_deactivates_omitted_teachers ... ok
+test test_template_roundtrip_preview_and_apply ... ok
+test test_template_generation_and_calamine_sheets ... ok
+test test_teacher_matching_and_ambiguity_detection ... ok
+test test_q_sample_template_v2_generation_and_import ... ok
+test test_reimport_detects_quota_and_max_task_changes ... ok
+test test_standard_template_feasibility_and_generate_downloads ... ok
+test test_export_workbook_calamine_verification ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests\logging_tests.rs (target\debug\deps\logging_tests-7a32fcb851191048.exe)
+
+running 3 tests
+test backup_and_restore_are_logged ... ok
+test opening_a_database_logs_path_and_schema_version ... ok
+test a_rejected_duplicate_write_is_logged_with_its_error_code ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests\part_b_tests.rs (target\debug\deps\part_b_tests-1ba5bcdb1d539c7e.exe)
+
+running 4 tests
+test test_part_b_reoptimize_from_plan ... ok
+test test_part_a1_staleness_split_data_vs_rules ... ok
+test test_part_b_manual_editing_and_immutability ... ok
+test test_part_b_plan_status_and_staleness ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+
+     Running tests\pipeline_report_test.rs (target\debug\deps\pipeline_report_test-d68346e176d00801.exe)
+
+running 1 test
+test test_pipeline_report_zero_hard_violations_and_bounds_respected ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.84s
+
+     Running tests\plan_import_tests.rs (target\debug\deps\plan_import_tests-d588eeea974f6c84.exe)
+
+running 10 tests
+test test_plan_import_nfc_nfd_names ... ok
+test test_plan_import_ambiguity_error ... ok
+test test_plan_import_accent_insensitive_unique_match ... ok
+test test_plan_import_missing_seat ... ok
+test test_plan_import_totals_column_mismatch_warning ... ok
+test test_plan_import_tsv_parse_grid_region ... ok
+test test_plan_import_tsv_clipboard ... ok
+test test_plan_import_apply_manual_origin_import ... ok
+test test_plan_import_golden_q_table ... ok
+test test_plan_import_export_roundtrip ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\qa_regression_tests.rs (target\debug\deps\qa_regression_tests-bcf903c48ea52aef.exe)
+
+running 10 tests
+test ra034_capability_does_not_grant_frontend_open_path ... ok
+test ra036_release_manifest_does_not_enable_dev_tools_by_default ... ok
+test export::ra009_criteria_sheet_uses_rules_screen_names_units_and_lower_bounds ... ok
+test export::ra028_co_panelists_are_limited_to_the_same_subject_panel ... ok
+test export::ra029_empty_organisation_settings_print_no_invented_text ... ok
+test ra011_cancel_during_run_returns_cancelled_error ... ok
+test ra011_cancelled_optimize_returns_cancelled_error_and_no_plans ... ok
+test ra025_plan_invalid_error_reports_the_hard_violation_count ... ok
+test reoptimize::ra026_kept_setter_seats_keep_their_position ... ok
+test reoptimize::ra026_saved_plans_get_unique_names ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.57s
+
+     Running tests\service_tests.rs (target\debug\deps\service_tests-1e94f5e34a0df48e.exe)
+
+running 13 tests
+test test_school_years_and_exams ... ok
+test test_app_info_and_settings ... ok
+test test_feasibility_and_evaluation ... ok
+test test_teachers_and_grades ... ok
+test test_error_mapping ... ok
+test test_rule_presets_and_quota_preview ... ok
+test test_ensure_default_school_year ... ok
+test test_exam_crud_and_reorder ... ok
+test test_campuses_and_grades_crud ... ok
+test test_lock_not_held_during_optimize_and_cancellation ... ok
+test test_unavailabilities_locks_and_rule_settings ... ok
+test test_busy_job_rejection ... ok
+test test_optimization_persistence_and_plan_crud ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+
+     Running tests\trial_mode_tests.rs (target\debug\deps\trial_mode_tests-fa19f1c8a16102f0.exe)
+
+running 2 tests
+test test_startup_error_classification ... ok
+test test_trial_mode_isolation_real_db_untouched ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests\warm_start_tests.rs (target\debug\deps\warm_start_tests-dac9b787a0082167.exe)
+
+running 1 test
+test test_warm_start_initial_score_and_convergence ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+   Doc-tests exam_panel_service
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

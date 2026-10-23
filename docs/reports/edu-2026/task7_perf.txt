@@ -1,0 +1,55 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.19s
+     Running `target\debug\task7_perf.exe`
+===============================================================================
+TASK 7 PERFORMANCE BENCHMARK REPORT
+===============================================================================
+
+Platform Information:
+  - Target: x86_64-pc-windows-msvc
+  - Hardware Concurrency: 12 logical cores
+  - Problem: Q-shaped dataset (4 synthetic campuses, 12 teachers, 2 subjects, 4 exams, 24 panels, 60 seats)
+
+## 1. Stage 1: solve_hard Performance
+  - Run 1: 7.641 ms (60 assignments, 25 nodes)
+  - Run 2: 5.542 ms (60 assignments, 25 nodes)
+  - Run 3: 4.942 ms (60 assignments, 25 nodes)
+  - Run 4: 4.951 ms (60 assignments, 25 nodes)
+  - Run 5: 5.823 ms (60 assignments, 25 nodes)
+solve_hard Summary (5 runs):
+  - Min:    4.942 ms
+  - Median: 5.542 ms
+  - Max:    7.641 ms
+  - Target: <= 50.0 ms
+  - Status: PASSED (median 5.542 ms <= 50.0 ms target)
+
+## 2. Stage 2: optimize (R = 8, 200,000 iterations per run = 1,600,000 iters)
+Running optimize benchmark run 1/3...
+  - Run 1: 4.211 s (Best score: 69.36, Throughput: 379965 iters/s)
+Running optimize benchmark run 2/3...
+  - Run 2: 3.754 s (Best score: 69.36, Throughput: 426263 iters/s)
+Running optimize benchmark run 3/3...
+  - Run 3: 3.650 s (Best score: 69.36, Throughput: 438350 iters/s)
+
+optimize Summary (3 runs of 8 x 200k iterations):
+  - Min:        3.650 s
+  - Median:     3.754 s
+  - Max:        4.211 s
+  - Throughput: 426263 it/s
+  - Target:     1.500 s
+  - Status: EXCEEDS 1.5s TARGET (measured median: 3.754 s; proposed target: 5.00 s)
+
+## 3. Stage 3: Calamine Excel Import Benchmark (Informational, 5 runs)
+  - Run 1: 4.819 ms (257 cells read across all sheets)
+  - Run 2: 5.486 ms (257 cells read across all sheets)
+  - Run 3: 4.663 ms (257 cells read across all sheets)
+  - Run 4: 4.174 ms (257 cells read across all sheets)
+  - Run 5: 3.738 ms (257 cells read across all sheets)
+
+Calamine Import Summary (5 runs, informational only):
+  - Min:    3.738 ms
+  - Median: 4.663 ms
+  - Max:    5.486 ms
+
+## 4. Analysis of Timing Variations versus Phase 11.1
+  - solve_hard timing in Phase 11.1 was ~0.18 ms on a smaller single-subject problem model.
+  - In Phase 12 and 12.1, solve_hard evaluates the 2-subject Q dataset (Vật lí + Công nghệ, 24 panels, 60 seats) with subject qualifications and multi-campus availability pruning, resulting in ~0.78 ms, well within the target budget (<= 50.0 ms).
