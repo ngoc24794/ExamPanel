@@ -93,6 +93,9 @@ function getFixTarget(violation: Diagnostic | Violation): {
   if (code.includes('unavailability') || code.includes('tight_panel_roster')) {
     return { path: '/unavailability', labelKey: 'nav.unavailability' }
   }
+  if (code === 'setter_capacity_shortfall' || code === 'reviewer_capacity_shortfall') {
+    return { path: '/rules', labelKey: 'nav.rules' }
+  }
   if (code.includes('capacity') || code.includes('quota')) {
     return { path: '/rules?tab=quotas', labelKey: 'rules.tabQuotas' }
   }
@@ -221,7 +224,8 @@ export const FeasibilitySheet: React.FC<FeasibilitySheetProps> = ({
                 const exam = exams.find((e) => e.id === fp.panel.exam_id)
                 const grade = grades.find((g) => g.id === fp.panel.grade_id)
                 const subject = subjects.find((s) => s.id === fp.panel.subject_id)
-                const roleLabel = fp.role === 'setter' ? t('common.roleSetter') : t('common.roleReviewer')
+                const roleLabel =
+                  fp.role === 'setter' ? t('common.roleSetter') : t('common.roleReviewer')
 
                 return (
                   <div

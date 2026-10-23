@@ -1,0 +1,27 @@
+Reproduction harness: scratchpad/diag/src/bin/repro.rs (outside the repo).
+It loads a read-only database copy, calls exam_panel_core::feasibility::check_feasibility,
+prints diagnostic codes/params and redacts teacher_name from params (no real teacher names).
+
+COMMAND: cargo run --quiet --manifest-path "C:\Users\ngocnv.HUONGVIETGROUP\AppData\Local\Temp\claude\C--Users-ngocnv-HUONGVIETGROUP-source-repos-ExamPanel\0f25fc57-0637-481b-b98e-724549af4bd0\scratchpad\diag\Cargo.toml" --bin repro -- "C:\Users\ngocnv.HUONGVIETGROUP\AppData\Local\Temp\claude\C--Users-ngocnv-HUONGVIETGROUP-source-repos-ExamPanel\0f25fc57-0637-481b-b98e-724549af4bd0\scratchpad\snap.db"
+== snap.db ==
+feasible=false errors=2 warnings=9
+error_codes={"quota_override_exceeds_capacity": 1, "setter_capacity_shortfall": 1}
+ERR quota_override_exceeds_capacity teacher=17 {"available_exams":1,"capacity":2,"max_per_exam":2,"override":8}
+ERR setter_capacity_shortfall teacher=- {"capacity":2,"exam":"CK2","max_setter_per_exam":1,"required":3,"subject":"CN"}
+warning_codes={"forced_placement": 9}
+
+
+COMMAND: cargo run --quiet --manifest-path "C:\Users\ngocnv.HUONGVIETGROUP\AppData\Local\Temp\claude\C--Users-ngocnv-HUONGVIETGROUP-source-repos-ExamPanel\0f25fc57-0637-481b-b98e-724549af4bd0\scratchpad\diag\Cargo.toml" --bin repro -- "C:\Users\ngocnv.HUONGVIETGROUP\AppData\Local\Temp\claude\C--Users-ngocnv-HUONGVIETGROUP-source-repos-ExamPanel\0f25fc57-0637-481b-b98e-724549af4bd0\scratchpad\v_ngoc_null.db"
+== v_ngoc_null.db ==
+feasible=false errors=1 warnings=9
+error_codes={"setter_capacity_shortfall": 1}
+ERR setter_capacity_shortfall teacher=- {"capacity":2,"exam":"CK2","max_setter_per_exam":1,"required":3,"subject":"CN"}
+warning_codes={"forced_placement": 9}
+
+
+COMMAND: cargo run --quiet --manifest-path "C:\Users\ngocnv.HUONGVIETGROUP\AppData\Local\Temp\claude\C--Users-ngocnv-HUONGVIETGROUP-source-repos-ExamPanel\0f25fc57-0637-481b-b98e-724549af4bd0\scratchpad\diag\Cargo.toml" --bin repro -- "C:\Users\ngocnv.HUONGVIETGROUP\AppData\Local\Temp\claude\C--Users-ngocnv-HUONGVIETGROUP-source-repos-ExamPanel\0f25fc57-0637-481b-b98e-724549af4bd0\scratchpad\w_set2_ngoc_null.db"
+== w_set2_ngoc_null.db ==
+feasible=true errors=0 warnings=9
+error_codes={}
+warning_codes={"forced_placement": 9}
+

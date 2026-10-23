@@ -401,11 +401,26 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
     let forced = crate::domain::forced::find_forced_placements(problem).unwrap_or_default();
     let mut forced_counts: HashMap<TeacherId, usize> = HashMap::new();
     let mut forced_per_exam: HashMap<(TeacherId, ExamId), usize> = HashMap::new();
+    let mut forced_setters_per_exam: HashMap<(TeacherId, ExamId), usize> = HashMap::new();
     for p in &forced {
+        let exam_code = exam_map
+            .get(&p.panel.exam_id)
+            .map_or("", |e| e.code.as_str());
+        let grade_code = grade_map.get(&p.panel.grade_id).map_or(0, |g| g.code);
+        let subject_code = subject_map
+            .get(&p.panel.subject_id)
+            .map_or("", |s| s.code.as_str());
+        let teacher_name = teacher_map
+            .get(&p.teacher_id)
+            .map_or(String::new(), |t| t.full_name.clone());
         warnings.push(
             Diagnostic::new("forced_placement")
                 .with_panel(p.panel)
                 .with_teacher(p.teacher_id)
+                .with_param("exam", exam_code)
+                .with_param("grade", grade_code)
+                .with_param("subject", subject_code)
+                .with_param("teacher_name", teacher_name)
                 .with_param("role", p.role.as_str())
                 .with_param("position", p.position),
         );
@@ -413,6 +428,11 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
         *forced_per_exam
             .entry((p.teacher_id, p.panel.exam_id))
             .or_default() += 1;
+        if p.role == Role::Setter {
+            *forced_setters_per_exam
+                .entry((p.teacher_id, p.panel.exam_id))
+                .or_default() += 1;
+        }
     }
 
     // Check quota overrides against [F_t, cap_t]
@@ -674,6 +694,167 @@ pub fn check_feasibility(problem: &Problem) -> FeasibilityReport {
                     );
                 }
             }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // F2b: Manual quota ceiling and per-role capacity per exam
+    // -------------------------------------------------------------------------
+    // A quota override is an exact annual target. `hi` cannot bound it because
+    // quota.rs sets lo = hi = override, so compare it with the real ceiling:
+    // one effective task cap per available exam (H4 plus forced placements).
+    let all_slots: usize = all_panels
+        .iter()
+        .filter_map(|p| subject_map.get(&p.subject_id))
+        .map(|s| (s.setters + s.reviewers) as usize)
+        .sum();
+
+    for teacher in &problem.teachers {
+        let Some(ov) = teacher.quota_override else {
+            continue;
+        };
+        let configured = teacher
+            .max_tasks_per_exam_override
+            .map_or(default_max_tasks_per_exam, |v| v as usize);
+        let mut capacity = 0usize;
+        let mut available_exams = 0usize;
+        for exam in &problem.exams {
+            let has_seat = all_panels.iter().any(|p| {
+                p.exam_id == exam.id
+                    && panel_eligibility.get(p).is_some_and(|e| {
+                        e.setters.contains(&teacher.id) || e.reviewers.contains(&teacher.id)
+                    })
+            });
+            if !has_seat {
+                continue;
+            }
+            available_exams += 1;
+            capacity += if h4_enabled {
+                configured.max(
+                    forced_per_exam
+                        .get(&(teacher.id, exam.id))
+                        .copied()
+                        .unwrap_or(0),
+                )
+            } else {
+                all_slots
+            };
+        }
+        if ov as usize > capacity {
+            errors.push(
+                Diagnostic::new("quota_override_exceeds_capacity")
+                    .with_teacher(teacher.id)
+                    .with_param("teacher_name", teacher.full_name.clone())
+                    .with_param("override", ov)
+                    .with_param("capacity", capacity)
+                    .with_param("available_exams", available_exams)
+                    .with_param("max_per_exam", configured),
+            );
+        }
+    }
+
+    // H4 caps setter roles per exam separately from total tasks. Summing the
+    // per-teacher role caps over the eligible pool catches a shortage that the
+    // per-exam total-flow check cannot see (e.g. one setter per teacher, 3
+    // grades, only 2 available setters).
+    let default_max_setter_per_exam = h4_setting
+        .and_then(|s| {
+            s.params
+                .get("max_setter_per_exam")
+                .and_then(serde_json::Value::as_u64)
+        })
+        .map_or(1, |v| v as usize);
+
+    let mut exam_subject_keys: Vec<(ExamId, SubjectId)> = all_panels
+        .iter()
+        .map(|p| (p.exam_id, p.subject_id))
+        .collect();
+    exam_subject_keys.sort_by_key(|(e, s)| (e.0, s.0));
+    exam_subject_keys.dedup();
+
+    for (exam_id, subject_id) in exam_subject_keys {
+        let subject = match subject_map.get(&subject_id) {
+            Some(s) => s,
+            None => continue,
+        };
+        let panels: Vec<&PanelKey> = all_panels
+            .iter()
+            .filter(|p| p.exam_id == exam_id && p.subject_id == subject_id)
+            .collect();
+        if panels.is_empty() {
+            continue;
+        }
+        let required_setters = panels.len() * subject.setters as usize;
+        let required_reviewers = panels.len() * subject.reviewers as usize;
+        let mut setter_capacity = 0usize;
+        let mut reviewer_capacity = 0usize;
+
+        for teacher in &problem.teachers {
+            let eligible_setter_panels = panels
+                .iter()
+                .filter(|p| {
+                    panel_eligibility
+                        .get(p)
+                        .is_some_and(|e| e.setters.contains(&teacher.id))
+                })
+                .count();
+            let eligible_reviewer_panels = panels
+                .iter()
+                .filter(|p| {
+                    panel_eligibility
+                        .get(p)
+                        .is_some_and(|e| e.reviewers.contains(&teacher.id))
+                })
+                .count();
+            if eligible_setter_panels == 0 && eligible_reviewer_panels == 0 {
+                continue;
+            }
+
+            let configured = teacher
+                .max_tasks_per_exam_override
+                .map_or(default_max_tasks_per_exam, |v| v as usize);
+            let (eff_tasks, eff_setters) = if h4_enabled {
+                (
+                    configured.max(
+                        forced_per_exam
+                            .get(&(teacher.id, exam_id))
+                            .copied()
+                            .unwrap_or(0),
+                    ),
+                    default_max_setter_per_exam.max(
+                        forced_setters_per_exam
+                            .get(&(teacher.id, exam_id))
+                            .copied()
+                            .unwrap_or(0),
+                    ),
+                )
+            } else {
+                (all_slots, eligible_setter_panels)
+            };
+
+            setter_capacity += eff_setters.min(eff_tasks).min(eligible_setter_panels);
+            reviewer_capacity += eff_tasks.min(eligible_reviewer_panels);
+        }
+
+        let exam_code = exam_map.get(&exam_id).map_or("", |e| e.code.as_str());
+        if required_setters > setter_capacity {
+            errors.push(
+                Diagnostic::new("setter_capacity_shortfall")
+                    .with_param("exam", exam_code)
+                    .with_param("subject", subject.code.clone())
+                    .with_param("required", required_setters)
+                    .with_param("capacity", setter_capacity)
+                    .with_param("max_setter_per_exam", default_max_setter_per_exam),
+            );
+        }
+        if required_reviewers > reviewer_capacity {
+            errors.push(
+                Diagnostic::new("reviewer_capacity_shortfall")
+                    .with_param("exam", exam_code)
+                    .with_param("subject", subject.code.clone())
+                    .with_param("required", required_reviewers)
+                    .with_param("capacity", reviewer_capacity),
+            );
         }
     }
 
@@ -2077,5 +2258,395 @@ mod tests {
         assert_eq!(diag.params["subject"], serde_json::json!("CN"));
         assert_eq!(diag.params["seats"], serde_json::json!(8));
         assert_eq!(diag.params["capacity"], serde_json::json!(4));
+    }
+
+    // -------------------------------------------------------------------------
+    // FIXES-10: manual-quota ceiling and per-role capacity (synthetic fixtures)
+    // -------------------------------------------------------------------------
+
+    fn capacity_teacher(id: i64, campus: i64, quota_override: Option<u32>) -> Teacher {
+        Teacher {
+            id: TeacherId(id),
+            full_name: format!("GV{id:02}"),
+            display_name: Some(format!("GV{id:02}")),
+            campus_id: CampusId(campus),
+            load_weight: 1.0,
+            active: true,
+            note: None,
+            code: Some(format!("GV{id:02}")),
+            quota_override,
+            max_tasks_per_exam_override: None,
+        }
+    }
+
+    fn capacity_subject(setters: u8, reviewers: u8) -> Subject {
+        Subject {
+            id: SubjectId(1),
+            code: "CN".to_string(),
+            name: "Công nghệ".to_string(),
+            color: "slate".to_string(),
+            sort_order: 1,
+            setters,
+            reviewers,
+            min_campuses: 1,
+        }
+    }
+
+    /// Builds a one-subject synthetic problem. Every teacher teaches every grade.
+    fn build_capacity_problem(
+        subject: Subject,
+        grade_count: usize,
+        exam_count: usize,
+        teachers: Vec<(Teacher, Vec<Role>)>,
+        unavailabilities: Vec<(i64, i64)>,
+    ) -> Problem {
+        let sy = SchoolYear {
+            id: SchoolYearId(1),
+            name: "2026-2027".to_string(),
+            is_current: true,
+        };
+        let campuses = (1..=2)
+            .map(|c| Campus {
+                id: CampusId(c),
+                code: format!("PH{c}"),
+                name: format!("Phân hiệu {c}"),
+                color: "slate".to_string(),
+            })
+            .collect();
+        let grades = (1..=grade_count)
+            .map(|g| Grade {
+                id: GradeId(g as i64),
+                code: 9 + g as i32,
+                name: format!("Khối {}", 9 + g),
+                sort_order: g as i32,
+            })
+            .collect();
+        let exams = (1..=exam_count)
+            .map(|e| Exam {
+                id: ExamId(e as i64),
+                school_year_id: sy.id,
+                code: format!("E{e}"),
+                name: format!("Kỳ {e}"),
+                sort_order: e as i32,
+            })
+            .collect();
+
+        let mut teacher_grades = Vec::new();
+        let mut competencies = Vec::new();
+        for (teacher, roles) in &teachers {
+            for g in 1..=grade_count {
+                teacher_grades.push(TeacherGrade {
+                    teacher_id: teacher.id,
+                    school_year_id: sy.id,
+                    grade_id: GradeId(g as i64),
+                });
+            }
+            for role in roles {
+                competencies.push(Competency {
+                    teacher_id: teacher.id,
+                    subject_id: subject.id,
+                    role: *role,
+                    grade_scope: GradeScope::Taught,
+                });
+            }
+        }
+
+        Problem {
+            school_year: sy,
+            campuses,
+            grades,
+            subjects: vec![subject],
+            teachers: teachers.into_iter().map(|(t, _)| t).collect(),
+            teacher_grades,
+            competencies,
+            exams,
+            unavailabilities: unavailabilities
+                .into_iter()
+                .map(|(t, e)| Unavailability {
+                    teacher_id: TeacherId(t),
+                    exam_id: ExamId(e),
+                    reason: Some("mô phỏng".to_string()),
+                })
+                .collect(),
+            locks: Vec::new(),
+            rule_settings: RuleSetting::default_settings(),
+        }
+    }
+
+    #[test]
+    fn test_quota_override_exceeds_actual_capacity() {
+        // One available exam × default 2 tasks/exam = capacity 2, while the
+        // manual quota asks for 8.
+        let problem = build_capacity_problem(
+            capacity_subject(2, 1),
+            1,
+            4,
+            vec![
+                (
+                    capacity_teacher(1, 1, Some(8)),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (
+                    capacity_teacher(2, 1, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (
+                    capacity_teacher(3, 2, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (
+                    capacity_teacher(4, 2, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+            ],
+            vec![(1, 2), (1, 3), (1, 4)],
+        );
+
+        let report = check_feasibility(&problem);
+        let diag = report
+            .errors
+            .iter()
+            .find(|d| d.code == "quota_override_exceeds_capacity")
+            .unwrap_or_else(|| {
+                panic!(
+                    "expected quota_override_exceeds_capacity, got {:?}",
+                    report.errors
+                )
+            });
+        assert_eq!(diag.params["override"], serde_json::json!(8));
+        assert_eq!(diag.params["capacity"], serde_json::json!(2));
+        assert_eq!(diag.params["available_exams"], serde_json::json!(1));
+        assert_eq!(diag.params["max_per_exam"], serde_json::json!(2));
+    }
+
+    #[test]
+    fn test_quota_override_at_capacity_is_accepted() {
+        let problem = build_capacity_problem(
+            capacity_subject(2, 1),
+            1,
+            4,
+            vec![
+                (
+                    capacity_teacher(1, 1, Some(2)),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (
+                    capacity_teacher(2, 1, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (
+                    capacity_teacher(3, 2, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (
+                    capacity_teacher(4, 2, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+            ],
+            vec![(1, 2), (1, 3), (1, 4)],
+        );
+
+        let report = check_feasibility(&problem);
+        assert!(
+            !report
+                .errors
+                .iter()
+                .any(|d| d.code == "quota_override_exceeds_capacity"),
+            "override equal to capacity must not be reported: {:?}",
+            report.errors
+        );
+    }
+
+    #[test]
+    fn test_setter_capacity_shortfall_detected() {
+        // Four exams, three grades. Two CN setters; one is absent in E1–E3,
+        // so E4 has 2 available setters for 3 setter seats (no forced seat
+        // because each panel still has two candidates).
+        let problem = build_capacity_problem(
+            capacity_subject(1, 1),
+            3,
+            4,
+            vec![
+                (
+                    capacity_teacher(1, 1, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (
+                    capacity_teacher(2, 2, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (capacity_teacher(3, 1, None), vec![Role::Reviewer]),
+                (capacity_teacher(4, 2, None), vec![Role::Reviewer]),
+                (capacity_teacher(5, 1, None), vec![Role::Reviewer]),
+            ],
+            vec![(1, 1), (1, 2), (1, 3)],
+        );
+
+        let report = check_feasibility(&problem);
+        let diag = report
+            .errors
+            .iter()
+            .find(|d| d.code == "setter_capacity_shortfall")
+            .unwrap_or_else(|| {
+                panic!(
+                    "expected setter_capacity_shortfall, got {:?}",
+                    report.errors
+                )
+            });
+        assert_eq!(diag.params["required"], serde_json::json!(3));
+        assert_eq!(diag.params["capacity"], serde_json::json!(2));
+        assert_eq!(diag.params["max_setter_per_exam"], serde_json::json!(1));
+
+        let exam4 = report
+            .errors
+            .iter()
+            .find(|d| {
+                d.code == "setter_capacity_shortfall"
+                    && d.params.get("exam") == Some(&serde_json::json!("E4"))
+            })
+            .expect("exam 4 shortfall must be reported");
+        assert_eq!(exam4.params["capacity"], serde_json::json!(2));
+
+        // E1–E3 have a single available setter, so forced propagation raises
+        // that teacher's effective setter limit and no shortfall is reported.
+        assert!(
+            !report.errors.iter().any(|d| {
+                d.code == "setter_capacity_shortfall"
+                    && matches!(
+                        d.params.get("exam").and_then(|v| v.as_str()),
+                        Some("E1" | "E2" | "E3")
+                    )
+            }),
+            "single available setter is forced, not short: {:?}",
+            report.errors
+        );
+    }
+
+    #[test]
+    fn test_setter_capacity_shortfall_not_raised_with_enough_setters() {
+        let problem = build_capacity_problem(
+            capacity_subject(1, 1),
+            3,
+            2,
+            vec![
+                (
+                    capacity_teacher(1, 1, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (
+                    capacity_teacher(2, 2, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (
+                    capacity_teacher(3, 1, None),
+                    vec![Role::Setter, Role::Reviewer],
+                ),
+                (capacity_teacher(4, 2, None), vec![Role::Reviewer]),
+                (capacity_teacher(5, 1, None), vec![Role::Reviewer]),
+            ],
+            vec![],
+        );
+
+        let report = check_feasibility(&problem);
+        assert!(
+            !report
+                .errors
+                .iter()
+                .any(|d| d.code == "setter_capacity_shortfall"),
+            "three setters cover three grades: {:?}",
+            report.errors
+        );
+    }
+
+    #[test]
+    fn test_reviewer_capacity_shortfall_detected() {
+        // Five reviewer seats, two reviewer-only teachers with 2 tasks/exam:
+        // capacity 4 < 5, and no reviewer is forced (two candidates/panel).
+        let problem = build_capacity_problem(
+            capacity_subject(1, 1),
+            5,
+            1,
+            vec![
+                (capacity_teacher(1, 1, None), vec![Role::Setter]),
+                (capacity_teacher(2, 2, None), vec![Role::Setter]),
+                (capacity_teacher(3, 1, None), vec![Role::Setter]),
+                (capacity_teacher(4, 2, None), vec![Role::Setter]),
+                (capacity_teacher(5, 1, None), vec![Role::Setter]),
+                (capacity_teacher(6, 2, None), vec![Role::Reviewer]),
+                (capacity_teacher(7, 1, None), vec![Role::Reviewer]),
+            ],
+            vec![],
+        );
+
+        let report = check_feasibility(&problem);
+        let diag = report
+            .errors
+            .iter()
+            .find(|d| d.code == "reviewer_capacity_shortfall")
+            .unwrap_or_else(|| {
+                panic!(
+                    "expected reviewer_capacity_shortfall, got {:?}",
+                    report.errors
+                )
+            });
+        assert_eq!(diag.params["required"], serde_json::json!(5));
+        assert_eq!(diag.params["capacity"], serde_json::json!(4));
+    }
+
+    #[test]
+    fn test_reviewer_capacity_shortfall_not_raised_with_enough_reviewers() {
+        let problem = build_capacity_problem(
+            capacity_subject(1, 1),
+            5,
+            1,
+            vec![
+                (capacity_teacher(1, 1, None), vec![Role::Setter]),
+                (capacity_teacher(2, 2, None), vec![Role::Setter]),
+                (capacity_teacher(3, 1, None), vec![Role::Setter]),
+                (capacity_teacher(4, 2, None), vec![Role::Setter]),
+                (capacity_teacher(5, 1, None), vec![Role::Setter]),
+                (capacity_teacher(6, 2, None), vec![Role::Reviewer]),
+                (capacity_teacher(7, 1, None), vec![Role::Reviewer]),
+                (capacity_teacher(8, 2, None), vec![Role::Reviewer]),
+            ],
+            vec![],
+        );
+
+        let report = check_feasibility(&problem);
+        assert!(
+            !report
+                .errors
+                .iter()
+                .any(|d| d.code == "reviewer_capacity_shortfall"),
+            "three reviewers cover five seats at 2 tasks each: {:?}",
+            report.errors
+        );
+    }
+
+    #[test]
+    fn test_new_capacity_checks_accept_canonical_fixtures() {
+        use crate::domain::fixtures::{
+            make_canonical_q_problem, make_synthetic_40_problem_2sub, QVariant,
+        };
+
+        let problems = vec![
+            make_canonical_q_problem(QVariant::NoCampus),
+            make_canonical_q_problem(QVariant::SyntheticCampuses),
+            make_synthetic_40_problem_2sub(),
+        ];
+        for problem in problems {
+            let report = check_feasibility(&problem);
+            for code in [
+                "quota_override_exceeds_capacity",
+                "setter_capacity_shortfall",
+                "reviewer_capacity_shortfall",
+            ] {
+                assert!(
+                    !report.errors.iter().any(|d| d.code == code),
+                    "fixture must not raise {code}: {:?}",
+                    report.errors
+                );
+            }
+        }
     }
 }

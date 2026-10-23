@@ -174,19 +174,23 @@ Before launching the constructive solver, a deterministic pre-check verifies whe
 ### 4.1 Verification Stages
 1. **F1 Structural Integrity**: Snapshot validation (`Problem::validate()`).
 2. **F2 Per-Panel Adequacy**: Each panel must have $\ge 2$ setter-eligible, $\ge 1$ reviewer-eligible, $\ge 3$ distinct eligible teachers, and the eligible set must span $\ge 2$ distinct campuses.
-3. **F3 Lock Consistency**:
+3. **F2b Manual-Quota Ceiling & Per-Role Capacity**:
+   - An explicit quota is an exact annual target; compare it with the sum of the effective per-exam task ceilings over the exams where the teacher has an eligible seat (H4 limit raised by forced placements). An override above that ceiling is impossible.
+   - Per exam and subject, the setter seats required must not exceed the summed per-teacher setter caps (min of the H4 setter limit raised by forced setters, the per-exam task ceiling, and the number of eligible panels). The reviewer equivalent uses the per-exam task ceiling.
+   - Both checks are necessary conditions and ignore annual quotas and campus rules, so they never reject a solvable instance.
+4. **F3 Lock Consistency**:
    - `PIN` and `FORBID` conflict detection for the same teacher on the same panel.
    - Panel lock limits ($\le 2$ pinned setters, $\le 1$ pinned reviewer, $\le 3$ pins total).
    - Ineligible pinned teachers (not teaching grade, unavailable for exam term, inactive, or load weight 0).
    - Teacher pinned in multiple panels of the same exam period when H4 is enabled.
    - Pinned campus monopoly (3 pins in a panel from the same campus).
    - Teacher pins exceeding their calculated upper quota $hi_t$.
-4. **F4 Capacity & Max-Flow**:
+5. **F4 Capacity & Max-Flow**:
    - Aggregate capacity bounds: $\sum lo_t \le D \le \sum hi_t$.
    - Per-subject capacity: for every subject $s$, the summed max quotas of its competent teachers must cover all of its seats ($\sum_{t \in s} hi_t \ge \text{seats}_s$), otherwise no plan can fill the subject.
    - Per-exam bottleneck max-flow under H4: constructs a bipartite network ($S \to \text{teachers with cap 1} \to \text{eligible panels of exam with cap 1} \to \text{panels with cap 3} \to T$) using Dinic's algorithm to prove whether all panels of the exam can be simultaneously staffed.
    - Campus-forced placements versus H4: a teacher who becomes unavoidable in a panel because removing them leaves too few campuses (or too few teachers/seats for the required roles) is counted per exam; if that count exceeds the teacher's H4 per-exam limit, the instance is infeasible. This is the case where every panel and the exam flow look fine independently, but H3 and H4 together admit no plan.
-5. **Non-blocking Warnings**:
+6. **Non-blocking Warnings**:
    - Panels with exactly 3 eligible teachers (tight margin).
    - Teachers with $q_t > 0$ eligible for only a single panel.
    - Restricted reviewer-eligible pool (affects soft rule S1).
@@ -222,12 +226,16 @@ Before launching the constructive solver, a deterministic pre-check verifies whe
 | **F3** | `pinned_teacher_multiple_panels` | Error | Teacher pinned in multiple panels of one exam under H4 | `exam`, `count` |
 | **F3** | `pinned_campus_monopoly` | Error | All 3 pinned teachers belong to the same campus | `exam`, `grade` |
 | **F3** | `pinned_quota_exceeded` | Error | Pinned assignments exceed teacher's max quota ($hi_t$) | `count`, `hi` |
+| **F2b** | `quota_override_exceeds_capacity` | Error | Explicit annual quota exceeds the effective per-exam task ceilings over the teacher's available exams | `teacher_name`, `override`, `capacity`, `available_exams`, `max_per_exam` |
+| **F2b** | `setter_capacity_shortfall` | Error | Required setter seats per exam/subject exceed the summed effective setter caps of the eligible teachers | `exam`, `subject`, `required`, `capacity`, `max_setter_per_exam` |
+| **F2b** | `reviewer_capacity_shortfall` | Error | Required reviewer seats per exam/subject exceed the summed effective task caps of the eligible reviewers | `exam`, `subject`, `required`, `capacity` |
 | **F4** | `insufficient_total_capacity` | Error | Aggregate max capacity ($\sum hi$) is less than total slots $D$ | `total_slots`, `max_capacity` |
 | **F4** | `insufficient_subject_capacity` | Error | Max capacity of the teachers competent for one subject is less than that subject's slots | `subject`, `seats`, `capacity` |
 | **F4** | `excess_minimum_capacity` | Error | Aggregate min capacity ($\sum lo$) exceeds total slots $D$ | `total_slots`, `min_capacity` |
 | **F4** | `exam_capacity_infeasible` | Error | Max-flow through exam is strictly less than required slots | `exam`, `max_flow`, `required` |
 | **F4** | `panel_unfillable_under_h4` | Error | Panel cannot reach 3 assignments under single-panel rule H4 | `exam`, `grade`, `flow`, `required` |
 | **F4** | `h3_forced_over_exam_cap` | Error | Campus diversity (H3) makes a teacher unavoidable in more panels of one exam than H4 allows | `exam`, `teacher_name`, `count`, `limit` |
+| **Warn** | `forced_placement` | Warning | Structurally forced placement derived from eligibility propagation | `exam`, `grade`, `subject`, `teacher_name`, `role`, `position` |
 | **Warn** | `tight_panel_roster` | Warning | Panel has exactly 3 eligible teachers (zero substitution slack) | `exam`, `grade`, `count` |
 | **Warn** | `teacher_single_panel_eligibility` | Warning | Teacher with positive quota is eligible for only 1 panel | `teacher_name`, `count` |
 | **Warn** | `restricted_reviewer_pool` | Warning | Total reviewer-eligible teachers is less than active staff | `reviewer_count`, `teacher_count` |
